@@ -1,0 +1,6 @@
+@Datamigratie.Server_HostAddress = http://localhost:5198
+
+GET {{Datamigratie.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
