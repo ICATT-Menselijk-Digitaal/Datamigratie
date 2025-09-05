@@ -1,8 +1,13 @@
+﻿using System.Xml.Serialization;
+using Datamigratie.Common.Services.Det;
+using Datamigratie.Server.Config;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
 // Add services to the container.
+builder.Services.RegisterServices(builder.Configuration);
 
 builder.Services.AddControllers();
 
