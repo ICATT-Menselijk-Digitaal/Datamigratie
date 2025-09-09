@@ -4,14 +4,18 @@
   <p>{{ functioneleIdentificatie }}</p>
 
   <p>
-    <router-link :to="{ name: 'home' }" class="button">&lt; Terug</router-link>
+    <router-link :to="{ name: 'home', query: { search: route.query.search } }" class="button"
+      >&lt; Terug</router-link
+    >
   </p>
 </template>
 
 <script setup lang="ts">
-// import type { Zaaktype } from "@/types/zaaktype";
+import { useRoute } from "vue-router";
 
-defineProps<{ functioneleIdentificatie?: string }>();
+defineProps<{ functioneleIdentificatie: string }>();
+
+const route = useRoute();
 </script>
 
 <style lang="scss" scoped></style>

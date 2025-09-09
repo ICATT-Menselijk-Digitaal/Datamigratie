@@ -1,11 +1,11 @@
 <template>
   <h1>Zaaktypes</h1>
 
-  <form>
+  <form @submit.prevent>
     <div class="form-group">
       <label for="filter">Zoek</label>
 
-      <input type="text" id="filter" v-model="searchQuery" />
+      <input type="text" id="filter" v-model="search" />
     </div>
   </form>
 
@@ -14,7 +14,13 @@
       v-for="{ naam, functioneleIdentificatie } in filteredZaaktypes"
       :key="functioneleIdentificatie"
     >
-      <router-link :to="{ name: 'zaaktype', params: { functioneleIdentificatie } }" class="button"
+      <router-link
+        :to="{
+          name: 'zaaktype',
+          params: { functioneleIdentificatie },
+          query: { search }
+        }"
+        class="button button-secondary"
         >{{ naam }} <span>&gt;</span></router-link
       >
     </li>
@@ -24,21 +30,30 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import type { Zaaktype } from "@/types/zaaktype";
+import { useRoute } from "vue-router";
 
-const searchQuery = ref("");
+const route = useRoute();
+
+const search = ref("");
 
 const filteredZaaktypes = computed(() => {
-  const query = searchQuery.value.toLowerCase().trim();
+  let result = zaaktypes;
 
-  if (!query) return zaaktypes;
+  const query = search.value.toLowerCase().trim();
 
-  return zaaktypes.filter(
-    (zaaktype) =>
-      zaaktype.naam.toLowerCase().includes(query) ||
-      zaaktype.omschrijving.toLowerCase().includes(query)
-  );
+  if (query) {
+    result = zaaktypes.filter((zaaktype) => zaaktype.naam.toLowerCase().includes(query));
+  }
+
+  return result.sort((a, b) => a.naam.toLowerCase().localeCompare(b.naam.toLowerCase()));
+});
+
+onMounted(() => {
+  if (route.query.search && typeof route.query.search === "string") {
+    search.value = route.query.search;
+  }
 });
 
 const zaaktypes: Zaaktype[] = [
@@ -655,18 +670,15 @@ const zaaktypes: Zaaktype[] = [
 </script>
 
 <style lang="scss" scoped>
-form,
-ul {
-  max-inline-size: var(--section-width-large);
-}
-
 form {
+  max-inline-size: var(--section-width);
   margin-block-end: var(--spacing-default);
 }
 
 ul {
   display: flex;
   flex-direction: column;
+  max-inline-size: var(--section-width-large);
 }
 
 .button {

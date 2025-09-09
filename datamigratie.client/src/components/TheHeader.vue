@@ -5,7 +5,7 @@
     <nav>
       <ul>
         <li>
-          <router-link :to="{ name: 'home' }">Home</router-link>
+          <router-link :to="{ name: 'home' }">Zaaktypes</router-link>
         </li>
       </ul>
     </nav>
