@@ -1,6 +1,6 @@
 <template>
   <header>
-    <h1>Datamigratie</h1>
+    <span class="heading-1">Datamigratie</span>
 
     <nav>
       <ul>

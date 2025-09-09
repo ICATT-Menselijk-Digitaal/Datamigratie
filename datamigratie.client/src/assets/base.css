@@ -112,7 +112,7 @@ body {
   margin-block-start: 2rem;
 }
 
-#app > header h1 {
+#app > header .heading-1 {
   max-width: var(--page-max-width);
   margin: 1rem auto;
 }
@@ -142,8 +142,11 @@ main {
 }
 
 /* Format headers */
-h1 {
+h1, .heading-1 {
+  display: block;
   font-size: 3rem;
+  font-weight: bold;
+  margin-block: 1rem;
 }
 
 h2 {
@@ -175,6 +178,7 @@ p {
 /* Prevent long strings from overflowing container */
 p,
 h1,
+.heading-1,
 h2,
 h3,
 h4,
@@ -185,6 +189,7 @@ h6 {
 
 /* Fix line height when title wraps */
 h1,
+.heading-1,
 h2,
 h3 {
   line-height: 1.1;
@@ -192,7 +197,8 @@ h3 {
 
 /* Reduce header size on mobile */
 @media only screen and (max-width: 720px) {
-  h1 {
+  h1,
+  .heading-1 {
     font-size: 2.5rem;
   }
 
