@@ -78,12 +78,14 @@ namespace Datamigratie.Common.Services.Det
             };
         }
 
-        private string ConstructPagedEndpoint(string initialEndpoint, int page, string? query = null)
+        private static string ConstructPagedEndpoint(string initialEndpoint, int page, string? query = null)
         {
-            if (query == null)
+            if (string.IsNullOrWhiteSpace(query))
                 return $"{initialEndpoint}?page={page}";
-            else
-                return $"{initialEndpoint}?page={page}&{query}";
+
+            // Trim leading ? or & characters from the query
+            var sanitizedQuery = query.TrimStart('?', '&');
+            return $"{initialEndpoint}?page={page}&{sanitizedQuery}";
         }
 
         /// <summary>
