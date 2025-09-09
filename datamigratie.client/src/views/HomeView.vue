@@ -667,18 +667,18 @@ const zaaktypes: Zaaktype[] = [
 
 <style lang="scss" scoped>
 form {
-  max-inline-size: var(--section-width);
   margin-block-end: var(--spacing-default);
 }
 
 ul {
   display: flex;
   flex-direction: column;
+  row-gap: var(--spacing-small);
 }
 
 .button {
   display: flex;
   justify-content: space-between;
-  inline-size: 100%;
+  margin-block-end: 0;
 }
 </style>

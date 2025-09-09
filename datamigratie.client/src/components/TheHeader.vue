@@ -2,13 +2,13 @@
   <header>
     <span class="heading-1">Datamigratie</span>
 
-    <nav>
+    <!-- <nav>
       <ul>
         <li>
           <router-link :to="{ name: 'home' }">Zaaktypes</router-link>
         </li>
       </ul>
-    </nav>
+    </nav> -->
   </header>
 </template>
 

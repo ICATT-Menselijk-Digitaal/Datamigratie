@@ -1,7 +1,5 @@
 <template>
-  <h1>Zaaktype</h1>
-
-  <p>{{ functioneleIdentificatie }}</p>
+  <h1>{{ functioneleIdentificatie }}</h1>
 
   <p>
     <router-link :to="{ name: 'home', ...(search && { query: { search } }) }" class="button"
