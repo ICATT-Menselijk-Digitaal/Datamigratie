@@ -8,7 +8,7 @@ namespace Datamigratie.Common.Services.Det
     {
         Task<List<Zaaktype>> GetAllZaakTypen();
 
-        Task<Zaak> GetSpecificZaakAsync(string zaaknummer);
+        Task<Zaak> GetSpecificZaakAsync(string zaaktypeId);
 
         Task<List<Zaak>> GetZakenByZaaktypeAsync(string zaaktype);
     }
@@ -49,13 +49,16 @@ namespace Datamigratie.Common.Services.Det
         private async Task<PagedResponse<T>> GetAllPagedData<T>(string initialEndpoint)
         {
             var allResults = new List<T>();
-            var page = 1;
+            var page = 0;
             var hasNextPage = true;
             var totalCount = 0;
 
             while (hasNextPage)
             {
-                var endpoint = $"{initialEndpoint}?page={page}";
+                // Check if initialEndpoint already contains '?'
+                // TODO -> if value of param contains "?", this will break
+                var connector = initialEndpoint.Contains('?') ? "&" : "?";
+                var endpoint = $"{initialEndpoint}{connector}page={page}";
                 var pagedResponse = await GetPagedData<T>(endpoint);
 
                 if (pagedResponse == null)
@@ -95,9 +98,9 @@ namespace Datamigratie.Common.Services.Det
         /// </summary>
         /// <param name="zaaknummer">The number of the specific zaak.</param>
         /// <returns>A Zaak object, or null if not found.</returns>
-        public async Task<Zaak> GetSpecificZaakAsync(string zaaknummer)
+        public async Task<Zaak> GetSpecificZaakAsync(string zaaktypeId)
         {
-                var endpoint = $"zaken/{zaaknummer}";
+                var endpoint = $"zaken/{zaaktypeId}";
                 var response = await httpClient.GetAsync(endpoint);
                 response.EnsureSuccessStatusCode();
 
