@@ -3,13 +3,15 @@
 
   <form @submit.prevent>
     <div class="form-group">
-      <label for="filter">Zoek</label>
+      <label for="filter">Filter</label>
 
-      <input type="text" id="filter" v-model="search" />
+      <input type="text" id="filter" v-model.trim="search" />
     </div>
   </form>
 
-  <ul class="reset" v-if="filteredZaaktypes.length">
+  <p v-if="!filteredZaaktypes.length">Geen zaaktypes gevonden voor "{{ search }}".</p>
+
+  <ul class="reset">
     <li
       v-for="{ naam, functioneleIdentificatie } in filteredZaaktypes"
       :key="functioneleIdentificatie"
@@ -18,15 +20,13 @@
         :to="{
           name: 'zaaktype',
           params: { functioneleIdentificatie },
-          query: { search }
+          ...(search && { query: { search } })
         }"
         class="button button-secondary"
         >{{ naam }} <span>&gt;</span></router-link
       >
     </li>
   </ul>
-
-  <p v-else>Geen zaaktypes gevonden.</p>
 </template>
 
 <script setup lang="ts">
@@ -41,7 +41,7 @@ const search = ref("");
 const filteredZaaktypes = computed(() => {
   let result = zaaktypes;
 
-  const query = search.value.toLowerCase().trim();
+  const query = search.value.toLowerCase();
 
   if (query) {
     result = zaaktypes.filter((zaaktype) => zaaktype.naam.toLowerCase().includes(query));
@@ -50,11 +50,7 @@ const filteredZaaktypes = computed(() => {
   return result.sort((a, b) => a.naam.toLowerCase().localeCompare(b.naam.toLowerCase()));
 });
 
-onMounted(() => {
-  if (route.query.search && typeof route.query.search === "string") {
-    search.value = route.query.search;
-  }
-});
+onMounted(() => (search.value = String(route.query.search || "")));
 
 const zaaktypes: Zaaktype[] = [
   {
@@ -678,7 +674,6 @@ form {
 ul {
   display: flex;
   flex-direction: column;
-  max-inline-size: var(--section-width-large);
 }
 
 .button {
