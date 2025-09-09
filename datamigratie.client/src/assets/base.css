@@ -142,7 +142,8 @@ main {
 }
 
 /* Format headers */
-h1, .heading-1 {
+h1,
+.heading-1 {
   display: block;
   font-size: 3rem;
   font-weight: bold;
