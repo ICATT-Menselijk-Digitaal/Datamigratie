@@ -46,7 +46,7 @@ namespace Datamigratie.Common.Services.Det
         /// <param name="initialEndpoint">The initial API endpoint path (without pagination).
         /// </param>
         /// <returns>A PagedResponse object containing all results across all pages.</returns>
-        private async Task<PagedResponse<T>> GetAllPagedData<T>(string initialEndpoint)
+        private async Task<PagedResponse<T>> GetAllPagedData<T>(string initialEndpoint, string? query = null)
         {
             var allResults = new List<T>();
             var page = 0;
@@ -55,10 +55,7 @@ namespace Datamigratie.Common.Services.Det
 
             while (hasNextPage)
             {
-                // Check if initialEndpoint already contains '?'
-                // TODO -> if value of param contains "?", this will break
-                var connector = initialEndpoint.Contains('?') ? "&" : "?";
-                var endpoint = $"{initialEndpoint}{connector}page={page}";
+                var endpoint = ConstructPagedEndpoint(initialEndpoint, page, query);
                 var pagedResponse = await GetPagedData<T>(endpoint);
 
                 if (pagedResponse == null)
@@ -79,6 +76,14 @@ namespace Datamigratie.Common.Services.Det
                 PreviousPage = false,
                 Results = allResults
             };
+        }
+
+        private string ConstructPagedEndpoint(string initialEndpoint, int page, string? query = null)
+        {
+            if (query == null)
+                return $"{initialEndpoint}?page={page}";
+            else
+                return $"{initialEndpoint}?page={page}&{query}";
         }
 
         /// <summary>
@@ -116,8 +121,9 @@ namespace Datamigratie.Common.Services.Det
         /// <returns>A PagedResponse object containing a list of all Zaak objects across all pages.</returns>
         public async Task<List<Zaak>> GetZakenByZaaktypeAsync(string zaaktype)
         {
-            var endpoint = $"zaken?zaaktype={Uri.EscapeDataString(zaaktype)}";
-            var pagedZaken = await GetAllPagedData<Zaak>(endpoint);
+            var endpoint = $"zaken";
+            var query = $"zaaktype={Uri.EscapeDataString(zaaktype)}";
+            var pagedZaken = await GetAllPagedData<Zaak>(endpoint, query);
             return pagedZaken.Results;
         }
     }
