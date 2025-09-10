@@ -1,13 +1,13 @@
 replicaCount: 1
 
 image:
-  repository: "datamigratie-server"  # Will be updated with actual repository
+  repository: "ghcr.io/icatt-menselijk-digitaal/datamigratie-server"
   pullPolicy: IfNotPresent
   tag: ""
 
 migrations:
   image:
-    repository: "datamigratie-migrations"
+    repository: "ghcr.io/icatt-menselijk-digitaal/datamigratie-migrations"
     pullPolicy: IfNotPresent
     tag: ""
   restartPolicy: Never
