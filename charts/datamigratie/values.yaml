@@ -1,0 +1,151 @@
+replicaCount: 1
+
+image:
+  repository: "datamigratie-server"  # Will be updated with actual repository
+  pullPolicy: IfNotPresent
+  tag: ""
+
+migrations:
+  image:
+    repository: "datamigratie-migrations"
+    pullPolicy: IfNotPresent
+    tag: ""
+  restartPolicy: Never
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+  automountServiceAccountToken: true
+
+podAnnotations: {}
+
+podLabels: {}
+
+podSecurityContext:
+  fsGroup: 1000
+
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 1000
+
+livenessProbe:
+  initialDelaySeconds: 60
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+  successThreshold: 1
+
+readinessProbe:
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+  successThreshold: 1
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  className: ""
+  hosts: []
+  #  - host: datamigratie.example.com
+  #    paths:
+  #      - path: /
+  #        pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: datamigratie-tls
+  #    hosts:
+  #      - datamigratie.example.com
+
+# Specify extra ingresses, for example if you have multiple ingress classes
+extraIngress: []
+
+resources: {}
+  # limits:
+  #   cpu: 200m
+  #   memory: 256Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+pdb:
+  create: false
+  minAvailable: 1
+  maxUnavailable: ""
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+persistence:
+  enabled: true
+  size: 1Gi
+  storageClassName: ""
+  existingClaim: null
+
+# Existing Secret must be defined for AzureVaultSecret to work
+existingSecret: null
+
+# This will create an AzureVaultSecret object in k8s
+azureVaultSecret:
+  vaultName: null
+  objectName: ""
+  contentType: ""
+  secretName: "{{ .Values.existingSecret }}"
+
+settings:
+  database:
+    host: ""
+    port: 5432
+    username: ""
+    password: ""
+    name: "datamigratie"
+
+  apiKeys: []
+  
+  # Demo variables as per story requirement: "Configure one regular release variable and one secret"
+  releaseVariable: "v1.0.0-demo"
+  secretValue: "demo-secret"
+  
+  aspnetcore:
+    forwardedHeadersEnabled: true
+    environment: ""
+    httpPorts: ""
+
+# PostgreSQL subchart configuration
+postgresql:
+  enabled: false
+  auth:
+    username: "datamigratie"
+    password: "changeme"
+    database: "datamigratie"
+    postgresPassword: "changeme"
+  primary:
+    persistence:
+      enabled: true
+      size: 8Gi
+  metrics:
+    enabled: false
