@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import HomeView from "@/views/HomeView.vue";
+import ZaaktypesView from "@/views/ZaaktypesView.vue";
 import ZaaktypeView from "@/views/ZaaktypeView.vue";
 
 const router = createRouter({
@@ -7,10 +7,10 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      name: "home",
-      component: HomeView,
+      name: "zaaktypes",
+      component: ZaaktypesView,
       meta: {
-        title: "Home"
+        title: "Zaaktypes"
       }
     },
     {

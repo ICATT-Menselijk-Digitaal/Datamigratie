@@ -3,4 +3,5 @@ export type Zaaktype = {
   naam: string;
   omschrijving: string;
   functioneleIdentificatie: string;
+  closedZaken?: number;
 };

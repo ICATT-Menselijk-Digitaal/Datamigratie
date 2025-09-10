@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Datamigratie.Server.Features.Zaaktypen.GetZaaktypenInfo
 {
     [ApiController]
-    [Route("zaaktypen")]
+    [Route("api/zaaktypen")]
     public class ShowZaaktypeInfoController(IDetApiClient _detApiClient) : ControllerBase
     {
 
