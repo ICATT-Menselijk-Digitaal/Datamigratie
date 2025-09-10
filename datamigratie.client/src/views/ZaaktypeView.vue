@@ -3,7 +3,7 @@
 
   <simple-spinner v-if="loading" />
 
-  <form v-else @submit.prevent="submit">
+  <form v-else>
     <alert-inline v-if="error">{{ error }}</alert-inline>
 
     <dl v-else-if="detZaaktype">
@@ -18,15 +18,6 @@
 
       <dt>Aantal gesloten zaken:</dt>
       <dd>{{ detZaaktype?.closedZaken }}</dd>
-
-      <!-- <dt id="mapping">OZ zaaktype koppeling:</dt>
-      <dd>
-        <select name="mapping" aria-labelledby="mapping">
-          <option v-for="{ uuid, naam } in ozZaaktypes" :value="uuid" :key="uuid">
-            {{ naam }}
-          </option>
-        </select>
-      </dd> -->
     </dl>
 
     <menu class="reset">
@@ -37,10 +28,6 @@
           >Annuleren</router-link
         >
       </li>
-
-      <!-- <li v-if="!error">
-        <button type="submit">Opslaan</button>
-      </li> -->
     </menu>
   </form>
 </template>
@@ -51,7 +38,6 @@ import { useRoute } from "vue-router";
 import AlertInline from "@/components/AlertInline.vue";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
 import { detService, type DETZaaktype } from "@/services/detService";
-import { ozService, type OZZaaktype } from "@/services/ozService";
 
 const props = defineProps<{ functioneleIdentificatie: string }>();
 
@@ -59,7 +45,6 @@ const route = useRoute();
 const search = computed(() => String(route.query.search || "").trim());
 
 const detZaaktype = ref<DETZaaktype>();
-const ozZaaktypes = ref<OZZaaktype[]>();
 
 const loading = ref(false);
 const error = ref("");
@@ -69,21 +54,17 @@ const fetchZaaktypes = async () => {
   error.value = "";
 
   try {
-    const [_detZaaktype, _ozZaaktypes] = await Promise.all([
-      detService.getZaaktypeByFunctioneleIdentificatie(props.functioneleIdentificatie),
-      ozService.getAllZaaktypes()
+    const [_detZaaktype] = await Promise.all([
+      detService.getZaaktypeByFunctioneleIdentificatie(props.functioneleIdentificatie)
     ]);
 
     detZaaktype.value = _detZaaktype;
-    ozZaaktypes.value = _ozZaaktypes;
   } catch (err: unknown) {
     error.value = `Fout bij ophalen zaaktypes - ${err}`;
   } finally {
     loading.value = false;
   }
 };
-
-const submit = () => null;
 
 onMounted(() => fetchZaaktypes());
 </script>
