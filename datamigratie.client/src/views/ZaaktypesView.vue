@@ -43,15 +43,15 @@ import { detService, type DETZaaktype } from "@/services/detService";
 const route = useRoute();
 
 const search = ref("");
-const zaaktypes = ref<DETZaaktype[]>([]);
+const detZaaktypes = ref<DETZaaktype[]>([]);
 
 const filteredZaaktypes = computed(() => {
-  let result = zaaktypes.value;
+  let result = detZaaktypes.value;
 
   const query = search.value.toLowerCase();
 
   if (query) {
-    result = zaaktypes.value.filter((zaaktype) => zaaktype.naam.toLowerCase().includes(query));
+    result = detZaaktypes.value.filter((zaaktype) => zaaktype.naam.toLowerCase().includes(query));
   }
 
   return result.sort((a, b) => a.naam.toLowerCase().localeCompare(b.naam.toLowerCase()));
@@ -60,14 +60,14 @@ const filteredZaaktypes = computed(() => {
 const loading = ref(false);
 const error = ref("");
 
-const fetchZaaktypes = async () => {
+const fetchDetZaaktypes = async () => {
   loading.value = true;
   error.value = "";
 
   try {
-    zaaktypes.value = await detService.getAllZaaktypes();
+    detZaaktypes.value = await detService.getAllZaaktypes();
   } catch (err: unknown) {
-    error.value = `Fout bij ophalen zaaktypes - ${err}`;
+    error.value = `Fout bij ophalen detZaaktypes - ${err}`;
   } finally {
     loading.value = false;
   }
@@ -76,7 +76,7 @@ const fetchZaaktypes = async () => {
 onMounted(() => {
   search.value = String(route.query.search || "");
 
-  fetchZaaktypes();
+  fetchDetZaaktypes();
 });
 </script>
 

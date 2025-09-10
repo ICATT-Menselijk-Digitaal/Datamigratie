@@ -6,21 +6,15 @@
   <form v-else @submit.prevent="submit">
     <alert-inline v-if="error">{{ error }}</alert-inline>
 
-    <dl v-else>
+    <dl v-else-if="detZaaktype">
       <dt>Naam:</dt>
-      <dd>{{ functioneleIdentificatie }}</dd>
+      <dd>{{ detZaaktype.naam }}</dd>
 
       <dt>Omschrijving:</dt>
-      <dd>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-        labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-        laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
-        voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-      </dd>
+      <dd>{{ detZaaktype.omschrijving }}</dd>
 
       <dt>Actief:</dt>
-      <dd>ja</dd>
+      <dd>{{ detZaaktype.actief ? "Ja" : "Nee" }}</dd>
 
       <dt>Aantal gesloten zaken:</dt>
       <dd>{{ detZaaktype?.closedZaken }}</dd>
@@ -70,7 +64,7 @@ const ozZaaktypes = ref<OZZaaktype[]>();
 const loading = ref(false);
 const error = ref("");
 
-const fetchZaaktypeByFunctioneleIdentificatie = async () => {
+const fetchZaaktypes = async () => {
   loading.value = true;
   error.value = "";
 
@@ -91,7 +85,7 @@ const fetchZaaktypeByFunctioneleIdentificatie = async () => {
 
 const submit = () => null;
 
-onMounted(() => fetchZaaktypeByFunctioneleIdentificatie());
+onMounted(() => fetchZaaktypes());
 </script>
 
 <style lang="scss" scoped>
