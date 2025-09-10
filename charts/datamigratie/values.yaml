@@ -106,7 +106,6 @@ persistence:
   storageClassName: ""
   existingClaim: null
 
-# Existing Secret must be defined for AzureVaultSecret to work
 existingSecret: null
 
 # This will create an AzureVaultSecret object in k8s
@@ -126,7 +125,7 @@ settings:
 
   apiKeys: []
   
-  # Demo variables as per story requirement: "Configure one regular release variable and one secret"
+  # Demo variables
   releaseVariable: "v1.0.0-demo"
   secretValue: "demo-secret"
   
