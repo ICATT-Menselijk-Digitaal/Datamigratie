@@ -1,5 +1,5 @@
 <template>
-  <h1>DET zaaktypes</h1>
+  <h1>e-Suite zaaktypes</h1>
 
   <form @submit.prevent>
     <div class="form-group">

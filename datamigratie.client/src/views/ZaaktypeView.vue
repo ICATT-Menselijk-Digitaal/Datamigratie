@@ -1,5 +1,5 @@
 <template>
-  <h1>DET zaaktype</h1>
+  <h1>e-Suite zaaktype</h1>
 
   <simple-spinner v-if="loading" />
 
