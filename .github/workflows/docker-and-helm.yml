@@ -1,4 +1,4 @@
-name: Build & Release Datamigratie
+name: Build & Release Datamigratie 
 
 on:
   push:
