@@ -7,22 +7,28 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      name: "zaaktypes",
+      name: "detZaaktypes",
       component: ZaaktypesView,
       meta: {
-        title: "Zaaktypes"
+        title: "DET Zaaktypes"
       }
     },
     {
-      path: "/zaaktype/:functioneleIdentificatie",
-      name: "zaaktype",
+      path: "/det/zaaktype/:functioneleIdentificatie",
+      name: "detZaaktype",
       component: ZaaktypeView,
       props: true,
       meta: {
-        title: "Zaaktype"
+        title: "DET Zaaktype"
       }
     }
   ]
+});
+
+const title = document.title;
+
+router.beforeEach((to) => {
+  document.title = `${to.meta?.title ? to.meta.title + " | " : ""}${title}`;
 });
 
 export default router;

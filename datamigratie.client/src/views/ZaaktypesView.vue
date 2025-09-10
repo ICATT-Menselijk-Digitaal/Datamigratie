@@ -1,5 +1,5 @@
 <template>
-  <h1>Zaaktypes</h1>
+  <h1>DET zaaktypes</h1>
 
   <form @submit.prevent>
     <div class="form-group">
@@ -22,7 +22,7 @@
     >
       <router-link
         :to="{
-          name: 'zaaktype',
+          name: 'detZaaktype',
           params: { functioneleIdentificatie },
           ...(search && { query: { search } })
         }"
@@ -38,13 +38,12 @@ import { computed, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import AlertInline from "@/components/AlertInline.vue";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
-import type { Zaaktype } from "@/types/zaaktype";
-import { zaaktypeService } from "@/services/zaaktypeService";
+import { detService, type DETZaaktype } from "@/services/detService";
 
 const route = useRoute();
 
 const search = ref("");
-const zaaktypes = ref<Zaaktype[]>([]);
+const zaaktypes = ref<DETZaaktype[]>([]);
 
 const filteredZaaktypes = computed(() => {
   let result = zaaktypes.value;
@@ -66,9 +65,9 @@ const fetchZaaktypes = async () => {
   error.value = "";
 
   try {
-    zaaktypes.value = await zaaktypeService.getAllZaaktypes();
+    zaaktypes.value = await detService.getAllZaaktypes();
   } catch (err: unknown) {
-    error.value = `Fout bij ophalen zaaktypes: ${err}`;
+    error.value = `Fout bij ophalen zaaktypes - ${err}`;
   } finally {
     loading.value = false;
   }
