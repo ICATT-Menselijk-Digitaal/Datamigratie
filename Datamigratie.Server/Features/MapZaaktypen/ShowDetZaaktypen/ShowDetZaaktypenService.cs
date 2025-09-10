@@ -4,11 +4,11 @@ using Datamigratie.Server.Features.Zaaktypen.ShowZaaktype.Models;
 namespace Datamigratie.Server.Features.Zaaktypen.GetZaaktypenInfo
 {
 
-    public interface IShowZaaktypeService
+    public interface IShowZaaktypenService
     {
         Task<EnrichedDetZaaktype> GetZaaktype(string zaaktypeId);
     }
-    public class ShowDetZaaktypeService(IDetApiClient _detApiClient) : IShowZaaktypeService
+    public class ShowDetZaaktypenService(IDetApiClient _detApiClient) : IShowZaaktypenService
     {
         public async Task<EnrichedDetZaaktype> GetZaaktype(string zaaktypeId)
         {

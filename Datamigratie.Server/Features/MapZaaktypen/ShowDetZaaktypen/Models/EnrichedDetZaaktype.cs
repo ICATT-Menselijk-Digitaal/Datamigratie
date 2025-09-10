@@ -4,6 +4,6 @@ namespace Datamigratie.Server.Features.Zaaktypen.ShowZaaktype.Models
 {
     public class EnrichedDetZaaktype : DetZaaktype
     {
-        public required int ClosedZaken { get; set; }
+        public required int ClosedZakenCount { get; set; }
     }
 }

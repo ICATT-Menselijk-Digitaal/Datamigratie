@@ -9,7 +9,7 @@ namespace Datamigratie.Server.Features.Zaaktypen.ShowZaaktype
 {
     [ApiController]
     [Route("api/det/zaaktypen")]
-    public class ShowDetZaaktypeController(IDetApiClient detApiClient, IShowZaaktypeService showZaaktypeService) : ControllerBase
+    public class ShowDetZaaktypenController(IDetApiClient detApiClient, IShowZaaktypenService showZaaktypeService) : ControllerBase
     {
 
         [HttpGet("{zaaktypeId}")]
