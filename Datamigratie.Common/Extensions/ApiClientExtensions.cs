@@ -16,6 +16,14 @@ namespace Datamigratie.Common.Extensions
                 client.BaseAddress = new Uri(detApiBaseUrl);
                 client.DefaultRequestHeaders.Add("x-api-key", detApiKey);
             });
+            services.AddHttpClient<IOpenZaakApiClient, OpenZaakClient>(client =>
+            {
+                var openZaakApiBaseUrl = configuration.GetValue<string>("OpenZaakApi:BaseUrl") ?? throw new Exception("OpenZaakApi:BaseUrl configuration value is missing");
+                var openZaakApiKey = configuration.GetValue<string>("OpenZaakApi:ApiKey") ?? throw new Exception("OpenZaakApi:ApiKey configuration value is missing");
+
+                client.BaseAddress = new Uri(openZaakApiBaseUrl);
+                client.DefaultRequestHeaders.Add("x-api-key", openZaakApiKey);
+            });
             return services;
         }
     }

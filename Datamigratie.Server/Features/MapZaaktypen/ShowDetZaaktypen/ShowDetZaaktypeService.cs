@@ -8,7 +8,7 @@ namespace Datamigratie.Server.Features.Zaaktypen.GetZaaktypenInfo
     {
         Task<EnrichedDetZaaktype> GetZaaktype(string zaaktypeId);
     }
-    public class ShowZaaktypeService(IDetApiClient _detApiClient) : IShowZaaktypeService
+    public class ShowDetZaaktypeService(IDetApiClient _detApiClient) : IShowZaaktypeService
     {
         public async Task<EnrichedDetZaaktype> GetZaaktype(string zaaktypeId)
         {

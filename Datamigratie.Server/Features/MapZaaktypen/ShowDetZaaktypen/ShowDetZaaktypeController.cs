@@ -1,13 +1,15 @@
-﻿using Datamigratie.Common.Services.Det;
+﻿
+using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
+using Datamigratie.Server.Features.Zaaktypen.GetZaaktypenInfo;
 using Datamigratie.Server.Features.Zaaktypen.ShowZaaktype.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Datamigratie.Server.Features.Zaaktypen.GetZaaktypenInfo
+namespace Datamigratie.Server.Features.Zaaktypen.ShowZaaktype
 {
     [ApiController]
     [Route("api/det/zaaktypen")]
-    public class ShowZaaktypeController(IDetApiClient detApiClient, IShowZaaktypeService showZaaktypeService) : ControllerBase
+    public class ShowDetZaaktypeController(IDetApiClient detApiClient, IShowZaaktypeService showZaaktypeService) : ControllerBase
     {
 
         [HttpGet("{zaaktypeId}")]

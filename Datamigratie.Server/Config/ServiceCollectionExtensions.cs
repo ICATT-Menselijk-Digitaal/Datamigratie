@@ -9,7 +9,7 @@ namespace Datamigratie.Server.Config
         {
             services.AddDatamigrationApiClients(configuration);
 
-            services.AddScoped<IShowZaaktypeService, ShowZaaktypeService>();
+            services.AddScoped<IShowZaaktypeService, ShowDetZaaktypeService>();
             return services;
         }
     }
