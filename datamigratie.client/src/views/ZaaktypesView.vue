@@ -60,14 +60,14 @@ const filteredZaaktypes = computed(() => {
 const loading = ref(false);
 const error = ref("");
 
-const fetchDetZaaktypes = async () => {
+const fetchDETZaaktypes = async () => {
   loading.value = true;
   error.value = "";
 
   try {
     detZaaktypes.value = await detService.getAllZaaktypes();
   } catch (err: unknown) {
-    error.value = `Fout bij ophalen detZaaktypes - ${err}`;
+    error.value = `Fout bij ophalen zaaktypes - ${err}`;
   } finally {
     loading.value = false;
   }
@@ -76,7 +76,7 @@ const fetchDetZaaktypes = async () => {
 onMounted(() => {
   search.value = String(route.query.search || "");
 
-  fetchDetZaaktypes();
+  fetchDETZaaktypes();
 });
 </script>
 

@@ -19,14 +19,14 @@
       <dt>Aantal gesloten zaken:</dt>
       <dd>{{ detZaaktype?.closedZaken }}</dd>
 
-      <dt id="mapping">OZ zaaktype koppeling:</dt>
+      <!-- <dt id="mapping">OZ zaaktype koppeling:</dt>
       <dd>
         <select name="mapping" aria-labelledby="mapping">
           <option v-for="{ uuid, naam } in ozZaaktypes" :value="uuid" :key="uuid">
             {{ naam }}
           </option>
         </select>
-      </dd>
+      </dd> -->
     </dl>
 
     <menu class="reset">
@@ -38,9 +38,9 @@
         >
       </li>
 
-      <li v-if="!error">
+      <!-- <li v-if="!error">
         <button type="submit">Opslaan</button>
-      </li>
+      </li> -->
     </menu>
   </form>
 </template>
