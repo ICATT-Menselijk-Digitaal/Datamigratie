@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Datamigratie.Common.Services.Det.Models
 {
-    public class Zaaktype
+    public class DetZaaktype
     {
         public bool Actief { get; set; }
         public required string Naam { get; set; }

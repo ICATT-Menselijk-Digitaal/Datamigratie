@@ -5,12 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace Datamigratie.Server.Features.Zaaktypen.ShowZaaktypenList
 {
     [ApiController]
-    [Route("api/zaaktypen")]
+    [Route("api/det/zaaktypen")]
     public class ShowZaaktypenListController(IDetApiClient _detApiClient) : ControllerBase
     {
 
         [HttpGet]
-        public async Task<IEnumerable<Zaaktype>> GetAllZaakTypen()
+        public async Task<IEnumerable<DetZaaktype>> GetAllZaakTypen()
         {
             return await _detApiClient.GetAllZaakTypen();
         }
