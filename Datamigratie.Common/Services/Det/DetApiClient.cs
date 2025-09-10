@@ -19,7 +19,7 @@ namespace Datamigratie.Common.Services.Det
 
     public class DetApiClient(
         HttpClient httpClient,
-        ILogger<DetApiClient> logger) : PagedApiClient, IDetApiClient
+        ILogger<DetApiClient> logger) : PagedApiClient(httpClient), IDetApiClient
     {
 
         private readonly JsonSerializerOptions _options = new()
