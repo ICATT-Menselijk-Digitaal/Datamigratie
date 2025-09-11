@@ -1,6 +1,6 @@
 @Datamigratie.Server_HostAddress = http://localhost:5198
 
-GET {{Datamigratie.Server_HostAddress}}/api/oz/zaaktypen
+GET {{Datamigratie.Server_HostAddress}}
 Accept: application/json
 
 ###
