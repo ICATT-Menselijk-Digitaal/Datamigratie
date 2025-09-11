@@ -7,4 +7,4 @@
 
 ## DET
 
-[Open API spec](./det-openapi-spec.md)
+[Open API spec](https://esuite-data-extractie-gcp2.esuite-development.net/q/openapi)
