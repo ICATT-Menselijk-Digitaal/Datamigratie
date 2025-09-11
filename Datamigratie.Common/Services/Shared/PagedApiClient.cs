@@ -45,7 +45,7 @@ namespace Datamigratie.Common.Services.Shared
         protected async Task<PagedResponse<T>> GetAllPagedData<T>(string initialEndpoint, string? query = null)
         {
             var allResults = new List<T>();
-            var page = defaultStartingPage;
+            var page = GetDefaultStartingPage();
             var hasNextPage = true;
             var totalCount = 0;
 
