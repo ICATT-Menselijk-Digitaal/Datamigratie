@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Datamigratie.Common.Services.Det.Models
 {
-    public class Zaak
+    public class DetZaak
     {
         public string AangemaaktDoor { get; set; }
         public string Afdeling { get; set; }
@@ -27,6 +27,6 @@ namespace Datamigratie.Common.Services.Det.Models
         public bool Vernietiging { get; set; }
         public bool Vertrouwelijk { get; set; }
         public DateTimeOffset WijzigDatumTijd { get; set; }
-        public Zaaktype Zaaktype { get; set; }
+        public DetZaaktype Zaaktype { get; set; }
     }
 }
