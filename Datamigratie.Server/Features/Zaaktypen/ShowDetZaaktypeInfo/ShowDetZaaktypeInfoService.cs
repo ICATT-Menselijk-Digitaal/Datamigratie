@@ -1,9 +1,7 @@
 ﻿using Datamigratie.Common.Services.Det;
 using Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo.Models;
 
-namespace Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo
-{
-
+namespace Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo;
     public interface IShowDetZaaktypeInfoService
     {
         Task<EnrichedDetZaaktype> GetZaaktype(string zaaktypeId);
@@ -28,10 +26,9 @@ namespace Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo
                 Omschrijving = detZaaktype.Omschrijving,
                 Actief = detZaaktype.Actief,
                 FunctioneleIdentificatie = detZaaktype.FunctioneleIdentificatie,
-                ClosedZaken = closedDetZaken,
+                ClosedZakenCount = closedDetZaken,
             };
 
             return enrichedDetZaaktype;
         }
     }
-}
