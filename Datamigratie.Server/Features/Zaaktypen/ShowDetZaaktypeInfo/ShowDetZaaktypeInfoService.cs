@@ -1,14 +1,14 @@
 ﻿using Datamigratie.Common.Services.Det;
-using Datamigratie.Server.Features.Zaaktypen.ShowZaaktype.Models;
+using Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo.Models;
 
-namespace Datamigratie.Server.Features.Zaaktypen.GetZaaktypenInfo
+namespace Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo
 {
 
-    public interface IShowZaaktypeService
+    public interface IShowDetZaaktypeInfoService
     {
         Task<EnrichedDetZaaktype> GetZaaktype(string zaaktypeId);
     }
-    public class ShowZaaktypeService(IDetApiClient _detApiClient) : IShowZaaktypeService
+    public class ShowDetZaaktypeInfoService(IDetApiClient _detApiClient) : IShowDetZaaktypeInfoService
     {
         public async Task<EnrichedDetZaaktype> GetZaaktype(string zaaktypeId)
         {
