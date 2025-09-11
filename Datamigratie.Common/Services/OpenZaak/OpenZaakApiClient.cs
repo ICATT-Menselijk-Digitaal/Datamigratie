@@ -15,11 +15,7 @@ namespace Datamigratie.Common.Services.Det
         HttpClient httpClient,
         ILogger<OpenZaakClient> logger) : PagedApiClient(httpClient), IOpenZaakApiClient
     {
-
-        private readonly JsonSerializerOptions _options = new()
-        {
-            PropertyNameCaseInsensitive = true
-        };
+        private const int DefaultStartingPage = 1;
 
         /// <summary>
         /// Gets all zaaktypen with pagination details.
@@ -30,6 +26,11 @@ namespace Datamigratie.Common.Services.Det
         {
             var pagedZaaktypen = await GetAllPagedData<OzZaaktype>("catalogi/api/v1/zaaktypen");
             return pagedZaaktypen.Results;
+        }
+
+        protected override int GetDefaultStartingPage()
+        {
+            return DefaultStartingPage;
         }
     }
 

@@ -9,8 +9,10 @@ using Datamigratie.Common.Services.Shared.Models;
 
 namespace Datamigratie.Common.Services.Shared
 {
-    public class PagedApiClient(HttpClient httpClient)
+    public abstract class PagedApiClient(HttpClient httpClient)
     {
+
+        protected abstract int GetDefaultStartingPage();
 
         private readonly JsonSerializerOptions _options = new()
         {
@@ -43,7 +45,7 @@ namespace Datamigratie.Common.Services.Shared
         protected async Task<PagedResponse<T>> GetAllPagedData<T>(string initialEndpoint, string? query = null)
         {
             var allResults = new List<T>();
-            var page = 0;
+            var page = defaultStartingPage;
             var hasNextPage = true;
             var totalCount = 0;
 

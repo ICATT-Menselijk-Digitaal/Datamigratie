@@ -28,7 +28,7 @@ namespace Datamigratie.Server.Features.Zaaktypen.GetZaaktypenInfo
                 Omschrijving = detZaaktype.Omschrijving,
                 Actief = detZaaktype.Actief,
                 FunctioneleIdentificatie = detZaaktype.FunctioneleIdentificatie,
-                ClosedZaken = closedDetZaken,
+                ClosedZakenCount = closedDetZaken,
             };
 
             return enrichedDetZaaktype;

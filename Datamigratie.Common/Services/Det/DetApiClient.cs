@@ -22,6 +22,8 @@ namespace Datamigratie.Common.Services.Det
         ILogger<DetApiClient> logger) : PagedApiClient(httpClient), IDetApiClient
     {
 
+        private const int DefaultStartingPage = 0;
+
         private readonly JsonSerializerOptions _options = new()
         {
             PropertyNameCaseInsensitive = true
@@ -81,6 +83,11 @@ namespace Datamigratie.Common.Services.Det
             var query = $"zaaktype={Uri.EscapeDataString(zaaktype)}";
             var pagedZaken = await GetAllPagedData<DetZaak>(endpoint, query);
             return pagedZaken.Results;
+        }
+
+        protected override int GetDefaultStartingPage()
+        {
+            return DefaultStartingPage;
         }
     }
 

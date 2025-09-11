@@ -1,6 +1,6 @@
 @Datamigratie.Server_HostAddress = http://localhost:5198
 
-GET {{Datamigratie.Server_HostAddress}}/weatherforecast/
+GET {{Datamigratie.Server_HostAddress}}/api/oz/zaaktypen
 Accept: application/json
 
 ###
