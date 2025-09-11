@@ -27,4 +27,8 @@
     <ProjectReference Include="..\Datamigratie.ServiceDefaults\Datamigratie.ServiceDefaults.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\MapZaaktypen\" />
+  </ItemGroup>
+
 </Project>
