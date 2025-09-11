@@ -1,5 +1,5 @@
 ﻿using Datamigratie.Common.Extensions;
-using Datamigratie.Server.Features.Zaaktypen.GetZaaktypenInfo;
+using Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo;
 
 namespace Datamigratie.Server.Config
 {
@@ -9,8 +9,8 @@ namespace Datamigratie.Server.Config
             {
                 services.AddDatamigrationApiClients(configuration);
 
-                services.AddScoped<IShowZaaktypenService, ShowDetZaaktypenService>();
-                return services;
-            }
-     }
+            services.AddScoped<IShowDetZaaktypeInfoService, ShowDetZaaktypeInfoService>();
+            return services;
+        }
+    }
 }

@@ -1,14 +1,12 @@
 ﻿using Datamigratie.Common.Services.Det;
-using Datamigratie.Server.Features.Zaaktypen.ShowZaaktype.Models;
+using Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo.Models;
 
-namespace Datamigratie.Server.Features.Zaaktypen.GetZaaktypenInfo
-{
-
-    public interface IShowZaaktypenService
+namespace Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo;
+    public interface IShowDetZaaktypeInfoService
     {
         Task<EnrichedDetZaaktype> GetZaaktype(string zaaktypeId);
     }
-    public class ShowDetZaaktypenService(IDetApiClient _detApiClient) : IShowZaaktypenService
+    public class ShowDetZaaktypeInfoService(IDetApiClient _detApiClient) : IShowDetZaaktypeInfoService
     {
         public async Task<EnrichedDetZaaktype> GetZaaktype(string zaaktypeId)
         {
@@ -34,4 +32,3 @@ namespace Datamigratie.Server.Features.Zaaktypen.GetZaaktypenInfo
             return enrichedDetZaaktype;
         }
     }
-}
