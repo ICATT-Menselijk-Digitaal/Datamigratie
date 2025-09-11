@@ -1,5 +1,5 @@
 <template>
-  <h1>Zaaktypes</h1>
+  <h1>e-Suite zaaktypes</h1>
 
   <form @submit.prevent>
     <div class="form-group">
@@ -22,7 +22,7 @@
     >
       <router-link
         :to="{
-          name: 'zaaktype',
+          name: 'detZaaktype',
           params: { functioneleIdentificatie },
           ...(search && { query: { search } })
         }"
@@ -38,21 +38,20 @@ import { computed, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import AlertInline from "@/components/AlertInline.vue";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
-import type { Zaaktype } from "@/types/zaaktype";
-import { zaaktypeService } from "@/services/zaaktypeService";
+import { detService, type DETZaaktype } from "@/services/detService";
 
 const route = useRoute();
 
 const search = ref("");
-const zaaktypes = ref<Zaaktype[]>([]);
+const detZaaktypes = ref<DETZaaktype[]>([]);
 
 const filteredZaaktypes = computed(() => {
-  let result = zaaktypes.value;
+  let result = detZaaktypes.value;
 
   const query = search.value.toLowerCase();
 
   if (query) {
-    result = zaaktypes.value.filter((zaaktype) => zaaktype.naam.toLowerCase().includes(query));
+    result = detZaaktypes.value.filter((zaaktype) => zaaktype.naam.toLowerCase().includes(query));
   }
 
   return result.sort((a, b) => a.naam.toLowerCase().localeCompare(b.naam.toLowerCase()));
@@ -61,14 +60,14 @@ const filteredZaaktypes = computed(() => {
 const loading = ref(false);
 const error = ref("");
 
-const fetchZaaktypes = async () => {
+const fetchDETZaaktypes = async () => {
   loading.value = true;
   error.value = "";
 
   try {
-    zaaktypes.value = await zaaktypeService.getAllZaaktypes();
+    detZaaktypes.value = await detService.getAllZaaktypes();
   } catch (err: unknown) {
-    error.value = `Fout bij ophalen zaaktypes: ${err}`;
+    error.value = `Fout bij ophalen zaaktypes - ${err}`;
   } finally {
     loading.value = false;
   }
@@ -77,7 +76,7 @@ const fetchZaaktypes = async () => {
 onMounted(() => {
   search.value = String(route.query.search || "");
 
-  fetchZaaktypes();
+  fetchDETZaaktypes();
 });
 </script>
 
