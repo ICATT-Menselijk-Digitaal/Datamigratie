@@ -3,34 +3,42 @@
 
   <simple-spinner v-if="loading" />
 
-  <form v-else @submit.prevent="submit">
+  <form v-else @submit.prevent="submitMapping">
     <alert-inline v-if="errors.length"
-      >Fout(en) bij ophalen gegevens zaaktype - {{ errors.join(" | ") }}</alert-inline
+      >Fout(en) bij ophalen gegevens - {{ errors.join(" | ") }}</alert-inline
     >
 
-    <dl v-else-if="detZaaktype">
-      <dt>Naam:</dt>
-      <dd>{{ detZaaktype.naam }}</dd>
+    <template v-else-if="detZaaktype">
+      <migration-alert v-if="migrationStatus" v-bind="migrationStatus" />
 
-      <dt>Omschrijving:</dt>
-      <dd>{{ detZaaktype.omschrijving }}</dd>
+      <dl>
+        <dt>Naam:</dt>
+        <dd>{{ detZaaktype.naam }}</dd>
 
-      <dt>Actief:</dt>
-      <dd>{{ detZaaktype.actief ? "Ja" : "Nee" }}</dd>
+        <dt>Omschrijving:</dt>
+        <dd>{{ detZaaktype.omschrijving }}</dd>
 
-      <dt>Aantal gesloten zaken:</dt>
-      <dd>{{ detZaaktype?.closedZakenCount }}</dd>
+        <dt>Actief:</dt>
+        <dd>{{ detZaaktype.actief ? "Ja" : "Nee" }}</dd>
 
-      <dt id="mapping">Koppeling OZ zaaktype:</dt>
-      <dd>
-        <select name="ozUuid" aria-labelledby="mapping" v-model="mapping.ozZaaktypeId" required>
-          <option v-if="!mapping.ozZaaktypeId" value="">Kies Open Zaak zaaktype</option>
-          <option v-for="{ id, identificatie } in ozZaaktypes" :value="id" :key="id">
-            {{ identificatie }}
-          </option>
-        </select>
-      </dd>
-    </dl>
+        <dt>Aantal gesloten zaken:</dt>
+        <dd>{{ detZaaktype?.closedZakenCount }}</dd>
+
+        <dt id="mapping">Open Zaak zaaktype:</dt>
+        <dd v-if="canStartMigration || isThisMigrationRunning">
+          {{ ozZaaktypes?.find((type) => type.uuid == mapping.ozUuid)?.naam }}
+        </dd>
+        <dd v-else>
+          <select name="ozUuid" aria-labelledby="mapping" v-model="mapping.ozZaaktypeId" required>
+            <option v-if="!mapping.ozZaaktypeId" value="">Kies Open Zaak zaaktype</option>
+
+            <option v-for="{ id, identificatie } in ozZaaktypes" :value="id" :key="id">
+              {{ identificatie }}
+            </option>
+          </select>
+        </dd>
+      </dl>
+    </template>
 
     <menu class="reset">
       <li>
@@ -41,25 +49,54 @@
         >
       </li>
 
-      <li v-if="!errors.length">
-        <button type="submit">Opslaan</button>
-      </li>
+      <template v-if="!errors.length && !isThisMigrationRunning">
+        <li v-if="!canStartMigration">
+          <button type="submit">Mapping opslaan</button>
+        </li>
+
+        <li v-else>
+          <button type="button" class="secondary" @click="setEditMode(true)">
+            Mapping aanpassen
+          </button>
+        </li>
+
+        <li v-if="canStartMigration">
+          <button type="button" @click="startMigration">Start migratie</button>
+        </li>
+      </template>
     </menu>
+
+    <prompt-modal
+      :dialog="confirmDialog"
+      cancel-text="Nee, niet migreren"
+      confirm-text="Ja, start migratie"
+    >
+      <h2>Migratie starten</h2>
+
+      <p>
+        Weet je zeker dat je de migratie van zaken van het e-Suite zaaktype
+        <em>{{ detZaaktype?.naam }}</em> wilt starten?
+      </p>
+    </prompt-modal>
   </form>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
+import { useConfirmDialog } from "@vueuse/core";
 import AlertInline from "@/components/AlertInline.vue";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
+import PromptModal from "@/components/PromptModal.vue";
+import MigrationAlert from "@/components/MigrationAlert.vue";
 import toast from "@/components/toast/toast";
 import { detService, type DETZaaktype } from "@/services/detService";
 import { ozService, type OZZaaktype } from "@/services/ozService";
 import {
   datamigratieService,
   type ZaaktypeMapping,
-  type UpdateZaaktypeMapping
+  type UpdateZaaktypeMapping,
+  type MigrationStatus
 } from "@/services/datamigratieService";
 import { knownErrorMessages } from "@/utils/fetchWrapper";
 
@@ -70,10 +107,28 @@ const search = computed(() => String(route.query.search || "").trim());
 
 const detZaaktype = ref<DETZaaktype>();
 const ozZaaktypes = ref<OZZaaktype[]>();
-const mapping = ref({ ozZaaktypeId: "" } as ZaaktypeMapping);
+const mapping = ref<ZaaktypeMapping>({ ozUuid: "" });
+const isEditMode = ref(false);
+const setEditMode = (value: boolean) => (isEditMode.value = value);
+
+const canStartMigration = computed(
+  () =>
+    !isEditMode.value &&
+    !migrationStatus.value?.isRunning &&
+    mapping.value.detFunctioneleIdentificatie &&
+    mapping.value.ozUuid
+);
+
+const isThisMigrationRunning = computed(
+  () =>
+    migrationStatus.value?.isRunning &&
+    migrationStatus.value.detFunctioneleIdentificatie === mapping.value.detFunctioneleIdentificatie
+);
 
 const loading = ref(false);
 const errors = ref<unknown[]>([]);
+
+const confirmDialog = useConfirmDialog();
 
 const fetchMappingData = async () => {
   loading.value = true;
@@ -90,6 +145,10 @@ const fetchMappingData = async () => {
         service: datamigratieService.getMappingByDETZaaktypeId(detZaaktypeId),
         target: mapping,
         ignore404: true
+      },
+      {
+        service: datamigratieService.getMigrationStatus(),
+        target: migrationStatus
       }
     ];
 
@@ -103,13 +162,8 @@ const fetchMappingData = async () => {
       } else {
         const { reason } = result;
 
-        if (
-          ignore404 &&
-          reason instanceof Error &&
-          reason.message === knownErrorMessages.notFound
-        ) {
+        if (ignore404 && reason instanceof Error && reason.message === knownErrorMessages.notFound)
           return;
-        }
 
         errors.value.push(reason);
       }
@@ -121,8 +175,10 @@ const fetchMappingData = async () => {
   }
 };
 
-const submit = async () => {
+const submitMapping = async () => {
   loading.value = true;
+
+  setEditMode(false);
 
   try {
     if (!mapping.value.detZaaktypeId) {
@@ -146,6 +202,23 @@ const submit = async () => {
   }
 };
 
+const startMigration = async () => {
+  if ((await confirmDialog.reveal()).isCanceled) return;
+
+  loading.value = true;
+
+  try {
+    migrationStatus.value = await datamigratieService.startMigration({
+      detFunctioneleIdentificatie: functioneleIdentificatie,
+      isRunning: true
+    });
+  } catch (err: unknown) {
+    toast.add({ text: `Fout bij starten van de migratie - ${err}`, type: "error" });
+  } finally {
+    loading.value = false;
+  }
+};
+
 onMounted(() => fetchMappingData());
 </script>
 
@@ -155,6 +228,7 @@ onMounted(() => fetchMappingData());
 dl {
   display: grid;
   gap: var(--spacing-default);
+  margin-block-end: var(--spacing-large);
 
   dt {
     color: var(--text);
@@ -187,7 +261,22 @@ dl {
 
 menu {
   display: flex;
+  flex-direction: column;
   gap: var(--spacing-default);
-  justify-content: space-between;
+
+  li > * {
+    text-align: center;
+    inline-size: 100%;
+  }
+
+  @media (min-width: variables.$breakpoint-md) {
+    & {
+      flex-direction: row;
+
+      li:first-of-type {
+        margin-inline-end: auto;
+      }
+    }
+  }
 }
 </style>

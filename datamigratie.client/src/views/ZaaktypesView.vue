@@ -1,6 +1,8 @@
 <template>
   <h1>e-Suite zaaktypes</h1>
 
+  <migration-alert v-if="migrationStatus" v-bind="migrationStatus" />
+
   <form @submit.prevent>
     <div class="form-group">
       <label for="filter">Filter</label>
@@ -13,7 +15,8 @@
 
   <alert-inline v-else-if="error">{{ error }}</alert-inline>
 
-  <p v-else-if="!filteredZaaktypes.length">Geen zaaktypes gevonden voor "{{ search }}".</p>
+  <template v-else>
+    <p v-if="!filteredZaaktypes.length">Geen zaaktypes gevonden voor "{{ search }}".</p>
 
   <ul v-else class="reset">
     <li
@@ -38,12 +41,16 @@ import { computed, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import AlertInline from "@/components/AlertInline.vue";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
+import MigrationAlert from "@/components/MigrationAlert.vue";
 import { detService, type DETZaaktype } from "@/services/detService";
+import { datamigratieService, type MigrationStatus } from "@/services/datamigratieService";
 
 const route = useRoute();
 
 const search = ref("");
+
 const detZaaktypes = ref<DETZaaktype[]>([]);
+const migrationStatus = ref<MigrationStatus>();
 
 const filteredZaaktypes = computed(() => {
   const query = search.value.toLowerCase();
@@ -61,7 +68,13 @@ const fetchDETZaaktypes = async () => {
   error.value = "";
 
   try {
-    detZaaktypes.value = await detService.getAllZaaktypes();
+    const [_detZaaktypes, _migrationStatus] = await Promise.all([
+      detService.getAllZaaktypes(),
+      datamigratieService.getMigrationStatus()
+    ]);
+
+    detZaaktypes.value = _detZaaktypes;
+    migrationStatus.value = _migrationStatus;
   } catch (err: unknown) {
     error.value = `Fout bij ophalen zaaktypes - ${err}`;
   } finally {

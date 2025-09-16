@@ -10,6 +10,13 @@ export type UpdateZaaktypeMapping = {
   updatedOzZaaktypeId: string;
 };
 
+export type MigrationStatus = {
+  detFunctioneleIdentificatie: string;
+  isRunning: boolean;
+  startedAt?: string;
+  stoppedAt?: string;
+};
+
 export const datamigratieService = {
   getMappingByDETZaaktypeId: (detZaaktypeId: string): Promise<ZaaktypeMapping> =>
     get<ZaaktypeMapping>(`/api/mapping/${detZaaktypeId}`),
