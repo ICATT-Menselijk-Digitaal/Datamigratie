@@ -5,7 +5,7 @@ export type DETZaaktype = {
   naam: string;
   omschrijving: string;
   functioneleIdentificatie: string;
-  closedZaken?: number;
+  closedZakenCount?: number;
 };
 
 export const detService = {

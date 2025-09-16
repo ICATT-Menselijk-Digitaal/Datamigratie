@@ -1,3 +1,4 @@
+import type { Mapping, MigrationStatus } from "@/services/datamigratieService";
 import { http, HttpResponse } from "msw";
 
 export const handlers = [
@@ -13,15 +14,17 @@ export const handlers = [
       }
     ])
   ),
-//   http.get("/api/mapping/:detFunctioneleIdentificatie", async ({ params }) => {
-//     return HttpResponse.json({
-//       detFunctioneleIdentificatie: params.detFunctioneleIdentificatie,
-//       ozUuid: "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
-//     });
-//   }),
-  http.post("/api/mapping", async ({ params }) => {
+  http.get("/api/mapping/:detFunctioneleIdentificatie", async ({ params }) => {
     return HttpResponse.json({
       detFunctioneleIdentificatie: params.detFunctioneleIdentificatie,
+      ozUuid: "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+    });
+  }),
+  http.post("/api/mapping", async ({ request }) => {
+    const mapping = (await request.json()) as Mapping;
+
+    return HttpResponse.json({
+      detFunctioneleIdentificatie: mapping.detFunctioneleIdentificatie,
       ozUuid: "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
     });
   }),
@@ -29,6 +32,20 @@ export const handlers = [
     return HttpResponse.json({
       detFunctioneleIdentificatie: params.detFunctioneleIdentificatie,
       ozUuid: "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+    });
+  }),
+  http.get("/api/migration", async () => {
+    return HttpResponse.json({
+      detFunctioneleIdentificatie: "EVG",
+      isRunning: false
+    });
+  }),
+  http.post("/api/migration", async ({ request }) => {
+    const migrationStatus = (await request.json()) as MigrationStatus;
+
+    return HttpResponse.json({
+      detFunctioneleIdentificatie: migrationStatus.detFunctioneleIdentificatie,
+      isRunning: migrationStatus.isRunning
     });
   })
 ];
