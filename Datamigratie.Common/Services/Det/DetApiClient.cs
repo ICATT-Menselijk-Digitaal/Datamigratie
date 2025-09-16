@@ -1,5 +1,7 @@
 ﻿using System.Text.Json;
 using Datamigratie.Common.Services.Det.Models;
+using Datamigratie.Common.Services.Shared;
+using Datamigratie.Common.Services.Shared.Models;
 using Microsoft.Extensions.Logging;
 
 namespace Datamigratie.Common.Services.Det
@@ -17,78 +19,15 @@ namespace Datamigratie.Common.Services.Det
 
     public class DetApiClient(
         HttpClient httpClient,
-        ILogger<DetApiClient> logger) : IDetApiClient
+        ILogger<DetApiClient> logger) : PagedApiClient(httpClient), IDetApiClient
     {
+
+        private const int DefaultStartingPage = 0;
 
         private readonly JsonSerializerOptions _options = new()
         {
             PropertyNameCaseInsensitive = true
         };
-
-        /// <summary>
-        /// Generic method to get data from a paginated endpoint and deserialize it.
-        /// </summary>
-        /// <typeparam name="T">The type of the objects in the results list.</typeparam>
-        /// <param name="endpoint">The API endpoint path.</param>
-        /// <returns>A PagedResponse object.</returns>
-        private async Task<PagedResponse<T>> GetPagedData<T>(string endpoint)
-        {
-                var response = await httpClient.GetAsync(endpoint);
-                response.EnsureSuccessStatusCode();
-
-                var jsonString = await response.Content.ReadAsStringAsync();
- 
-                return JsonSerializer.Deserialize<PagedResponse<T>>(jsonString, _options);
-        }
-
-        /// <summary>
-        /// Generic method to get all pages of data into one result from a paginated endpoint.
-        /// </summary>
-        /// <typeparam name="T">The type of the objects in the results list.</typeparam>
-        /// <param name="initialEndpoint">The initial API endpoint path (without pagination).
-        /// </param>
-        /// <returns>A PagedResponse object containing all results across all pages.</returns>
-        private async Task<PagedResponse<T>> GetAllPagedData<T>(string initialEndpoint, string? query = null)
-        {
-            var allResults = new List<T>();
-            var page = 0;
-            var hasNextPage = true;
-            var totalCount = 0;
-
-            while (hasNextPage)
-            {
-                var endpoint = ConstructPagedEndpoint(initialEndpoint, page, query);
-                var pagedResponse = await GetPagedData<T>(endpoint);
-
-                if (pagedResponse == null)
-                {
-                    break;
-                }
-
-                allResults.AddRange(pagedResponse.Results);
-                hasNextPage = pagedResponse.NextPage;
-                totalCount = pagedResponse.Count;
-                page++;
-            }
-
-            return new PagedResponse<T>
-            {
-                Count = totalCount,
-                NextPage = false,
-                PreviousPage = false,
-                Results = allResults
-            };
-        }
-
-        private static string ConstructPagedEndpoint(string initialEndpoint, int page, string? query = null)
-        {
-            if (string.IsNullOrWhiteSpace(query))
-                return $"{initialEndpoint}?page={page}";
-
-            // Trim leading ? or & characters from the query
-            var sanitizedQuery = query.TrimStart('?', '&');
-            return $"{initialEndpoint}?page={page}&{sanitizedQuery}";
-        }
 
         /// <summary>
         /// Gets all zaaktypen with pagination details.
@@ -144,6 +83,11 @@ namespace Datamigratie.Common.Services.Det
             var query = $"zaaktype={Uri.EscapeDataString(zaaktype)}";
             var pagedZaken = await GetAllPagedData<DetZaak>(endpoint, query);
             return pagedZaken.Results;
+        }
+
+        protected override int GetDefaultStartingPage()
+        {
+            return DefaultStartingPage;
         }
     }
 
