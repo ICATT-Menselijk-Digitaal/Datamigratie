@@ -24,6 +24,7 @@
   --danger: #cc0000;
   --danger-text: var(--bg);
   --danger-hover: #ee4444;
+  --success: #89cf5e;
 }
 
 /* Dark theme */
