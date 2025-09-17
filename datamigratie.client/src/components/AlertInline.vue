@@ -1,7 +1,7 @@
 <template>
-  <p class="notice" aria-live="polite" role="alert">
+  <section class="notice" aria-live="polite" role="alert">
     <slot></slot>
-  </p>
+  </section>
 </template>
 
 <script setup lang="ts"></script>

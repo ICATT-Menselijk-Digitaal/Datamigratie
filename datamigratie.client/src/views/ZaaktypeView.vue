@@ -8,37 +8,40 @@
       >Fout(en) bij ophalen gegevens - {{ errors.join(" | ") }}</alert-inline
     >
 
-    <template v-else-if="detZaaktype">
-      <migration-alert v-if="migrationStatus" v-bind="migrationStatus" />
+    <dl v-else-if="detZaaktype">
+      <dt>Naam:</dt>
+      <dd>{{ detZaaktype.naam }}</dd>
 
-      <dl>
-        <dt>Naam:</dt>
-        <dd>{{ detZaaktype.naam }}</dd>
+      <dt>Omschrijving:</dt>
+      <dd>{{ detZaaktype.omschrijving }}</dd>
 
-        <dt>Omschrijving:</dt>
-        <dd>{{ detZaaktype.omschrijving }}</dd>
+      <dt>Actief:</dt>
+      <dd>{{ detZaaktype.actief ? "Ja" : "Nee" }}</dd>
 
-        <dt>Actief:</dt>
-        <dd>{{ detZaaktype.actief ? "Ja" : "Nee" }}</dd>
+      <dt>Aantal gesloten zaken:</dt>
+      <dd>{{ detZaaktype?.closedZakenCount }}</dd>
 
-        <dt>Aantal gesloten zaken:</dt>
-        <dd>{{ detZaaktype?.closedZakenCount }}</dd>
+      <dt id="mapping">Koppeling OZ zaaktype:</dt>
+      <dd v-if="canStartMigration || isThisMigrationRunning">
+        {{ ozZaaktypes?.find((type) => type.id == mapping.ozZaaktypeId)?.identificatie }}
 
-        <dt id="mapping">Open Zaak zaaktype:</dt>
-        <dd v-if="canStartMigration || isThisMigrationRunning">
-          {{ ozZaaktypes?.find((type) => type.uuid == mapping.ozUuid)?.naam }}
-        </dd>
-        <dd v-else>
-          <select name="ozUuid" aria-labelledby="mapping" v-model="mapping.ozZaaktypeId" required>
-            <option v-if="!mapping.ozZaaktypeId" value="">Kies Open Zaak zaaktype</option>
+        {{ canStartMigration }} {{ isThisMigrationRunning }}
+      </dd>
+      <dd v-else>
+        <select
+          name="ozZaaktypeId"
+          aria-labelledby="mapping"
+          v-model="mapping.ozZaaktypeId"
+          required
+        >
+          <option v-if="!mapping.ozZaaktypeId" value="">Kies Open Zaak zaaktype</option>
 
-            <option v-for="{ id, identificatie } in ozZaaktypes" :value="id" :key="id">
-              {{ identificatie }}
-            </option>
-          </select>
-        </dd>
-      </dl>
-    </template>
+          <option v-for="{ id, identificatie } in ozZaaktypes" :value="id" :key="id">
+            {{ identificatie }}
+          </option>
+        </select>
+      </dd>
+    </dl>
 
     <menu class="reset">
       <li>
@@ -88,17 +91,16 @@ import { useConfirmDialog } from "@vueuse/core";
 import AlertInline from "@/components/AlertInline.vue";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
 import PromptModal from "@/components/PromptModal.vue";
-import MigrationAlert from "@/components/MigrationAlert.vue";
 import toast from "@/components/toast/toast";
 import { detService, type DETZaaktype } from "@/services/detService";
 import { ozService, type OZZaaktype } from "@/services/ozService";
 import {
   datamigratieService,
   type ZaaktypeMapping,
-  type UpdateZaaktypeMapping,
-  type MigrationStatus
+  type UpdateZaaktypeMapping
 } from "@/services/datamigratieService";
 import { knownErrorMessages } from "@/utils/fetchWrapper";
+import { useMigrationStatus } from "@/composables/use-migration-status";
 
 const { detZaaktypeId } = defineProps<{ detZaaktypeId: string }>();
 
@@ -107,7 +109,10 @@ const search = computed(() => String(route.query.search || "").trim());
 
 const detZaaktype = ref<DETZaaktype>();
 const ozZaaktypes = ref<OZZaaktype[]>();
-const mapping = ref<ZaaktypeMapping>({ ozUuid: "" });
+const mapping = ref({ ozZaaktypeId: "" } as ZaaktypeMapping);
+
+const { migrationStatus, fetchMigrationStatus } = useMigrationStatus();
+
 const isEditMode = ref(false);
 const setEditMode = (value: boolean) => (isEditMode.value = value);
 
@@ -115,14 +120,14 @@ const canStartMigration = computed(
   () =>
     !isEditMode.value &&
     !migrationStatus.value?.isRunning &&
-    mapping.value.detFunctioneleIdentificatie &&
-    mapping.value.ozUuid
+    mapping.value.detZaaktypeId &&
+    mapping.value.ozZaaktypeId
 );
 
 const isThisMigrationRunning = computed(
   () =>
     migrationStatus.value?.isRunning &&
-    migrationStatus.value.detFunctioneleIdentificatie === mapping.value.detFunctioneleIdentificatie
+    migrationStatus.value.detZaaktypeId === mapping.value.detZaaktypeId
 );
 
 const loading = ref(false);
@@ -145,10 +150,6 @@ const fetchMappingData = async () => {
         service: datamigratieService.getMappingByDETZaaktypeId(detZaaktypeId),
         target: mapping,
         ignore404: true
-      },
-      {
-        service: datamigratieService.getMigrationStatus(),
-        target: migrationStatus
       }
     ];
 
@@ -208,10 +209,12 @@ const startMigration = async () => {
   loading.value = true;
 
   try {
-    migrationStatus.value = await datamigratieService.startMigration({
-      detFunctioneleIdentificatie: functioneleIdentificatie,
+    await datamigratieService.startMigration({
+      detZaaktypeId,
       isRunning: true
     });
+
+    fetchMigrationStatus();
   } catch (err: unknown) {
     toast.add({ text: `Fout bij starten van de migratie - ${err}`, type: "error" });
   } finally {

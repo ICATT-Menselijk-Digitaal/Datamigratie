@@ -11,7 +11,7 @@ export type UpdateZaaktypeMapping = {
 };
 
 export type MigrationStatus = {
-  detFunctioneleIdentificatie: string;
+  detZaaktypeId: string;
   isRunning: boolean;
   startedAt?: string;
   stoppedAt?: string;
@@ -23,5 +23,8 @@ export const datamigratieService = {
   createMapping: (payload: ZaaktypeMapping): Promise<ZaaktypeMapping> =>
     post<ZaaktypeMapping>(`/api/mapping/${payload.detZaaktypeId}`, payload),
   updateMapping: (payload: UpdateZaaktypeMapping): Promise<ZaaktypeMapping> =>
-    put<ZaaktypeMapping>(`/api/mapping/${payload.detZaaktypeId}`, payload)
+    put<ZaaktypeMapping>(`/api/mapping/${payload.detZaaktypeId}`, payload),
+  startMigration: (payload: MigrationStatus): Promise<MigrationStatus> =>
+    post(`/api/migration`, payload),
+  getMigrationStatus: (): Promise<MigrationStatus> => get(`/api/migration`)
 };
