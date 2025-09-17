@@ -31,7 +31,7 @@ namespace Datamigratie.Common.Services.Det
         /// <typeparam name="T">The type of the objects in the results list.</typeparam>
         /// <param name="endpoint">The API endpoint path.</param>
         /// <returns>A PagedResponse object.</returns>
-        private async Task<PagedResponse<T>> GetPagedData<T>(string endpoint)
+        private async Task<PagedResponse<T>?> GetPagedData<T>(string endpoint)
         {
                 var response = await httpClient.GetAsync(endpoint);
                 response.EnsureSuccessStatusCode();
@@ -39,12 +39,6 @@ namespace Datamigratie.Common.Services.Det
                 var jsonString = await response.Content.ReadAsStringAsync();
  
                 var result = JsonSerializer.Deserialize<PagedResponse<T>>(jsonString, _options);
-
-                if (result == null)
-                {
-                    logger.LogError("Failed to deserialize response from endpoint {Endpoint}", endpoint);
-                    throw new Exception($"Failed to deserialize response from endpoint {endpoint}");
-                }
 
                 return result;
         }
