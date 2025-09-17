@@ -34,12 +34,15 @@ p:first-of-type,
 button:first-of-type {
   margin-block: 0;
 }
+
 .notice {
   --_spinner-size: 2rem;
+
   display: grid;
   grid-template-columns: var(--_spinner-size) 1fr;
   grid-template-areas: "spinner ." "spinner .";
   gap: var(--spacing-default);
+
   .spinner {
     grid-area: spinner;
     display: block;
@@ -51,6 +54,7 @@ button:first-of-type {
     animation: spin 1s linear infinite;
   }
 }
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);
