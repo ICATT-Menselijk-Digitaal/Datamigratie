@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datamigratie.AppHost", "Dat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datamigratie.ServiceDefaults", "Datamigratie.ServiceDefaults\Datamigratie.ServiceDefaults.csproj", "{4D115FE1-9F74-F82E-D914-D867F14EFF75}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datamigratie.Common", "Datamigratie.Common\Datamigratie.Common.csproj", "{13D688C3-5219-429D-A853-626586B6DFCB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,10 @@ Global
 		{4D115FE1-9F74-F82E-D914-D867F14EFF75}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D115FE1-9F74-F82E-D914-D867F14EFF75}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D115FE1-9F74-F82E-D914-D867F14EFF75}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13D688C3-5219-429D-A853-626586B6DFCB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13D688C3-5219-429D-A853-626586B6DFCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13D688C3-5219-429D-A853-626586B6DFCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13D688C3-5219-429D-A853-626586B6DFCB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
