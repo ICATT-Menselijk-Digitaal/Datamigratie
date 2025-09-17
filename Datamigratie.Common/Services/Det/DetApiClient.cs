@@ -38,7 +38,15 @@ namespace Datamigratie.Common.Services.Det
 
                 var jsonString = await response.Content.ReadAsStringAsync();
  
-                return JsonSerializer.Deserialize<PagedResponse<T>>(jsonString, _options);
+                var result = JsonSerializer.Deserialize<PagedResponse<T>>(jsonString, _options);
+
+                if (result == null)
+                {
+                    logger.LogError("Failed to deserialize response from endpoint {Endpoint}", endpoint);
+                    throw new Exception($"Failed to deserialize response from endpoint {endpoint}");
+                }
+
+                return result;
         }
 
         /// <summary>
@@ -113,7 +121,15 @@ namespace Datamigratie.Common.Services.Det
             response.EnsureSuccessStatusCode();
 
             var jsonString = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<DetZaaktype>(jsonString, _options);
+            var result = JsonSerializer.Deserialize<DetZaaktype>(jsonString, _options);
+
+            if (result == null)
+            {
+                logger.LogError("Failed to deserialize response from endpoint {Endpoint}", endpoint);
+                throw new Exception($"Failed to deserialize response from endpoint {endpoint}");
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -129,7 +145,15 @@ namespace Datamigratie.Common.Services.Det
                 response.EnsureSuccessStatusCode();
 
                 var jsonString = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<DetZaak>(jsonString, _options);
+                var result = JsonSerializer.Deserialize<DetZaak>(jsonString, _options);
+
+                if (result == null)
+                {
+                    logger.LogError("Failed to deserialize response from endpoint {Endpoint}", endpoint);
+                    throw new Exception($"Failed to deserialize response from endpoint {endpoint}");
+                }
+
+                return result;
         }
 
         /// <summary>
