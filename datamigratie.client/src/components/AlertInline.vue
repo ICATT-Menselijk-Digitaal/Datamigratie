@@ -1,5 +1,7 @@
 <template>
-  <h1>Home</h1>
+  <p class="notice" aria-live="polite" role="alert">
+    <slot></slot>
+  </p>
 </template>
 
 <script setup lang="ts"></script>
