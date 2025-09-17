@@ -119,7 +119,7 @@ namespace Datamigratie.Common.Services.Det
 
             if (result == null)
             {
-                logger.LogError($"Failed to deserialize response from endpoint {endpoint} with response with response {jsonString}");
+                logger.LogError("Failed to deserialize response from endpoint {endpoint} with response with response {jsonString}", endpoint, jsonString);
                 throw new Exception($"Failed to deserialize response from endpoint {endpoint} with response with response {jsonString}");
             }
 
@@ -143,7 +143,7 @@ namespace Datamigratie.Common.Services.Det
 
                 if (result == null)
                 {
-                    logger.LogError($"Failed to deserialize response from endpoint {endpoint} with response {jsonString}");
+                    logger.LogError("Failed to deserialize response from endpoint {endpoint} with response {jsonString}", endpoint, jsonString);
                     throw new Exception($"Failed to deserialize response from endpoint {endpoint} with response {jsonString}");
                 }
 
