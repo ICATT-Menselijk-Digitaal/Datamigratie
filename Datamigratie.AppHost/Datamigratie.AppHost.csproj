@@ -12,9 +12,11 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.AppHost" Version="9.4.0" />
+      <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.3.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Datamigratie.MigrationService\Datamigratie.MigrationService.csproj" />
     <ProjectReference Include="..\Datamigratie.Server\Datamigratie.Server.csproj" />
   </ItemGroup>
 

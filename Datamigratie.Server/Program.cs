@@ -1,8 +1,11 @@
 ﻿using System.Xml.Serialization;
 using Datamigratie.Common.Services.Det;
+using Datamigratie.Data;
 using Datamigratie.Server.Config;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddDatamigratieDbContext();
 
 builder.AddServiceDefaults();
 
