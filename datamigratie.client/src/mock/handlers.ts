@@ -37,7 +37,7 @@ export const handlers = [
   http.get("/api/migration", async () => {
     return HttpResponse.json({
       detFunctioneleIdentificatie: "EVG",
-      isRunning: false
+      isRunning: true
     });
   }),
   http.post("/api/migration", async ({ request }) => {

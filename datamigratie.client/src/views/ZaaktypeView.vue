@@ -8,37 +8,33 @@
       >Fout(en) bij ophalen gegevens - {{ errors.join(" | ") }}</alert-inline
     >
 
-    <template v-else-if="detZaaktype">
-      <migration-alert v-if="migrationStatus" v-bind="migrationStatus" />
+    <dl v-else-if="detZaaktype">
+      <dt>Naam:</dt>
+      <dd>{{ detZaaktype.naam }}</dd>
 
-      <dl>
-        <dt>Naam:</dt>
-        <dd>{{ detZaaktype.naam }}</dd>
+      <dt>Omschrijving:</dt>
+      <dd>{{ detZaaktype.omschrijving }}</dd>
 
-        <dt>Omschrijving:</dt>
-        <dd>{{ detZaaktype.omschrijving }}</dd>
+      <dt>Actief:</dt>
+      <dd>{{ detZaaktype.actief ? "Ja" : "Nee" }}</dd>
 
-        <dt>Actief:</dt>
-        <dd>{{ detZaaktype.actief ? "Ja" : "Nee" }}</dd>
+      <dt>Aantal gesloten zaken:</dt>
+      <dd>{{ detZaaktype?.closedZakenCount }}</dd>
 
-        <dt>Aantal gesloten zaken:</dt>
-        <dd>{{ detZaaktype?.closedZakenCount }}</dd>
+      <dt id="mapping">Open Zaak zaaktype:</dt>
+      <dd v-if="canStartMigration || isThisMigrationRunning">
+        {{ ozZaaktypes?.find((type) => type.uuid == mapping.ozUuid)?.naam }}
+      </dd>
+      <dd v-else>
+        <select name="ozUuid" aria-labelledby="mapping" v-model="mapping.ozUuid" required>
+          <option v-if="!mapping.ozUuid" value="">Kies Open Zaak zaaktype</option>
 
-        <dt id="mapping">Open Zaak zaaktype:</dt>
-        <dd v-if="canStartMigration || isThisMigrationRunning">
-          {{ ozZaaktypes?.find((type) => type.uuid == mapping.ozUuid)?.naam }}
-        </dd>
-        <dd v-else>
-          <select name="ozUuid" aria-labelledby="mapping" v-model="mapping.ozUuid" required>
-            <option v-if="!mapping.ozUuid" value="">Kies Open Zaak zaaktype</option>
-
-            <option v-for="{ uuid, naam } in ozZaaktypes" :value="uuid" :key="uuid">
-              {{ naam }}
-            </option>
-          </select>
-        </dd>
-      </dl>
-    </template>
+          <option v-for="{ uuid, naam } in ozZaaktypes" :value="uuid" :key="uuid">
+            {{ naam }}
+          </option>
+        </select>
+      </dd>
+    </dl>
 
     <menu class="reset">
       <li>
@@ -88,16 +84,12 @@ import { useConfirmDialog } from "@vueuse/core";
 import AlertInline from "@/components/AlertInline.vue";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
 import PromptModal from "@/components/PromptModal.vue";
-import MigrationAlert from "@/components/MigrationAlert.vue";
 import toast from "@/components/toast/toast";
 import { detService, type DETZaaktype } from "@/services/detService";
 import { ozService, type OZZaaktype } from "@/services/ozService";
-import {
-  datamigratieService,
-  type Mapping,
-  type MigrationStatus
-} from "@/services/datamigratieService";
+import { datamigratieService, type Mapping } from "@/services/datamigratieService";
 import { knownErrorMessages } from "@/utils/fetchWrapper";
+import { useMigrationStatus } from "@/composables/use-migration-status";
 
 const { functioneleIdentificatie } = defineProps<{ functioneleIdentificatie: string }>();
 
@@ -107,7 +99,8 @@ const search = computed(() => String(route.query.search || "").trim());
 const detZaaktype = ref<DETZaaktype>();
 const ozZaaktypes = ref<OZZaaktype[]>();
 const mapping = ref<Mapping>({ ozUuid: "" });
-const migrationStatus = ref<MigrationStatus>();
+
+const { migrationStatus, fetchMigrationStatus } = useMigrationStatus();
 
 const isEditMode = ref(false);
 const setEditMode = (value: boolean) => (isEditMode.value = value);
@@ -147,10 +140,6 @@ const fetchMappingData = async () => {
           datamigratieService.getMappingByDETFunctioneleIdentificatie(functioneleIdentificatie),
         target: mapping,
         ignore404: true
-      },
-      {
-        service: datamigratieService.getMigrationStatus(),
-        target: migrationStatus
       }
     ];
 
@@ -208,10 +197,12 @@ const startMigration = async () => {
   loading.value = true;
 
   try {
-    migrationStatus.value = await datamigratieService.startMigration({
+    await datamigratieService.startMigration({
       detFunctioneleIdentificatie: functioneleIdentificatie,
       isRunning: true
     });
+
+    fetchMigrationStatus();
   } catch (err: unknown) {
     toast.add({ text: `Fout bij starten van de migratie - ${err}`, type: "error" });
   } finally {
