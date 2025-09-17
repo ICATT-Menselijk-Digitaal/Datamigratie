@@ -3,7 +3,9 @@
 
   <alert-inline v-else-if="error">{{ error }}</alert-inline>
 
-  <alert-inline v-else-if="migrationStatus?.isRunning" class="notice--loading">
+  <alert-inline v-else-if="migrationStatus?.isRunning">
+    <span class="spinner" role="presentation" aria-hidden="true"></span>
+
     <p>
       Voor e-Suite zaaktype <em>{{ migrationStatus.detFunctioneleIdentificatie }}</em> loopt nu een
       migratie van zaken van de e-Suite naar Open Zaak. Ondertussen kan er geen andere migratie
@@ -30,11 +32,37 @@ onMounted(() => fetchMigrationStatus());
 </script>
 
 <style lang="scss" scoped>
-p:first-of-type {
-  margin-block-start: 0;
+p:first-of-type,
+button:first-of-type {
+  margin-block: 0;
 }
 
-button {
-  margin-block: 0;
+.notice {
+  --_spinner-size: 2rem;
+
+  display: grid;
+  grid-template-columns: var(--_spinner-size) 1fr;
+  grid-template-areas: "spinner ." "spinner .";
+  gap: var(--spacing-default);
+
+  .spinner {
+    grid-area: spinner;
+    display: block;
+    block-size: var(--_spinner-size);
+    inline-size: var(--_spinner-size);
+    border: 0.2rem solid var(--disabled);
+    border-top: 0.2rem solid var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>
