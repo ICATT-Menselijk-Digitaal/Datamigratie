@@ -1,3 +1,4 @@
+﻿using Datamigratie.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Datamigratie.Server.Controllers
@@ -10,7 +11,6 @@ namespace Datamigratie.Server.Controllers
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
-
         private readonly ILogger<WeatherForecastController> _logger;
 
         public WeatherForecastController(ILogger<WeatherForecastController> logger)

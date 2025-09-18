@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -11,9 +11,13 @@
     <SpaProxyServerUrl>https://localhost:52208</SpaProxyServerUrl>
   </PropertyGroup>
 
+
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.20">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy">
-      <Version>8.*-*</Version>
+      <Version>8.0.20</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
@@ -24,6 +28,7 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="..\Datamigratie.Common\Datamigratie.Common.csproj" />
+    <ProjectReference Include="..\Datamigratie.Data\Datamigratie.Data.csproj" />
     <ProjectReference Include="..\Datamigratie.ServiceDefaults\Datamigratie.ServiceDefaults.csproj" />
   </ItemGroup>
 
