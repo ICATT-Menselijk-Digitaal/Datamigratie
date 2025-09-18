@@ -14,7 +14,7 @@ namespace Datamigratie.Server.Controllers
         private readonly DatamigratieDbContext _context;
         private readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(DatamigratieDbContext context, ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger)
         {
             _context = context;
             _logger = logger;
