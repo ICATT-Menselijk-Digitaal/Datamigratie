@@ -35,7 +35,9 @@ public class Worker(IServiceProvider serviceProvider, IHostApplicationLifetime h
         }
         catch (Exception ex)
         {
-            activity?.AddException(ex);
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+            activity?.SetTag("exception.type", ex.GetType().FullName);
+            activity?.SetTag("exception.message", ex.Message);
             logger.LogCritical(ex, "Migrations failed");
             // Exit process with error code to block PABC.Server startup
             Environment.ExitCode = 1;
