@@ -5,6 +5,6 @@
 2. Set Datamigratie.AppHost as startup project
 3. Run the application
 
-## DET
+## Data Extraction Tool (DET)
 
-[Open API spec](https://esuite-data-extractie-gcp2.esuite-development.net/q/openapi)
+[Open API spec](https://redocly.github.io/redoc/?url=https://esuite-data-extractie-gcp2.esuite-development.net/q/openapi)
