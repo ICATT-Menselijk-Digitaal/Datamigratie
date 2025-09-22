@@ -11,15 +11,28 @@
 
 
 ## Installation
-De applicatie maakt gebruik van de volgende variabelen. Als je deze applicatie installeert met de helm chart, worden deze variabelen geconfigureerd met de chart values.
 
+### Environment Variabelen
+De applicatie gebruikt de volgende environment variabelen:
+
+```
 OpenZaakApi__BaseUrl
 OpenZaakApi__ApiUser
-OpenZaakApi_ApiKey
+OpenZaakApi__ApiKey
 
 DetApi__BaseUrl
-DetApi_ApiKey
+DetApi__ApiKey
 
-Database_Name
-Database_Username
-Database_Password
+ConnectionStrings__Datamigratie
+```
+
+De API variabelen gebruiken dubbele underscores (`__`) voor .NET configuratie binding.
+
+### Helm Deployment
+1. Kopieer `charts/datamigratie/values.yaml` naar eigen values file
+2. Pas de waardes aan voor jouw omgeving (API keys, database, etc.)
+3. Installeer met Helm:
+
+```
+helm install datamigratie ./charts/datamigratie -f jouw-values.yaml
+```
