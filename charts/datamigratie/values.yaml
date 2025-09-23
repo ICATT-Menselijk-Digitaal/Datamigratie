@@ -5,12 +5,6 @@ image:
   pullPolicy: IfNotPresent
   tag: ""
 
-migrations:
-  image:
-    repository: "ghcr.io/icatt-menselijk-digitaal/datamigratie-migrations"
-    pullPolicy: IfNotPresent
-    tag: ""
-  restartPolicy: Never
 
 imagePullSecrets: []
 nameOverride: ""
