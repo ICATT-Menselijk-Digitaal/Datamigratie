@@ -29,5 +29,5 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
         });
     }
 
-    public required DbSet<ZaaktypeMapping> Mappings { get; set; }
+    public DbSet<ZaaktypeMapping> Mappings { get; set; }
 }

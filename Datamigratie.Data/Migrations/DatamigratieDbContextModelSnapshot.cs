@@ -17,7 +17,7 @@ namespace Datamigratie.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.15")
+                .HasAnnotation("ProductVersion", "8.0.20")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -34,19 +34,18 @@ namespace Datamigratie.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("det_zaaktype_id");
 
-                    b.Property<string>("OzZaaktypeId")
-                        .IsRequired()
-                        .HasColumnType("text")
+                    b.Property<Guid>("OzZaaktypeId")
+                        .HasColumnType("uuid")
                         .HasColumnName("oz_zaaktype_id");
 
                     b.HasKey("Id")
-                        .HasName("pk_zaaktype_mapping");
+                        .HasName("pk_mappings");
 
                     b.HasIndex("DetZaaktypeId")
                         .IsUnique()
                         .HasDatabaseName("IX_Mapping_DetZaaktypeId_Unique");
 
-                    b.ToTable("zaaktype_mapping", (string)null);
+                    b.ToTable("mappings", (string)null);
                 });
 #pragma warning restore 612, 618
         }

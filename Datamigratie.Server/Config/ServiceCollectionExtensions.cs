@@ -1,4 +1,5 @@
 ﻿using Datamigratie.Common.Extensions;
+using Datamigratie.Server.Features.Mapping.MapZaaktypen;
 using Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo;
 
 namespace Datamigratie.Server.Config
@@ -10,6 +11,7 @@ namespace Datamigratie.Server.Config
                 services.AddDatamigrationApiClients(configuration);
 
             services.AddScoped<IShowDetZaaktypeInfoService, ShowDetZaaktypeInfoService>();
+            services.AddScoped<IMapZaaktypenService, MapZaaktypenService>();
             return services;
         }
     }
