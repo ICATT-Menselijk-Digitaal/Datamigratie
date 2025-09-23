@@ -4,6 +4,6 @@
     {
         public required string DetZaaktypeId { get; set; }
 
-        public required Guid OzZaaktypeId { get; set; }
+        public required Guid UpdatedOzZaaktypeId { get; set; }
     }
 }

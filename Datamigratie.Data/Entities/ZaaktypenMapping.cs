@@ -1,6 +1,6 @@
 ﻿namespace Datamigratie.Data.Entities
 {
-    public class ZaaktypeMapping
+    public class ZaaktypenMapping
     {
 
         public Guid Id { get; set; }

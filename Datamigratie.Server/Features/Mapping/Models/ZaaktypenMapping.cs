@@ -1,6 +1,6 @@
 ﻿namespace Datamigratie.Server.Features.Mapping.MapZaaktypen.Models
 {
-    public class CreateZaaktypeMapping
+    public class ZaaktypenMapping
     {
         public required string DetZaaktypeId { get; set; }
 

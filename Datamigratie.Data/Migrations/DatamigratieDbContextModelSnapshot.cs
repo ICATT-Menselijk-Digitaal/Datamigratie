@@ -22,7 +22,7 @@ namespace Datamigratie.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Datamigratie.Data.Entities.ZaaktypeMapping", b =>
+            modelBuilder.Entity("Datamigratie.Data.Entities.ZaaktypenMapping", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()

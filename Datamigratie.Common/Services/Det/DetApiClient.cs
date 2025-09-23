@@ -10,8 +10,6 @@ namespace Datamigratie.Common.Services.Det
     {
         Task<List<DetZaaktype>> GetAllZaakTypen();
 
-        Task<DetZaak> GetZaak(string zaaktypeId);
-
         Task<List<DetZaak>> GetZakenByZaaktype(string zaaktype);
 
         Task<DetZaaktype> GetZaaktype(string zaaktypeName);
@@ -61,23 +59,6 @@ namespace Datamigratie.Common.Services.Det
 
             var jsonString = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<DetZaaktype>(jsonString, _options);
-        }
-
-        /// <summary>
-        /// Gets a specific zaak by its number.
-        /// Endpoint: /zaken/{zaaknummer}
-        /// </summary>
-        /// <param name="zaaknummer">The number of the specific zaak.</param>
-        /// <returns>A Zaak object, or null if not found.</returns>
-        public async Task<DetZaak> GetZaak(string zaaktypeId)
-        {
-            _logger.LogInformation($"Fetching zaak with ID: {zaaktypeId}");
-            var endpoint = $"zaken/{zaaktypeId}";
-            var response = await _httpClient.GetAsync(endpoint);
-            response.EnsureSuccessStatusCode();
-
-            var jsonString = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<DetZaak>(jsonString, _options);
         }
 
         /// <summary>

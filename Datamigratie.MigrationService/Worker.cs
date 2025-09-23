@@ -12,7 +12,7 @@ namespace Datamigratie.MigrationService;
 /// If migrations fail, the process exits with a non-zero code to prevent application startup.
 /// See https://learn.microsoft.com/en-us/dotnet/aspire/database/ef-core-migrations
 /// </summary>
-public class Worker(IServiceProvider serviceProvider, IHostApplicationLifetime hostApplicationLifetime, IConfiguration configuration, ILogger<Worker> logger) : BackgroundService
+public class Worker(IServiceProvider serviceProvider, IHostApplicationLifetime hostApplicationLifetime, ILogger<Worker> logger) : BackgroundService
 {
     public const string ActivitySourceName = "Migrations";
 

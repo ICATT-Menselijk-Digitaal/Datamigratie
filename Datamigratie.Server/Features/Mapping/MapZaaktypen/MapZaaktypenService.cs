@@ -28,7 +28,7 @@ namespace Datamigratie.Server.Features.Mapping.MapZaaktypen
                 throw new InvalidOperationException($"Mapping for Det zaaktype ID '{detZaaktypeId}' already exists, update instead");
             }
 
-            var mapping = new ZaaktypeMapping
+            var mapping = new ZaaktypenMapping
             {
                 DetZaaktypeId = detZaaktypeId,
                 OzZaaktypeId = ozZaaktypeId

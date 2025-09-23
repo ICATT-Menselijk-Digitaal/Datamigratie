@@ -11,7 +11,7 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<ZaaktypeMapping>(entity =>
+        modelBuilder.Entity<ZaaktypenMapping>(entity =>
         {
             entity.HasKey(m => m.Id);
 
@@ -29,5 +29,5 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
         });
     }
 
-    public DbSet<ZaaktypeMapping> Mappings { get; set; }
+    public DbSet<ZaaktypenMapping> Mappings { get; set; }
 }
