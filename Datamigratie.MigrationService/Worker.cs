@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics;
 using Datamigratie.MigrationService.Features.DatabaseInitialization;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using OpenTelemetry.Trace;
 
 namespace Datamigratie.MigrationService;
 
@@ -35,9 +35,7 @@ public class Worker(IServiceProvider serviceProvider, IHostApplicationLifetime h
         }
         catch (Exception ex)
         {
-            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
-            activity?.SetTag("exception.type", ex.GetType().FullName);
-            activity?.SetTag("exception.message", ex.Message);
+            activity?.RecordException(ex);
             logger.LogCritical(ex, "Migrations failed");
             // Exit process with error code to block PABC.Server startup
             Environment.ExitCode = 1;
