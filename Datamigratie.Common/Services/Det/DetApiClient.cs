@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Net.Http.Json;
+using System.Text.Json;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.Shared;
 using Datamigratie.Common.Services.Shared.Models;
@@ -12,7 +13,7 @@ namespace Datamigratie.Common.Services.Det
 
         Task<List<DetZaak>> GetZakenByZaaktype(string zaaktype);
 
-        Task<DetZaaktype> GetZaaktype(string zaaktypeName);
+        Task<DetZaaktype?> GetZaaktype(string zaaktypeName);
     }
 
     public class DetApiClient : PagedApiClient, IDetApiClient
@@ -50,15 +51,14 @@ namespace Datamigratie.Common.Services.Det
         /// Endpoint: /zaaktypen/{name}
         /// </summary>
         /// <returns>A zaaktype object, or null if not found</returns>
-        public async Task<DetZaaktype> GetZaaktype(string zaaktypeName)
+        public async Task<DetZaaktype?> GetZaaktype(string zaaktypeName)
         {
             _logger.LogInformation($"Fetching zaaktype with name: {zaaktypeName}");
             var endpoint = $"zaaktypen/{zaaktypeName}";
             var response = await _httpClient.GetAsync(endpoint);
             response.EnsureSuccessStatusCode();
 
-            var jsonString = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<DetZaaktype>(jsonString, _options);
+            return await response.Content.ReadFromJsonAsync<DetZaaktype>(_options);
         }
 
         /// <summary>
