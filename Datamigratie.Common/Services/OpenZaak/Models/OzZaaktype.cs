@@ -6,7 +6,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
     {   
         public required string Url { get; set; }
 
-        public string Id { get; private set; } = string.Empty;
+        public Guid Id { get; private set; } = Guid.Empty;
 
         [OnDeserialized]
         public void OnDeserialized()
@@ -14,7 +14,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
             Id = ExtractUuidFromUrl(Url);
         }
 
-        private static string ExtractUuidFromUrl(string url)
+        private static Guid ExtractUuidFromUrl(string url)
         {
             if (string.IsNullOrEmpty(url))
                 throw new ArgumentException("URL cannot be null or empty", nameof(url));
@@ -25,7 +25,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
             if (!Guid.TryParse(uuid, out _))
                 throw new ArgumentException($"Invalid UUID format in URL: {uuid}");
 
-            return uuid;
+            return Guid.Parse(uuid);
         }
     }
 }
