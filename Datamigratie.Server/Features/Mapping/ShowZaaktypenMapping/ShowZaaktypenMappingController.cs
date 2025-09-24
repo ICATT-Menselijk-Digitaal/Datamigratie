@@ -9,11 +9,17 @@ namespace Datamigratie.Server.Features.Mapping.ShowZaaktypenMapping
     {
 
         [HttpGet("{detZaaktypeId}")]
-        public async Task<ActionResult<ZaaktypenMapping>> GetMapZaaktypen(string detZaaktypeId)
+        public async Task<ActionResult<ZaaktypenMapping>> GetZaaktypenMapping(string detZaaktypeId)
         {
             try
             {
                 var mapping = await showZaaktypenMappingService.GetZaaktypenMapping(detZaaktypeId);
+
+                if (mapping == null)
+                {
+                    return NotFound($"No mapping found for DET Zaaktype ID: {detZaaktypeId}");
+                }
+                
                 return Ok(mapping);
 
             } catch (Exception ex)
