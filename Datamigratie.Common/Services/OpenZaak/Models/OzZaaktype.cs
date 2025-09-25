@@ -3,16 +3,26 @@
 namespace Datamigratie.Common.Services.OpenZaak.Models
 {
     public class OzZaaktype
-    {   
-        public required string Url { get; set; }
+    {
+
+        private string _url = string.Empty;
+
+        public required string Url
+        {
+            get => _url;
+            set
+            {
+                _url = value;
+                if (!string.IsNullOrEmpty(value))
+                {
+                    Id = ExtractUuidFromUrl(value);
+                }
+            }
+        }
+
+        public required string Identificatie { get; set; }
 
         public Guid Id { get; private set; } = Guid.Empty;
-
-        [OnDeserialized]
-        public void OnDeserialized()
-        {
-            Id = ExtractUuidFromUrl(Url);
-        }
 
         private static Guid ExtractUuidFromUrl(string url)
         {
