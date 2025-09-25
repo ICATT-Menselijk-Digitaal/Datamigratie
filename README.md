@@ -5,9 +5,8 @@
 2. Set Datamigratie.AppHost as startup project
 3. Run the application
 
-## DET
-
-[Open API spec](https://esuite-data-extractie-gcp2.esuite-development.net/q/openapi)
+## Data Extraction Tool (DET)
+[Open API spec](https://redocly.github.io/redoc/?url=https://esuite-data-extractie-gcp2.esuite-development.net/q/openapi)
 
 
 ## Installation
@@ -36,3 +35,4 @@ De API variabelen gebruiken dubbele underscores (`__`) voor .NET configuratie bi
 ```
 helm install datamigratie ./charts/datamigratie -f jouw-values.yaml
 ```
+
