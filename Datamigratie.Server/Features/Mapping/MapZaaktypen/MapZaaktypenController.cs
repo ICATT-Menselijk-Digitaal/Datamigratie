@@ -11,30 +11,15 @@ namespace Datamigratie.Server.Features.Mapping.MapZaaktypen
         [HttpPost("{detZaaktypeId}")]
         public async Task<ActionResult> PostMapZaaktypen(string detZaaktypeId, [FromBody] ZaaktypenMapping mapping)
         {
-            try
-            {
-                await mapZaaktypenService.CreateZaaktypenMapping(detZaaktypeId, mapping.OzZaaktypeId);
-                return Ok();
-
-            } catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            await mapZaaktypenService.CreateZaaktypenMapping(detZaaktypeId, mapping.OzZaaktypeId);
+            return Ok();
         }
 
         [HttpPut("{detZaaktypeId}")]
         public async Task<ActionResult> PutMapZaaktype(string detZaaktypeId, [FromBody] UpdateZaaktypeMapping mapping)
         {
-            try
-            {
-                await mapZaaktypenService.UpdateZaaktypenMapping(detZaaktypeId, mapping.UpdatedOzZaaktypeId);
-                return Ok();
-
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            await mapZaaktypenService.UpdateZaaktypenMapping(detZaaktypeId, mapping.UpdatedOzZaaktypeId);
+            return Ok();
         }
     }
 }
