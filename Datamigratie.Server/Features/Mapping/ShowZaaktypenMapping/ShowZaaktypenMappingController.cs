@@ -11,8 +11,6 @@ namespace Datamigratie.Server.Features.Mapping.ShowZaaktypenMapping
         [HttpGet("{detZaaktypeId}")]
         public async Task<ActionResult<ZaaktypenMapping>> GetZaaktypenMapping(string detZaaktypeId)
         {
-            try
-            {
                 var mapping = await showZaaktypenMappingService.GetZaaktypenMapping(detZaaktypeId);
 
                 if (mapping == null)
@@ -21,11 +19,6 @@ namespace Datamigratie.Server.Features.Mapping.ShowZaaktypenMapping
                 }
                 
                 return Ok(mapping);
-
-            } catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
         }
     }
 }
