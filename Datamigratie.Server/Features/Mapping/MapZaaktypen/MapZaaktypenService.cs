@@ -1,5 +1,6 @@
 ﻿using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
+using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Data;
 using Datamigratie.Data.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -54,25 +55,21 @@ namespace Datamigratie.Server.Features.Mapping.MapZaaktypen
 
         private async Task ValidateOzZaaktypeExistsAsync(Guid ozZaaktypeId)
         {
-            try
+            var zaaktype = await openZaakApiClient.GetZaaktype(ozZaaktypeId);
+
+            if (zaaktype == null)
             {
-                await openZaakApiClient.GetZaaktype(ozZaaktypeId);
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException($"OpenZaak zaaktype with ID '{ozZaaktypeId}' was not found. Exception: {ex.Message}");
+                throw new InvalidOperationException($"OpenZaak zaaktype with ID '{ozZaaktypeId}' was not found");
             }
         }
 
         private async Task ValidateDetZaaktypeExistsAsync(string detZaaktypeId)
         {
-            try
+            var zaaktype = await detApiClient.GetZaaktype(detZaaktypeId);
+
+            if (zaaktype == null)
             {
-                await detApiClient.GetZaaktype(detZaaktypeId);
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException($"Det zaaktype with ID '{detZaaktypeId}' was not found. Exception: {ex.Message}");
+                throw new InvalidOperationException($"OpenZaak zaaktype with ID '{detZaaktypeId}' was not found");
             }
         }
     }
