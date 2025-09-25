@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net;
+using System.Net.Http.Json;
 using System.Text.Json;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.Shared;
@@ -56,6 +57,10 @@ namespace Datamigratie.Common.Services.Det
             _logger.LogInformation($"Fetching zaaktype with name: {zaaktypeName}");
             var endpoint = $"zaaktypen/{zaaktypeName}";
             var response = await _httpClient.GetAsync(endpoint);
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                return null;
+
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadFromJsonAsync<DetZaaktype>(_options);

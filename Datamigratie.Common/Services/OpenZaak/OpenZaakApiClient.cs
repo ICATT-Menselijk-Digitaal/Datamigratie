@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net;
+using System.Net.Http.Json;
 using System.Text.Json;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak.Models;
@@ -47,9 +48,12 @@ namespace Datamigratie.Common.Services.Det
         {
             var endpoint = $"catalogi/api/v1/zaaktypen/{zaaktypeId}";
             var response = await _httpClient.GetAsync(endpoint);
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                return null;
+
             response.EnsureSuccessStatusCode();
 
-            var jsonString = await response.Content.ReadAsStringAsync();
             return await response.Content.ReadFromJsonAsync<OzZaaktype>(_options);
         }
 
