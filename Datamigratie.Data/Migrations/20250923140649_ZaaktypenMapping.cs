@@ -6,27 +6,27 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Datamigratie.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class ZaaktypeMapping : Migration
+    public partial class ZaaktypenMapping : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "zaaktype_mapping",
+                name: "mappings",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    oz_zaaktype_id = table.Column<string>(type: "text", nullable: false),
+                    oz_zaaktype_id = table.Column<Guid>(type: "uuid", nullable: false),
                     det_zaaktype_id = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_zaaktype_mapping", x => x.id);
+                    table.PrimaryKey("pk_mappings", x => x.id);
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Mapping_DetZaaktypeId_Unique",
-                table: "zaaktype_mapping",
+                table: "mappings",
                 column: "det_zaaktype_id",
                 unique: true);
         }
@@ -35,7 +35,7 @@ namespace Datamigratie.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "zaaktype_mapping");
+                name: "mappings");
         }
     }
 }

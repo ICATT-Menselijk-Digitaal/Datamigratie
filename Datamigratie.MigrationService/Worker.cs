@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics;
 using Datamigratie.MigrationService.Features.DatabaseInitialization;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using OpenTelemetry.Trace;
 
 namespace Datamigratie.MigrationService;
 
@@ -12,7 +12,7 @@ namespace Datamigratie.MigrationService;
 /// If migrations fail, the process exits with a non-zero code to prevent application startup.
 /// See https://learn.microsoft.com/en-us/dotnet/aspire/database/ef-core-migrations
 /// </summary>
-public class Worker(IServiceProvider serviceProvider, IHostApplicationLifetime hostApplicationLifetime, IConfiguration configuration, ILogger<Worker> logger) : BackgroundService
+public class Worker(IServiceProvider serviceProvider, IHostApplicationLifetime hostApplicationLifetime, ILogger<Worker> logger) : BackgroundService
 {
     public const string ActivitySourceName = "Migrations";
 
@@ -35,9 +35,7 @@ public class Worker(IServiceProvider serviceProvider, IHostApplicationLifetime h
         }
         catch (Exception ex)
         {
-            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
-            activity?.SetTag("exception.type", ex.GetType().FullName);
-            activity?.SetTag("exception.message", ex.Message);
+            activity?.RecordException(ex);
             logger.LogCritical(ex, "Migrations failed");
             // Exit process with error code to block PABC.Server startup
             Environment.ExitCode = 1;
