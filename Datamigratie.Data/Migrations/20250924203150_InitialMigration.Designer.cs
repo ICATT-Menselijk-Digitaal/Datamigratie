@@ -3,6 +3,7 @@ using System;
 using Datamigratie.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,42 +12,18 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Datamigratie.Data.Migrations
 {
     [DbContext(typeof(DatamigratieDbContext))]
-    partial class DatamigratieDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250924203150_InitialMigration")]
+    partial class InitialMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.20")
+                .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("Datamigratie.Data.Entities.ZaaktypenMapping", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("DetZaaktypeId")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("det_zaaktype_id");
-
-                    b.Property<Guid>("OzZaaktypeId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("oz_zaaktype_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_mappings");
-
-                    b.HasIndex("DetZaaktypeId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_Mapping_DetZaaktypeId_Unique");
-
-                    b.ToTable("mappings", (string)null);
-                });
 
             modelBuilder.Entity("Datamigratie.Data.Entities.MigrationTracker", b =>
                 {
