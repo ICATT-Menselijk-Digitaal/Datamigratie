@@ -17,13 +17,13 @@
 
   <ul v-else class="reset">
     <li
-      v-for="{ naam, functioneleIdentificatie } in filteredZaaktypes"
-      :key="functioneleIdentificatie"
+      v-for="{ naam, functioneleIdentificatie: detZaaktypeId } in filteredZaaktypes"
+      :key="detZaaktypeId"
     >
       <router-link
         :to="{
           name: 'detZaaktype',
-          params: { functioneleIdentificatie },
+          params: { detZaaktypeId },
           ...(search && { query: { search } })
         }"
         class="button button-secondary"

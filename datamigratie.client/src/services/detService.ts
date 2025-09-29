@@ -10,6 +10,6 @@ export type DETZaaktype = {
 
 export const detService = {
   getAllZaaktypes: (): Promise<DETZaaktype[]> => get<DETZaaktype[]>(`/api/det/zaaktypen`),
-  getZaaktypeByFunctioneleIdentificatie: (functioneleIdentificatie: string): Promise<DETZaaktype> =>
+  getZaaktypeById: (functioneleIdentificatie: string): Promise<DETZaaktype> =>
     get<DETZaaktype>(`/api/det/zaaktypen/${functioneleIdentificatie}`)
 };

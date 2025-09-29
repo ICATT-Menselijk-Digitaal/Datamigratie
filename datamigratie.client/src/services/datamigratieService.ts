@@ -1,15 +1,20 @@
 import { get, post, put } from "@/utils/fetchWrapper";
 
-export type Mapping = {
-  detFunctioneleIdentificatie?: string;
-  ozUuid?: string;
+export type ZaaktypeMapping = {
+  detZaaktypeId: string;
+  ozZaaktypeId: string;
+};
+
+export type UpdateZaaktypeMapping = {
+  detZaaktypeId: string;
+  updatedOzZaaktypeId: string;
 };
 
 export const datamigratieService = {
-  getMappingByDETFunctioneleIdentificatie: (
-    detFunctioneleIdentificatie: string
-  ): Promise<Mapping> => get<Mapping>(`/api/mapping/${detFunctioneleIdentificatie}`),
-  createMapping: (payload: Mapping): Promise<Mapping> => post<Mapping>(`/api/mapping`, payload),
-  updateMapping: (payload: Mapping): Promise<Mapping> =>
-    put<Mapping>(`/api/mapping/${payload.detFunctioneleIdentificatie}`, payload)
+  getMappingByDETZaaktypeId: (detZaaktypeId: string): Promise<ZaaktypeMapping> =>
+    get<ZaaktypeMapping>(`/api/mapping/${detZaaktypeId}`),
+  createMapping: (payload: ZaaktypeMapping): Promise<ZaaktypeMapping> =>
+    post<ZaaktypeMapping>(`/api/mapping/${payload.detZaaktypeId}`, payload),
+  updateMapping: (payload: UpdateZaaktypeMapping): Promise<ZaaktypeMapping> =>
+    put<ZaaktypeMapping>(`/api/mapping/${payload.detZaaktypeId}`, payload)
 };

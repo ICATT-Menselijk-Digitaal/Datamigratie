@@ -1,8 +1,8 @@
 import { get } from "@/utils/fetchWrapper";
 
 export type OZZaaktype = {
-  uuid: string;
-  naam: string;
+  id: string;
+  identificatie: string;
 };
 
 export const ozService = {

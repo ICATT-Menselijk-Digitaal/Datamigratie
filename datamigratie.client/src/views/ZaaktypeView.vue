@@ -23,10 +23,10 @@
 
       <dt id="mapping">Koppeling OZ zaaktype:</dt>
       <dd>
-        <select name="ozUuid" aria-labelledby="mapping" v-model="mapping.ozUuid" required>
-          <option v-if="!mapping.ozUuid" value="">Kies Open Zaak zaaktype</option>
-          <option v-for="{ uuid, naam } in ozZaaktypes" :value="uuid" :key="uuid">
-            {{ naam }}
+        <select name="ozUuid" aria-labelledby="mapping" v-model="mapping.ozZaaktypeId" required>
+          <option v-if="!mapping.ozZaaktypeId" value="">Kies Open Zaak zaaktype</option>
+          <option v-for="{ id, identificatie } in ozZaaktypes" :value="id" :key="id">
+            {{ identificatie }}
           </option>
         </select>
       </dd>
@@ -37,7 +37,7 @@
         <router-link
           :to="{ name: 'detZaaktypes', ...(search && { query: { search } }) }"
           class="button button-secondary"
-          >Annuleren</router-link
+          >&lt; Terug</router-link
         >
       </li>
 
@@ -56,17 +56,21 @@ import SimpleSpinner from "@/components/SimpleSpinner.vue";
 import toast from "@/components/toast/toast";
 import { detService, type DETZaaktype } from "@/services/detService";
 import { ozService, type OZZaaktype } from "@/services/ozService";
-import { datamigratieService, type Mapping } from "@/services/datamigratieService";
+import {
+  datamigratieService,
+  type ZaaktypeMapping,
+  type UpdateZaaktypeMapping
+} from "@/services/datamigratieService";
 import { knownErrorMessages } from "@/utils/fetchWrapper";
 
-const { functioneleIdentificatie } = defineProps<{ functioneleIdentificatie: string }>();
+const { detZaaktypeId } = defineProps<{ detZaaktypeId: string }>();
 
 const route = useRoute();
 const search = computed(() => String(route.query.search || "").trim());
 
 const detZaaktype = ref<DETZaaktype>();
 const ozZaaktypes = ref<OZZaaktype[]>();
-const mapping = ref<Mapping>({ ozUuid: "" });
+const mapping = ref({ ozZaaktypeId: "" } as ZaaktypeMapping);
 
 const loading = ref(false);
 const errors = ref<unknown[]>([]);
@@ -78,13 +82,12 @@ const fetchMappingData = async () => {
   try {
     const services = [
       {
-        service: detService.getZaaktypeByFunctioneleIdentificatie(functioneleIdentificatie),
+        service: detService.getZaaktypeById(detZaaktypeId),
         target: detZaaktype
       },
       { service: ozService.getAllZaaktypes(), target: ozZaaktypes },
       {
-        service:
-          datamigratieService.getMappingByDETFunctioneleIdentificatie(functioneleIdentificatie),
+        service: datamigratieService.getMappingByDETZaaktypeId(detZaaktypeId),
         target: mapping,
         ignore404: true
       }
@@ -122,15 +125,17 @@ const submit = async () => {
   loading.value = true;
 
   try {
-    if (!mapping.value.detFunctioneleIdentificatie) {
-      mapping.value = {
-        ...mapping.value,
-        detFunctioneleIdentificatie: functioneleIdentificatie
-      };
+    if (!mapping.value.detZaaktypeId) {
+      mapping.value = { ...mapping.value, detZaaktypeId };
 
       await datamigratieService.createMapping(mapping.value);
     } else {
-      await datamigratieService.updateMapping(mapping.value);
+      const updatedMapping: UpdateZaaktypeMapping = {
+        detZaaktypeId: mapping.value.detZaaktypeId,
+        updatedOzZaaktypeId: mapping.value.ozZaaktypeId
+      };
+
+      await datamigratieService.updateMapping(updatedMapping);
     }
 
     toast.add({ text: "De mapping is succesvol opgeslagen." });
