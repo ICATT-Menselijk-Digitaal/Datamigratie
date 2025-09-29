@@ -12,7 +12,7 @@ namespace Datamigratie.Common.Services.Det
 
         Task<List<DetZaak>> GetZakenByZaaktypeAsync(string zaaktype);
 
-        Task<DetZaaktype> GetSpecificZaaktype(string zaaktypeName);
+        Task<DetZaaktype?> GetSpecificZaaktype(string zaaktypeName);
     }
 
     public class DetApiClient(
@@ -33,14 +33,14 @@ namespace Datamigratie.Common.Services.Det
         /// <returns>A PagedResponse object.</returns>
         private async Task<PagedResponse<T>?> GetPagedData<T>(string endpoint)
         {
-                var response = await httpClient.GetAsync(endpoint);
-                response.EnsureSuccessStatusCode();
+            var response = await httpClient.GetAsync(endpoint);
+            response.EnsureSuccessStatusCode();
 
-                var jsonString = await response.Content.ReadAsStringAsync();
- 
-                var result = JsonSerializer.Deserialize<PagedResponse<T>>(jsonString, _options);
+            var jsonString = await response.Content.ReadAsStringAsync();
 
-                return result;
+            var result = JsonSerializer.Deserialize<PagedResponse<T>>(jsonString, _options);
+
+            return result;
         }
 
         /// <summary>
@@ -108,15 +108,35 @@ namespace Datamigratie.Common.Services.Det
         /// Endpoint: /zaaktypen/{name}
         /// </summary>
         /// <returns>A zaaktype object, or null if not found</returns>
-        public async Task<DetZaaktype> GetSpecificZaaktype(string zaaktypeName)
+        public async Task<DetZaaktype?> GetSpecificZaaktype(string zaaktypeName)
         {
             var endpoint = $"zaaktypen/{zaaktypeName}";
-            var response = await httpClient.GetAsync(endpoint);
-            response.EnsureSuccessStatusCode();
+            HttpResponseMessage? response = null;
+
+            try
+            {
+                response = await httpClient.GetAsync(endpoint);
+                response.EnsureSuccessStatusCode();
+
+            }
+            catch (HttpRequestException ex)
+            {
+                if (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    return null;
+                }
+            }
+
+            if (response == null)
+            {
+                return null;
+            }
 
             var jsonString = await response.Content.ReadAsStringAsync();
             var result = JsonSerializer.Deserialize<DetZaaktype>(jsonString, _options);
 
+            // Despite deserializing to a non nullable type, the outcome can still be null in the odd case when the input is the string "null".
+            // We don't consider this an error not just a not found situation.
             if (result == null)
             {
                 logger.LogError("Failed to deserialize response from endpoint {endpoint} with response with response {jsonString}", endpoint, jsonString);
@@ -134,20 +154,20 @@ namespace Datamigratie.Common.Services.Det
         /// <returns>A Zaak object, or null if not found.</returns>
         public async Task<DetZaak> GetSpecificZaakAsync(string zaaktypeId)
         {
-                var endpoint = $"zaken/{zaaktypeId}";
-                var response = await httpClient.GetAsync(endpoint);
-                response.EnsureSuccessStatusCode();
+            var endpoint = $"zaken/{zaaktypeId}";
+            var response = await httpClient.GetAsync(endpoint);
+            response.EnsureSuccessStatusCode();
 
-                var jsonString = await response.Content.ReadAsStringAsync();
-                var result = JsonSerializer.Deserialize<DetZaak>(jsonString, _options);
+            var jsonString = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<DetZaak>(jsonString, _options);
 
-                if (result == null)
-                {
-                    logger.LogError("Failed to deserialize response from endpoint {endpoint} with response {jsonString}", endpoint, jsonString);
-                    throw new Exception($"Failed to deserialize response from endpoint {endpoint} with response {jsonString}");
-                }
+            if (result == null)
+            {
+                logger.LogError("Failed to deserialize response from endpoint {endpoint} with response {jsonString}", endpoint, jsonString);
+                throw new Exception($"Failed to deserialize response from endpoint {endpoint} with response {jsonString}");
+            }
 
-                return result;
+            return result;
         }
 
         /// <summary>
@@ -165,4 +185,4 @@ namespace Datamigratie.Common.Services.Det
         }
     }
 
-    }
+}

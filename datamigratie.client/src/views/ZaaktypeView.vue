@@ -38,6 +38,7 @@ import { useRoute } from "vue-router";
 import AlertInline from "@/components/AlertInline.vue";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
 import { detService, type DETZaaktype } from "@/services/detService";
+import { knownErrorMessages } from "@/utils/fetchWrapper";
 
 const props = defineProps<{ functioneleIdentificatie: string }>();
 
@@ -60,7 +61,9 @@ const fetchZaaktypes = async () => {
 
     detZaaktype.value = _detZaaktype;
   } catch (err: unknown) {
-    error.value = `Fout bij ophalen zaaktypes - ${err}`;
+    error.value = (err instanceof Error && err.message === knownErrorMessages.notFound)
+      ? "Onbekend zaaktype"
+      : `Fout bij ophalen van het zaaktype - ${err}`;   
   } finally {
     loading.value = false;
   }
