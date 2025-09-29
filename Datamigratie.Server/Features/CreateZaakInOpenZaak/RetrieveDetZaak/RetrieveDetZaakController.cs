@@ -1,4 +1,4 @@
-using Datamigratie.Common.Services.Det.Models;
+﻿using Datamigratie.Common.Services.Det.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Datamigratie.Server.Features.CreateZaakInOpenZaak.RetrieveDetZaak
@@ -18,11 +18,6 @@ namespace Datamigratie.Server.Features.CreateZaakInOpenZaak.RetrieveDetZaak
             _logger = logger;
         }
 
-        /// <summary>
-        /// Retrieves a zaak from DET by zaaknummer
-        /// </summary>
-        /// <param name="zaaknummer">The zaaknummer of the zaak to retrieve</param>
-        /// <returns>The zaak information from DET, or 404 if not found</returns>
         [HttpGet("{zaaknummer}")]
         public async Task<ActionResult<DetZaak>> GetZaakByZaaknummer(string zaaknummer)
         {

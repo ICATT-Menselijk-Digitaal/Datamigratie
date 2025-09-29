@@ -13,6 +13,8 @@ namespace Datamigratie.Common.Services.Det
         Task<List<OzZaaktype>> GetAllZaakTypen();
 
         Task<OzZaaktype?> GetZaaktype(Guid zaaktypeId);
+
+        Task<OzZaak> CreateZaak(CreateOzZaakRequest request);
     }
 
     public class OpenZaakClient : PagedApiClient, IOpenZaakApiClient
@@ -55,6 +57,58 @@ namespace Datamigratie.Common.Services.Det
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadFromJsonAsync<OzZaaktype>(_options);
+        }
+
+        /// <summary>
+        /// Creates a new zaak in OpenZaak
+        /// </summary>
+        /// <param name="request">The zaak creation request</param>
+        /// <returns>The created zaak</returns>
+        /// <exception cref="HttpRequestException">Thrown when OpenZaak returns validation errors or other HTTP errors</exception>
+        public async Task<OzZaak> CreateZaak(CreateOzZaakRequest request)
+        {
+            const string endpoint = "zaken/api/v1/zaken";
+
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync(endpoint, request, _options);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var zaak = await response.Content.ReadFromJsonAsync<OzZaak>(_options);
+                    return zaak ?? throw new InvalidOperationException("Failed to deserialize created zaak");
+                }
+
+                var errorContent = await response.Content.ReadAsStringAsync();
+
+                if (response.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    try
+                    {
+                        var errorResponse = JsonSerializer.Deserialize<OzErrorResponse>(errorContent, _options);
+                        if (errorResponse?.InvalidParams?.Any() == true)
+                        {
+                            var invalidFields = string.Join(", ", errorResponse.InvalidParams.Select(p => p.Field));
+                            throw new HttpRequestException($"Validation failed for fields: {invalidFields}");
+                        }
+                        throw new HttpRequestException($"Bad request: {errorResponse?.Detail ?? "Unknown validation error"}");
+                    }
+                    catch (JsonException)
+                    {
+                        throw new HttpRequestException($"Bad request: {errorContent}");
+                    }
+                }
+
+                throw new HttpRequestException($"Failed to create zaak. Status: {response.StatusCode}, Response: {errorContent}");
+            }
+            catch (HttpRequestException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new HttpRequestException("Failed to create zaak in OpenZaak", ex);
+            }
         }
 
         protected override int GetDefaultStartingPage()
