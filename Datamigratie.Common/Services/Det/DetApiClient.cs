@@ -14,6 +14,8 @@ namespace Datamigratie.Common.Services.Det
 
         Task<List<DetZaak>> GetZakenByZaaktype(string zaaktype);
 
+        Task<DetZaak?> GetZaakByZaaknummer(string zaaknummer);
+
         Task<DetZaaktype?> GetZaaktype(string zaaktypeName);
     }
 
@@ -79,6 +81,45 @@ namespace Datamigratie.Common.Services.Det
             var query = $"zaaktype={Uri.EscapeDataString(zaaktype)}";
             var pagedZaken = await GetAllPagedData<DetZaak>(endpoint, query);
             return pagedZaken.Results;
+        }
+
+        /// <summary>
+        /// Gets a specific zaak by its zaaknummer.
+        /// Endpoint: /zaken/{zaaknummer}
+        /// </summary>
+        /// <param name="zaaknummer">The zaaknummer of the zaak to retrieve.</param>
+        /// <returns>The DetZaak object if found, otherwise null.</returns>
+        public async Task<DetZaak?> GetZaakByZaaknummer(string zaaknummer)
+        {
+            _logger.LogInformation($"Fetching zaak with zaaknummer: {zaaknummer}");
+
+            try
+            {
+                var endpoint = $"zaken/{Uri.EscapeDataString(zaaknummer)}";
+                var response = await _httpClient.GetAsync(endpoint);
+
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    _logger.LogWarning($"Zaak with zaaknummer {zaaknummer} not found in DET");
+                    return null;
+                }
+
+                response.EnsureSuccessStatusCode();
+
+                var zaak = await response.Content.ReadFromJsonAsync<DetZaak>(_options);
+                _logger.LogInformation($"Successfully retrieved zaak with zaaknummer: {zaaknummer}");
+                return zaak;
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, $"HTTP error occurred while fetching zaak with zaaknummer: {zaaknummer}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Unexpected error occurred while fetching zaak with zaaknummer: {zaaknummer}");
+                throw;
+            }
         }
 
         protected override int GetDefaultStartingPage()
