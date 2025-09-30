@@ -55,7 +55,8 @@ namespace Datamigratie.Common.Services.Det
         /// <returns>A zaaktype object, or null if not found</returns>
         public async Task<DetZaaktype?> GetZaaktype(string zaaktypeName)
         {
-            _logger.LogInformationSanitized("Fetching zaaktype with name: {ZaaktypeName}", zaaktypeName);
+            var sanitizedZaaktypeName = zaaktypeName.Replace("\r", "").Replace("\n", "");
+            _logger.LogInformationSanitized("Fetching zaaktype with name: {ZaaktypeName}", sanitizedZaaktypeName);
             var endpoint = $"zaaktypen/{zaaktypeName}";
             var response = await _httpClient.GetAsync(endpoint);
 
