@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using System.Text.RegularExpressions;
 
 namespace Datamigratie.Common.Extensions
 {
@@ -34,7 +35,8 @@ namespace Datamigratie.Common.Extensions
         {
             if (arg is string s)
             {
-                return s.Replace("\r", "").Replace("\n", "");
+                // Remove all ASCII control characters (0x00-0x1F, 0x7F) from string
+                return Regex.Replace(s, @"[\p{Cc}]", "");
             }
 
             return arg;
