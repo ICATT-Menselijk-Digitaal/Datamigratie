@@ -54,7 +54,7 @@ namespace Datamigratie.Common.Services.Det
         /// <returns>A zaaktype object, or null if not found</returns>
         public async Task<DetZaaktype?> GetZaaktype(string zaaktypeName)
         {
-            _logger.LogInformation($"Fetching zaaktype with name: {zaaktypeName}");
+            _logger.LogInformation("Fetching zaaktype with name: {ZaaktypeName}", zaaktypeName);
             var endpoint = $"zaaktypen/{zaaktypeName}";
             var response = await _httpClient.GetAsync(endpoint);
 
@@ -74,7 +74,8 @@ namespace Datamigratie.Common.Services.Det
         /// <returns>A PagedResponse object containing a list of all Zaak objects across all pages.</returns>
         public async Task<List<DetZaak>> GetZakenByZaaktype(string zaaktype)
         {
-            _logger.LogInformation($"Fetching zaken for zaaktype: {zaaktype}");
+            _logger.LogInformation("Fetching zaken for zaaktype: {Zaaktype}", zaaktype);
+
             var endpoint = $"zaken";
             var query = $"zaaktype={Uri.EscapeDataString(zaaktype)}";
             var pagedZaken = await GetAllPagedData<DetZaak>(endpoint, query);
