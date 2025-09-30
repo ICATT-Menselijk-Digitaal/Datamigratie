@@ -60,7 +60,7 @@ public class StartMigrationController : ControllerBase
                 FailedRecords = 0
             };
 
-            _context.Migrations.Add(migration);
+            _context.MigrationTrackers.Add(migration);
 
             _ = Task.Run(async () =>
             {

@@ -9,6 +9,12 @@ public class StartMigrationModel
     public Guid ZaaktypeId { get; set; }
 }
 
+public class StartMigrationRequest
+{
+    [Required]
+    public Guid ZaaktypeId { get; set; }
+}
+
 public class StartMigrationResponse
 {
     public int MigrationId { get; set; }
