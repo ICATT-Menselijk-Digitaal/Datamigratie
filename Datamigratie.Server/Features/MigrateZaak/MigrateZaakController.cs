@@ -3,6 +3,7 @@ using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Google.Protobuf;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Datamigratie.Server.Features.MigrateZaak
 {
@@ -24,13 +25,20 @@ namespace Datamigratie.Server.Features.MigrateZaak
             _logger = logger;
         }
 
-        //tijdelijk als controller met een get method geimplementeerd. wordt uiteindelijke een functie die vanuit een mogratie proces aangeroepen wordt
-        [HttpGet("{zaaknummer}")]
-        public async Task<ActionResult> GetZaakByZaaknummer(string zaaknummer)
+
+        /// <summary>
+        /// tijdelijk als controller met een Get method geimplementeerd. wordt uiteindelijke een functie die vanuit een mogratie proces aangeroepen wordt
+        /// voorbeeld url: http://localhost:56175/api/migreer-zaak?zaaknummer=560-2023&zaaktypeId=https://openzaak.dev.kiss-demo.nl/catalogi/api/v1/zaaktypen/3710e7f6-a34b-4cb4-9cb2-561d7d05056b
+        /// </summary>
+        /// <param name="zaaknummer">functioneleIdentificatie van de zaak in DET. bijvoorbeeld 585-2023</param>
+        /// <param name="zaaktypeId">url van een zaaktype. bijvoorbeeld https://openzaak.dev.kiss-demo.nl/catalogi/api/v1/zaaktypen/3710e7f6-a34b-4cb4-9cb2-561d7d05056b</param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<ActionResult> GetZaakByZaaknummer([FromQuery] string zaaknummer, [FromQuery] string zaaktypeId)
         {
 
-            //zaaknummer kan niet leeg zijn. dan zou je niet op deze route uit kunnen komen.
-            //input validatie is dus overbodig
+       
+
 
             DetZaak? sourceZaak;
 
@@ -77,12 +85,19 @@ namespace Datamigratie.Server.Features.MigrateZaak
 
                 var createRequest = new CreateOzZaakRequest
                 {
-                    Identificatie = sourceZaak.ExterneIdentificatie,
-                    Bronorganisatie = "123456789",
+                    Identificatie = sourceZaak.FunctioneleIdentificatie,
+                    Bronorganisatie = "999990639", // moet een valide rsin zijn
                     Omschrijving = sourceZaak.Omschrijving,
-                    Zaaktype = "https://dummy-zaaktype-url.com",
-                    VerantwoordelijkeOrganisatie = "123456789",
-                    Startdatum = sourceZaak.Startdatum.ToString("yyyy-MM-dd")
+                    Zaaktype = zaaktypeId,
+                    VerantwoordelijkeOrganisatie = "999990639",  // moet een valide rsin zijn
+                    Startdatum = sourceZaak.Startdatum.ToString("yyyy-MM-dd"),
+
+                    //verplichte velden, ookal zeggen de specs van niet
+                    Registratiedatum = sourceZaak.Startdatum.ToString("yyyy-MM-dd"), //todo moet deze zijn, maar die heeft een raar format. moet custom gedeserialized worden sourceZaak.CreatieDatumTijd
+                 Vertrouwelijkheidaanduiding = "openbaar", //hier moet in een latere story nog custom mapping voor komen
+                 Betalingsindicatie = "",
+                 Archiefstatus = "nog_te_archiveren"
+
                 };
 
                 var createdZaak = await _openZaakApiClient.CreateZaak(createRequest);

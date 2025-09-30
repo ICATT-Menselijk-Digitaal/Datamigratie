@@ -1,5 +1,7 @@
 ﻿using System.Net;
+using System.Net.Http;
 using System.Net.Http.Json;
+using System.Net.Mime;
 using System.Text.Json;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak.Models;
@@ -71,8 +73,16 @@ namespace Datamigratie.Common.Services.Det
 
             try
             {
-                var response = await _httpClient.PostAsJsonAsync(endpoint, request, _options);
+          
 
+
+                var content = JsonContent.Create(request);
+                content.Headers.Add("Content-Crs", "EPSG:4326"); ;
+
+                var response = await _httpClient.PostAsync( endpoint, content);
+
+
+                
                 if (response.IsSuccessStatusCode)
                 {
                     var zaak = await response.Content.ReadFromJsonAsync<OzZaak>(_options);
@@ -88,7 +98,7 @@ namespace Datamigratie.Common.Services.Det
                         var errorResponse = JsonSerializer.Deserialize<OzErrorResponse>(errorContent, _options);
                         if (errorResponse?.InvalidParams?.Any() == true)
                         {
-                            var invalidFields = string.Join(", ", errorResponse.InvalidParams.Select(p => p.Field));
+                            var invalidFields = string.Join(", ", errorResponse.InvalidParams.Select(p => new { p.Name, p.Reason, p.Code } ));
                             throw new HttpRequestException($"Validation failed for fields: {invalidFields}");
                         }
                         throw new HttpRequestException($"Bad request: {errorResponse?.Detail ?? "Unknown validation error"}");

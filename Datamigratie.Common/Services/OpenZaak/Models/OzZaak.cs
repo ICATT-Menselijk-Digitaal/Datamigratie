@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Datamigratie.Common.Services.OpenZaak.Models
 {
@@ -64,18 +64,27 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
 
     public class OzValidationError
     {
-        [JsonPropertyName("field")]
-        public string Field { get; set; } = string.Empty;
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
 
         [JsonPropertyName("code")]
         public string Code { get; set; } = string.Empty;
 
-        [JsonPropertyName("detail")]
-        public string Detail { get; set; } = string.Empty;
+        [JsonPropertyName("reason")]
+        public string Reason { get; set; } = string.Empty;
     }
 
     public class OzErrorResponse
     {
+
+        //{"type":"https://openzaak.dev.kiss-demo.nl/ref/fouten/ValidationError/","code":"invalid","title":"Invalid input.","status":400,
+        /// <summary>
+        /// /"detail":"","instance":"urn:uuid:505c93c7-0dd0-460d-8e8b-8377a19e0c46",
+        /// "invalidParams":[{"name":"zaaktype","code":"unknown-service","reason":"De service voor deze URL is niet bekend."}]}
+        /// </summary>
+
+
+
         [JsonPropertyName("detail")]
         public string? Detail { get; set; }
 

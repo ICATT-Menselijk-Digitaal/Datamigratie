@@ -92,38 +92,26 @@ namespace Datamigratie.Common.Services.Det
         public async Task<DetZaak?> GetZaakByZaaknummer(string zaaknummer)
         {
             
-
             try
             {
                 var endpoint = $"zaken/{Uri.EscapeDataString(zaaknummer)}";
                 var response = await _httpClient.GetAsync(endpoint);
 
-                //if (response.StatusCode == HttpStatusCode.NotFound)
-                //{
-                //    _logger.LogWarning($"Zaak with zaaknummer {zaaknummer} not found in DET");
-                //    return null;
-                //}
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {                
+                    return null;
+                }
 
                 response.EnsureSuccessStatusCode();
 
-                var zaak = await response.Content.ReadFromJsonAsync<DetZaak>(_options);
-            
-                return zaak;
+                return await response.Content.ReadFromJsonAsync<DetZaak>(_options);
+
             }
             catch (HttpRequestException ex)
             {
                 _logger.LogError(ex, "HTTP error occurred while fetching zaak with zaaknummer: {zaaknummer}", zaaknummer);
                 throw;
-            }
-            //catch (JsonException ex)
-            //{
-
-            //}
-        /// The JSON is invalid,
-        /// <typeparamref name="TValue"/> is not compatible with the JSON,
-        /// or when there is remaining data in the Stream.
-        /// </exception>
-        /// <exception cref="NotSupportedException"
+            }      
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error occurred while fetching zaak with zaaknummer: {zaaknummer}", zaaknummer);
