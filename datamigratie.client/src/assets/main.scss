@@ -70,6 +70,14 @@ body {
     margin-block-end: var(--spacing-small);
   }
 
+  input[type="date"] {
+    max-inline-size: 15ch;
+  }
+}
+
+// Forms error styling
+.form-group,
+form dl {
   input,
   select {
     & + .error {
@@ -85,10 +93,6 @@ body {
         display: block;
       }
     }
-  }
-
-  input[type="date"] {
-    max-inline-size: 15ch;
   }
 
   .alert {
