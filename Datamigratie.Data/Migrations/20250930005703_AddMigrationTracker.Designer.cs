@@ -12,15 +12,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Datamigratie.Data.Migrations
 {
     [DbContext(typeof(DatamigratieDbContext))]
-    [Migration("20250924203150_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20250930005703_AddMigrationTracker")]
+    partial class AddMigrationTracker
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.10")
+                .HasAnnotation("ProductVersion", "8.0.18")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -55,9 +55,8 @@ namespace Datamigratie.Data.Migrations
                     b.Property<DateTime?>("StartedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.Property<int>("SuccessfulRecords")
                         .HasColumnType("integer");
@@ -70,13 +69,29 @@ namespace Datamigratie.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedAt");
+                    b.ToTable("MigrationTrackers");
+                });
 
-                    b.HasIndex("Status");
+            modelBuilder.Entity("Datamigratie.Data.Entities.ZaaktypenMapping", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
-                    b.HasIndex("ZaaktypeId");
+                    b.Property<string>("DetZaaktypeId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.ToTable("Migrations");
+                    b.Property<Guid>("OzZaaktypeId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DetZaaktypeId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Mapping_DetZaaktypeId_Unique");
+
+                    b.ToTable("Mappings");
                 });
 #pragma warning restore 612, 618
         }
