@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Net.Http.Json;
+using System.Text.Json;
 using Datamigratie.Common.Services.Det.Models;
 using Microsoft.Extensions.Logging;
 
@@ -35,12 +36,7 @@ namespace Datamigratie.Common.Services.Det
         {
             var response = await httpClient.GetAsync(endpoint);
             response.EnsureSuccessStatusCode();
-
-            var jsonString = await response.Content.ReadAsStringAsync();
-
-            var result = JsonSerializer.Deserialize<PagedResponse<T>>(jsonString, _options);
-
-            return result;
+            return await response.Content.ReadFromJsonAsync<PagedResponse<T>>(_options);   
         }
 
         /// <summary>
