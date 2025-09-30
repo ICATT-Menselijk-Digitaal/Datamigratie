@@ -107,7 +107,6 @@ namespace Datamigratie.Common.Services.Det
         public async Task<DetZaaktype?> GetSpecificZaaktype(string id)
         {
             var endpoint = $"zaaktypen/{id}";
-            HttpResponseMessage? response;
             try
             {
                 response = await httpClient.GetAsync(endpoint);
