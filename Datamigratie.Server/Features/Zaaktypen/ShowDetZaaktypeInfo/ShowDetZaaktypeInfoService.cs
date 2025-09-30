@@ -16,6 +16,11 @@ namespace Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo;
 
             var detZaaktype = detZaaktypen.Find(z => z.FunctioneleIdentificatie == zaaktypeId);
 
+            if (detZaaktype == null)
+            {
+                throw new Exception($"Det Zaaktype with id {zaaktypeId} not found");
+            }
+
             var detZaken = await detApiClient.GetZakenByZaaktype(zaaktypeId);
 
             var closedDetZaken = detZaken.Count(z => !z.Open);
