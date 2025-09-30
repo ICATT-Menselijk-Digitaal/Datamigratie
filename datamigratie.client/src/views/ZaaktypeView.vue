@@ -19,7 +19,7 @@
       <dd>{{ detZaaktype.actief ? "Ja" : "Nee" }}</dd>
 
       <dt>Aantal gesloten zaken:</dt>
-      <dd>{{ detZaaktype?.closedZaken }}</dd>
+      <dd>{{ detZaaktype?.closedZakenCount }}</dd>
 
       <dt id="mapping">Koppeling OZ zaaktype:</dt>
       <dd>
