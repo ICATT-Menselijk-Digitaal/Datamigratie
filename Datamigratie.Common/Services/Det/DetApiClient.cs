@@ -104,42 +104,40 @@ namespace Datamigratie.Common.Services.Det
         /// Endpoint: /zaaktypen/{name}
         /// </summary>
         /// <returns>A zaaktype object, or null if not found</returns>
-        public async Task<DetZaaktype?> GetSpecificZaaktype(string zaaktypeName)
+        public async Task<DetZaaktype?> GetSpecificZaaktype(string id)
         {
-            var endpoint = $"zaaktypen/{zaaktypeName}";
-            HttpResponseMessage? response = null;
-
+            var endpoint = $"zaaktypen/{id}";
+            HttpResponseMessage? response;
             try
             {
                 response = await httpClient.GetAsync(endpoint);
+
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    return null;
+                }
+
                 response.EnsureSuccessStatusCode();
+
+                var result = await response.Content.ReadFromJsonAsync<DetZaaktype>(_options);
+
+                // Despite deserializing to a non nullable type, the outcome can still be null in the odd case when the input is the string "null".
+                // We don't consider this an error not just a not found situation.
+                if (result == null)
+                {
+                    logger.LogError("Deserialized response from endpoint {endpoint} is null", endpoint);
+                    throw new Exception($"Deserialized response from endpoint {endpoint} is null");
+                }
+
+                return result;
 
             }
             catch (HttpRequestException ex)
             {
-                if (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
-                {
-                    return null;
-                }
-            }
-
-            if (response == null)
-            {
-                return null;
-            }
-
-            var jsonString = await response.Content.ReadAsStringAsync();
-            var result = JsonSerializer.Deserialize<DetZaaktype>(jsonString, _options);
-
-            // Despite deserializing to a non nullable type, the outcome can still be null in the odd case when the input is the string "null".
-            // We don't consider this an error not just a not found situation.
-            if (result == null)
-            {
-                logger.LogError("Failed to deserialize response from endpoint {endpoint} with response with response {jsonString}", endpoint, jsonString);
-                throw new Exception($"Failed to deserialize response from endpoint {endpoint} with response with response {jsonString}");
-            }
-
-            return result;
+                logger.LogError(ex, "An error occurred while getting zaaktype '{ZaaktypeName}' from endpoint {Endpoint}", id, endpoint);
+                throw;
+            }       
+ 
         }
 
         /// <summary>
