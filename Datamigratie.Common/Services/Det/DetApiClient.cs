@@ -91,33 +91,42 @@ namespace Datamigratie.Common.Services.Det
         /// <returns>The DetZaak object if found, otherwise null.</returns>
         public async Task<DetZaak?> GetZaakByZaaknummer(string zaaknummer)
         {
-            _logger.LogInformation($"Fetching zaak with zaaknummer: {zaaknummer}");
+            
 
             try
             {
                 var endpoint = $"zaken/{Uri.EscapeDataString(zaaknummer)}";
                 var response = await _httpClient.GetAsync(endpoint);
 
-                if (response.StatusCode == HttpStatusCode.NotFound)
-                {
-                    _logger.LogWarning($"Zaak with zaaknummer {zaaknummer} not found in DET");
-                    return null;
-                }
+                //if (response.StatusCode == HttpStatusCode.NotFound)
+                //{
+                //    _logger.LogWarning($"Zaak with zaaknummer {zaaknummer} not found in DET");
+                //    return null;
+                //}
 
                 response.EnsureSuccessStatusCode();
 
                 var zaak = await response.Content.ReadFromJsonAsync<DetZaak>(_options);
-                _logger.LogInformation($"Successfully retrieved zaak with zaaknummer: {zaaknummer}");
+            
                 return zaak;
             }
             catch (HttpRequestException ex)
             {
-                _logger.LogError(ex, $"HTTP error occurred while fetching zaak with zaaknummer: {zaaknummer}");
+                _logger.LogError(ex, "HTTP error occurred while fetching zaak with zaaknummer: {zaaknummer}", zaaknummer);
                 throw;
             }
+            //catch (JsonException ex)
+            //{
+
+            //}
+        /// The JSON is invalid,
+        /// <typeparamref name="TValue"/> is not compatible with the JSON,
+        /// or when there is remaining data in the Stream.
+        /// </exception>
+        /// <exception cref="NotSupportedException"
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Unexpected error occurred while fetching zaak with zaaknummer: {zaaknummer}");
+                _logger.LogError(ex, "Unexpected error occurred while fetching zaak with zaaknummer: {zaaknummer}", zaaknummer);
                 throw;
             }
         }

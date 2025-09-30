@@ -10,7 +10,7 @@ namespace Datamigratie.Common.Services.Det.Models
     {
         public string AangemaaktDoor { get; set; }
         public string Afdeling { get; set; }
-        public DateTimeOffset CreatieDatumTijd { get; set; }
+        public string CreatieDatumTijd { get; set; }
         public DateTime? Einddatum { get; set; }
         public string ExterneIdentificatie { get; set; }
         public DateTime? Fataledatum { get; set; }
@@ -26,7 +26,7 @@ namespace Datamigratie.Common.Services.Det.Models
         public DateTime Streefdatum { get; set; }
         public bool Vernietiging { get; set; }
         public bool Vertrouwelijk { get; set; }
-        public DateTimeOffset WijzigDatumTijd { get; set; }
+        public string WijzigDatumTijd { get; set; }
         public DetZaaktype Zaaktype { get; set; }
     }
 }
