@@ -56,7 +56,7 @@ namespace Datamigratie.Common.Services.Det
         public async Task<DetZaaktype?> GetZaaktype(string zaaktypeName)
         {
             var sanitizedZaaktypeName = zaaktypeName.Replace("\r", "").Replace("\n", "");
-            _logger.LogInformationSanitized("Fetching zaaktype with name: {ZaaktypeName}", sanitizedZaaktypeName);
+            _logger.LogInformation("Fetching zaaktype with name: {ZaaktypeName}", sanitizedZaaktypeName);
             var endpoint = $"zaaktypen/{zaaktypeName}";
             var response = await _httpClient.GetAsync(endpoint);
 
@@ -76,7 +76,8 @@ namespace Datamigratie.Common.Services.Det
         /// <returns>A PagedResponse object containing a list of all Zaak objects across all pages.</returns>
         public async Task<List<DetZaak>> GetZakenByZaaktype(string zaaktype)
         {
-            _logger.LogInformationSanitized("Fetching zaken for zaaktype: {Zaaktype}", zaaktype);
+            var sanitizedZaaktypeName = zaaktype.Replace("\r", "").Replace("\n", "");
+            _logger.LogInformation("Fetching zaken for zaaktype: {Zaaktype}", zaaktype);
 
             var endpoint = $"zaken";
             var query = $"zaaktype={Uri.EscapeDataString(zaaktype)}";
