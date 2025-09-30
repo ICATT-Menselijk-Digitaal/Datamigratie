@@ -61,31 +61,21 @@ public class StartMigrationController : ControllerBase
             };
 
             _context.MigrationTrackers.Add(migration);
-
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    await _migrationProcessor.ProcessMigrationAsync(migration.Id);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error processing migration {MigrationId} in background", migration.Id);
-                }
-            });
-
             await _context.SaveChangesAsync();
+ 
+            // Fire-and-forget trigger
+            _migrationProcessor.TriggerMigration();
 
             _logger.LogInformation("Migration created with ID {MigrationId} for ZaaktypeId {ZaaktypeId}", 
                 migration.Id, request.ZaaktypeId);
 
-            return Ok(new StartMigrationResponse
+            return Accepted(new StartMigrationResponse
             {
                 MigrationId = migration.Id,
                 ZaaktypeId = migration.ZaaktypeId,
                 Status = migration.Status,
                 CreatedAt = migration.CreatedAt,
-                Message = "Migration started successfully"
+                Message = "Migration started in background"
             });
         }
         catch (Exception ex)
