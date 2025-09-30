@@ -16,7 +16,7 @@ namespace Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo;
 
             var detZaaktype = detZaaktypen.Find(z => z.FunctioneleIdentificatie == zaaktypeId);
 
-            var detZaken = await _detApiClient.GetZakenByZaaktype(zaaktypeId);
+            var detZaken = await detApiClient.GetZakenByZaaktype(zaaktypeId);
 
             var closedDetZaken = detZaken.Count(z => !z.Open);
 
