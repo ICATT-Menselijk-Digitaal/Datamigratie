@@ -6,13 +6,13 @@ namespace Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo;
     {
         Task<EnrichedDetZaaktype> GetZaaktype(string zaaktypeId);
     }
-    public class ShowDetZaaktypeInfoService(IDetApiClient _detApiClient) : IShowDetZaaktypeInfoService
+    public class ShowDetZaaktypeInfoService(IDetApiClient detApiClient) : IShowDetZaaktypeInfoService
     {
         public async Task<EnrichedDetZaaktype> GetZaaktype(string zaaktypeId)
         {
             // TODO -> in the future we want to fetch a single det zaaktype by id instead of fetching all and filtering
             // this is currently not supported by the det api (only by name, which is not recommended)
-            var detZaaktypen = await _detApiClient.GetAllZaakTypen();
+            var detZaaktypen = await detApiClient.GetAllZaakTypen();
 
             var detZaaktype = detZaaktypen.Find(z => z.FunctioneleIdentificatie == zaaktypeId);
 

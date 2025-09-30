@@ -11,8 +11,15 @@ namespace Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo
         [HttpGet("{zaaktypeId}")]
         public async Task<ActionResult<EnrichedDetZaaktype>> GetZaaktype(string zaaktypeId)
         {
-            var zaaktype = await showZaaktypeService.GetZaaktype(zaaktypeId);
-            return Ok(zaaktype);
+            try
+            {
+                var zaaktype = await showZaaktypeService.GetZaaktype(zaaktypeId);
+                return Ok(zaaktype);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
     }
 }
