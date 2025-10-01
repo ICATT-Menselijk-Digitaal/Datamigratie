@@ -24,8 +24,6 @@
       <dt id="mapping">Koppeling OZ zaaktype:</dt>
       <dd v-if="canStartMigration || isThisMigrationRunning">
         {{ ozZaaktypes?.find((type) => type.id == mapping.ozZaaktypeId)?.identificatie }}
-
-        {{ canStartMigration }} {{ isThisMigrationRunning }}
       </dd>
       <dd v-else>
         <select

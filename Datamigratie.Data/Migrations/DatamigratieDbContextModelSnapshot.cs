@@ -17,36 +17,10 @@ namespace Datamigratie.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.18")
+                .HasAnnotation("ProductVersion", "8.0.20")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("Datamigratie.Data.Entities.ZaaktypenMapping", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("DetZaaktypeId")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("det_zaaktype_id");
-
-                    b.Property<Guid>("OzZaaktypeId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("oz_zaaktype_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_mappings");
-
-                    b.HasIndex("DetZaaktypeId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_Mapping_DetZaaktypeId_Unique");
-
-                    b.ToTable("mappings", (string)null);
-                });
 
             modelBuilder.Entity("Datamigratie.Data.Entities.MigrationTracker", b =>
                 {
@@ -99,7 +73,29 @@ namespace Datamigratie.Data.Migrations
 
                     b.HasIndex("ZaaktypeId");
 
-                    b.ToTable("Migrations");
+                    b.ToTable("MigrationTrackers");
+                });
+
+            modelBuilder.Entity("Datamigratie.Data.Entities.ZaaktypenMapping", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("DetZaaktypeId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OzZaaktypeId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DetZaaktypeId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Mapping_DetZaaktypeId_Unique");
+
+                    b.ToTable("Mappings");
                 });
 #pragma warning restore 612, 618
         }

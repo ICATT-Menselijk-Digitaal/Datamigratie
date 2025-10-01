@@ -5,7 +5,7 @@ export const handlers = [
   http.get("/api/migration", async () => {
     return HttpResponse.json({
       detZaaktypeId: "EVG",
-      isRunning: true
+      isRunning: false
     });
   }),
   http.post("/api/migration", async ({ request }) => {
