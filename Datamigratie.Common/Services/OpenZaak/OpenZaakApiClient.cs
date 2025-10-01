@@ -70,6 +70,7 @@ namespace Datamigratie.Common.Services.OpenZaak
             try
             {
                 var content = JsonContent.Create(request);
+                content.Headers.Add("Content-Crs", "EPSG:4326");
 
                 var response = await _httpClient.PostAsync(endpoint, content);
                 
