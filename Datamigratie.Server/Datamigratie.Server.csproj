@@ -8,7 +8,7 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <SpaRoot>..\datamigratie.client</SpaRoot>
     <SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
-    <SpaProxyServerUrl>https://localhost:52208</SpaProxyServerUrl>
+    <SpaProxyServerUrl>https://localhost:52175</SpaProxyServerUrl>
   </PropertyGroup>
 
 
@@ -26,7 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\datamigratie.client\datamigratie.client.esproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <ReferenceOutputAssembly>False</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="..\Datamigratie.Common\Datamigratie.Common.csproj" />
     <ProjectReference Include="..\Datamigratie.Data\Datamigratie.Data.csproj" />
