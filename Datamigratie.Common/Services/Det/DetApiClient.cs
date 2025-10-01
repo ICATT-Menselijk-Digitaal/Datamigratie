@@ -54,7 +54,6 @@ namespace Datamigratie.Common.Services.Det
             _logger.LogInformation("Fetching zaaktype with name: {ZaaktypeName}", SanitizeForLogging(id));
 
             var endpoint = $"zaaktypen/{id}";
-            HttpResponseMessage? response;
             try
             {
                 response = await _httpClient.GetAsync(endpoint);
