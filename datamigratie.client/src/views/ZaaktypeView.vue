@@ -94,11 +94,12 @@ import { detService, type DETZaaktype } from "@/services/detService";
 import { ozService, type OZZaaktype } from "@/services/ozService";
 import {
   datamigratieService,
+  MigrationStatus,
   type ZaaktypeMapping,
   type UpdateZaaktypeMapping
 } from "@/services/datamigratieService";
 import { knownErrorMessages } from "@/utils/fetchWrapper";
-import { useMigrationStatus } from "@/composables/use-migration-status";
+import { useMigration } from "@/composables/use-migration-status";
 
 const { detZaaktypeId } = defineProps<{ detZaaktypeId: string }>();
 
@@ -109,23 +110,23 @@ const detZaaktype = ref<DETZaaktype>();
 const ozZaaktypes = ref<OZZaaktype[]>();
 const mapping = ref({ ozZaaktypeId: "" } as ZaaktypeMapping);
 
-const { migrationStatus, fetchMigrationStatus } = useMigrationStatus();
+const { migration, fetchMigration } = useMigration();
 
 const isEditMode = ref(false);
 const setEditMode = (value: boolean) => (isEditMode.value = value);
 
 const canStartMigration = computed(
   () =>
-    !isEditMode.value &&
-    !migrationStatus.value?.isRunning &&
     mapping.value.detZaaktypeId &&
-    mapping.value.ozZaaktypeId
+    mapping.value.ozZaaktypeId &&
+    migration.value?.status !== MigrationStatus.inProgress &&
+    !isEditMode.value
 );
 
 const isThisMigrationRunning = computed(
   () =>
-    migrationStatus.value?.isRunning &&
-    migrationStatus.value.detZaaktypeId === mapping.value.detZaaktypeId
+    migration.value?.status === MigrationStatus.inProgress &&
+    migration.value.detZaaktypeId === mapping.value.detZaaktypeId
 );
 
 const loading = ref(false);
@@ -207,12 +208,9 @@ const startMigration = async () => {
   loading.value = true;
 
   try {
-    await datamigratieService.startMigration({
-      detZaaktypeId,
-      isRunning: true
-    });
+    await datamigratieService.startMigration({ detZaaktypeId });
 
-    fetchMigrationStatus();
+    fetchMigration();
   } catch (err: unknown) {
     toast.add({ text: `Fout bij starten van de migratie - ${err}`, type: "error" });
   } finally {

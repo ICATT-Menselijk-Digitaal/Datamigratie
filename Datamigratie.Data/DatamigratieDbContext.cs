@@ -32,7 +32,7 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
         {
             entity.HasKey(e => e.Id);
             
-            entity.Property(e => e.ZaaktypeId)
+            entity.Property(e => e.DetZaaktypeId)
                 .IsRequired();
             
             entity.Property(e => e.Status)
@@ -48,7 +48,7 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
             entity.Property(e => e.ErrorMessage)
                 .HasMaxLength(1000);
 
-            entity.HasIndex(e => e.ZaaktypeId);
+            entity.HasIndex(e => e.DetZaaktypeId);
             entity.HasIndex(e => e.Status);
             entity.HasIndex(e => e.CreatedAt);
         });

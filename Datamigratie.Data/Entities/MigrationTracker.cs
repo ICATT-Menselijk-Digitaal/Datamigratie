@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Datamigratie.Data.Entities;
 
@@ -8,7 +8,7 @@ public class MigrationTracker
     public int Id { get; set; }
     
     [Required]
-    public Guid ZaaktypeId { get; set; }
+    public required string DetZaaktypeId { get; set; }
     
     [Required]
     public MigrationStatus Status { get; set; }

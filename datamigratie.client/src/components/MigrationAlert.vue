@@ -3,18 +3,18 @@
 
   <alert-inline v-else-if="error">{{ error }}</alert-inline>
 
-  <alert-inline v-else-if="migrationStatus?.isRunning">
+  <alert-inline v-else-if="migration?.status === MigrationStatus.inProgress">
     <span class="spinner" role="presentation" aria-hidden="true"></span>
 
     <p>
-      Voor e-Suite zaaktype <em>{{ migrationStatus.detZaaktypeId }}</em> loopt nu een
+      Voor e-Suite zaaktype <em>{{ migration.detZaaktypeId }}</em> loopt nu een
       migratie van zaken van de e-Suite naar Open Zaak. Ondertussen kan er geen andere migratie
       gestart worden.
     </p>
 
     <menu class="reset">
       <li>
-        <button type="button" @click="fetchMigrationStatus">Ververs status</button>
+        <button type="button" @click="fetchMigration">Ververs status</button>
       </li>
     </menu>
   </alert-inline>
@@ -24,9 +24,10 @@
 import { onMounted } from "vue";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
 import AlertInline from "@/components/AlertInline.vue";
-import { useMigrationStatus } from "@/composables/use-migration-status";
-const { migrationStatus, fetchMigrationStatus, loading, error } = useMigrationStatus();
-onMounted(() => fetchMigrationStatus());
+import { MigrationStatus } from "@/services/datamigratieService";
+import { useMigration } from "@/composables/use-migration-status";
+const { migration, fetchMigration, loading, error } = useMigration();
+onMounted(() => fetchMigration());
 </script>
 
 <style lang="scss" scoped>

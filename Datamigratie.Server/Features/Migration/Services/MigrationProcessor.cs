@@ -1,4 +1,4 @@
-using Datamigratie.Data;
+﻿using Datamigratie.Data;
 using Datamigratie.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -99,7 +99,7 @@ public class MigrationProcessor : IHostedService, IMigrationProcessor
             await context.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation("Starting migration {MigrationId} for ZaaktypeId {ZaaktypeId}", 
-                migrationId, migration.ZaaktypeId);
+                migrationId, migration.DetZaaktypeId);
 
             await PerformMockMigrationAsync(context, migration, cancellationToken);
 
@@ -109,7 +109,7 @@ public class MigrationProcessor : IHostedService, IMigrationProcessor
 
             _logger.LogInformation("Completed migration {MigrationId} for ZaaktypeId {ZaaktypeId}. " +
                                  "Processed: {ProcessedRecords}, Successful: {SuccessfulRecords}, Failed: {FailedRecords}",
-                migrationId, migration.ZaaktypeId, migration.ProcessedRecords, 
+                migrationId, migration.DetZaaktypeId, migration.ProcessedRecords, 
                 migration.SuccessfulRecords, migration.FailedRecords);
         }
         catch (Exception ex)
@@ -131,7 +131,7 @@ public class MigrationProcessor : IHostedService, IMigrationProcessor
         migration.TotalRecords = totalRecords;
         
         _logger.LogInformation("Mock migration for ZaaktypeId {ZaaktypeId} will process {TotalRecords} records", 
-            migration.ZaaktypeId, totalRecords);
+            migration.DetZaaktypeId, totalRecords);
 
         for (int i = 0; i < totalRecords; i++)
         {
@@ -231,7 +231,7 @@ public class MigrationProcessor : IHostedService, IMigrationProcessor
             }
 
             _logger.LogInformation("Processing pending migration {MigrationId} for ZaaktypeId {ZaaktypeId}", 
-                pendingMigration.Id, pendingMigration.ZaaktypeId);
+                pendingMigration.Id, pendingMigration.DetZaaktypeId);
 
             await ProcessMigrationAsync(pendingMigration.Id);
             

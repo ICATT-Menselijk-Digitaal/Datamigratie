@@ -10,11 +10,22 @@ export type UpdateZaaktypeMapping = {
   updatedOzZaaktypeId: string;
 };
 
-export type MigrationStatus = {
+export const MigrationStatus = Object.freeze({
+  pending: "pending",
+  inProgress: "inProgress",
+  completed: "completed",
+  failed: "failed",
+  cancelled: "cancelled"
+});
+
+type MigrationStatus = keyof typeof MigrationStatus;
+
+export type Migration = {
   detZaaktypeId: string;
-  isRunning: boolean;
+  status?: MigrationStatus;
+  createdAt?: string;
   startedAt?: string;
-  stoppedAt?: string;
+  completedAt?: string;
 };
 
 export const datamigratieService = {
@@ -24,7 +35,6 @@ export const datamigratieService = {
     post<ZaaktypeMapping>(`/api/mapping/${payload.detZaaktypeId}`, payload),
   updateMapping: (payload: UpdateZaaktypeMapping): Promise<ZaaktypeMapping> =>
     put<ZaaktypeMapping>(`/api/mapping/${payload.detZaaktypeId}`, payload),
-  startMigration: (payload: MigrationStatus): Promise<MigrationStatus> =>
-    post(`/api/migration`, payload),
-  getMigrationStatus: (): Promise<MigrationStatus> => get(`/api/migration`)
+  startMigration: (payload: Migration): Promise<Migration> => post(`/api/migration/start`, payload),
+  getMigration: (): Promise<Migration> => get(`/api/migration`)
 };

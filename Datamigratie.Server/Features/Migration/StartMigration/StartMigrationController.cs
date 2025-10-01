@@ -1,4 +1,4 @@
-using Datamigratie.Data;
+﻿using Datamigratie.Data;
 using Datamigratie.Data.Entities;
 using Datamigratie.Server.Features.Migration.Services;
 using Datamigratie.Server.Features.Migration.StartMigration.Models;
@@ -41,7 +41,7 @@ public class StartMigrationController : ControllerBase
                 return Ok(new StartMigrationResponse
                 {
                     MigrationId = 0,
-                    ZaaktypeId = request.ZaaktypeId,
+                    DetZaaktypeId = request.DetZaaktypeId,
                     Status = MigrationStatus.InProgress,
                     CreatedAt = DateTime.UtcNow,
                     Message = "Migration is already in progress. Only one migration can run at a time."
@@ -50,7 +50,7 @@ public class StartMigrationController : ControllerBase
 
             var migration = new MigrationTracker
             {
-                ZaaktypeId = request.ZaaktypeId,
+                DetZaaktypeId = request.DetZaaktypeId,
                 Status = MigrationStatus.Pending,
                 CreatedAt = DateTime.UtcNow,
                 LastUpdated = DateTime.UtcNow,
@@ -67,12 +67,12 @@ public class StartMigrationController : ControllerBase
             _migrationProcessor.TriggerMigration();
 
             _logger.LogInformation("Migration created with ID {MigrationId} for ZaaktypeId {ZaaktypeId}", 
-                migration.Id, request.ZaaktypeId);
+                migration.Id, request.DetZaaktypeId);
 
             return Accepted(new StartMigrationResponse
             {
                 MigrationId = migration.Id,
-                ZaaktypeId = migration.ZaaktypeId,
+                DetZaaktypeId = migration.DetZaaktypeId,
                 Status = migration.Status,
                 CreatedAt = migration.CreatedAt,
                 Message = "Migration started in background"
@@ -81,7 +81,7 @@ public class StartMigrationController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error in StartMigration endpoint for ZaaktypeId {ZaaktypeId}", 
-                request.ZaaktypeId);
+                request.DetZaaktypeId);
             return StatusCode(500, new { message = "An error occurred while starting the migration" });
         }
     }

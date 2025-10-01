@@ -1,17 +1,17 @@
 import { readonly, ref } from "vue";
-import { datamigratieService, type MigrationStatus } from "@/services/datamigratieService";
+import { datamigratieService, type Migration } from "@/services/datamigratieService";
 
-const migrationStatus = ref<MigrationStatus>();
+const migration = ref<Migration>();
 
 const loading = ref(false);
 const error = ref("");
 
-export const useMigrationStatus = () => {
-  const fetchMigrationStatus = async () => {
+export const useMigration = () => {
+  const fetchMigration = async () => {
     loading.value = true;
 
     try {
-      migrationStatus.value = await datamigratieService.getMigrationStatus();
+      migration.value = await datamigratieService.getMigration();
     } catch (err: unknown) {
       error.value = `Fout bij ophalen van de migratie status - ${err}`;
     } finally {
@@ -20,9 +20,9 @@ export const useMigrationStatus = () => {
   };
 
   return {
-    migrationStatus: readonly(migrationStatus),
+    migration: readonly(migration),
     loading: readonly(loading),
     error: readonly(error),
-    fetchMigrationStatus
+    fetchMigration
   };
 };
