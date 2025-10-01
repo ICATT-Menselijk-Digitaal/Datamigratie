@@ -134,7 +134,7 @@ namespace Datamigratie.Common.Services.Det
         /// Gets a specific zaak by its zaaknummer.
         /// Endpoint: /zaken/{zaaknummer}
         /// </summary>
-        /// <param name="zaaknummer">The zaaknummer of the zaak to retrieve.</param>
+        /// <param name="zaaknummer">The zaaknummer of the zaak to retrieve. Defined in DET as functioneleIdentificatie</param>
         /// <returns>The DetZaak object if found, otherwise null.</returns>
         public async Task<DetZaak?> GetZaakByZaaknummer(string zaaknummer)
         {
