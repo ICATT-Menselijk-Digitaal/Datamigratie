@@ -32,11 +32,6 @@ namespace Datamigratie.Server.Features.MigrateZaak
         {
             // First apply data transformation to follow OpenZaak constraints
 
-            if (detZaak.Omschrijving.Length > 80)
-            {
-                detZaak.Omschrijving = Truncate(detZaak.Omschrijving, 77) + "..."; // truncate to 77 and add dots to show there was more
-            }
-
             var registratieDatum = ConvertNamedTimezoneToDateTime(detZaak.CreatieDatumTijd).ToString("yyyy-MM-dd");
 
             var startDatum = detZaak.Startdatum.ToString("yyyy-MM-dd");
@@ -69,14 +64,6 @@ namespace Datamigratie.Server.Features.MigrateZaak
             var dateTime = zoneIndex >= 0 ? dateTimeWithNamedTimeZone.Substring(0, zoneIndex) : dateTimeWithNamedTimeZone;
 
             return DateTime.Parse(dateTime);
-        }
-
-        private static string Truncate(string input, int maxLength)
-        {
-            if (string.IsNullOrWhiteSpace(input))
-                return input;
-
-            return input.Length > maxLength ? input.Substring(0, maxLength).TrimEnd() : input;
         }
     }
 
