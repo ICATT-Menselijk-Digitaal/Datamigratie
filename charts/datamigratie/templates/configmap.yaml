@@ -13,3 +13,8 @@ data:
   ASPNETCORE_HTTP_PORTS: {{ .Values.settings.aspnetcore.httpPorts | toString | quote }}
   {{- end }}
   RELEASE_VARIABLE: {{ .Values.settings.releaseVariable | quote }}
+    
+  # API Connections
+  OpenZaakApi__BaseUrl: {{ .Values.apiConnections.openZaakApi.baseUrl | quote }}
+  OpenZaakApi__ApiUser: {{ .Values.apiConnections.openZaakApi.apiUser | quote }}
+  DetApi__BaseUrl: {{ .Values.apiConnections.detApi.baseUrl | quote }}

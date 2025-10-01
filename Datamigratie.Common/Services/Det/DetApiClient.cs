@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using Datamigratie.Common.Extensions;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.Shared;
 using Datamigratie.Common.Services.Shared.Models;
@@ -56,7 +57,8 @@ namespace Datamigratie.Common.Services.Det
         /// <returns>A zaaktype object, or null if not found</returns>
         public async Task<DetZaaktype?> GetZaaktype(string zaaktypeName)
         {
-            _logger.LogInformation($"Fetching zaaktype with name: {zaaktypeName}");
+            var sanitizedZaaktypeName = zaaktypeName.Replace("\r", "").Replace("\n", "");
+            _logger.LogInformation("Fetching zaaktype with name: {ZaaktypeName}", sanitizedZaaktypeName);
             var endpoint = $"zaaktypen/{zaaktypeName}";
             var response = await _httpClient.GetAsync(endpoint);
 
@@ -76,7 +78,9 @@ namespace Datamigratie.Common.Services.Det
         /// <returns>A PagedResponse object containing a list of all Zaak objects across all pages.</returns>
         public async Task<List<DetZaak>> GetZakenByZaaktype(string zaaktype)
         {
-            _logger.LogInformation($"Fetching zaken for zaaktype: {zaaktype}");
+            var sanitizedZaaktype = zaaktype.Replace("\r", "").Replace("\n", "");
+            _logger.LogInformation("Fetching zaken for zaaktype: {Zaaktype}", sanitizedZaaktype);
+
             var endpoint = $"zaken";
             var query = $"zaaktype={Uri.EscapeDataString(zaaktype)}";
             var pagedZaken = await GetAllPagedData<DetZaak>(endpoint, query);
