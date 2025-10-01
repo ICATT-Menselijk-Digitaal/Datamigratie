@@ -1,4 +1,4 @@
-using Datamigratie.Data.Entities;
+﻿using Datamigratie.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Datamigratie.Data;
@@ -55,5 +55,5 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
     }
 
     public DbSet<ZaaktypenMapping> Mappings { get; set; }
-    public DbSet<MigrationTracker> Migrations { get; set; }
+    public DbSet<MigrationTracker> MigrationTrackers { get; set; }
 }
