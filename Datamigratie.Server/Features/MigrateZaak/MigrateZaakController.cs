@@ -33,17 +33,16 @@ namespace Datamigratie.Server.Features.MigrateZaak
 
         /// <summary>
         /// tijdelijk als controller met een Get method geimplementeerd. wordt uiteindelijke een functie die vanuit een mogratie proces aangeroepen wordt
-        /// voorbeeld url: http://localhost:56175/api/migreer-zaak?zaaknummer=560-2023&zaaktypeId=https://openzaak.dev.kiss-demo.nl/catalogi/api/v1/zaaktypen/3710e7f6-a34b-4cb4-9cb2-561d7d05056b
+        /// voorbeeld url: http://localhost:56175/api/migreer-zaak?zaaknummer=560-2023&zaaktypeId=3710e7f6-a34b-4cb4-9cb2-561d7d05056b
         /// </summary>
         /// <param name="zaaknummer">functioneleIdentificatie van de zaak in DET. bijvoorbeeld 585-2023</param>
-        /// <param name="zaaktypeId">url van een zaaktype. bijvoorbeeld https://openzaak.dev.kiss-demo.nl/catalogi/api/v1/zaaktypen/3710e7f6-a34b-4cb4-9cb2-561d7d05056b</param>
+        /// <param name="zaaktypeId">uuid van een zaaktype. bijvoorbeeld 3710e7f6-a34b-4cb4-9cb2-561d7d05056b</param>
         /// <returns></returns>
         [HttpGet]
         public async Task<ActionResult> GetZaakByZaaknummer([FromQuery] string zaaknummer, [FromQuery] Guid zaaktypeId)
         {
 
             DetZaak? detZaak;
-            OzZaaktype? ozZaakType;
 
             try
             {
