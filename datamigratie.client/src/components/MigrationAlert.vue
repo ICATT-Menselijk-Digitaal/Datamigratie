@@ -7,9 +7,8 @@
     <span class="spinner" role="presentation" aria-hidden="true"></span>
 
     <p>
-      Voor e-Suite zaaktype <em>{{ migration.detZaaktypeId }}</em> loopt nu een
-      migratie van zaken van de e-Suite naar Open Zaak. Ondertussen kan er geen andere migratie
-      gestart worden.
+      Voor e-Suite zaaktype <em>{{ migration.detZaaktypeId }}</em> loopt nu een migratie van zaken
+      van de e-Suite naar Open Zaak. Ondertussen kan er geen andere migratie gestart worden.
     </p>
 
     <menu class="reset">
@@ -26,6 +25,7 @@ import SimpleSpinner from "@/components/SimpleSpinner.vue";
 import AlertInline from "@/components/AlertInline.vue";
 import { MigrationStatus } from "@/services/datamigratieService";
 import { useMigration } from "@/composables/use-migration-status";
+
 const { migration, fetchMigration, loading, error } = useMigration();
 onMounted(() => fetchMigration());
 </script>
