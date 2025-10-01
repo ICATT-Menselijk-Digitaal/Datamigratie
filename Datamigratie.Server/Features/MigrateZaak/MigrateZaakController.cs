@@ -60,22 +60,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
                 return ex.StatusCode.HasValue ? StatusCode((int)ex.StatusCode, ex.Message) : StatusCode(500, ex.Message);
             }
 
-            try
-            {
-
-                ozZaakType = await _openZaakApiClient.GetZaaktype(zaaktypeId);
-
-                if (ozZaakType == null)
-                {
-                    return NotFound($"Zaaktype {zaaktypeId} kon niet gevonden worden in het bron systeem");
-                }
-            }
-            catch (HttpRequestException ex)
-            {
-                return ex.StatusCode.HasValue ? StatusCode((int)ex.StatusCode, ex.Message) : StatusCode(500, ex.Message);
-            }
-
-            var createdZaak = await _migrateZaakService.MigrateZaak(detZaak, ozZaakType);
+            var createdZaak = await _migrateZaakService.MigrateZaak(detZaak, zaaktypeId);
 
             return Ok(CreateZaakResult.Success(createdZaak.Identificatie));
         }

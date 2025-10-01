@@ -7,10 +7,10 @@ namespace Datamigratie.Server.Features.MigrateZaak
 
     public interface IMigrateZaakService
     {
-        public Task<OzZaak> MigrateZaak(DetZaak detZaak, OzZaaktype ozZaaktype);
+        public Task<OzZaak> MigrateZaak(DetZaak detZaak, Guid ozZaaktypeId);
     }
 
-    public class MigrateZaakService(IOpenZaakApiClient openZaakApiClient) : IMigrateZaakService
+    public class MigrateZaakService(IOpenZaakApiClient openZaakApiClient, IConfiguration configuration) : IMigrateZaakService
     {
         public async Task<OzZaak> MigrateZaak(DetZaak detZaak, OzZaaktype ozZaaktype)
         {
@@ -28,9 +28,14 @@ namespace Datamigratie.Server.Features.MigrateZaak
             // TODO -> story DATA-48
         }
 
-        private static CreateOzZaakRequest CreateOzZaakCreationRequest(DetZaak detZaak, OzZaaktype ozZaaktype)
+        private CreateOzZaakRequest CreateOzZaakCreationRequest(DetZaak detZaak, Guid ozZaaktypeId)
         {
             // First apply data transformation to follow OpenZaak constraints
+
+            
+
+            var openZaakBaseUrl = configuration.GetValue<string>("OpenZaakApi:BaseUrl");
+            var url = $"{openZaakBaseUrl}/catalogi/api/v1/zaaktypen/{ozZaaktypeId}";
 
             var registratieDatum = ConvertNamedTimezoneToDateTime(detZaak.CreatieDatumTijd).ToString("yyyy-MM-dd");
 
@@ -43,7 +48,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
                 Identificatie = detZaak.FunctioneleIdentificatie,
                 Bronorganisatie = "999990639", // moet een valide rsin zijn
                 Omschrijving = detZaak.Omschrijving,
-                Zaaktype = ozZaaktype.Url,
+                Zaaktype = url,
                 VerantwoordelijkeOrganisatie = "999990639",  // moet een valide rsin zijn
                 Startdatum = startDatum,
 
