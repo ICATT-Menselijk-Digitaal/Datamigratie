@@ -12,11 +12,11 @@ namespace Datamigratie.Server.Features.MigrateZaak
 
     public class MigrateZaakService(IOpenZaakApiClient openZaakApiClient, IConfiguration configuration) : IMigrateZaakService
     {
-        public async Task<OzZaak> MigrateZaak(DetZaak detZaak, OzZaaktype ozZaaktype)
+        public async Task<OzZaak> MigrateZaak(DetZaak detZaak, Guid ozZaaktypeId)
         {
             CheckIfZaakAlreadyExists();
 
-            var createZaakRequest = CreateOzZaakCreationRequest(detZaak, ozZaaktype);
+            var createZaakRequest = CreateOzZaakCreationRequest(detZaak, ozZaaktypeId);
             
             var createdZaak = await openZaakApiClient.CreateZaak(createZaakRequest);
 
@@ -31,13 +31,10 @@ namespace Datamigratie.Server.Features.MigrateZaak
         private CreateOzZaakRequest CreateOzZaakCreationRequest(DetZaak detZaak, Guid ozZaaktypeId)
         {
             // First apply data transformation to follow OpenZaak constraints
-
-            
-
             var openZaakBaseUrl = configuration.GetValue<string>("OpenZaakApi:BaseUrl");
             var url = $"{openZaakBaseUrl}/catalogi/api/v1/zaaktypen/{ozZaaktypeId}";
 
-            var registratieDatum = ConvertNamedTimezoneToDateTime(detZaak.CreatieDatumTijd).ToString("yyyy-MM-dd");
+            var registratieDatum = detZaak.CreatieDatumTijd.ToString("yyyy-MM-dd");
 
             var startDatum = detZaak.Startdatum.ToString("yyyy-MM-dd");
 
@@ -62,14 +59,6 @@ namespace Datamigratie.Server.Features.MigrateZaak
             return createRequest;
         }
 
-
-        private static DateTime ConvertNamedTimezoneToDateTime(string dateTimeWithNamedTimeZone)
-        {
-            var zoneIndex = dateTimeWithNamedTimeZone.IndexOf('[');
-            var dateTime = zoneIndex >= 0 ? dateTimeWithNamedTimeZone.Substring(0, zoneIndex) : dateTimeWithNamedTimeZone;
-
-            return DateTime.Parse(dateTime);
-        }
     }
 
 }
