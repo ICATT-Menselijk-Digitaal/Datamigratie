@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net;
+using System.Net.Http.Json;
 using System.Text.Json;
 using Datamigratie.Common.Extensions;
 using Datamigratie.Common.Services.Det.Models;
