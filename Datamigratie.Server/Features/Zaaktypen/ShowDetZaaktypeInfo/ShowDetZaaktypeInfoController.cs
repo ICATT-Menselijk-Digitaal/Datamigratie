@@ -1,25 +1,39 @@
-﻿using Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo.Models;
+﻿using Datamigratie.Common.Services.Det;
+using Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo
 {
     [ApiController]
     [Route("api/det/zaaktypen")]
-    public class ShowDetZaaktypeInfoController(IShowDetZaaktypeInfoService showZaaktypeService) : ControllerBase
+    public class ShowDetZaaktypeInfoController(IDetApiClient detApiClient) : ControllerBase
     {
 
         [HttpGet("{zaaktypeId}")]
         public async Task<ActionResult<EnrichedDetZaaktype>> GetZaaktype(string zaaktypeId)
         {
-            try
+            var detZaaktype = await detApiClient.GetZaaktype(zaaktypeId);
+
+            if (detZaaktype == null)
             {
-                var zaaktype = await showZaaktypeService.GetZaaktype(zaaktypeId);
-                return Ok(zaaktype);
+                return NotFound();
             }
-            catch (Exception ex)
+
+            var detZaken = await detApiClient.GetZakenByZaaktype(zaaktypeId);
+
+            var closedDetZaken = detZaken.Count(z => !z.Open);
+
+            var enrichedDetZaaktype = new EnrichedDetZaaktype
             {
-                return NotFound(ex.Message);
-            }
+                Naam = detZaaktype.Naam,
+                Omschrijving = detZaaktype.Omschrijving,
+                Actief = detZaaktype.Actief,
+                FunctioneleIdentificatie = detZaaktype.FunctioneleIdentificatie,
+                ClosedZakenCount = closedDetZaken,
+            };
+
+            return enrichedDetZaaktype;
+
         }
     }
 }
