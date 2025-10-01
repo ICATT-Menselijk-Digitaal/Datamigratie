@@ -56,7 +56,7 @@ namespace Datamigratie.Common.Services.Det
             var endpoint = $"zaaktypen/{id}";
             try
             {
-                response = await _httpClient.GetAsync(endpoint);
+                var response = await _httpClient.GetAsync(endpoint);
 
                 if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
