@@ -1,14 +1,10 @@
 ﻿using System.Net;
-using System.Net.Http;
 using System.Net.Http.Json;
-using System.Net.Mime;
 using System.Text.Json;
-using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Common.Services.Shared;
-using Microsoft.Extensions.Logging;
 
-namespace Datamigratie.Common.Services.Det
+namespace Datamigratie.Common.Services.OpenZaak
 {
     public interface IOpenZaakApiClient
     {
@@ -69,19 +65,13 @@ namespace Datamigratie.Common.Services.Det
         /// <exception cref="HttpRequestException">Thrown when OpenZaak returns validation errors or other HTTP errors</exception>
         public async Task<OzZaak> CreateZaak(CreateOzZaakRequest request)
         {
-            const string endpoint = "zaken/api/v1/zaken";
+            var endpoint = "zaken/api/v1/zaken";
 
             try
             {
-          
-
-
                 var content = JsonContent.Create(request);
-                content.Headers.Add("Content-Crs", "EPSG:4326"); ;
 
-                var response = await _httpClient.PostAsync( endpoint, content);
-
-
+                var response = await _httpClient.PostAsync(endpoint, content);
                 
                 if (response.IsSuccessStatusCode)
                 {

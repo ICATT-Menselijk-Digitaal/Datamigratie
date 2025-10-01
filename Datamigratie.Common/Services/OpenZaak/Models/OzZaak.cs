@@ -77,14 +77,6 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
     public class OzErrorResponse
     {
 
-        //{"type":"https://openzaak.dev.kiss-demo.nl/ref/fouten/ValidationError/","code":"invalid","title":"Invalid input.","status":400,
-        /// <summary>
-        /// /"detail":"","instance":"urn:uuid:505c93c7-0dd0-460d-8e8b-8377a19e0c46",
-        /// "invalidParams":[{"name":"zaaktype","code":"unknown-service","reason":"De service voor deze URL is niet bekend."}]}
-        /// </summary>
-
-
-
         [JsonPropertyName("detail")]
         public string? Detail { get; set; }
 

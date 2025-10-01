@@ -1,5 +1,5 @@
-﻿using Datamigratie.Common.Services.Det;
-using Datamigratie.Common.Services.Det.Models;
+﻿using Datamigratie.Common.Services.Det.Models;
+using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
 
 namespace Datamigratie.Server.Features.MigrateZaak
@@ -34,7 +34,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
 
             if (detZaak.Omschrijving.Length > 80)
             {
-                detZaak.Omschrijving = Truncate(detZaak.Omschrijving, 80);
+                detZaak.Omschrijving = Truncate(detZaak.Omschrijving, 77) + "..."; // truncate to 77 and add dots to show there was more
             }
 
             var registratieDatum = ConvertNamedTimezoneToDateTime(detZaak.CreatieDatumTijd).ToString("yyyy-MM-dd");

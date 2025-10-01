@@ -1,5 +1,6 @@
 ﻿using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
+using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Data;
 using Datamigratie.Data.Entities;
