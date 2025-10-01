@@ -12,34 +12,6 @@ namespace Datamigratie.Data.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropPrimaryKey(
-                name: "pk_mappings",
-                table: "mappings");
-
-            migrationBuilder.RenameTable(
-                name: "mappings",
-                newName: "Mappings");
-
-            migrationBuilder.RenameColumn(
-                name: "id",
-                table: "Mappings",
-                newName: "Id");
-
-            migrationBuilder.RenameColumn(
-                name: "oz_zaaktype_id",
-                table: "Mappings",
-                newName: "OzZaaktypeId");
-
-            migrationBuilder.RenameColumn(
-                name: "det_zaaktype_id",
-                table: "Mappings",
-                newName: "DetZaaktypeId");
-
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_Mappings",
-                table: "Mappings",
-                column: "Id");
-
             migrationBuilder.CreateTable(
                 name: "MigrationTrackers",
                 columns: table => new
@@ -69,34 +41,6 @@ namespace Datamigratie.Data.Migrations
         {
             migrationBuilder.DropTable(
                 name: "MigrationTrackers");
-
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_Mappings",
-                table: "Mappings");
-
-            migrationBuilder.RenameTable(
-                name: "Mappings",
-                newName: "mappings");
-
-            migrationBuilder.RenameColumn(
-                name: "Id",
-                table: "mappings",
-                newName: "id");
-
-            migrationBuilder.RenameColumn(
-                name: "OzZaaktypeId",
-                table: "mappings",
-                newName: "oz_zaaktype_id");
-
-            migrationBuilder.RenameColumn(
-                name: "DetZaaktypeId",
-                table: "mappings",
-                newName: "det_zaaktype_id");
-
-            migrationBuilder.AddPrimaryKey(
-                name: "pk_mappings",
-                table: "mappings",
-                column: "id");
         }
     }
 }
