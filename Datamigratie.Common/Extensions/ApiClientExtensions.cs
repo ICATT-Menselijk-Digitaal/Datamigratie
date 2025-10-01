@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Headers;
+using Datamigratie.Common.Config;
 using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.OpenZaak;
 using Microsoft.Extensions.Configuration;
@@ -10,6 +11,8 @@ namespace Datamigratie.Common.Extensions
     {
         public static IServiceCollection AddDatamigrationApiClients(this IServiceCollection services, IConfiguration configuration)
         {
+            services.Configure<OpenZaakApiOptions>(configuration.GetSection("OpenZaakApi"));
+
             services.AddHttpClient<IDetApiClient, DetApiClient>(client =>
             {
                 var detApiBaseUrl = configuration.GetValue<string>("DetApi:BaseUrl") ?? throw new Exception("DetApi:BaseUrl configuration value is missing");

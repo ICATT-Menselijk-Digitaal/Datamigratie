@@ -1,6 +1,8 @@
-﻿using Datamigratie.Common.Services.Det.Models;
+﻿using Datamigratie.Common.Config;
+using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
+using Microsoft.Extensions.Options;
 
 namespace Datamigratie.Server.Features.MigrateZaak
 {
@@ -10,15 +12,25 @@ namespace Datamigratie.Server.Features.MigrateZaak
         public Task<OzZaak> MigrateZaak(DetZaak detZaak, Guid ozZaaktypeId);
     }
 
-    public class MigrateZaakService(IOpenZaakApiClient openZaakApiClient, IConfiguration configuration) : IMigrateZaakService
+    public class MigrateZaakService : IMigrateZaakService
     {
+        private readonly IOpenZaakApiClient _openZaakApiClient;
+
+        private readonly OpenZaakApiOptions _openZaakApiOptions;
+
+        public MigrateZaakService(IOpenZaakApiClient openZaakApiClient, IOptions<OpenZaakApiOptions> options)
+        {
+            _openZaakApiClient = openZaakApiClient;
+            _openZaakApiOptions = options.Value;
+        }
+
         public async Task<OzZaak> MigrateZaak(DetZaak detZaak, Guid ozZaaktypeId)
         {
             CheckIfZaakAlreadyExists();
 
             var createZaakRequest = CreateOzZaakCreationRequest(detZaak, ozZaaktypeId);
             
-            var createdZaak = await openZaakApiClient.CreateZaak(createZaakRequest);
+            var createdZaak = await _openZaakApiClient.CreateZaak(createZaakRequest);
 
             return createdZaak;
         }
@@ -31,7 +43,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
         private CreateOzZaakRequest CreateOzZaakCreationRequest(DetZaak detZaak, Guid ozZaaktypeId)
         {
             // First apply data transformation to follow OpenZaak constraints
-            var openZaakBaseUrl = configuration.GetValue<string>("OpenZaakApi:BaseUrl");
+            var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
             var url = $"{openZaakBaseUrl}catalogi/api/v1/zaaktypen/{ozZaaktypeId}";
 
             var registratieDatum = detZaak.CreatieDatumTijd.ToString("yyyy-MM-dd");
