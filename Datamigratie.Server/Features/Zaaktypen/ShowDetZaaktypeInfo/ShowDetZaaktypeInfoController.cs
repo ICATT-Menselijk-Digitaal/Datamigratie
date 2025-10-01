@@ -1,9 +1,8 @@
 ﻿using Datamigratie.Common.Services.Det;
-using Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo;
 using Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Datamigratie.Server.Features.Zaaktypen.GetZaaktypenInfo
+namespace Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo
 {
     [ApiController]
     [Route("api/det/zaaktypen")]
@@ -13,14 +12,14 @@ namespace Datamigratie.Server.Features.Zaaktypen.GetZaaktypenInfo
         [HttpGet("{zaaktypeId}")]
         public async Task<ActionResult<EnrichedDetZaaktype>> GetZaaktype(string zaaktypeId)
         {
-            var detZaaktype = await detApiClient.GetSpecificZaaktype(zaaktypeId);
+            var detZaaktype = await detApiClient.GetZaaktype(zaaktypeId);
 
             if (detZaaktype == null)
             {
                 return NotFound();
             }
 
-            var detZaken = await detApiClient.GetZakenByZaaktypeAsync(zaaktypeId);
+            var detZaken = await detApiClient.GetZakenByZaaktype(zaaktypeId);
 
             var closedDetZaken = detZaken.Count(z => !z.Open);
 
@@ -30,7 +29,7 @@ namespace Datamigratie.Server.Features.Zaaktypen.GetZaaktypenInfo
                 Omschrijving = detZaaktype.Omschrijving,
                 Actief = detZaaktype.Actief,
                 FunctioneleIdentificatie = detZaaktype.FunctioneleIdentificatie,
-                ClosedZaken = closedDetZaken,
+                ClosedZakenCount = closedDetZaken,
             };
 
             return enrichedDetZaaktype;

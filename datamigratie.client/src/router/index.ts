@@ -14,7 +14,7 @@ const router = createRouter({
       }
     },
     {
-      path: "/det/zaaktype/:functioneleIdentificatie",
+      path: "/det/zaaktype/:detZaaktypeId",
       name: "detZaaktype",
       component: ZaaktypeView,
       props: true,
