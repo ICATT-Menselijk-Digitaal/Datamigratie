@@ -17,13 +17,13 @@
 
   <ul v-else class="reset">
     <li
-      v-for="{ naam, functioneleIdentificatie } in filteredZaaktypes"
-      :key="functioneleIdentificatie"
+      v-for="{ naam, functioneleIdentificatie: detZaaktypeId } in filteredZaaktypes"
+      :key="detZaaktypeId"
     >
       <router-link
         :to="{
           name: 'detZaaktype',
-          params: { functioneleIdentificatie },
+          params: { detZaaktypeId },
           ...(search && { query: { search } })
         }"
         class="button button-secondary"
@@ -46,15 +46,11 @@ const search = ref("");
 const detZaaktypes = ref<DETZaaktype[]>([]);
 
 const filteredZaaktypes = computed(() => {
-  let result = detZaaktypes.value;
-
   const query = search.value.toLowerCase();
 
-  if (query) {
-    result = detZaaktypes.value.filter((zaaktype) => zaaktype.naam.toLowerCase().includes(query));
-  }
+  if (!query) return detZaaktypes.value;
 
-  return result.sort((a, b) => a.naam.toLowerCase().localeCompare(b.naam.toLowerCase()));
+  return detZaaktypes.value.filter((zaaktype) => zaaktype.naam.toLowerCase().includes(query));
 });
 
 const loading = ref(false);

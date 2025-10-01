@@ -5,11 +5,14 @@ export type DETZaaktype = {
   naam: string;
   omschrijving: string;
   functioneleIdentificatie: string;
-  closedZaken?: number;
+  closedZakenCount?: number;
 };
 
 export const detService = {
-  getAllZaaktypes: (): Promise<DETZaaktype[]> => get<DETZaaktype[]>(`/api/det/zaaktypen`),
-  getZaaktypeByFunctioneleIdentificatie: (functioneleIdentificatie: string): Promise<DETZaaktype> =>
-    get<DETZaaktype>(`/api/det/zaaktypen/${functioneleIdentificatie}`)
+  getAllZaaktypes: (): Promise<DETZaaktype[]> =>
+    get<DETZaaktype[]>(`/api/det/zaaktypen`).then((detZaaktypes) =>
+      detZaaktypes.sort((a, b) => a.naam.localeCompare(b.naam))
+    ),
+  getZaaktypeById: (detZaaktypeId: string): Promise<DETZaaktype> =>
+    get<DETZaaktype>(`/api/det/zaaktypen/${detZaaktypeId}`)
 };

@@ -1,9 +1,7 @@
 ﻿using Datamigratie.Common.Services.Det;
 using Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo.Models;
 
-namespace Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo
-{
-
+namespace Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo;
     public interface IShowDetZaaktypeInfoService
     {
         Task<EnrichedDetZaaktype> GetZaaktype(string zaaktypeId);
@@ -23,7 +21,7 @@ namespace Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo
                 throw new Exception($"Det Zaaktype with id {zaaktypeId} not found");
             }
 
-            var detZaken = await detApiClient.GetZakenByZaaktypeAsync(zaaktypeId);
+            var detZaken = await detApiClient.GetZakenByZaaktype(zaaktypeId);
 
             var closedDetZaken = detZaken.Count(z => !z.Open);
 
@@ -33,10 +31,9 @@ namespace Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo
                 Omschrijving = detZaaktype.Omschrijving,
                 Actief = detZaaktype.Actief,
                 FunctioneleIdentificatie = detZaaktype.FunctioneleIdentificatie,
-                ClosedZaken = closedDetZaken,
+                ClosedZakenCount = closedDetZaken,
             };
 
             return enrichedDetZaaktype;
         }
     }
-}

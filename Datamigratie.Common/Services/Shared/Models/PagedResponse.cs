@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Datamigratie.Common.Services.Det.Models
+namespace Datamigratie.Common.Services.Shared.Models
 {
     /// <summary>
     /// Represents a paginated response from the API.

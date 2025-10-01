@@ -2,7 +2,7 @@
 using Datamigratie.Common.Services.Det.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Datamigratie.Server.Features.Zaaktypen.GetZaaktypenInfo
+namespace Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypenList
 {
     [ApiController]
     [Route("api/det/zaaktypen")]
