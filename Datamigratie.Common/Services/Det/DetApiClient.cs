@@ -106,7 +106,7 @@ namespace Datamigratie.Common.Services.Det
 
             if (result == null)
             {
-                 _logger.LogError("Failed to deserialize response from endpoint {endpoint} with response {jsonString}", endpoint, jsonString);
+                 _logger.LogError("Failed to deserialize response from endpoint {endpoint} with response {jsonString}", SanitizeForLogging(endpoint), SanitizeForLogging(jsonString));
                 throw new Exception($"Failed to deserialize response from endpoint {endpoint} with response {jsonString}");
             }
 
@@ -137,8 +137,7 @@ namespace Datamigratie.Common.Services.Det
         /// <param name="zaaknummer">The zaaknummer of the zaak to retrieve. Defined in DET as functioneleIdentificatie</param>
         /// <returns>The DetZaak object if found, otherwise null.</returns>
         public async Task<DetZaak?> GetZaakByZaaknummer(string zaaknummer)
-        {
-            
+        { 
             try
             {
                 var endpoint = $"zaken/{Uri.EscapeDataString(zaaknummer)}";
@@ -156,12 +155,12 @@ namespace Datamigratie.Common.Services.Det
             }
             catch (HttpRequestException ex)
             {
-                _logger.LogError(ex, "HTTP error occurred while fetching zaak with zaaknummer: {zaaknummer}", zaaknummer);
+                _logger.LogError(ex, "HTTP error occurred while fetching zaak with zaaknummer: {zaaknummer}", SanitizeForLogging(zaaknummer));
                 throw;
             }      
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error occurred while fetching zaak with zaaknummer: {zaaknummer}", zaaknummer);
+                _logger.LogError(ex, "Unexpected error occurred while fetching zaak with zaaknummer: {zaaknummer}", SanitizeForLogging(zaaknummer));
                 throw;
             }
         }
