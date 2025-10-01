@@ -14,7 +14,7 @@ namespace Datamigratie.Common.Services.Det
 
         Task<OzZaaktype?> GetZaaktype(Guid zaaktypeId);
 
-        Task<OzZaak?> GetZaak(Guid zaakId);
+        Task<OzZaak?> GetZaakByIdentificatie(string zaakId);
 
     }
 
@@ -60,9 +60,9 @@ namespace Datamigratie.Common.Services.Det
             return await response.Content.ReadFromJsonAsync<OzZaaktype>(_options);
         }
 
-        public async Task<OzZaaktype?> GetZaak(string zaakIdentificatie)
+        public async Task<OzZaak?> GetZaakByIdentificatie(string zaakId)
         {
-            var endpoint = $"zaken/api/v1/zaken/";
+            var endpoint = $"zaken/api/v1/zaken?identificatie={zaakId}";
             var response = await _httpClient.GetAsync(endpoint);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -70,8 +70,9 @@ namespace Datamigratie.Common.Services.Det
 
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<OzZaaktype>(_options);
+            return await response.Content.ReadFromJsonAsync<OzZaak>(_options);
         }
+
 
 
         protected override int GetDefaultStartingPage()
