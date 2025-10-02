@@ -50,7 +50,8 @@ namespace Datamigratie.Server.Features.MigrateZaak
 
             var startDatum = detZaak.Startdatum.ToString("yyyy-MM-dd");
             
-            var omschrijving = TruncateWithDots(detZaak.Omschrijving, 80);
+            const int MaxOmschrijvingLength = 80;
+            var omschrijving = TruncateWithDots(detZaak.Omschrijving, MaxOmschrijvingLength);
 
             // Now create the request
 
