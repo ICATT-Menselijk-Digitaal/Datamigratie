@@ -83,7 +83,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
         /// </summary>
         private static string TruncateWithDots(string input, int maxLength)
         {
-            if (string.IsNullOrWhiteSpace(input) || input.Length < maxLength)
+            if (string.IsNullOrWhiteSpace(input) || input.Length <= maxLength)
                 return input;
 
             var dots = "...";
