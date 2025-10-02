@@ -11,6 +11,7 @@ on:
 env:
   REGISTRY: ghcr.io
   SERVER_IMAGE: ghcr.io/${{ github.repository_owner }}/datamigratie-server
+  MIGRATIONS_IMAGE: ghcr.io/${{ github.repository_owner }}/datamigratie-migrations
   CHART_URL: ghcr.io/${{ github.repository_owner }}
   SHOULD_PUSH: ${{ github.event_name != 'pull_request' }}
   SHOULD_RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') }}
@@ -74,6 +75,21 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=sha
 
+      # Metadata for Migrations image
+      - name: Extract Docker metadata for Migrations
+        id: meta-migrations
+        uses: docker/metadata-action@v5
+        with:
+          flavor: |
+            latest=${{ env.IS_LATEST }}
+          images: |
+            ${{ env.MIGRATIONS_IMAGE }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+
       - name: set version and revision in env
         run: |
           echo "VERSION=${{ fromJson(env.SHOULD_RELEASE) && fromJSON(steps.meta-server.outputs.json).labels['org.opencontainers.image.version'] || '0.0.0' }}" >> "$GITHUB_ENV"
@@ -87,6 +103,20 @@ jobs:
           push: ${{ fromJSON(env.SHOULD_PUSH) }}
           tags: ${{ steps.meta-server.outputs.tags }}
           labels: ${{ steps.meta-server.outputs.labels }}
+          build-args: |
+            VERSION=${{ env.VERSION }}
+            REVISION=${{ env.REVISION }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build & push Migrations image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Datamigratie.MigrationService/Dockerfile
+          push: ${{ fromJSON(env.SHOULD_PUSH) }}
+          tags: ${{ steps.meta-migrations.outputs.tags }}
+          labels: ${{ steps.meta-migrations.outputs.labels }}
           build-args: |
             VERSION=${{ env.VERSION }}
             REVISION=${{ env.REVISION }}
@@ -114,6 +144,7 @@ jobs:
             yq eval '.appVersion = "${{ env.VERSION }}"' -i charts/${{ env.CHART_NAME }}/Chart.yaml
             yq eval '.version = "${{ env.VERSION }}"' -i charts/${{ env.CHART_NAME }}/Chart.yaml
             yq eval '.image.tag = "${{ env.VERSION }}"' -i charts/${{ env.CHART_NAME }}/values.yaml
+            yq eval '.migrations.image.tag = "${{ env.VERSION }}"' -i charts/${{ env.CHART_NAME }}/values.yaml
 
       - name: push helm chart to oci
         if: ${{ fromJson(env.SHOULD_RELEASE) }}

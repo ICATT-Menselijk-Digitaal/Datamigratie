@@ -1,3 +1,10 @@
-// import { http, HttpResponse } from "msw";
+import { http, HttpResponse } from "msw";
 
-export const handlers = [];
+export const handlers = [
+  http.get("/api/migration", async () => {
+    return HttpResponse.json({
+      detZaaktypeId: "EVG",
+      status: "inProgress"
+    });
+  })
+];

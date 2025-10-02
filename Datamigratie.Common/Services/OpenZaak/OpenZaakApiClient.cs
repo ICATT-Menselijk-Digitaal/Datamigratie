@@ -1,18 +1,18 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Common.Services.Shared;
-using Microsoft.Extensions.Logging;
 
-namespace Datamigratie.Common.Services.Det
+namespace Datamigratie.Common.Services.OpenZaak
 {
     public interface IOpenZaakApiClient
     {
         Task<List<OzZaaktype>> GetAllZaakTypen();
 
         Task<OzZaaktype?> GetZaaktype(Guid zaaktypeId);
+
+        Task<OzZaak> CreateZaak(CreateOzZaakRequest request);
     }
 
     public class OpenZaakClient : PagedApiClient, IOpenZaakApiClient
@@ -55,6 +55,61 @@ namespace Datamigratie.Common.Services.Det
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadFromJsonAsync<OzZaaktype>(_options);
+        }
+
+        /// <summary>
+        /// Creates a new zaak in OpenZaak
+        /// </summary>
+        /// <param name="request">The zaak creation request</param>
+        /// <returns>The created zaak</returns>
+        /// <exception cref="HttpRequestException">Thrown when OpenZaak returns validation errors or other HTTP errors</exception>
+        public async Task<OzZaak> CreateZaak(CreateOzZaakRequest request)
+        {
+            var endpoint = "zaken/api/v1/zaken";
+
+            try
+            {
+                var content = JsonContent.Create(request);
+                content.Headers.Add("Content-Crs", "EPSG:4326");
+
+                var response = await _httpClient.PostAsync(endpoint, content);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var zaak = await response.Content.ReadFromJsonAsync<OzZaak>(_options);
+                    return zaak ?? throw new InvalidOperationException("Failed to deserialize created zaak");
+                }
+
+                var errorContent = await response.Content.ReadAsStringAsync();
+
+                if (response.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    try
+                    {
+                        var errorResponse = JsonSerializer.Deserialize<OzErrorResponse>(errorContent, _options);
+                        if (errorResponse?.InvalidParams?.Any() == true)
+                        {
+                            var invalidFields = string.Join(", ", errorResponse.InvalidParams.Select(p => new { p.Name, p.Reason, p.Code } ));
+                            throw new HttpRequestException($"Validation failed for fields: {invalidFields}");
+                        }
+                        throw new HttpRequestException($"Bad request: {errorResponse?.Detail ?? "Unknown validation error"}");
+                    }
+                    catch (JsonException)
+                    {
+                        throw new HttpRequestException($"Bad request: {errorContent}");
+                    }
+                }
+
+                throw new HttpRequestException($"Failed to create zaak. Status: {response.StatusCode}, Response: {errorContent}");
+            }
+            catch (HttpRequestException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new HttpRequestException("Failed to create zaak in OpenZaak", ex);
+            }
         }
 
         protected override int GetDefaultStartingPage()
