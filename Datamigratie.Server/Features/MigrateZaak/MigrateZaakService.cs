@@ -49,6 +49,9 @@ namespace Datamigratie.Server.Features.MigrateZaak
             var registratieDatum = detZaak.CreatieDatumTijd.ToString("yyyy-MM-dd");
 
             var startDatum = detZaak.Startdatum.ToString("yyyy-MM-dd");
+            
+            const int MaxOmschrijvingLength = 80;
+            var omschrijving = TruncateWithDots(detZaak.Omschrijving, MaxOmschrijvingLength);
 
             // Now create the request
 
@@ -56,7 +59,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
             {
                 Identificatie = detZaak.FunctioneleIdentificatie,
                 Bronorganisatie = "999990639", // moet een valide rsin zijn
-                Omschrijving = detZaak.Omschrijving,
+                Omschrijving = omschrijving,
                 Zaaktype = url,
                 VerantwoordelijkeOrganisatie = "999990639",  // moet een valide rsin zijn
                 Startdatum = startDatum,
@@ -71,6 +74,35 @@ namespace Datamigratie.Server.Features.MigrateZaak
             return createRequest;
         }
 
+        /// <summary>
+        /// Truncates the string when the length of the input string exceeds the maxLength
+        /// If this happen three dots are added to the end to indiciate that the orignal value was truncated
+        /// 
+        /// The maxLength param will be the length of the string with dots
+        /// Example: input: [hello world], maxlength[5] -> output: he... [length=5]
+        /// </summary>
+        private static string TruncateWithDots(string input, int maxLength)
+        {
+            if (string.IsNullOrWhiteSpace(input) || input.Length <= maxLength)
+                return input;
+
+            var dots = "...";
+
+            // edge case if the max length is equal or smaller than the size of the dots
+            // this would not happen unless the allowed input is really tiny, but lets return the dots just incase
+            // so we can safely substract dots.length from maxLength later without it becoming negative
+            if (dots.Length >= maxLength)
+            {
+                return dots;
+            }
+
+            var truncatedInput = input.Substring(0, maxLength - dots.Length).TrimEnd();
+
+            return truncatedInput + dots;
+        }
+
     }
+
+
 
 }
