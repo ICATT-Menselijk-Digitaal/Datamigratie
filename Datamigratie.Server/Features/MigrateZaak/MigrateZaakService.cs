@@ -74,7 +74,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
         }
 
         /// <summary>
-        /// Truncates the string when the maxLength exceeds the lenght of the string
+        /// Truncates the string when the length of the input string exceeds the maxLength
         /// If this happen three dots are added to the end to indiciate that the orignal value was truncated
         /// 
         /// The maxLength param will be the length of the string with dots
