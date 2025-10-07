@@ -8,7 +8,7 @@ public interface IMigrationProcessor
 {
     Task ProcessMigrationAsync(int migrationId, CancellationToken cancellationToken = default);
     Task<bool> IsMigrationCurrentlyRunningAsync();
-    Task<MigrationTracker?> GetCurrentlyRunningMigrationAsync();
+    Task<Data.Entities.Migration?> GetCurrentlyRunningMigrationAsync();
     Task RunMigrationAsync();
     void TriggerMigration();
 }
@@ -49,10 +49,10 @@ public class MigrationProcessor : IHostedService, IMigrationProcessor
         
         try
         {
-            var runningMigration = await context.MigrationTrackers
-                .AnyAsync(m => m.Status == MigrationStatus.InProgress);
+            //var runningMigration = await context.MigrationTrackers
+            //    .AnyAsync(m => m.Status == MigrationStatus.InProgress);
 
-            return runningMigration;
+            return false;
         }
         catch (Exception ex)
         {
@@ -61,17 +61,17 @@ public class MigrationProcessor : IHostedService, IMigrationProcessor
         }
     }
 
-    public async Task<MigrationTracker?> GetCurrentlyRunningMigrationAsync()
+    public async Task<Data.Entities.Migration?> GetCurrentlyRunningMigrationAsync()
     {
         using var scope = _serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<DatamigratieDbContext>();
         
         try
         {
-            var runningMigration = await context.MigrationTrackers
-                .SingleOrDefaultAsync(m => m.Status == MigrationStatus.InProgress);
+            //var runningMigration = await context.MigrationTrackers
+            //    .SingleOrDefaultAsync(m => m.Status == MigrationStatus.InProgress);
 
-            return runningMigration;
+            return null;
         }
         catch (Exception ex)
         {
@@ -85,7 +85,7 @@ public class MigrationProcessor : IHostedService, IMigrationProcessor
         using var scope = _serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<DatamigratieDbContext>();
         
-        var migration = await context.MigrationTrackers.FindAsync(migrationId, cancellationToken);
+        var migration = await context.Migrations.FindAsync(migrationId, cancellationToken);
         if (migration == null)
         {
             _logger.LogWarning("Migration with ID {MigrationId} not found", migrationId);
@@ -124,7 +124,7 @@ public class MigrationProcessor : IHostedService, IMigrationProcessor
         }
     }
 
-    private async Task PerformMockMigrationAsync(DatamigratieDbContext context, MigrationTracker migration, CancellationToken cancellationToken)
+    private async Task PerformMockMigrationAsync(DatamigratieDbContext context, Data.Entities.Migration migration, CancellationToken cancellationToken)
     {
         var random = new Random();
         var totalRecords = random.Next(100, 1000);
@@ -170,7 +170,7 @@ public class MigrationProcessor : IHostedService, IMigrationProcessor
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    private Task UpdateMigrationStatusAsync(DatamigratieDbContext context, MigrationTracker migration, MigrationStatus status, string? errorMessage = null)
+    private Task UpdateMigrationStatusAsync(DatamigratieDbContext context, Data.Entities.Migration migration, MigrationStatus status, string? errorMessage = null)
     {
         migration.Status = status;
         migration.LastUpdated = DateTime.UtcNow;
@@ -219,7 +219,7 @@ public class MigrationProcessor : IHostedService, IMigrationProcessor
             }
 
             // Get the next pending migration
-            var pendingMigration = await context.MigrationTrackers
+            var pendingMigration = await context.Migrations
                 .Where(m => m.Status == MigrationStatus.Pending)
                 .OrderBy(m => m.CreatedAt)
                 .FirstOrDefaultAsync();

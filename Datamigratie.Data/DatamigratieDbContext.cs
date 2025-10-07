@@ -28,7 +28,7 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
                 .HasDatabaseName("IX_Mapping_DetZaaktypeId_Unique");
         });
 
-        modelBuilder.Entity<MigrationTracker>(entity =>
+        modelBuilder.Entity<Migration>(entity =>
         {
             entity.HasKey(e => e.Id);
             
@@ -55,5 +55,5 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
     }
 
     public DbSet<ZaaktypenMapping> Mappings { get; set; }
-    public DbSet<MigrationTracker> MigrationTrackers { get; set; }
+    public DbSet<Migration> Migrations { get; set; }
 }

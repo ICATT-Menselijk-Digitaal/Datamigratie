@@ -2,7 +2,7 @@
 
 namespace Datamigratie.Data.Entities;
 
-public class MigrationTracker
+public class Migration
 {
     [Key]
     public int Id { get; set; }
