@@ -2,19 +2,19 @@
 
 namespace Datamigratie.Server.Features.Migration.Workers
 {
-    public interface IBackgroundTaskQueue
+    public interface IMigrationBackgroundTaskQueue
     {
-        ValueTask QueueBackgroundWorkItemAsync(Func<CancellationToken, Task> workItem);
+        ValueTask QueueMigrationAsync(MigrationQueueItem item);
 
-        ValueTask<Func<CancellationToken, Task>> DequeueAsync(
+        ValueTask<MigrationQueueItem> DequeueMigrationAsync(
             CancellationToken cancellationToken);
     }
 
-    public class BackgroundTaskQueue : IBackgroundTaskQueue
+    public class MigrationBackgroundTaskQueue : IMigrationBackgroundTaskQueue
     {
-        private readonly Channel<Func<CancellationToken, Task>> _queue;
+        private readonly Channel<MigrationQueueItem> _queue;
 
-        public BackgroundTaskQueue(int capacity)
+        public MigrationBackgroundTaskQueue(int capacity)
         {
             // Capacity should be set based on the expected application load and
             // number of concurrent threads accessing the queue.            
@@ -25,21 +25,21 @@ namespace Datamigratie.Server.Features.Migration.Workers
             {
                 FullMode = BoundedChannelFullMode.Wait
             };
-            _queue = Channel.CreateBounded<Func<CancellationToken, Task>>(options);
+            _queue = Channel.CreateBounded<MigrationQueueItem>(options);
         }
 
-        public async ValueTask QueueBackgroundWorkItemAsync(
-            Func<CancellationToken, Task> workItem)
+        public async ValueTask QueueMigrationAsync(
+            MigrationQueueItem item)
         {
-            if (workItem == null)
+            if (item == null)
             {
-                throw new ArgumentNullException(nameof(workItem));
+                throw new ArgumentNullException(nameof(item));
             }
 
-            await _queue.Writer.WriteAsync(workItem);
+            await _queue.Writer.WriteAsync(item);
         }
 
-        public async ValueTask<Func<CancellationToken, Task>> DequeueAsync(
+        public async ValueTask<MigrationQueueItem> DequeueMigrationAsync(
             CancellationToken cancellationToken)
         {
             var workItem = await _queue.Reader.ReadAsync(cancellationToken);

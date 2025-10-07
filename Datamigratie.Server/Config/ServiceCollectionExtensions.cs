@@ -23,12 +23,14 @@ namespace Datamigratie.Server.Config
             services.AddHostedService(sp => sp.GetRequiredService<MigrationProcessor>());
             services.AddSingleton<IMigrationProcessor>(sp => sp.GetRequiredService<MigrationProcessor>());
 
-            services.AddHostedService<QueuedHostedService>();
-            services.AddSingleton<IBackgroundTaskQueue>(ctx =>
+            services.AddHostedService<QueuedMigrationHostedService>();
+            services.AddSingleton<IMigrationBackgroundTaskQueue>(ctx =>
             {
-                return new BackgroundTaskQueue(100);
+                return new MigrationBackgroundTaskQueue(100);
             });
+            services.AddSingleton<MigrationWorkerStatus>();
             return services;
+
         }
     }
 }

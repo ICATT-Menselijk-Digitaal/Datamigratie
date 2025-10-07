@@ -1,17 +1,25 @@
-﻿namespace Datamigratie.Server.Features.Migration.Workers
-{
-    public class QueuedHostedService : BackgroundService
-    {
-        private readonly ILogger<QueuedHostedService> _logger;
+﻿using Datamigratie.Server.Features.Migration.StartMigration;
 
-        public QueuedHostedService(IBackgroundTaskQueue taskQueue,
-            ILogger<QueuedHostedService> logger)
+namespace Datamigratie.Server.Features.Migration.Workers
+{
+    public class QueuedMigrationHostedService : BackgroundService
+    {
+        private readonly ILogger<QueuedMigrationHostedService> _logger;
+
+        private readonly MigrationWorkerStatus _workerStatus;
+
+        private readonly MigrationService _migrationService;
+
+        public QueuedMigrationHostedService(IMigrationBackgroundTaskQueue taskQueue,
+            ILogger<QueuedMigrationHostedService> logger, MigrationWorkerStatus workerStatus, MigrationService migrationService)
         {
             TaskQueue = taskQueue;
             _logger = logger;
+            _workerStatus = workerStatus;
+            _migrationService = migrationService;
         }
 
-        public IBackgroundTaskQueue TaskQueue { get; }
+        public IMigrationBackgroundTaskQueue TaskQueue { get; }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -28,16 +36,21 @@
             while (!stoppingToken.IsCancellationRequested)
             {
                 var workItem =
-                    await TaskQueue.DequeueAsync(stoppingToken);
+                    await TaskQueue.DequeueMigrationAsync(stoppingToken);
 
                 try
                 {
-                    await workItem(stoppingToken);
+                    _workerStatus.IsWorking = true; // set flag before starting
+                    await _migrationService.PerformMigrationAsync(stoppingToken, workItem);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex,
                         "Error occurred executing {WorkItem}.", nameof(workItem));
+                }
+                finally
+                {
+                    _workerStatus.IsWorking = false; // reset after task finishes or crashes
                 }
             }
         }
