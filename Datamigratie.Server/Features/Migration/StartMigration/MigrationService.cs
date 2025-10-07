@@ -25,9 +25,7 @@ public class MigrationService(DatamigratieDbContext context) : IMigrationService
     }
     private async Task ExecuteMigration(Data.Entities.Migration migration)
     {
-        var zakenToMigrate = await context.Zaken
-            .Where(z => z.ZaaktypeId == migration.DetZaaktypeId)
-            .ToListAsync();
+
 
     }
 
