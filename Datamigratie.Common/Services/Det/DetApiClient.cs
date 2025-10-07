@@ -14,7 +14,7 @@ namespace Datamigratie.Common.Services.Det
     {
         Task<List<DetZaaktype>> GetAllZaakTypen();
 
-        Task<List<DetZaak>> GetZakenByZaaktype(string zaaktype);
+        Task<List<DetZaakMinimal>> GetZakenByZaaktype(string zaaktype);
 
         Task<DetZaak?> GetZaakByZaaknummer(string zaaknummer);
 
@@ -119,14 +119,14 @@ namespace Datamigratie.Common.Services.Det
         /// </summary>
         /// <param name="zaaktype">The type of the zaken to filter by.</param>
         /// <returns>A PagedResponse object containing a list of all Zaak objects across all pages.</returns>
-        public async Task<List<DetZaak>> GetZakenByZaaktype(string zaaktype)
+        public async Task<List<DetZaakMinimal>> GetZakenByZaaktype(string zaaktype)
         {
             
             _logger.LogInformation("Fetching zaken for zaaktype: {Zaaktype}", SanitizeForLogging(zaaktype));
 
             var endpoint = $"zaken";
             var query = $"zaaktype={Uri.EscapeDataString(zaaktype)}";
-            var pagedZaken = await GetAllPagedData<DetZaak>(endpoint, query);
+            var pagedZaken = await GetAllPagedData<DetZaakMinimal>(endpoint, query);
             return pagedZaken.Results;
         }
 
