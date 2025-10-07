@@ -25,13 +25,11 @@ namespace Datamigratie.Common.Services.Det.Models
         public DateTime? Einddatum { get; set; }
         public string? ExterneIdentificatie { get; set; }
         public DateTime? Fataledatum { get; set; }
-
         public bool GeautoriseerdVoorMedewerkers { get; set; }
         public bool Heropend { get; set; }
         public bool Intake { get; set; }
         public bool Notificeerbaar { get; set; }
         public required string Omschrijving { get; set; }
-
         public bool ProcesGestart { get; set; }
         public DateTime Startdatum { get; set; }
         public DateTime Streefdatum { get; set; }
