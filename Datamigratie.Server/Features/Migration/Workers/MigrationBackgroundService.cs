@@ -40,7 +40,7 @@ namespace Datamigratie.Server.Features.Migration.Workers
         {
 
             using var scope = _scopeFactory.CreateScope();
-            var migrationService = scope.ServiceProvider.GetRequiredService<MigrationService>();
+            var migrationService = scope.ServiceProvider.GetRequiredService<Migration1Service>();
 
             while (!stoppingToken.IsCancellationRequested)
             {

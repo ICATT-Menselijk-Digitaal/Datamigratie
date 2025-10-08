@@ -20,7 +20,7 @@ namespace Datamigratie.Server.Config
             services.AddScoped<IShowZaaktypenMappingService, ShowZaaktypenMappingService>();
             services.AddScoped<IMigrateZaakService, MigrateZaakService>();
 
-            services.AddScoped<IMigrationService, MigrationService>();
+            services.AddScoped<IMigration1Service, Migration1Service>();
 
             services.AddHostedService<MigrationBackgroundService>();
             services.AddSingleton<IMigrationBackgroundTaskQueue>(ctx =>

@@ -10,12 +10,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Datamigratie.Server.Features.Migration.StartMigration;
 
-public interface IMigrationService
+public interface IMigration1Service
 {
     Task PerformMigrationAsync(CancellationToken stoppingToken, MigrationQueueItem migrationQueueItem);
 }
 
-public class MigrationService(DatamigratieDbContext context, IDetApiClient detApiClient, ILogger<MigrationService> logger, IRandomProvider randomProvider) : IMigrationService
+public class Migration1Service(DatamigratieDbContext context, IDetApiClient detApiClient, ILogger<Migration1Service> logger, IRandomProvider randomProvider) : IMigration1Service
 {
 
 
