@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Datamigratie.Data.Migrations
 {
     [DbContext(typeof(DatamigratieDbContext))]
-    [Migration("20251001134034_RenameToDetZaaktypeId")]
-    partial class RenameToDetZaaktypeId
+    [Migration("20251008135953_Migrations")]
+    partial class Migrations
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace Datamigratie.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Datamigratie.Data.Entities.MigrationTracker", b =>
+            modelBuilder.Entity("Datamigratie.Data.Entities.Migration", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -77,7 +77,7 @@ namespace Datamigratie.Data.Migrations
 
                     b.HasIndex("Status");
 
-                    b.ToTable("MigrationTrackers");
+                    b.ToTable("Migrations");
                 });
 
             modelBuilder.Entity("Datamigratie.Data.Entities.ZaaktypenMapping", b =>

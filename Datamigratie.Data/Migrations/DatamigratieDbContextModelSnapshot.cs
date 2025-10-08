@@ -22,7 +22,7 @@ namespace Datamigratie.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Datamigratie.Data.Entities.MigrationTracker", b =>
+            modelBuilder.Entity("Datamigratie.Data.Entities.Migration", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -74,7 +74,7 @@ namespace Datamigratie.Data.Migrations
 
                     b.HasIndex("Status");
 
-                    b.ToTable("MigrationTrackers");
+                    b.ToTable("Migrations");
                 });
 
             modelBuilder.Entity("Datamigratie.Data.Entities.ZaaktypenMapping", b =>

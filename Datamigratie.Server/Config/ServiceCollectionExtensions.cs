@@ -6,6 +6,8 @@ using Datamigratie.Server.Features.Mapping.ShowZaaktypenMapping;
 using Datamigratie.Server.Features.Migration.Services;
 using Datamigratie.Server.Features.MigrateZaak;
 using Datamigratie.Server.Features.Migration.Workers;
+using Datamigratie.Server.Helpers;
+using Datamigratie.Server.Features.Migration.StartMigration;
 
 namespace Datamigratie.Server.Config
 {
@@ -18,17 +20,15 @@ namespace Datamigratie.Server.Config
             services.AddScoped<IShowZaaktypenMappingService, ShowZaaktypenMappingService>();
             services.AddScoped<IMigrateZaakService, MigrateZaakService>();
 
-            
-            services.AddSingleton<MigrationProcessor>();
-            services.AddHostedService(sp => sp.GetRequiredService<MigrationProcessor>());
-            services.AddSingleton<IMigrationProcessor>(sp => sp.GetRequiredService<MigrationProcessor>());
+            services.AddScoped<IMigrationService, MigrationService>();
 
-            services.AddHostedService<QueuedMigrationHostedService>();
+            services.AddHostedService<MigrationBackgroundService>();
             services.AddSingleton<IMigrationBackgroundTaskQueue>(ctx =>
             {
                 return new MigrationBackgroundTaskQueue(100);
             });
             services.AddSingleton<MigrationWorkerStatus>();
+            services.AddScoped<IRandomProvider, RandomProvider>();
             return services;
 
         }

@@ -2,6 +2,10 @@
 
 namespace Datamigratie.Server.Features.Migration.Workers
 {
+    /// <summary>
+    /// Code based on:
+    /// https://learn.microsoft.com/en-us/aspnet/core/fundamentals/host/hosted-services?view=aspnetcore-9.0&tabs=visual-studio
+    /// </summary>
     public interface IMigrationBackgroundTaskQueue
     {
         ValueTask QueueMigrationAsync(MigrationQueueItem item);

@@ -2,21 +2,26 @@
 
 namespace Datamigratie.Server.Features.Migration.Workers
 {
-    public class QueuedMigrationHostedService : BackgroundService
+    /// <summary>
+    /// Code based on:
+    /// https://learn.microsoft.com/en-us/aspnet/core/fundamentals/host/hosted-services?view=aspnetcore-9.0&tabs=visual-studio
+    /// </summary>
+    public class MigrationBackgroundService : BackgroundService
     {
-        private readonly ILogger<QueuedMigrationHostedService> _logger;
+        private readonly ILogger<MigrationBackgroundService> _logger;
 
         private readonly MigrationWorkerStatus _workerStatus;
 
-        private readonly MigrationService _migrationService;
+        private readonly IServiceScopeFactory _scopeFactory;
 
-        public QueuedMigrationHostedService(IMigrationBackgroundTaskQueue taskQueue,
-            ILogger<QueuedMigrationHostedService> logger, MigrationWorkerStatus workerStatus, MigrationService migrationService)
+
+        public MigrationBackgroundService(IServiceScopeFactory scopeFactory, IMigrationBackgroundTaskQueue taskQueue,
+            ILogger<MigrationBackgroundService> logger, MigrationWorkerStatus workerStatus)
         {
             TaskQueue = taskQueue;
             _logger = logger;
             _workerStatus = workerStatus;
-            _migrationService = migrationService;
+            _scopeFactory = scopeFactory;
         }
 
         public IMigrationBackgroundTaskQueue TaskQueue { get; }
@@ -30,9 +35,13 @@ namespace Datamigratie.Server.Features.Migration.Workers
 
             await BackgroundProcessing(stoppingToken);
         }
-
+         
         private async Task BackgroundProcessing(CancellationToken stoppingToken)
         {
+
+            using var scope = _scopeFactory.CreateScope();
+            var migrationService = scope.ServiceProvider.GetRequiredService<MigrationService>();
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 var workItem =
@@ -41,7 +50,7 @@ namespace Datamigratie.Server.Features.Migration.Workers
                 try
                 {
                     _workerStatus.IsWorking = true; // set flag before starting
-                    await _migrationService.PerformMigrationAsync(stoppingToken, workItem);
+                    await migrationService.PerformMigrationAsync(stoppingToken, workItem);
                 }
                 catch (Exception ex)
                 {

@@ -1,4 +1,5 @@
-﻿using Datamigratie.Common.Services.Det.Models;
+﻿using Datamigratie.Common.Services.Det;
+using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Data;
 using Datamigratie.Data.Entities;
 using Datamigratie.Server.Features.Migration.Services;
@@ -17,27 +18,44 @@ public class StartMigrationController : ControllerBase
     private readonly ILogger<StartMigrationController> _logger;
     private readonly IMigrationBackgroundTaskQueue _taskQueue;
     private readonly MigrationWorkerStatus _workerStatus;
+    private readonly IDetApiClient _detApiClient;
 
 
 
-    public StartMigrationController(MigrationWorkerStatus workerStatus, IMigrationBackgroundTaskQueue backgroundTaskQueue, DatamigratieDbContext context, IMigrationProcessor migrationProcessor, ILogger<StartMigrationController> logger)
+
+    public StartMigrationController(MigrationWorkerStatus workerStatus, IDetApiClient detApiClient, IMigrationBackgroundTaskQueue backgroundTaskQueue, DatamigratieDbContext context, IMigrationProcessor migrationProcessor, ILogger<StartMigrationController> logger)
     {
         _context = context;
         _migrationProcessor = migrationProcessor;
         _logger = logger;
         _taskQueue = backgroundTaskQueue;
         _workerStatus = workerStatus;
+        _detApiClient = detApiClient;
     }
 
     [HttpPost("start")]
-    public async Task<ActionResult<StartMigrationResponse>> StartMigration()
+    public async Task<ActionResult> StartMigration([FromBody] StartMigrationRequest request)
     {
         if (_workerStatus.IsWorking)
         {
-            return Conflict(new { message = "A migration task is already in progress." });
+            return Conflict(new { message = "A migration is already in progress." });
         }
 
-        await _taskQueue.QueueMigrationAsync(new MigrationQueueItem {DetZaaktypeId = "test" });
+        var zakenToMigrate = await _detApiClient.GetZakenByZaaktype(request.DetZaaktypeId);
+
+        if (zakenToMigrate.Count == 0)
+        {
+            return NotFound(new { message = $"No zaken found for DetZaaktypeId {request.DetZaaktypeId}" });
+        }
+
+        var mapping = _context.Mappings.FirstOrDefault(m => m.DetZaaktypeId == request.DetZaaktypeId);
+
+        if (mapping == null)
+        {
+            return NotFound(new { message = $"No mapping found for DetZaaktypeId {request.DetZaaktypeId}" });
+        }
+
+        await _taskQueue.QueueMigrationAsync(new MigrationQueueItem {DetZaaktypeId = request.DetZaaktypeId });
         return Ok();
     }
 

@@ -12,6 +12,7 @@ namespace Datamigratie.MigrationService.Features.DatabaseInitialization
     {
         public Task Initialize(CancellationToken cancellationToken) => RunWithinTransactionAsync(dbContext, async () =>
         {
+            Console.WriteLine("init");
             await dbContext.Database.MigrateAsync(cancellationToken);
         }, cancellationToken);
 
@@ -21,6 +22,8 @@ namespace Datamigratie.MigrationService.Features.DatabaseInitialization
         /// </summary>
         private static async Task RunWithinTransactionAsync(DbContext dbContext, Func<Task> handler, CancellationToken cancellationToken)
         {
+            Console.WriteLine("r");
+
             var strategy = dbContext.Database.CreateExecutionStrategy();
             await strategy.ExecuteAsync(async () =>
             {
