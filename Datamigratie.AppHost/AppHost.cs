@@ -7,7 +7,8 @@ var postgres = builder.AddPostgres("postgres")
 
 var postgresdb = postgres.AddDatabase("Datamigratie");
 
-var migrations = builder.AddProject<Projects.Datamigratie_MigrationService>("migrations")
+var migrations = builder
+    .AddProject<Projects.Datamigratie_MigrationService>("migrations")
     .WithReference(postgresdb)
     .WaitFor(postgresdb);
 

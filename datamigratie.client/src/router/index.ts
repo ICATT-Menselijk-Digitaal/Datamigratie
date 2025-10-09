@@ -10,7 +10,7 @@ const router = createRouter({
       name: "detZaaktypes",
       component: ZaaktypesView,
       meta: {
-        title: "DET Zaaktypes"
+        title: "e-Suite Zaaktypes"
       }
     },
     {
@@ -19,7 +19,7 @@ const router = createRouter({
       component: ZaaktypeView,
       props: true,
       meta: {
-        title: "DET Zaaktype"
+        title: "e-Suite Zaaktype"
       }
     }
   ]
