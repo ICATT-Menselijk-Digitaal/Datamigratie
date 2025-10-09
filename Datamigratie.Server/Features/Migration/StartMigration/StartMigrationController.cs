@@ -3,6 +3,7 @@ using Datamigratie.Data;
 using Datamigratie.Server.Features.Migration.StartMigration.Models;
 using Datamigratie.Server.Features.Migration.StartMigration.Queues;
 using Datamigratie.Server.Features.Migration.StartMigration.Queues.Items;
+using Datamigratie.Server.Features.Migration.StartMigration.Services;
 using Datamigratie.Server.Features.Migration.StartMigration.State;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,7 +11,7 @@ namespace Datamigratie.Server.Features.Migration.StartMigration;
 
 [ApiController]
 [Route("api/migration")]
-public class StartMigrationController(MigrationWorkerStatus workerStatus, IDetApiClient detApiClient, IMigrationBackgroundTaskQueue backgroundTaskQueue, DatamigratieDbContext context) : ControllerBase
+public class StartMigrationController(IStartMigrationService startMigrationService, MigrationWorkerStatus workerStatus, IDetApiClient detApiClient, IMigrationBackgroundTaskQueue backgroundTaskQueue, DatamigratieDbContext context) : ControllerBase
 {
     [HttpPost("start")]
     public async Task<ActionResult> StartMigration([FromBody] StartMigrationRequest request)
@@ -39,10 +40,26 @@ public class StartMigrationController(MigrationWorkerStatus workerStatus, IDetAp
         return Ok();
     }
 
-    [HttpGet("status")]
-    public ActionResult<bool> Status()
+    [HttpGet]
+    public async Task<ActionResult<MigrationStatusResponse>> GetMigration()
     {
-        var status = workerStatus.IsWorking;
-        return Ok(status);
+        if (!workerStatus.IsWorking)
+        {
+            return Ok(new MigrationStatusResponse() { Status = ServiceMigrationStatus.None });
+        }
+
+        var migration = await startMigrationService.GetRunningMigration();
+
+        if (migration == null)
+        {
+            // worker is running, but still preparing the migration
+            return Ok(new MigrationStatusResponse() { Status = ServiceMigrationStatus.Preparing });
+        }
+
+        return new MigrationStatusResponse()
+        {
+            Status = ServiceMigrationStatus.InProgress,
+            DetZaaktypeId = migration.DetZaaktypeId,
+        };
     }
 }

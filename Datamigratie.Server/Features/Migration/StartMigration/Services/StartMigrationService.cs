@@ -13,17 +13,20 @@ namespace Datamigratie.Server.Features.Migration.StartMigration.Services;
 public interface IStartMigrationService
 {
     Task PerformMigrationAsync(CancellationToken stoppingToken, MigrationQueueItem migrationQueueItem);
+
+    Task<Data.Entities.Migration?> GetRunningMigration();
 }
 
 public class StartMigrationService(DatamigratieDbContext context, IDetApiClient detApiClient, ILogger<StartMigrationService> logger, IRandomProvider randomProvider) : IStartMigrationService
 {
 
 
-    public async Task PerformMigrationAsync(CancellationToken stoppingToken, MigrationQueueItem migrationQueueItem)
+    public async Task PerformMigrationAsync(CancellationToken stoppingToken, MigrationQueueItem migrationQueueItem) 
     {
         var zaken = await detApiClient.GetZakenByZaaktype(migrationQueueItem.DetZaaktypeId);
         var mapping = await context.Mappings.FirstAsync(m => m.DetZaaktypeId == migrationQueueItem.DetZaaktypeId, stoppingToken);
         var migration = await CreateMigrationAsync(migrationQueueItem, zaken.Count, stoppingToken);
+
 
         await ExecuteMigration(migration, zaken, mapping.OzZaaktypeId, stoppingToken);
         await CompleteMigrationAsync(migration, stoppingToken);
@@ -59,7 +62,7 @@ public class StartMigrationService(DatamigratieDbContext context, IDetApiClient 
 
     private async Task MigrateSingleZaakAsync(Data.Entities.Migration migration, DetZaakMinimal zaak, Guid openZaaktypeId, CancellationToken ct)
     {
-        await Task.Delay(randomProvider.Next(10, 50), ct); // Replace with actual OZ API call
+        await Task.Delay(randomProvider.Next(5000, 10000), ct); // Replace with actual OZ API call
 
         if (randomProvider.NextDouble() < 0.9)
             migration.SuccessfulRecords++;
@@ -111,5 +114,10 @@ public class StartMigrationService(DatamigratieDbContext context, IDetApiClient 
         context.Migrations.Add(migration);
         await context.SaveChangesAsync(ct);
         return migration;
+    }
+
+    public async Task<Data.Entities.Migration?> GetRunningMigration()
+    {
+        return await context.Migrations.FirstOrDefaultAsync(m => m.Status == MigrationStatus.InProgress);
     }
 }

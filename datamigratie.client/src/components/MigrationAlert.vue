@@ -3,7 +3,7 @@
 
   <alert-inline v-else-if="error">{{ error }}</alert-inline>
 
-  <alert-inline v-else-if="migration?.status === MigrationStatus.inProgress">
+  <alert-inline v-else-if="migration?.status === MigrationStatus.inProgress || migration?.status === MigrationStatus.preparing" >
     <span class="spinner" role="presentation" aria-hidden="true"></span>
 
     <p>
