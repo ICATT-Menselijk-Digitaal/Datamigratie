@@ -13,6 +13,8 @@ namespace Datamigratie.Server.Config
 {
     public static class ServiceCollectionExtensions
     {
+        private const int MigrationBackgroundTaskQueueCapacity = 1;
+
         public static IServiceCollection RegisterServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDatamigrationApiClients(configuration);
@@ -25,7 +27,7 @@ namespace Datamigratie.Server.Config
             services.AddHostedService<StartMigrationBackgroundService>();
             services.AddSingleton<IMigrationBackgroundTaskQueue>(ctx =>
             {
-                return new MigrationBackgroundTaskQueue(100);
+                return new MigrationBackgroundTaskQueue(MigrationBackgroundTaskQueueCapacity);
             });
             services.AddSingleton<MigrationWorkerStatus>();
             services.AddScoped<IRandomProvider, RandomProvider>();

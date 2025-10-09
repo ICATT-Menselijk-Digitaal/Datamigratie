@@ -7,40 +7,25 @@ namespace Datamigratie.Server.Features.Migration.StartMigration.Services
     /// Code based on:
     /// https://learn.microsoft.com/en-us/aspnet/core/fundamentals/host/hosted-services?view=aspnetcore-9.0&tabs=visual-studio
     /// </summary>
-    public class StartMigrationBackgroundService : BackgroundService
+    public class StartMigrationBackgroundService(IServiceScopeFactory scopeFactory, IMigrationBackgroundTaskQueue taskQueue,
+        ILogger<StartMigrationBackgroundService> logger, MigrationWorkerStatus workerStatus) : BackgroundService
     {
-        private readonly ILogger<StartMigrationBackgroundService> _logger;
-
-        private readonly MigrationWorkerStatus _workerStatus;
-
-        private readonly IServiceScopeFactory _scopeFactory;
-
-
-        public StartMigrationBackgroundService(IServiceScopeFactory scopeFactory, IMigrationBackgroundTaskQueue taskQueue,
-            ILogger<StartMigrationBackgroundService> logger, MigrationWorkerStatus workerStatus)
-        {
-            TaskQueue = taskQueue;
-            _logger = logger;
-            _workerStatus = workerStatus;
-            _scopeFactory = scopeFactory;
-        }
-
-        public IMigrationBackgroundTaskQueue TaskQueue { get; }
+        public IMigrationBackgroundTaskQueue TaskQueue { get; } = taskQueue;
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation(
-                $"Queued Hosted Service is running.{Environment.NewLine}" +
-                $"{Environment.NewLine}Tap W to add a work item to the " +
-                $"background queue.{Environment.NewLine}");
+            logger.LogInformation(
+                $"Start Migration Service is running.");
 
             await BackgroundProcessing(stoppingToken);
         }
          
         private async Task BackgroundProcessing(CancellationToken stoppingToken)
         {
-
-            using var scope = _scopeFactory.CreateScope();
+            using var scope = scopeFactory.CreateScope();
+            // fetch the scoped service manually through the service provider
+            // scoped services cannot be injected directly into the constructor because of the nature of the background service
+            // see: https://learn.microsoft.com/en-us/dotnet/core/extensions/scoped-service
             var migrationService = scope.ServiceProvider.GetRequiredService<IStartMigrationService>();
 
             while (!stoppingToken.IsCancellationRequested)
@@ -50,24 +35,24 @@ namespace Datamigratie.Server.Features.Migration.StartMigration.Services
 
                 try
                 {
-                    _workerStatus.IsWorking = true; // set flag before starting
+                    workerStatus.IsWorking = true; // set flag before starting
                     await migrationService.PerformMigrationAsync(stoppingToken, workItem);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex,
-                        "Error occurred executing {WorkItem}.", nameof(workItem));
+                    logger.LogError(ex,
+                        "Error occurred executing migration for DET Zaaktype Id {DetZaaktypeId}.", workItem.DetZaaktypeId);
                 }
                 finally
                 {
-                    _workerStatus.IsWorking = false; // reset after task finishes or crashes
+                    workerStatus.IsWorking = false; // reset after task finishes or crashes
                 }
             }
         }
 
         public override async Task StopAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Queued Hosted Service is stopping.");
+            logger.LogInformation("Start Migration Service is stopping.");
 
             await base.StopAsync(stoppingToken);
         }
