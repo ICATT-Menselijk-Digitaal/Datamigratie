@@ -1,6 +1,7 @@
 ﻿using System.Threading.Channels;
+using Datamigratie.Server.Features.Migration.StartMigration.Queues.Items;
 
-namespace Datamigratie.Server.Features.Migration.Workers
+namespace Datamigratie.Server.Features.Migration.StartMigration.Queues
 {
     /// <summary>
     /// Code based on:

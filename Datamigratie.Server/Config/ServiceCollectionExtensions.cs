@@ -3,11 +3,11 @@ using Datamigratie.Common.Extensions;
 
 using Datamigratie.Server.Features.Mapping.MapZaaktypen;
 using Datamigratie.Server.Features.Mapping.ShowZaaktypenMapping;
-using Datamigratie.Server.Features.Migration.Services;
 using Datamigratie.Server.Features.MigrateZaak;
-using Datamigratie.Server.Features.Migration.Workers;
 using Datamigratie.Server.Helpers;
-using Datamigratie.Server.Features.Migration.StartMigration;
+using Datamigratie.Server.Features.Migration.StartMigration.Services;
+using Datamigratie.Server.Features.Migration.StartMigration.Queues;
+using Datamigratie.Server.Features.Migration.StartMigration.State;
 
 namespace Datamigratie.Server.Config
 {
@@ -20,9 +20,9 @@ namespace Datamigratie.Server.Config
             services.AddScoped<IShowZaaktypenMappingService, ShowZaaktypenMappingService>();
             services.AddScoped<IMigrateZaakService, MigrateZaakService>();
 
-            services.AddScoped<IMigration1Service, Migration1Service>();
+            services.AddScoped<IStartMigrationService, StartMigrationService>();
 
-            services.AddHostedService<MigrationBackgroundService>();
+            services.AddHostedService<StartMigrationBackgroundService>();
             services.AddSingleton<IMigrationBackgroundTaskQueue>(ctx =>
             {
                 return new MigrationBackgroundTaskQueue(100);

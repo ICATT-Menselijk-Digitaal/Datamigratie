@@ -4,18 +4,18 @@ using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Data;
 using Datamigratie.Data.Entities;
-using Datamigratie.Server.Features.Migration.Workers;
+using Datamigratie.Server.Features.Migration.StartMigration.Queues.Items;
 using Datamigratie.Server.Helpers;
 using Microsoft.EntityFrameworkCore;
 
-namespace Datamigratie.Server.Features.Migration.StartMigration;
+namespace Datamigratie.Server.Features.Migration.StartMigration.Services;
 
-public interface IMigration1Service
+public interface IStartMigrationService
 {
     Task PerformMigrationAsync(CancellationToken stoppingToken, MigrationQueueItem migrationQueueItem);
 }
 
-public class Migration1Service(DatamigratieDbContext context, IDetApiClient detApiClient, ILogger<Migration1Service> logger, IRandomProvider randomProvider) : IMigration1Service
+public class StartMigrationService(DatamigratieDbContext context, IDetApiClient detApiClient, ILogger<StartMigrationService> logger, IRandomProvider randomProvider) : IStartMigrationService
 {
 
 

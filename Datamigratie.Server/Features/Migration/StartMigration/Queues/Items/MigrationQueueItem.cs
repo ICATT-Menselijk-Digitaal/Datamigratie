@@ -1,4 +1,4 @@
-﻿namespace Datamigratie.Server.Features.Migration.Workers
+﻿namespace Datamigratie.Server.Features.Migration.StartMigration.Queues.Items
 {
     public class MigrationQueueItem
     {

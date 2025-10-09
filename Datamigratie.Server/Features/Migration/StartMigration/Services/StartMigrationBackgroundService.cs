@@ -1,22 +1,23 @@
-﻿using Datamigratie.Server.Features.Migration.StartMigration;
+﻿using Datamigratie.Server.Features.Migration.StartMigration.Queues;
+using Datamigratie.Server.Features.Migration.StartMigration.State;
 
-namespace Datamigratie.Server.Features.Migration.Workers
+namespace Datamigratie.Server.Features.Migration.StartMigration.Services
 {
     /// <summary>
     /// Code based on:
     /// https://learn.microsoft.com/en-us/aspnet/core/fundamentals/host/hosted-services?view=aspnetcore-9.0&tabs=visual-studio
     /// </summary>
-    public class MigrationBackgroundService : BackgroundService
+    public class StartMigrationBackgroundService : BackgroundService
     {
-        private readonly ILogger<MigrationBackgroundService> _logger;
+        private readonly ILogger<StartMigrationBackgroundService> _logger;
 
         private readonly MigrationWorkerStatus _workerStatus;
 
         private readonly IServiceScopeFactory _scopeFactory;
 
 
-        public MigrationBackgroundService(IServiceScopeFactory scopeFactory, IMigrationBackgroundTaskQueue taskQueue,
-            ILogger<MigrationBackgroundService> logger, MigrationWorkerStatus workerStatus)
+        public StartMigrationBackgroundService(IServiceScopeFactory scopeFactory, IMigrationBackgroundTaskQueue taskQueue,
+            ILogger<StartMigrationBackgroundService> logger, MigrationWorkerStatus workerStatus)
         {
             TaskQueue = taskQueue;
             _logger = logger;
@@ -40,7 +41,7 @@ namespace Datamigratie.Server.Features.Migration.Workers
         {
 
             using var scope = _scopeFactory.CreateScope();
-            var migrationService = scope.ServiceProvider.GetRequiredService<Migration1Service>();
+            var migrationService = scope.ServiceProvider.GetRequiredService<IStartMigrationService>();
 
             while (!stoppingToken.IsCancellationRequested)
             {
