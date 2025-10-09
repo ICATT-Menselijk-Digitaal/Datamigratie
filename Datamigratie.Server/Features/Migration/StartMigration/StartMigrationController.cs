@@ -15,6 +15,7 @@ public class StartMigrationController(MigrationWorkerStatus workerStatus, IDetAp
     [HttpPost("start")]
     public async Task<ActionResult> StartMigration([FromBody] StartMigrationRequest request)
     {
+        // perform some validation so the frontend gets quick feedback if something is wrong
         if (workerStatus.IsWorking)
         {
             return Conflict(new { message = "A migration is already in progress." });
