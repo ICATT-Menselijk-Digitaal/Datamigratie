@@ -14,8 +14,7 @@ public static class Extensions
     {
         builder.Services.AddDbContext<DatamigratieDbContext>(options =>
         {
-            options.UseNpgsql(builder.Configuration.GetConnectionString(connectionName))
-                   .UseSnakeCaseNamingConvention();
+            options.UseNpgsql(builder.Configuration.GetConnectionString(connectionName));
         });
 
         return builder;

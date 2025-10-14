@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Common.Services.Shared;
 
@@ -14,7 +15,7 @@ namespace Datamigratie.Common.Services.OpenZaak
 
         Task<OzZaak> CreateZaak(CreateOzZaakRequest request);
 
-        Task<OzZaak?> GetZaakByIdentificatie(string zaakId);
+        Task<OzZaak?> GetZaakByIdentificatie(string zaakNummer);
 
     }
 
@@ -60,17 +61,20 @@ namespace Datamigratie.Common.Services.OpenZaak
             return await response.Content.ReadFromJsonAsync<OzZaaktype>(_options);
         }
 
-        public async Task<OzZaak?> GetZaakByIdentificatie(string zaakId)
+        public async Task<OzZaak?> GetZaakByIdentificatie(string zaakNummer)
         {
-            var endpoint = $"zaken/api/v1/zaken?identificatie={zaakId}";
-            var response = await _httpClient.GetAsync(endpoint);
+            var pagedZaken = await GetAllPagedData<OzZaak>($"zaken/api/v1/zaken", $"identificatie__icontains={zaakNummer}");
 
-            if (response.StatusCode == HttpStatusCode.NotFound)
-                return null;
+            foreach (var zaak in pagedZaken.Results)
+            {
+                if (string.Equals(zaak.Identificatie, zaakNummer, StringComparison.OrdinalIgnoreCase))
+                {
+                    return zaak;
+                }
+            }
 
-            response.EnsureSuccessStatusCode();
-
-            return await response.Content.ReadFromJsonAsync<OzZaak>(_options);
+            // no zaak found
+            return null;
         }
 
         /// <summary>
