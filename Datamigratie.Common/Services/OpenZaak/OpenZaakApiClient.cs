@@ -65,16 +65,11 @@ namespace Datamigratie.Common.Services.OpenZaak
         {
             var pagedZaken = await GetAllPagedData<OzZaak>($"zaken/api/v1/zaken", $"identificatie__icontains={zaakNummer}");
 
-            foreach (var zaak in pagedZaken.Results)
-            {
-                if (string.Equals(zaak.Identificatie, zaakNummer, StringComparison.OrdinalIgnoreCase))
-                {
-                    return zaak;
-                }
-            }
+            var zaak = pagedZaken.Results.FirstOrDefault(z => 
+                string.Equals(z.Identificatie, zaakNummer, StringComparison.OrdinalIgnoreCase)
+            );
 
-            // no zaak found
-            return null;
+            return zaak;
         }
 
         /// <summary>
