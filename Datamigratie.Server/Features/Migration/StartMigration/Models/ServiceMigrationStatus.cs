@@ -3,7 +3,6 @@
     public enum ServiceMigrationStatus
     {
         None,
-        Preparing,
         InProgress
     }
 }

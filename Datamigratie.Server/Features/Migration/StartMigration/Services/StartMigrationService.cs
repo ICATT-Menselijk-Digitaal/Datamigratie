@@ -12,24 +12,27 @@ namespace Datamigratie.Server.Features.Migration.StartMigration.Services;
 
 public interface IStartMigrationService
 {
-    Task PerformMigrationAsync(CancellationToken stoppingToken, MigrationQueueItem migrationQueueItem);
-
-    Task<Data.Entities.Migration?> GetRunningMigration();
+    Task PerformMigrationAsync(MigrationQueueItem migrationQueueItem, CancellationToken stoppingToken);
 }
 
 public class StartMigrationService(DatamigratieDbContext context, IDetApiClient detApiClient, ILogger<StartMigrationService> logger, IRandomProvider randomProvider) : IStartMigrationService
 {
 
 
-    public async Task PerformMigrationAsync(CancellationToken stoppingToken, MigrationQueueItem migrationQueueItem) 
+    public async Task PerformMigrationAsync(MigrationQueueItem migrationQueueItem, CancellationToken stoppingToken) 
     {
         var zaken = await detApiClient.GetZakenByZaaktype(migrationQueueItem.DetZaaktypeId);
-        var mapping = await context.Mappings.FirstAsync(m => m.DetZaaktypeId == migrationQueueItem.DetZaaktypeId, stoppingToken);
+        var mapping = await context.Mappings.FirstOrDefaultAsync(m => m.DetZaaktypeId == migrationQueueItem.DetZaaktypeId, stoppingToken);
         var migration = await CreateMigrationAsync(migrationQueueItem, zaken.Count, stoppingToken);
 
+        if (mapping == null)
+        {
+            await FailMigrationAsync(migration, $"mapping was not found for DetZaaktypeId {migrationQueueItem.DetZaaktypeId}");
+            return;
+        }
 
         await ExecuteMigration(migration, zaken, mapping.OzZaaktypeId, stoppingToken);
-        await CompleteMigrationAsync(migration, stoppingToken);
+        await CompleteMigrationAsync(migration);
     }
     private async Task ExecuteMigration(Data.Entities.Migration migration, List<DetZaakMinimal> zaken, Guid openZaaktypeId, CancellationToken ct)
     {
@@ -75,12 +78,15 @@ public class StartMigrationService(DatamigratieDbContext context, IDetApiClient 
 
     private async Task CancelMigrationAsync(Data.Entities.Migration migration)
     {
-        logger.LogWarning("Migration {Id} cancelled", migration.Id);
         await UpdateMigrationStatusAsync(migration, MigrationStatus.Cancelled);
-        await context.SaveChangesAsync();
     }
 
-    private Task UpdateMigrationStatusAsync(Data.Entities.Migration migration, MigrationStatus status, string? errorMessage = null)
+    private async Task FailMigrationAsync(Data.Entities.Migration migration, string message)
+    {
+        await UpdateMigrationStatusAsync(migration, MigrationStatus.Failed, message);
+    }
+
+    private async Task UpdateMigrationStatusAsync(Data.Entities.Migration migration, MigrationStatus status, string? errorMessage = null)
     {
         migration.Status = status;
         migration.LastUpdated = DateTime.UtcNow;
@@ -90,14 +96,14 @@ public class StartMigrationService(DatamigratieDbContext context, IDetApiClient 
             migration.ErrorMessage = errorMessage.Length > 1000 ? errorMessage[..1000] : errorMessage;
         }
 
-        return Task.CompletedTask;
+        logger.LogInformation("Migration {Id} has been set to status {Status} with error message: {Message}", migration.Id, status, migration.ErrorMessage);
+
+        await context.SaveChangesAsync();
     }
 
-    private async Task CompleteMigrationAsync(Data.Entities.Migration migration, CancellationToken ct)
+    private async Task CompleteMigrationAsync(Data.Entities.Migration migration)
     {
-        migration.Status = MigrationStatus.Completed;
-        migration.CompletedAt = DateTime.UtcNow;
-        await context.SaveChangesAsync(ct);
+        await UpdateMigrationStatusAsync(migration, MigrationStatus.Completed);
     }
 
     private async Task<Data.Entities.Migration> CreateMigrationAsync(MigrationQueueItem queueItem, int totalZaken, CancellationToken ct)
@@ -114,10 +120,5 @@ public class StartMigrationService(DatamigratieDbContext context, IDetApiClient 
         context.Migrations.Add(migration);
         await context.SaveChangesAsync(ct);
         return migration;
-    }
-
-    public async Task<Data.Entities.Migration?> GetRunningMigration()
-    {
-        return await context.Migrations.FirstOrDefaultAsync(m => m.Status == MigrationStatus.InProgress);
     }
 }

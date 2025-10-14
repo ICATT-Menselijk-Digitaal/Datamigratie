@@ -8,7 +8,7 @@ namespace Datamigratie.Server.Features.Migration.StartMigration.Services
     /// https://learn.microsoft.com/en-us/aspnet/core/fundamentals/host/hosted-services?view=aspnetcore-9.0&tabs=visual-studio
     /// </summary>
     public class StartMigrationBackgroundService(IServiceScopeFactory scopeFactory, IMigrationBackgroundTaskQueue taskQueue,
-        ILogger<StartMigrationBackgroundService> logger, MigrationWorkerStatus workerStatus) : BackgroundService
+        ILogger<StartMigrationBackgroundService> logger, MigrationWorkerState workerState) : BackgroundService
     {
         public IMigrationBackgroundTaskQueue TaskQueue { get; } = taskQueue;
 
@@ -35,8 +35,11 @@ namespace Datamigratie.Server.Features.Migration.StartMigration.Services
 
                 try
                 {
-                    workerStatus.IsWorking = true; // set flag before starting
-                    await migrationService.PerformMigrationAsync(stoppingToken, workItem);
+                    // set worker state for other threads to read from
+                    workerState.DetZaaktypeId = workItem.DetZaaktypeId;
+                    workerState.IsWorking = true; 
+
+                    await migrationService.PerformMigrationAsync(workItem, stoppingToken);
                 }
                 catch (Exception ex)
                 {
@@ -45,7 +48,9 @@ namespace Datamigratie.Server.Features.Migration.StartMigration.Services
                 }
                 finally
                 {
-                    workerStatus.IsWorking = false; // reset after task finishes or crashes
+                    // reset after task finishes or crashes
+                    workerState.IsWorking = false;
+                    workerState.DetZaaktypeId = null;
                 }
             }
         }

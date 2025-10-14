@@ -12,7 +12,6 @@ export type UpdateZaaktypeMapping = {
 
 export const MigrationStatus = Object.freeze({
   none: "None",
-  preparing: "Preparing",
   inProgress: "InProgress",
 });
 
