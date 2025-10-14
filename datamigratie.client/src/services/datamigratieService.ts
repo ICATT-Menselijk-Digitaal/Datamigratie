@@ -12,7 +12,7 @@ export type UpdateZaaktypeMapping = {
 
 export const MigrationStatus = Object.freeze({
   none: "None",
-  inProgress: "InProgress",
+  inProgress: "InProgress"
 });
 
 type MigrationStatus = keyof typeof MigrationStatus;
