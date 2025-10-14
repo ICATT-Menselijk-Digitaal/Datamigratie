@@ -84,7 +84,6 @@ resources:
   #   cpu: 100m
   #   memory: 128Mi
 
-  # API Connections
 apiConnections:
   openZaakApi:
     baseUrl: ""
@@ -120,13 +119,6 @@ persistence:
 
 existingSecret: null
 
-# This will create an AzureVaultSecret object in k8s
-azureVaultSecret:
-  vaultName: null
-  objectName: ""
-  contentType: ""
-  secretName: "{{ .Values.existingSecret }}"
-
 settings:
   database:
     host: ""
@@ -137,16 +129,11 @@ settings:
 
   apiKeys: []
 
-  # Demo variables
-  releaseVariable: "v1.0.0-demo"
-  secretValue: "demo-secret"
-
   aspnetcore:
     forwardedHeadersEnabled: true
     environment: ""
     httpPorts: ""
 
-# PostgreSQL subchart configuration
 postgresql:
   enabled: false
   auth:

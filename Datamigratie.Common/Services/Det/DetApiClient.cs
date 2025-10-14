@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net;
+using System.Net.Http.Json;
 using System.Text.Json;
 using Datamigratie.Common.Extensions;
 using Datamigratie.Common.Services.Det.Models;
@@ -13,7 +14,9 @@ namespace Datamigratie.Common.Services.Det
     {
         Task<List<DetZaaktype>> GetAllZaakTypen();
 
-        Task<List<DetZaak>> GetZakenByZaaktype(string zaaktype);
+        Task<List<DetZaakMinimal>> GetZakenByZaaktype(string zaaktype);
+
+        Task<DetZaak?> GetZaakByZaaknummer(string zaaknummer);
 
         Task<DetZaak> GetZaak(string zaaktype);
 
@@ -103,7 +106,7 @@ namespace Datamigratie.Common.Services.Det
 
             if (result == null)
             {
-                 _logger.LogError("Failed to deserialize response from endpoint {endpoint} with response {jsonString}", endpoint, jsonString);
+                 _logger.LogError("Failed to deserialize response from endpoint {endpoint} with response {jsonString}", SanitizeForLogging(endpoint), SanitizeForLogging(jsonString));
                 throw new Exception($"Failed to deserialize response from endpoint {endpoint} with response {jsonString}");
             }
 
@@ -116,15 +119,50 @@ namespace Datamigratie.Common.Services.Det
         /// </summary>
         /// <param name="zaaktype">The type of the zaken to filter by.</param>
         /// <returns>A PagedResponse object containing a list of all Zaak objects across all pages.</returns>
-        public async Task<List<DetZaak>> GetZakenByZaaktype(string zaaktype)
+        public async Task<List<DetZaakMinimal>> GetZakenByZaaktype(string zaaktype)
         {
             
             _logger.LogInformation("Fetching zaken for zaaktype: {Zaaktype}", SanitizeForLogging(zaaktype));
 
             var endpoint = $"zaken";
             var query = $"zaaktype={Uri.EscapeDataString(zaaktype)}";
-            var pagedZaken = await GetAllPagedData<DetZaak>(endpoint, query);
+            var pagedZaken = await GetAllPagedData<DetZaakMinimal>(endpoint, query);
             return pagedZaken.Results;
+        }
+
+        /// <summary>
+        /// Gets a specific zaak by its zaaknummer.
+        /// Endpoint: /zaken/{zaaknummer}
+        /// </summary>
+        /// <param name="zaaknummer">The zaaknummer of the zaak to retrieve. Defined in DET as functioneleIdentificatie</param>
+        /// <returns>The DetZaak object if found, otherwise null.</returns>
+        public async Task<DetZaak?> GetZaakByZaaknummer(string zaaknummer)
+        { 
+            try
+            {
+                var endpoint = $"zaken/{Uri.EscapeDataString(zaaknummer)}";
+                var response = await _httpClient.GetAsync(endpoint);
+
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {                
+                    return null;
+                }
+
+                response.EnsureSuccessStatusCode();
+
+                return await response.Content.ReadFromJsonAsync<DetZaak>(_options);
+
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "HTTP error occurred while fetching zaak with zaaknummer: {zaaknummer}", SanitizeForLogging(zaaknummer));
+                throw;
+            }      
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error occurred while fetching zaak with zaaknummer: {zaaknummer}", SanitizeForLogging(zaaknummer));
+                throw;
+            }
         }
 
         protected override int GetDefaultStartingPage()
