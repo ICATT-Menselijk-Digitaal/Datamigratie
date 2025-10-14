@@ -15,7 +15,7 @@ export const MigrationStatus = Object.freeze({
   inProgress: "InProgress"
 });
 
-type MigrationStatus = keyof typeof MigrationStatus;
+export type MigrationStatus = typeof MigrationStatus[keyof typeof MigrationStatus];
 
 export type Migration = {
   detZaaktypeId?: string;
