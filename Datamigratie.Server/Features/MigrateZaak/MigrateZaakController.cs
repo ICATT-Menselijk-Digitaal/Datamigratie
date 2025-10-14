@@ -51,47 +51,14 @@ namespace Datamigratie.Server.Features.MigrateZaak
                     ? (int)httpRequestException.StatusCode
                     : StatusCodes.Status500InternalServerError;
 
-                return Ok(CreateZaakResult.Failed(zaaknummer, "De zaak kon niet opgehaald worden uit het bron systeem.", ex.Message, status));
+                return Ok(MigrateZaakResult.Failed(zaaknummer, "De zaak kon niet opgehaald worden uit het bron systeem.", ex.Message, status));
             }
 
-            try
-            {
-                var createZaakRequest = _migrateZaakService.CreateOzZaakCreationRequest(detZaak, zaaktypeId);
-                var createdZaak = await _openZaakApiClient.CreateZaak(createZaakRequest);
-                return Ok(CreateZaakResult.Success(createdZaak.Identificatie, "De zaak is aangemaakt in het doelsysteem"));
-            }
-            catch (Exception ex)
-            {
-                var status = (ex is HttpRequestException httpRequestException && httpRequestException.StatusCode.HasValue)
-                    ? (int)httpRequestException.StatusCode
-                    : StatusCodes.Status500InternalServerError;
-
-                return Ok(CreateZaakResult.Failed(zaaknummer, "De zaak kon niet worden aangemaakt in het doelsysteem.", ex.Message, status));
-            }
+            var result = await _migrateZaakService.MigrateZaak(detZaak, zaaktypeId);
+            return Ok(result);
 
         }
 
-    }
-
-
-    public class CreateZaakResult
-    {
-        public bool IsSuccess { get; private set; }
-        public string? Message { get; private set; }
-        public string Zaaknummer { get; private set; }
-        public string? Details { get; private set; }
-        public int? Statuscode { get; private set; }
-
-        private CreateZaakResult(bool isSuccess, string zaaknummer, string? message = null, string? details = null, int? statuscode = null)
-        {
-            IsSuccess = isSuccess;
-            Zaaknummer = zaaknummer;
-            Message = message;
-            Details = details;
-            Statuscode = statuscode;
-        }
-        public static CreateZaakResult Success(string zaaknummer, string messsage) => new(true, zaaknummer, messsage);
-        public static CreateZaakResult Failed(string zaaknummer, string messsage, string details, int? statuscode) => new(false, zaaknummer, messsage, details, statuscode);
     }
 }
 
