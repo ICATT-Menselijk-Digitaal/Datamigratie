@@ -84,49 +84,39 @@ namespace Datamigratie.Common.Services.OpenZaak
         {
             var endpoint = "zaken/api/v1/zaken";
 
-            try
-            {
-                var content = JsonContent.Create(request);
-                content.Headers.Add("Content-Crs", "EPSG:4326");
+            var content = JsonContent.Create(request);
+            content.Headers.Add("Content-Crs", "EPSG:4326");
 
-                var response = await _httpClient.PostAsync(endpoint, content);
-                
-                if (response.IsSuccessStatusCode)
+            var response = await _httpClient.PostAsync(endpoint, content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var zaak = await response.Content.ReadFromJsonAsync<OzZaak>(_options);
+                return zaak ?? throw new InvalidOperationException("Failed to deserialize created zaak");
+            }
+
+            var errorContent = await response.Content.ReadAsStringAsync();
+
+            if (response.StatusCode == HttpStatusCode.BadRequest)
+            {
+                try
                 {
-                    var zaak = await response.Content.ReadFromJsonAsync<OzZaak>(_options);
-                    return zaak ?? throw new InvalidOperationException("Failed to deserialize created zaak");
+                    var errorResponse = JsonSerializer.Deserialize<OzErrorResponse>(errorContent, _options);
+                    if (errorResponse?.InvalidParams?.Any() == true)
+                    {
+                        var invalidFields = string.Join(", ", errorResponse.InvalidParams.Select(p => new { p.Name, p.Reason, p.Code }));
+                        throw new HttpRequestException($"Validatie fouten: {invalidFields}", null, HttpStatusCode.BadRequest);
+                    }
+                    throw new HttpRequestException(errorResponse?.Detail ?? "Onbekende validatie fout", null, HttpStatusCode.BadRequest);
                 }
-
-                var errorContent = await response.Content.ReadAsStringAsync();
-
-                if (response.StatusCode == HttpStatusCode.BadRequest)
+                catch (JsonException)
                 {
-                    try
-                    {
-                        var errorResponse = JsonSerializer.Deserialize<OzErrorResponse>(errorContent, _options);
-                        if (errorResponse?.InvalidParams?.Any() == true)
-                        {
-                            var invalidFields = string.Join(", ", errorResponse.InvalidParams.Select(p => new { p.Name, p.Reason, p.Code } ));
-                            throw new HttpRequestException($"Validation failed for fields: {invalidFields}");
-                        }
-                        throw new HttpRequestException($"Bad request: {errorResponse?.Detail ?? "Unknown validation error"}");
-                    }
-                    catch (JsonException)
-                    {
-                        throw new HttpRequestException($"Bad request: {errorContent}");
-                    }
+                    throw new Exception($"Onverwacht antwoord van OpenZaak: {errorContent}");
                 }
+            }
 
-                throw new HttpRequestException($"Failed to create zaak. Status: {response.StatusCode}, Response: {errorContent}");
-            }
-            catch (HttpRequestException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new HttpRequestException("Failed to create zaak in OpenZaak", ex);
-            }
+            throw new HttpRequestException(errorContent, null, HttpStatusCode.BadRequest);
+
         }
 
         protected override int GetDefaultStartingPage()
@@ -135,4 +125,4 @@ namespace Datamigratie.Common.Services.OpenZaak
         }
     }
 
-    }
+}

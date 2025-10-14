@@ -1,46 +1,20 @@
 ﻿using Datamigratie.Common.Config;
 using Datamigratie.Common.Services.Det.Models;
-using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Microsoft.Extensions.Options;
 
 namespace Datamigratie.Server.Features.MigrateZaak
 {
-
     public interface IMigrateZaakService
     {
-        public Task<OzZaak> MigrateZaak(DetZaak detZaak, Guid ozZaaktypeId);
+        public CreateOzZaakRequest CreateOzZaakCreationRequest(DetZaak detZaak, Guid ozZaaktypeId);
     }
 
-    public class MigrateZaakService : IMigrateZaakService
+    public class MigrateZaakService(IOptions<OpenZaakApiOptions> options) : IMigrateZaakService
     {
-        private readonly IOpenZaakApiClient _openZaakApiClient;
+        private readonly OpenZaakApiOptions _openZaakApiOptions = options.Value;
 
-        private readonly OpenZaakApiOptions _openZaakApiOptions;
-
-        public MigrateZaakService(IOpenZaakApiClient openZaakApiClient, IOptions<OpenZaakApiOptions> options)
-        {
-            _openZaakApiClient = openZaakApiClient;
-            _openZaakApiOptions = options.Value;
-        }
-
-        public async Task<OzZaak> MigrateZaak(DetZaak detZaak, Guid ozZaaktypeId)
-        {
-            CheckIfZaakAlreadyExists();
-
-            var createZaakRequest = CreateOzZaakCreationRequest(detZaak, ozZaaktypeId);
-            
-            var createdZaak = await _openZaakApiClient.CreateZaak(createZaakRequest);
-
-            return createdZaak;
-        }
-
-        private static void CheckIfZaakAlreadyExists()
-        {
-            // TODO -> story DATA-48
-        }
-
-        private CreateOzZaakRequest CreateOzZaakCreationRequest(DetZaak detZaak, Guid ozZaaktypeId)
+        public CreateOzZaakRequest CreateOzZaakCreationRequest(DetZaak detZaak, Guid ozZaaktypeId)
         {
             // First apply data transformation to follow OpenZaak constraints
             var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
@@ -101,6 +75,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
             return truncatedInput + dots;
         }
 
+         
     }
 
 
