@@ -1,32 +1,15 @@
 ﻿using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
-using Datamigratie.Common.Services.OpenZaak;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Datamigratie.Server.Features.MigrateZaak
 {
     [ApiController]
     [Route("api/migreer-zaak")]
-    public class MigrateZaakController : ControllerBase
+    public class MigrateZaakController(
+        IDetApiClient detApiClient,
+        IMigrateZaakService migrateZaakService) : ControllerBase
     {
-        private readonly IDetApiClient _detApiClient;
-        private readonly IOpenZaakApiClient _openZaakApiClient;
-        private readonly ILogger<MigrateZaakController> _logger;
-        private readonly IMigrateZaakService _migrateZaakService;
-
-
-        public MigrateZaakController(
-            IDetApiClient detApiClient,
-            IOpenZaakApiClient openZaakApiClient,
-            ILogger<MigrateZaakController> logger,
-            IMigrateZaakService migrateZaakService)
-        {
-            _detApiClient = detApiClient;
-            _openZaakApiClient = openZaakApiClient;
-            _logger = logger;
-            _migrateZaakService = migrateZaakService;
-        }
-
 
         /// <summary>
         /// tijdelijk als controller met een Get method geimplementeerd. wordt uiteindelijke een functie die vanuit een mogratie proces aangeroepen wordt
@@ -43,7 +26,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
 
             try
             {
-                detZaak = await _detApiClient.GetZaakByZaaknummer(zaaknummer);
+                detZaak = await detApiClient.GetZaakByZaaknummer(zaaknummer);
             }
             catch (Exception ex)
             {
@@ -54,7 +37,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
                 return Ok(MigrateZaakResult.Failed(zaaknummer, "De zaak kon niet opgehaald worden uit het bron systeem.", ex.Message, status));
             }
 
-            var result = await _migrateZaakService.MigrateZaak(detZaak, zaaktypeId);
+            var result = await migrateZaakService.MigrateZaak(detZaak, zaaktypeId);
             return Ok(result);
 
         }
