@@ -3,11 +3,12 @@
 var postgres = builder.AddPostgres("postgres")
     .WithDataVolume()
     .WithHostPort(63214)
-    .WithPgAdmin();
+    .WithPgAdmin(x => x.WithHostPort(63215));
 
 var postgresdb = postgres.AddDatabase("Datamigratie");
 
-var migrations = builder.AddProject<Projects.Datamigratie_MigrationService>("migrations")
+var migrations = builder
+    .AddProject<Projects.Datamigratie_MigrationService>("migrations")
     .WithReference(postgresdb)
     .WaitFor(postgresdb);
 

@@ -3,6 +3,7 @@ using System;
 using Datamigratie.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Datamigratie.Data.Migrations
 {
     [DbContext(typeof(DatamigratieDbContext))]
-    partial class DatamigratieDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251001122854_Init")]
+    partial class Init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +25,7 @@ namespace Datamigratie.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Datamigratie.Data.Entities.Migration", b =>
+            modelBuilder.Entity("Datamigratie.Data.Entities.MigrationTracker", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -35,10 +38,6 @@ namespace Datamigratie.Data.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("DetZaaktypeId")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<string>("ErrorMessage")
                         .HasMaxLength(1000)
@@ -66,15 +65,18 @@ namespace Datamigratie.Data.Migrations
                     b.Property<int>("TotalRecords")
                         .HasColumnType("integer");
 
+                    b.Property<Guid>("ZaaktypeId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedAt");
 
-                    b.HasIndex("DetZaaktypeId");
-
                     b.HasIndex("Status");
 
-                    b.ToTable("Migrations");
+                    b.HasIndex("ZaaktypeId");
+
+                    b.ToTable("MigrationTrackers");
                 });
 
             modelBuilder.Entity("Datamigratie.Data.Entities.ZaaktypenMapping", b =>

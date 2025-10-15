@@ -8,11 +8,12 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <SpaRoot>..\datamigratie.client</SpaRoot>
     <SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
-    <SpaProxyServerUrl>https://localhost:52208</SpaProxyServerUrl>
+    <SpaProxyServerUrl>https://localhost:52175</SpaProxyServerUrl>
   </PropertyGroup>
 
 
   <ItemGroup>
+    <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.4.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.20">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -25,11 +26,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\datamigratie.client\datamigratie.client.esproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <ReferenceOutputAssembly>False</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="..\Datamigratie.Common\Datamigratie.Common.csproj" />
     <ProjectReference Include="..\Datamigratie.Data\Datamigratie.Data.csproj" />
     <ProjectReference Include="..\Datamigratie.ServiceDefaults\Datamigratie.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Datamigratie.Data\Datamigratie.Data.csproj" />
   </ItemGroup>
 
 </Project>
