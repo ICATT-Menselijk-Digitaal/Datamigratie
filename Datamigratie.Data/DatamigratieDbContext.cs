@@ -27,7 +27,33 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
                 .IsUnique()
                 .HasDatabaseName("IX_Mapping_DetZaaktypeId_Unique");
         });
+
+        modelBuilder.Entity<Migration>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            
+            entity.Property(e => e.DetZaaktypeId)
+                .IsRequired();
+            
+            entity.Property(e => e.Status)
+                .IsRequired()
+                .HasConversion<string>();
+            
+            entity.Property(e => e.CreatedAt)
+                .IsRequired();
+            
+            entity.Property(e => e.LastUpdated)
+                .IsRequired();
+            
+            entity.Property(e => e.ErrorMessage)
+                .HasMaxLength(1000);
+
+            entity.HasIndex(e => e.DetZaaktypeId);
+            entity.HasIndex(e => e.Status);
+            entity.HasIndex(e => e.CreatedAt);
+        });
     }
 
     public DbSet<ZaaktypenMapping> Mappings { get; set; }
+    public DbSet<Migration> Migrations { get; set; }
 }

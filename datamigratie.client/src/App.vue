@@ -4,6 +4,8 @@
   <the-header />
 
   <main id="main">
+    <migration-alert />
+
     <router-view />
   </main>
 
@@ -15,4 +17,5 @@ import { RouterView } from "vue-router";
 import ToastSection from "./components/toast/ToastSection.vue";
 import TheHeader from "./components/TheHeader.vue";
 import TheFooter from "./components/TheFooter.vue";
+import MigrationAlert from "@/components/MigrationAlert.vue";
 </script>
