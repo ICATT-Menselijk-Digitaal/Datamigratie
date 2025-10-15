@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Common.Services.Shared;
 
@@ -13,6 +14,9 @@ namespace Datamigratie.Common.Services.OpenZaak
         Task<OzZaaktype?> GetZaaktype(Guid zaaktypeId);
 
         Task<OzZaak> CreateZaak(CreateOzZaakRequest request);
+
+        Task<OzZaak?> GetZaakByIdentificatie(string zaakNummer);
+
     }
 
     public class OpenZaakClient : PagedApiClient, IOpenZaakApiClient
@@ -55,6 +59,19 @@ namespace Datamigratie.Common.Services.OpenZaak
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadFromJsonAsync<OzZaaktype>(_options);
+        }
+
+        public async Task<OzZaak?> GetZaakByIdentificatie(string zaakNummer)
+        {
+            // uses icontains filter on identificatie field because the search is case-sensitive otherwise
+            // currently there is no openzaak filter that allows case-insensitive exact match
+            var pagedZaken = await GetAllPagedData<OzZaak>($"zaken/api/v1/zaken", $"identificatie__icontains={zaakNummer}");
+
+            var zaak = pagedZaken.Results.FirstOrDefault(z => 
+                string.Equals(z.Identificatie, zaakNummer, StringComparison.OrdinalIgnoreCase)
+            );
+
+            return zaak;
         }
 
         /// <summary>
