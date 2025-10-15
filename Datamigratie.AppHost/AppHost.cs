@@ -2,8 +2,8 @@
 
 var postgres = builder.AddPostgres("postgres")
     .WithDataVolume()
-    .WithHostPort(63215)
-    .WithPgAdmin();
+    .WithHostPort(63214)
+    .WithPgAdmin(x => x.WithHostPort(63215));
 
 var postgresdb = postgres.AddDatabase("Datamigratie");
 
