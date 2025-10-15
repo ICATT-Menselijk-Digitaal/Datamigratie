@@ -37,8 +37,10 @@ namespace Datamigratie.Server.Features.MigrateZaak
                 return Ok(MigrateZaakResult.Failed(zaaknummer, "De zaak kon niet opgehaald worden uit het bron systeem.", ex.Message, status));
             }
 
+
             var result = await migrateZaakService.MigrateZaak(detZaak, zaaktypeId);
-            return Ok(result);
+
+            return result.IsSuccess ? Ok(result) : (ActionResult)StatusCode(result.Statuscode ?? 500, result);
 
         }
 
