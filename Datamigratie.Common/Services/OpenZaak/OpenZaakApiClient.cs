@@ -63,6 +63,8 @@ namespace Datamigratie.Common.Services.OpenZaak
 
         public async Task<OzZaak?> GetZaakByIdentificatie(string zaakNummer)
         {
+            // uses icontains filter on identificatie field because the search is case-sensitive otherwise
+            // currently there is no openzaak filter that allows case-insensitive exact match
             var pagedZaken = await GetAllPagedData<OzZaak>($"zaken/api/v1/zaken", $"identificatie__icontains={zaakNummer}");
 
             var zaak = pagedZaken.Results.FirstOrDefault(z => 
