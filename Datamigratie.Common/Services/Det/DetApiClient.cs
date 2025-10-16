@@ -16,7 +16,7 @@ namespace Datamigratie.Common.Services.Det
 
         Task<List<DetZaakMinimal>> GetZakenByZaaktype(string zaaktype);
 
-        Task<DetZaak?> GetZaakByZaaknummer(string zaaknummer);
+        Task<DetZaak> GetZaakByZaaknummer(string zaaknummer);
 
         Task<DetZaak> GetZaak(string zaaktype);
 
@@ -136,21 +136,25 @@ namespace Datamigratie.Common.Services.Det
         /// </summary>
         /// <param name="zaaknummer">The zaaknummer of the zaak to retrieve. Defined in DET as functioneleIdentificatie</param>
         /// <returns>The DetZaak object if found, otherwise null.</returns>
-        public async Task<DetZaak?> GetZaakByZaaknummer(string zaaknummer)
+        public async Task<DetZaak> GetZaakByZaaknummer(string zaaknummer)
         { 
             try
             {
                 var endpoint = $"zaken/{Uri.EscapeDataString(zaaknummer)}";
                 var response = await _httpClient.GetAsync(endpoint);
 
-                if (response.StatusCode == HttpStatusCode.NotFound)
-                {                
-                    return null;
+                response.EnsureSuccessStatusCode();
+                                
+                var jsonString = await response.Content.ReadAsStringAsync();
+                var result = JsonSerializer.Deserialize<DetZaak>(jsonString, _options);
+
+                if (result == null)
+                {
+                    _logger.LogError("Failed to deserialize response from endpoint {endpoint} with response {jsonString}", SanitizeForLogging(endpoint), SanitizeForLogging(jsonString));
+                    throw new Exception($"Failed to deserialize response from endpoint {endpoint} with response {result}");
                 }
 
-                response.EnsureSuccessStatusCode();
-
-                return await response.Content.ReadFromJsonAsync<DetZaak>(_options);
+                return result;
 
             }
             catch (HttpRequestException ex)

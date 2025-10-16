@@ -6,33 +6,39 @@ using Microsoft.Extensions.Options;
 
 namespace Datamigratie.Server.Features.MigrateZaak
 {
-
     public interface IMigrateZaakService
     {
-        public Task<OzZaak> MigrateZaak(DetZaak detZaak, Guid ozZaaktypeId);
+        public Task<MigrateZaakResult> MigrateZaak(DetZaak detZaak, Guid ozZaaktypeId);
     }
 
-    public class MigrateZaakService : IMigrateZaakService
+    public class MigrateZaakService(IOpenZaakApiClient openZaakApiClient, IOptions<OpenZaakApiOptions> options) : IMigrateZaakService
     {
-        private readonly IOpenZaakApiClient _openZaakApiClient;
+        private readonly OpenZaakApiOptions _openZaakApiOptions = options.Value;
+        private readonly IOpenZaakApiClient _openZaakApiClient = openZaakApiClient;
 
-        private readonly OpenZaakApiOptions _openZaakApiOptions;
-
-        public MigrateZaakService(IOpenZaakApiClient openZaakApiClient, IOptions<OpenZaakApiOptions> options)
+        public async Task<MigrateZaakResult> MigrateZaak(DetZaak detZaak, Guid ozZaaktypeId)
         {
-            _openZaakApiClient = openZaakApiClient;
-            _openZaakApiOptions = options.Value;
-        }
 
-        public async Task<OzZaak> MigrateZaak(DetZaak detZaak, Guid ozZaaktypeId)
-        {
-            CheckIfZaakAlreadyExists();
+            try
+            {
+                CheckIfZaakAlreadyExists();
 
-            var createZaakRequest = CreateOzZaakCreationRequest(detZaak, ozZaaktypeId);
-            
-            var createdZaak = await _openZaakApiClient.CreateZaak(createZaakRequest);
+                var createZaakRequest = CreateOzZaakCreationRequest(detZaak, ozZaaktypeId);
 
-            return createdZaak;
+                var createdZaak = await _openZaakApiClient.CreateZaak(createZaakRequest);
+
+                return MigrateZaakResult.Success(createdZaak.Identificatie, "De zaak is aangemaakt in het doelsysteem");
+            }
+            catch (Exception ex)
+            {
+                var status = (ex is HttpRequestException httpRequestException && httpRequestException.StatusCode.HasValue)
+                    ? (int)httpRequestException.StatusCode
+                    : StatusCodes.Status500InternalServerError;
+
+                return MigrateZaakResult.Failed(detZaak.FunctioneleIdentificatie, "De zaak kon niet worden aangemaakt in het doelsysteem.", ex.Message, status);
+            }
+
+         
         }
 
         private static void CheckIfZaakAlreadyExists()
@@ -101,8 +107,29 @@ namespace Datamigratie.Server.Features.MigrateZaak
             return truncatedInput + dots;
         }
 
+         
     }
 
+
+    public class MigrateZaakResult
+    {
+        public bool IsSuccess { get; private set; }
+        public string? Message { get; private set; }
+        public string Zaaknummer { get; private set; }
+        public string? Details { get; private set; }
+        public int? Statuscode { get; private set; }
+
+        private MigrateZaakResult(bool isSuccess, string zaaknummer, string? message = null, string? details = null, int? statuscode = null)
+        {
+            IsSuccess = isSuccess;
+            Zaaknummer = zaaknummer;
+            Message = message;
+            Details = details;
+            Statuscode = statuscode;
+        }
+        public static MigrateZaakResult Success(string zaaknummer, string messsage) => new(true, zaaknummer, messsage);
+        public static MigrateZaakResult Failed(string zaaknummer, string messsage, string details, int? statuscode) => new(false, zaaknummer, messsage, details, statuscode);
+    }
 
 
 }
