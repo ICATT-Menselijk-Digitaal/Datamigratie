@@ -103,6 +103,7 @@ public class StartMigrationService(DatamigratieDbContext context, IDetApiClient 
 
     private async Task CompleteMigrationAsync(Data.Entities.Migration migration)
     {
+        migration.CompletedAt = DateTime.UtcNow;
         await UpdateMigrationStatusAsync(migration, MigrationStatus.Completed);
     }
 
