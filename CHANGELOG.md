@@ -6,6 +6,6 @@
 - [Migratiemanagement: Zaak omschrijving meemigreren](https://dimpact.atlassian.net/browse/DATA-49)
 - [Controleer of een zaak al bestaat](https://dimpact.atlassian.net/browse/DATA-48)
 - [Migratiemanagment: Migratieproces starten](https://dimpact.atlassian.net/browse/DATA-22)
-
+- [Aanmaken zaak in OpenZaak](https://dimpact.atlassian.net/browse/DATA-47)
 
  
