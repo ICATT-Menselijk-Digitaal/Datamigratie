@@ -93,6 +93,15 @@ apiConnections:
     baseUrl: ""
     apiKey: ""
 
+  oidc:
+    authority: ""
+    clientId: ""
+    clientSecret: ""
+    functioneelBeheerderRole: ""
+    nameClaimType: ""
+    roleClaimType: ""
+    emailClaimType: ""
+
 autoscaling:
   enabled: false
   minReplicas: 1
