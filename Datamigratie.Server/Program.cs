@@ -24,7 +24,6 @@ builder.Services.AddAuth(options =>
         options.RoleClaimType = builder.Configuration["Oidc:RoleClaimType"];
         options.EmailClaimType = builder.Configuration["Oidc:EmailClaimType"];
  });
-};
 
 var app = builder.Build();
 
