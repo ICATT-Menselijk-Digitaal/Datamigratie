@@ -1,5 +1,4 @@
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 using Datamigratie.Common.Converters;
 
 namespace Datamigratie.Common.Services.Det.Models
@@ -34,5 +33,23 @@ namespace Datamigratie.Common.Services.Det.Models
         [JsonConverter(typeof(DetZonedDateTimeConverter))]
         public DateTimeOffset WijzigDatumTijd { get; set; }
         public DetZaaktype? Zaaktype { get; set; }
+        public required List<DetDocument> Documenten { get; set; }
+    }
+
+    public class DetDocument
+    {
+        public required List<DetDocumentVersie> DocumentVersies { get; set; }
+        public string? Kenmerk { get; set; }
+        public required string Titel { get; set; }
+    }
+
+    public class DetDocumentVersie
+    {
+        public required int Versienummer { get; set; }
+        public required long DocumentInhoudID { get; set; }
+        public required string Bestandsnaam { get; set; }
+        public required string Mimetype { get; set; }
+        public long? Documentgrootte { get; set; }
+        public required DateOnly Creatiedatum { get; set; }
     }
 }
