@@ -14,7 +14,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
         public string? Omschrijving { get; set; }
 
         [JsonPropertyName("zaaktype")]
-        public required string Zaaktype { get; set; }
+        public required Uri Zaaktype { get; set; }
 
         [JsonPropertyName("registratiedatum")]
         public string? Registratiedatum { get; set; }
@@ -38,7 +38,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
     public class OzZaak
     {
         [JsonPropertyName("url")]
-        public string Url { get; set; } = string.Empty;
+        public required Uri Url { get; set; }
 
         [JsonPropertyName("identificatie")]
         public string Identificatie { get; set; } = string.Empty;
@@ -47,7 +47,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
         public string Omschrijving { get; set; } = string.Empty;
 
         [JsonPropertyName("zaaktype")]
-        public string Zaaktype { get; set; } = string.Empty;
+        public required Uri Zaaktype { get; set; }
 
         [JsonPropertyName("bronorganisatie")]
         public string Bronorganisatie { get; set; } = string.Empty;
@@ -56,10 +56,10 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
         public string VerantwoordelijkeOrganisatie { get; set; } = string.Empty;
 
         [JsonPropertyName("registratiedatum")]
-        public DateTime Registratiedatum { get; set; }
+        public DateOnly Registratiedatum { get; set; }
 
         [JsonPropertyName("startdatum")]
-        public DateTime Startdatum { get; set; }
+        public DateOnly Startdatum { get; set; }
     }
 
     public class OzValidationError

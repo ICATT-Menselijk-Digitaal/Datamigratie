@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using System.Net.Http.Json;
 using Datamigratie.Common.Services.Shared.Models;
 
 namespace Datamigratie.Common.Services.Shared
@@ -14,11 +8,6 @@ namespace Datamigratie.Common.Services.Shared
 
         protected abstract int GetDefaultStartingPage();
 
-        private readonly JsonSerializerOptions _options = new()
-        {
-            PropertyNameCaseInsensitive = true
-        };
-
         /// <summary>
         /// Generic method to get data from a paginated endpoint and deserialize it.
         /// </summary>
@@ -27,12 +16,10 @@ namespace Datamigratie.Common.Services.Shared
         /// <returns>A PagedResponse object.</returns>
         protected async Task<PagedResponse<T>> GetPagedData<T>(string endpoint)
         {
-            var response = await httpClient.GetAsync(endpoint);
+            using var response = await httpClient.GetAsync(endpoint);
             response.EnsureSuccessStatusCode();
-
-            var jsonString = await response.Content.ReadAsStringAsync();
-
-            return JsonSerializer.Deserialize<PagedResponse<T>>(jsonString, _options);
+            var result = await response.Content.ReadFromJsonAsync<PagedResponse<T>>();
+            return result!;
         }
 
         /// <summary>

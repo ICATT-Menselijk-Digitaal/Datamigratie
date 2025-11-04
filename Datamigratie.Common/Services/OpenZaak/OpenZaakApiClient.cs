@@ -24,10 +24,6 @@ namespace Datamigratie.Common.Services.OpenZaak
         private const int DefaultStartingPage = 1;
 
         private readonly HttpClient _httpClient;
-        private readonly JsonSerializerOptions _options = new()
-        {
-            PropertyNameCaseInsensitive = true
-        };
 
         public OpenZaakClient(HttpClient httpClient) : base(httpClient)
         {
@@ -56,9 +52,9 @@ namespace Datamigratie.Common.Services.OpenZaak
             if (response.StatusCode == HttpStatusCode.NotFound)
                 return null;
 
-            response.EnsureSuccessStatusCode();
+            await response.HandleOpenZaakErrorsAsync();
 
-            return await response.Content.ReadFromJsonAsync<OzZaaktype>(_options);
+            return await response.Content.ReadFromJsonAsync<OzZaaktype>();
         }
 
         public async Task<OzZaak?> GetZaakByIdentificatie(string zaakNummer)
@@ -67,7 +63,7 @@ namespace Datamigratie.Common.Services.OpenZaak
             // currently there is no openzaak filter that allows case-insensitive exact match
             var pagedZaken = await GetAllPagedData<OzZaak>($"zaken/api/v1/zaken", $"identificatie__icontains={zaakNummer}");
 
-            var zaak = pagedZaken.Results.FirstOrDefault(z => 
+            var zaak = pagedZaken.Results.FirstOrDefault(z =>
                 string.Equals(z.Identificatie, zaakNummer, StringComparison.OrdinalIgnoreCase)
             );
 
@@ -84,39 +80,13 @@ namespace Datamigratie.Common.Services.OpenZaak
         {
             var endpoint = "zaken/api/v1/zaken";
 
-            var content = JsonContent.Create(request);
+            using var content = JsonContent.Create(request);
             content.Headers.Add("Content-Crs", "EPSG:4326");
 
-            var response = await _httpClient.PostAsync(endpoint, content);
-
-            if (response.IsSuccessStatusCode)
-            {
-                var zaak = await response.Content.ReadFromJsonAsync<OzZaak>(_options);
-                return zaak ?? throw new InvalidOperationException("Failed to deserialize created zaak");
-            }
-
-            var errorContent = await response.Content.ReadAsStringAsync();
-
-            if (response.StatusCode == HttpStatusCode.BadRequest)
-            {
-                try
-                {
-                    var errorResponse = JsonSerializer.Deserialize<OzErrorResponse>(errorContent, _options);
-                    if (errorResponse?.InvalidParams?.Any() == true)
-                    {
-                        var invalidFields = string.Join(", ", errorResponse.InvalidParams.Select(p => new { p.Name, p.Reason, p.Code }));
-                        throw new HttpRequestException($"Validatie fouten: {invalidFields}", null, HttpStatusCode.BadRequest);
-                    }
-                    throw new HttpRequestException(errorResponse?.Detail ?? "Onbekende validatie fout", null, HttpStatusCode.BadRequest);
-                }
-                catch (JsonException)
-                {
-                    throw new Exception($"Onverwacht antwoord van OpenZaak: {errorContent}");
-                }
-            }
-
-            throw new HttpRequestException(errorContent, null, HttpStatusCode.BadRequest);
-
+            using var response = await _httpClient.PostAsync(endpoint, content);
+            await response.HandleOpenZaakErrorsAsync();
+            var result = await response.Content.ReadFromJsonAsync<OzZaak>()!;
+            return result!;
         }
 
         protected override int GetDefaultStartingPage()

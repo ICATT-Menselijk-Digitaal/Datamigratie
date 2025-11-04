@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 namespace Datamigratie.Common.Converters
 {
 
-    public class DetZonedDateTimeConverter : JsonConverter<DateTime>
+    public class DetZonedDateTimeConverter : JsonConverter<DateTimeOffset>
     {
-        public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override DateTimeOffset Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             // Read the raw string
-            var dateString = reader.GetString();
+            var dateString = reader.GetString().AsSpan();
 
             if (dateString == null)
             {
@@ -23,12 +23,12 @@ namespace Datamigratie.Common.Converters
             }
 
             var zoneIndex = dateString.IndexOf('[');
-            var dateTimeWithoutNamedTimezone = zoneIndex >= 0 ? dateString.Substring(0, zoneIndex) : dateString;
+            var dateTimeWithoutNamedTimezone = zoneIndex >= 0 ? dateString.Slice(0, zoneIndex) : dateString;
 
-            return DateTime.Parse(dateTimeWithoutNamedTimezone);
+            return DateTimeOffset.Parse(dateTimeWithoutNamedTimezone);
         }
 
-        public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, DateTimeOffset value, JsonSerializerOptions options)
         {
             throw new Exception("Serialization of DET zoned date time is not implemented");
         }

@@ -50,7 +50,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
         {
             // First apply data transformation to follow OpenZaak constraints
             var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
-            var url = $"{openZaakBaseUrl}catalogi/api/v1/zaaktypen/{ozZaaktypeId}";
+            var url = new Uri($"{openZaakBaseUrl}catalogi/api/v1/zaaktypen/{ozZaaktypeId}");
 
             var registratieDatum = detZaak.CreatieDatumTijd.ToString("yyyy-MM-dd");
 
