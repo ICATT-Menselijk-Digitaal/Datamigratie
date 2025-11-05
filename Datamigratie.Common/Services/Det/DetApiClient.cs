@@ -94,13 +94,7 @@ namespace Datamigratie.Common.Services.Det
 
             var result = await response.Content.ReadFromJsonAsync<DetZaak>();
 
-            if (result == null)
-            {
-                _logger.LogError("Failed to deserialize response from endpoint {endpoint} with response {jsonString}", SanitizeForLogging(endpoint), SanitizeForLogging(jsonString));
-                throw new Exception($"Failed to deserialize response from endpoint {endpoint} with response {jsonString}");
-            }
-
-            return result;
+            return result!;
         }
 
         /// <summary>
@@ -136,13 +130,7 @@ namespace Datamigratie.Common.Services.Det
 
                 var result = await response.Content.ReadFromJsonAsync<DetZaak>();
 
-                if (result == null)
-                {
-                    _logger.LogError("Failed to deserialize response from endpoint {endpoint} with response {jsonString}", SanitizeForLogging(endpoint), SanitizeForLogging(jsonString));
-                    throw new Exception($"Failed to deserialize response from endpoint {endpoint} with response {result}");
-                }
-
-                return result;
+                return result!;
 
             }
             catch (HttpRequestException ex)
