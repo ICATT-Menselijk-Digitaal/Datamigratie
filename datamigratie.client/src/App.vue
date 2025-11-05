@@ -1,21 +1,25 @@
+<script setup lang="ts">
+  import { RouterView, useRoute } from "vue-router";
+  import ToastSection from "./components/toast/ToastSection.vue";
+  import TheHeader from "./components/TheHeader.vue";
+  import TheFooter from "./components/TheFooter.vue";
+  import MigrationAlert from "@/components/MigrationAlert.vue";
+  import { user } from "@/composables/use-user";
+</script>
+
+
+
 <template>
   <toast-section />
 
   <the-header />
 
   <main id="main">
-    <migration-alert />
+
+    <migration-alert v-if="user.isLoggedIn" />
 
     <router-view />
   </main>
 
   <the-footer />
 </template>
-
-<script setup lang="ts">
-import { RouterView } from "vue-router";
-import ToastSection from "./components/toast/ToastSection.vue";
-import TheHeader from "./components/TheHeader.vue";
-import TheFooter from "./components/TheFooter.vue";
-import MigrationAlert from "@/components/MigrationAlert.vue";
-</script>
