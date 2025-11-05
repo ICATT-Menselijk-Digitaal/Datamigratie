@@ -61,15 +61,7 @@ namespace Datamigratie.Common.Services.Det
 
                 var result = await response.Content.ReadFromJsonAsync<DetZaaktype>();
 
-                // Despite deserializing to a non nullable type, the outcome can still be null in the odd case when the input is the string "null".
-                // We don't consider this an error not just a not found situation.
-                if (result == null)
-                {
-                    _logger.LogError("Deserialized response from endpoint {endpoint} is null", SanitizeForLogging(endpoint));
-                    throw new Exception($"Deserialized response from endpoint {endpoint} is null");
-                }
-
-                return result;
+                return result!;
 
             }
             catch (HttpRequestException ex)
