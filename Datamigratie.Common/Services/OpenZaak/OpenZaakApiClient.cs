@@ -133,12 +133,13 @@ namespace Datamigratie.Common.Services.OpenZaak
 
         public async Task UploadBestand(OzDocument document, Stream inputStream, CancellationToken token)
         {
-            if (document.Bestandsdelen == null || string.IsNullOrWhiteSpace(document.Lock))
-                return;
+            ArgumentNullException.ThrowIfNull(document.Bestandsdelen);
+            ArgumentException.ThrowIfNullOrWhiteSpace(document.Lock);
 
             foreach (var bestandsDeel in document.Bestandsdelen.OrderBy(x => x.Volgnummer))
             {
-                var omvang = bestandsDeel.Omvang ?? 0;
+                ArgumentNullException.ThrowIfNull(bestandsDeel.Omvang);
+                var omvang = bestandsDeel.Omvang.Value;
 
                 using var streamContent = new PushStreamContent(
                     (output) => inputStream.CopyBytesToAsync(output, omvang, token),
