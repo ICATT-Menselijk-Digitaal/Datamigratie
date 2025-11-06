@@ -93,14 +93,14 @@ apiConnections:
     baseUrl: ""
     apiKey: ""
 
-  oidc:
-    authority: ""
-    clientId: ""
-    clientSecret: ""
-    functioneelBeheerderRole: ""
-    nameClaimType: ""
-    roleClaimType: ""
-    emailClaimType: ""
+oidc:
+  authority: ""
+  clientId: ""
+  clientSecret: ""
+  functioneelBeheerderRole: ""
+  nameClaimType: ""
+  roleClaimType: ""
+  emailClaimType: ""
 
 autoscaling:
   enabled: false
