@@ -19,10 +19,10 @@ data:
   DetApi__BaseUrl: {{ .Values.apiConnections.detApi.baseUrl | quote }}
 
   {{- if .Values.settings.oidc.authority }}
-  Oidc__Authority: {{ .Values.settings.oidc.authority }}
-  Oidc__ClientId: {{ .Values.settings.oidc.clientId }}
-  Oidc__FunctioneelBeheerderRole: {{ .Values.settings.oidc.functioneelBeheerderRole }}
-  Oidc__NameClaimType: {{ .Values.settings.oidc.nameClaimType }}
-  Oidc__RoleClaimType: {{ .Values.settings.oidc.roleClaimType }}
-  Oidc__EmailClaimType: {{ .Values.settings.oidc.emailClaimType }}
+  Oidc__Authority: {{ .Values.oidc.authority }}
+  Oidc__ClientId: {{ .Values.oidc.clientId }}
+  Oidc__FunctioneelBeheerderRole: {{ .Values.oidc.functioneelBeheerderRole }}
+  Oidc__NameClaimType: {{ .Values.oidc.nameClaimType }}
+  Oidc__RoleClaimType: {{ .Values.oidc.roleClaimType }}
+  Oidc__EmailClaimType: {{ .Values.oidc.emailClaimType }}
   {{- end }}
