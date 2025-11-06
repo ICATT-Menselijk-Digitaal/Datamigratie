@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json;
-using Datamigratie.Common.Services.Det.Models;
+using Datamigratie.Common.Helpers;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Common.Services.Shared;
 
