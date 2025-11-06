@@ -18,7 +18,7 @@ data:
   OpenZaakApi__ApiUser: {{ .Values.apiConnections.openZaakApi.apiUser | quote }}
   DetApi__BaseUrl: {{ .Values.apiConnections.detApi.baseUrl | quote }}
 
-  {{- if .Values.settings.oidc.authority }}
+  {{- if .Values.oidc.authority }}
   Oidc__Authority: {{ .Values.oidc.authority }}
   Oidc__ClientId: {{ .Values.oidc.clientId }}
   Oidc__FunctioneelBeheerderRole: {{ .Values.oidc.functioneelBeheerderRole }}
