@@ -7,5 +7,13 @@ import router from "./router";
 
 const app = createApp(App);
 
-app.use(router);
-app.mount("#app");
+(async () => {
+  // Load router after theme, to be able to use theme settings
+  const { default: router } = await import("./router");
+  const { default: routerGuardsPlugin } = await import("./plugins/routerGuards");
+
+  app.use(router);
+  app.use(routerGuardsPlugin, router);
+
+  app.mount("#app");
+})();
