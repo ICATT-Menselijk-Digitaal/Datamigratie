@@ -16,7 +16,7 @@
 
   <main id="main">
 
-    <migration-alert v-if="user.isLoggedIn" />
+    <migration-alert v-if="user.hasFunctioneelBeheerderAccess" />
 
     <router-view />
   </main>
