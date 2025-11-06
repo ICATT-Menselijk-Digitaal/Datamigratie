@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Json;
+using System.Runtime.Serialization;
 using Datamigratie.Common.Services.Shared.Models;
 
 namespace Datamigratie.Common.Services.Shared
@@ -18,8 +19,8 @@ namespace Datamigratie.Common.Services.Shared
         {
             using var response = await httpClient.GetAsync(endpoint);
             response.EnsureSuccessStatusCode();
-            var result = await response.Content.ReadFromJsonAsync<PagedResponse<T>>();
-            return result!;
+            return await response.Content.ReadFromJsonAsync<PagedResponse<T>>()
+                ?? throw new SerializationException("Unexpected null response");
         }
 
         /// <summary>

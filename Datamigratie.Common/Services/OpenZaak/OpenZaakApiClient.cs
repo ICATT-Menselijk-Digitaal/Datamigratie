@@ -55,7 +55,7 @@ namespace Datamigratie.Common.Services.OpenZaak
             await response.HandleOpenZaakErrorsAsync();
 
             return await response.Content.ReadFromJsonAsync<OzZaaktype>()
-                ?? throw new SerializationException("Unexpected null response"); ;
+                ?? throw new SerializationException("Unexpected null response");
         }
 
         public async Task<OzZaak?> GetZaakByIdentificatie(string zaakNummer)
