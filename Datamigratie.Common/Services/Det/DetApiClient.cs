@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Json;
+using System.Runtime.Serialization;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.Shared;
 using Microsoft.Extensions.Logging;
@@ -56,9 +57,8 @@ namespace Datamigratie.Common.Services.Det
 
                 response.EnsureSuccessStatusCode();
 
-                var result = await response.Content.ReadFromJsonAsync<DetZaaktype>();
-
-                return result!;
+                return await response.Content.ReadFromJsonAsync<DetZaaktype>()
+                    ?? throw new SerializationException("Unexpected null response");
 
             }
             catch (HttpRequestException ex)
@@ -100,9 +100,8 @@ namespace Datamigratie.Common.Services.Det
 
                 response.EnsureSuccessStatusCode();
 
-                var result = await response.Content.ReadFromJsonAsync<DetZaak>();
-
-                return result!;
+                return await response.Content.ReadFromJsonAsync<DetZaak>()
+                    ?? throw new SerializationException("Unexpected null response");
 
             }
             catch (HttpRequestException ex)

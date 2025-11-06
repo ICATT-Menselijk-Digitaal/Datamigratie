@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
+using System.Runtime.Serialization;
 using Datamigratie.Common.Helpers;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Common.Services.Shared;
@@ -53,7 +54,8 @@ namespace Datamigratie.Common.Services.OpenZaak
 
             await response.HandleOpenZaakErrorsAsync();
 
-            return await response.Content.ReadFromJsonAsync<OzZaaktype>();
+            return await response.Content.ReadFromJsonAsync<OzZaaktype>()
+                ?? throw new SerializationException("Unexpected null response"); ;
         }
 
         public async Task<OzZaak?> GetZaakByIdentificatie(string zaakNummer)
@@ -84,8 +86,8 @@ namespace Datamigratie.Common.Services.OpenZaak
 
             using var response = await _httpClient.PostAsync(endpoint, content);
             await response.HandleOpenZaakErrorsAsync();
-            var result = await response.Content.ReadFromJsonAsync<OzZaak>()!;
-            return result!;
+            return await response.Content.ReadFromJsonAsync<OzZaak>()!
+                ?? throw new SerializationException("Unexpected null response"); ;
         }
 
         protected override int GetDefaultStartingPage()
