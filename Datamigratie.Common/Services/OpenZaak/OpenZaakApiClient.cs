@@ -1,7 +1,8 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json;
-using Datamigratie.Common.Services.Det.Models;
+using System.Runtime.Serialization;
+using System.Text.Json.Nodes;
+using Datamigratie.Common.Helpers;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Common.Services.Shared;
 
@@ -17,6 +18,15 @@ namespace Datamigratie.Common.Services.OpenZaak
 
         Task<OzZaak?> GetZaakByIdentificatie(string zaakNummer);
 
+        Task<List<Uri>> GetInformatieobjecttypenUrlsForZaaktype(Uri zaaktypeUri);
+
+        Task<OzDocument> CreateDocument(OzDocument document);
+
+        Task KoppelDocument(OzZaak zaak, OzDocument document, CancellationToken token);
+
+        Task UnlockDocument(OzDocument document, CancellationToken token);
+
+        Task UploadBestand(OzDocument document, Stream content, CancellationToken token);
     }
 
     public class OpenZaakClient : PagedApiClient, IOpenZaakApiClient
@@ -24,10 +34,6 @@ namespace Datamigratie.Common.Services.OpenZaak
         private const int DefaultStartingPage = 1;
 
         private readonly HttpClient _httpClient;
-        private readonly JsonSerializerOptions _options = new()
-        {
-            PropertyNameCaseInsensitive = true
-        };
 
         public OpenZaakClient(HttpClient httpClient) : base(httpClient)
         {
@@ -56,9 +62,10 @@ namespace Datamigratie.Common.Services.OpenZaak
             if (response.StatusCode == HttpStatusCode.NotFound)
                 return null;
 
-            response.EnsureSuccessStatusCode();
+            await response.HandleOpenZaakErrorsAsync();
 
-            return await response.Content.ReadFromJsonAsync<OzZaaktype>(_options);
+            return await response.Content.ReadFromJsonAsync<OzZaaktype>()
+                ?? throw new SerializationException("Unexpected null response");
         }
 
         public async Task<OzZaak?> GetZaakByIdentificatie(string zaakNummer)
@@ -67,7 +74,7 @@ namespace Datamigratie.Common.Services.OpenZaak
             // currently there is no openzaak filter that allows case-insensitive exact match
             var pagedZaken = await GetAllPagedData<OzZaak>($"zaken/api/v1/zaken", $"identificatie__icontains={zaakNummer}");
 
-            var zaak = pagedZaken.Results.FirstOrDefault(z => 
+            var zaak = pagedZaken.Results.FirstOrDefault(z =>
                 string.Equals(z.Identificatie, zaakNummer, StringComparison.OrdinalIgnoreCase)
             );
 
@@ -84,44 +91,91 @@ namespace Datamigratie.Common.Services.OpenZaak
         {
             var endpoint = "zaken/api/v1/zaken";
 
-            var content = JsonContent.Create(request);
+            using var content = JsonContent.Create(request);
             content.Headers.Add("Content-Crs", "EPSG:4326");
 
-            var response = await _httpClient.PostAsync(endpoint, content);
-
-            if (response.IsSuccessStatusCode)
-            {
-                var zaak = await response.Content.ReadFromJsonAsync<OzZaak>(_options);
-                return zaak ?? throw new InvalidOperationException("Failed to deserialize created zaak");
-            }
-
-            var errorContent = await response.Content.ReadAsStringAsync();
-
-            if (response.StatusCode == HttpStatusCode.BadRequest)
-            {
-                try
-                {
-                    var errorResponse = JsonSerializer.Deserialize<OzErrorResponse>(errorContent, _options);
-                    if (errorResponse?.InvalidParams?.Any() == true)
-                    {
-                        var invalidFields = string.Join(", ", errorResponse.InvalidParams.Select(p => new { p.Name, p.Reason, p.Code }));
-                        throw new HttpRequestException($"Validatie fouten: {invalidFields}", null, HttpStatusCode.BadRequest);
-                    }
-                    throw new HttpRequestException(errorResponse?.Detail ?? "Onbekende validatie fout", null, HttpStatusCode.BadRequest);
-                }
-                catch (JsonException)
-                {
-                    throw new Exception($"Onverwacht antwoord van OpenZaak: {errorContent}");
-                }
-            }
-
-            throw new HttpRequestException(errorContent, null, HttpStatusCode.BadRequest);
-
+            using var response = await _httpClient.PostAsync(endpoint, content);
+            await response.HandleOpenZaakErrorsAsync();
+            return await response.Content.ReadFromJsonAsync<OzZaak>()!
+                ?? throw new SerializationException("Unexpected null response"); ;
         }
+
+        public async Task<OzDocument> CreateDocument(OzDocument document)
+        {
+            using var response = await _httpClient.PostAsJsonAsync("documenten/api/v1/enkelvoudiginformatieobjecten", document);
+            await response.HandleOpenZaakErrorsAsync();
+            return await response.Content.ReadFromJsonAsync<OzDocument>()
+                ?? throw new SerializationException("Unexpected null response");
+        }
+
+        public async Task UnlockDocument(OzDocument document, CancellationToken token)
+        {
+            using var response = await _httpClient.PostAsJsonAsync($"{document.Url}/unlock", new JsonObject { ["lock"] = document.Lock }, cancellationToken: token);
+            await response.HandleOpenZaakErrorsAsync(token: token);
+        }
+
+        public async Task KoppelDocument(OzZaak zaak, OzDocument document, CancellationToken token)
+        {
+            using var response = await _httpClient.PostAsJsonAsync("zaken/api/v1/zaakinformatieobjecten", new JsonObject
+            {
+                ["informatieobject"] = document.Url,
+                ["zaak"] = zaak.Url.ToString(),
+            }, cancellationToken: token);
+            await response.HandleOpenZaakErrorsAsync(token: token);
+        }
+
+        public async Task<List<Uri>> GetInformatieobjecttypenUrlsForZaaktype(Uri zaaktypeUri)
+        {
+            var endpoint = "catalogi/api/v1/zaaktype-informatieobjecttypen";
+            var result = await GetAllPagedData<JsonObject>(endpoint, $"zaaktype={zaaktypeUri}");
+            return result.Results?.Select(x => x?["informatieobjecttype"]?.GetValue<string>()).OfType<string>().Select(url => new Uri(url)).ToList() ?? [];
+        }
+
+        public async Task UploadBestand(OzDocument document, Stream inputStream, CancellationToken token)
+        {
+            ArgumentNullException.ThrowIfNull(document.Bestandsdelen);
+            ArgumentException.ThrowIfNullOrWhiteSpace(document.Lock);
+
+            foreach (var bestandsDeel in document.Bestandsdelen.OrderBy(x => x.Volgnummer))
+            {
+                ArgumentNullException.ThrowIfNull(bestandsDeel.Omvang);
+                var omvang = bestandsDeel.Omvang.Value;
+
+                using var streamContent = new PushStreamContent(
+                    (output) => inputStream.CopyBytesToAsync(output, omvang, token),
+                    omvang);
+
+                using var lockContent = new StringContent(document.Lock);
+
+                using var multipart = new MultipartFormDataContent
+                {
+                    { streamContent, "inhoud", document.Bestandsnaam },
+                    { lockContent, "lock" }
+                };
+
+                using var response = await _httpClient.PutAsync(bestandsDeel.Url, multipart, token);
+                await response.HandleOpenZaakErrorsAsync(token);
+            }
+        }
+
+
 
         protected override int GetDefaultStartingPage()
         {
             return DefaultStartingPage;
+        }
+
+        private class PushStreamContent(Func<Stream, Task> handler, long length = 0) : HttpContent
+        {
+            private readonly long _length = length;
+
+            protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context) => handler(stream);
+
+            protected override bool TryComputeLength(out long length)
+            {
+                length = _length;
+                return length >= 0;
+            }
         }
     }
 

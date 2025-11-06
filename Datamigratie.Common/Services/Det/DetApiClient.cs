@@ -1,11 +1,7 @@
-﻿using System.Net;
-using System.Net.Http.Json;
-using System.Text.Json;
-using Datamigratie.Common.Extensions;
+﻿using System.Net.Http.Json;
+using System.Runtime.Serialization;
 using Datamigratie.Common.Services.Det.Models;
-using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Common.Services.Shared;
-using Datamigratie.Common.Services.Shared.Models;
 using Microsoft.Extensions.Logging;
 
 namespace Datamigratie.Common.Services.Det
@@ -18,9 +14,9 @@ namespace Datamigratie.Common.Services.Det
 
         Task<DetZaak> GetZaakByZaaknummer(string zaaknummer);
 
-        Task<DetZaak> GetZaak(string zaaktype);
-
         Task<DetZaaktype?> GetZaaktype(string zaaktypeName);
+
+        Task GetDocumentInhoudAsync(long id, Func<Stream, CancellationToken, Task> handleInhoud, CancellationToken token);
     }
 
     public class DetApiClient(HttpClient httpClient, ILogger<DetApiClient> logger) : PagedApiClient(httpClient), IDetApiClient
@@ -29,11 +25,6 @@ namespace Datamigratie.Common.Services.Det
 
         private readonly HttpClient _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         private readonly ILogger<DetApiClient> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
-        private readonly JsonSerializerOptions _options = new()
-        {
-            PropertyNameCaseInsensitive = true
-        };
 
         /// <summary>
         /// Gets all zaaktypen with pagination details.
@@ -68,49 +59,16 @@ namespace Datamigratie.Common.Services.Det
 
                 response.EnsureSuccessStatusCode();
 
-                var result = await response.Content.ReadFromJsonAsync<DetZaaktype>(_options);
-
-                // Despite deserializing to a non nullable type, the outcome can still be null in the odd case when the input is the string "null".
-                // We don't consider this an error not just a not found situation.
-                if (result == null)
-                {
-                     _logger.LogError("Deserialized response from endpoint {endpoint} is null", SanitizeForLogging(endpoint));
-                    throw new Exception($"Deserialized response from endpoint {endpoint} is null");
-                }
-
-                return result;
+                return await response.Content.ReadFromJsonAsync<DetZaaktype>()
+                    ?? throw new SerializationException("Unexpected null response");
 
             }
             catch (HttpRequestException ex)
             {
-                 _logger.LogError(ex, "An error occurred while getting zaaktype '{ZaaktypeName}' from endpoint {Endpoint}", SanitizeForLogging(id), SanitizeForLogging(endpoint));
+                _logger.LogError(ex, "An error occurred while getting zaaktype '{ZaaktypeName}' from endpoint {Endpoint}", SanitizeForLogging(id), SanitizeForLogging(endpoint));
                 throw;
-            }       
- 
-        }
-
-        /// <summary>
-        /// Gets a specific zaak by its number.
-        /// Endpoint: /zaken/{zaaknummer}
-        /// </summary>
-        /// <param name="zaaknummer">The number of the specific zaak.</param>
-        /// <returns>A Zaak object, or null if not found.</returns>
-        public async Task<DetZaak> GetZaak(string zaaktypeId)
-        {
-            var endpoint = $"zaken/{zaaktypeId}";
-            var response = await _httpClient.GetAsync(endpoint);
-            response.EnsureSuccessStatusCode();
-
-            var jsonString = await response.Content.ReadAsStringAsync();
-            var result = JsonSerializer.Deserialize<DetZaak>(jsonString, _options);
-
-            if (result == null)
-            {
-                 _logger.LogError("Failed to deserialize response from endpoint {endpoint} with response {jsonString}", SanitizeForLogging(endpoint), SanitizeForLogging(jsonString));
-                throw new Exception($"Failed to deserialize response from endpoint {endpoint} with response {jsonString}");
             }
 
-            return result;
         }
 
         /// <summary>
@@ -121,7 +79,6 @@ namespace Datamigratie.Common.Services.Det
         /// <returns>A PagedResponse object containing a list of all Zaak objects across all pages.</returns>
         public async Task<List<DetZaakMinimal>> GetZakenByZaaktype(string zaaktype)
         {
-            
             _logger.LogInformation("Fetching zaken for zaaktype: {Zaaktype}", SanitizeForLogging(zaaktype));
 
             var endpoint = $"zaken";
@@ -137,36 +94,38 @@ namespace Datamigratie.Common.Services.Det
         /// <param name="zaaknummer">The zaaknummer of the zaak to retrieve. Defined in DET as functioneleIdentificatie</param>
         /// <returns>The DetZaak object if found, otherwise null.</returns>
         public async Task<DetZaak> GetZaakByZaaknummer(string zaaknummer)
-        { 
+        {
             try
             {
                 var endpoint = $"zaken/{Uri.EscapeDataString(zaaknummer)}";
                 var response = await _httpClient.GetAsync(endpoint);
 
                 response.EnsureSuccessStatusCode();
-                                
-                var jsonString = await response.Content.ReadAsStringAsync();
-                var result = JsonSerializer.Deserialize<DetZaak>(jsonString, _options);
 
-                if (result == null)
-                {
-                    _logger.LogError("Failed to deserialize response from endpoint {endpoint} with response {jsonString}", SanitizeForLogging(endpoint), SanitizeForLogging(jsonString));
-                    throw new Exception($"Failed to deserialize response from endpoint {endpoint} with response {result}");
-                }
-
-                return result;
+                return await response.Content.ReadFromJsonAsync<DetZaak>()
+                    ?? throw new SerializationException("Unexpected null response");
 
             }
             catch (HttpRequestException ex)
             {
                 _logger.LogError(ex, "HTTP error occurred while fetching zaak with zaaknummer: {zaaknummer}", SanitizeForLogging(zaaknummer));
                 throw;
-            }      
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error occurred while fetching zaak with zaaknummer: {zaaknummer}", SanitizeForLogging(zaaknummer));
                 throw;
             }
+        }
+
+        public async Task GetDocumentInhoudAsync(long id, Func<Stream, CancellationToken, Task> handleInhoud, CancellationToken token)
+        {
+            var endpoint = $"documenten/inhoud/{id}";
+            using var response = await _httpClient.GetAsync(endpoint, HttpCompletionOption.ResponseHeadersRead, token);
+            response.EnsureSuccessStatusCode();
+
+            await using var contentStream = await response.Content.ReadAsStreamAsync(token);
+            await handleInhoud(contentStream, token);
         }
 
         protected override int GetDefaultStartingPage()

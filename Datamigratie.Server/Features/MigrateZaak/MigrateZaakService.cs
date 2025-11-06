@@ -1,4 +1,5 @@
 ﻿using Datamigratie.Common.Config;
+using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
@@ -8,15 +9,15 @@ namespace Datamigratie.Server.Features.MigrateZaak
 {
     public interface IMigrateZaakService
     {
-        public Task<MigrateZaakResult> MigrateZaak(DetZaak detZaak, Guid ozZaaktypeId);
+        public Task<MigrateZaakResult> MigrateZaak(DetZaak detZaak, Guid ozZaaktypeId, CancellationToken token = default);
     }
 
-    public class MigrateZaakService(IOpenZaakApiClient openZaakApiClient, IOptions<OpenZaakApiOptions> options) : IMigrateZaakService
+    public class MigrateZaakService(IOpenZaakApiClient openZaakApiClient, IDetApiClient detClient, IOptions<OpenZaakApiOptions> options) : IMigrateZaakService
     {
         private readonly OpenZaakApiOptions _openZaakApiOptions = options.Value;
         private readonly IOpenZaakApiClient _openZaakApiClient = openZaakApiClient;
 
-        public async Task<MigrateZaakResult> MigrateZaak(DetZaak detZaak, Guid ozZaaktypeId)
+        public async Task<MigrateZaakResult> MigrateZaak(DetZaak detZaak, Guid ozZaaktypeId, CancellationToken token = default)
         {
 
             try
@@ -26,6 +27,26 @@ namespace Datamigratie.Server.Features.MigrateZaak
                 var createZaakRequest = CreateOzZaakCreationRequest(detZaak, ozZaaktypeId);
 
                 var createdZaak = await _openZaakApiClient.CreateZaak(createZaakRequest);
+                var informatieObjectTypen = await _openZaakApiClient.GetInformatieobjecttypenUrlsForZaaktype(createdZaak.Zaaktype);
+                var firstInformatieObjectType = informatieObjectTypen.First();
+
+                foreach (var item in detZaak.Documenten)
+                {
+                    var versie = item.DocumentVersies.Last();
+
+                    var ozDocument = MapToOzDocument(item, versie, firstInformatieObjectType);
+
+                    var savedDocument = await _openZaakApiClient.CreateDocument(ozDocument);
+
+                    await detClient.GetDocumentInhoudAsync(
+                        versie.DocumentInhoudID, 
+                        (stream, token) => _openZaakApiClient.UploadBestand(savedDocument, stream, token), 
+                        token);
+
+                    await _openZaakApiClient.UnlockDocument(savedDocument, token);
+
+                    await _openZaakApiClient.KoppelDocument(createdZaak, savedDocument, token);
+                }
 
                 return MigrateZaakResult.Success(createdZaak.Identificatie, "De zaak is aangemaakt in het doelsysteem");
             }
@@ -41,6 +62,29 @@ namespace Datamigratie.Server.Features.MigrateZaak
          
         }
 
+        private static OzDocument MapToOzDocument(DetDocument item, DetDocumentVersie versie, Uri informatieObjectType)
+        {
+            return new OzDocument
+            {
+                Bestandsnaam = versie.Bestandsnaam,
+                Bronorganisatie = "999990639", // moet een valide rsin zijn,
+                Formaat = versie.Mimetype,
+                Identificatie = item.Kenmerk ?? "kenmerk onbekend",
+                Informatieobjecttype = informatieObjectType,
+                Taal = "dut",
+                Titel = item.Titel,
+                Vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar,
+                Bestandsomvang = versie.Documentgrootte,
+                Auteur = "auteur",
+                Beschrijving = "beschrijving",
+                Creatiedatum = versie.Creatiedatum,
+                Status = DocumentStatus.in_bewerking,
+                Trefwoorden = [],
+                Verschijningsvorm = "verschijningsvorm",
+                Link = ""
+            };
+        }
+
         private static void CheckIfZaakAlreadyExists()
         {
             // TODO -> story DATA-48
@@ -50,7 +94,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
         {
             // First apply data transformation to follow OpenZaak constraints
             var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
-            var url = $"{openZaakBaseUrl}catalogi/api/v1/zaaktypen/{ozZaaktypeId}";
+            var url = new Uri($"{openZaakBaseUrl}catalogi/api/v1/zaaktypen/{ozZaaktypeId}");
 
             var registratieDatum = detZaak.CreatieDatumTijd.ToString("yyyy-MM-dd");
 
