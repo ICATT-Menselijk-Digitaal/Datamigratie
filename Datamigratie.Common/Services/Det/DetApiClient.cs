@@ -15,6 +15,8 @@ namespace Datamigratie.Common.Services.Det
         Task<DetZaak> GetZaakByZaaknummer(string zaaknummer);
 
         Task<DetZaaktype?> GetZaaktype(string zaaktypeName);
+
+        Task GetDocumentInhoudAsync(long id, Func<Stream, CancellationToken, Task> handleInhoud, CancellationToken token);
     }
 
     public class DetApiClient(HttpClient httpClient, ILogger<DetApiClient> logger) : PagedApiClient(httpClient), IDetApiClient
@@ -114,6 +116,16 @@ namespace Datamigratie.Common.Services.Det
                 _logger.LogError(ex, "Unexpected error occurred while fetching zaak with zaaknummer: {zaaknummer}", SanitizeForLogging(zaaknummer));
                 throw;
             }
+        }
+
+        public async Task GetDocumentInhoudAsync(long id, Func<Stream, CancellationToken, Task> handleInhoud, CancellationToken token)
+        {
+            var endpoint = $"documenten/inhoud/{id}";
+            using var response = await _httpClient.GetAsync(endpoint, HttpCompletionOption.ResponseHeadersRead, token);
+            response.EnsureSuccessStatusCode();
+
+            await using var contentStream = await response.Content.ReadAsStreamAsync(token);
+            await handleInhoud(contentStream, token);
         }
 
         protected override int GetDefaultStartingPage()

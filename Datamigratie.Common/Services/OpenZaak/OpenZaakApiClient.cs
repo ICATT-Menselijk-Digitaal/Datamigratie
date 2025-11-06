@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using System.Runtime.Serialization;
+using System.Text.Json.Nodes;
 using Datamigratie.Common.Helpers;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Common.Services.Shared;
@@ -17,6 +18,15 @@ namespace Datamigratie.Common.Services.OpenZaak
 
         Task<OzZaak?> GetZaakByIdentificatie(string zaakNummer);
 
+        Task<List<Uri>> GetInformatieobjecttypenUrlsForZaaktype(Uri zaaktypeUri);
+
+        Task<OzDocument> CreateDocument(OzDocument document);
+
+        Task KoppelDocument(OzZaak zaak, OzDocument document, CancellationToken token);
+
+        Task UnlockDocument(OzDocument document, CancellationToken token);
+
+        Task UploadBestand(OzDocument document, Stream content, CancellationToken token);
     }
 
     public class OpenZaakClient : PagedApiClient, IOpenZaakApiClient
@@ -90,9 +100,82 @@ namespace Datamigratie.Common.Services.OpenZaak
                 ?? throw new SerializationException("Unexpected null response"); ;
         }
 
+        public async Task<OzDocument> CreateDocument(OzDocument document)
+        {
+            using var response = await _httpClient.PostAsJsonAsync("documenten/api/v1/enkelvoudiginformatieobjecten", document);
+            await response.HandleOpenZaakErrorsAsync();
+            return await response.Content.ReadFromJsonAsync<OzDocument>()
+                ?? throw new SerializationException("Unexpected null response");
+        }
+
+        public async Task UnlockDocument(OzDocument document, CancellationToken token)
+        {
+            using var response = await _httpClient.PostAsJsonAsync($"{document.Url}/unlock", new JsonObject { ["lock"] = document.Lock }, cancellationToken: token);
+            await response.HandleOpenZaakErrorsAsync(token: token);
+        }
+
+        public async Task KoppelDocument(OzZaak zaak, OzDocument document, CancellationToken token)
+        {
+            using var response = await _httpClient.PostAsJsonAsync("zaken/api/v1/zaakinformatieobjecten", new JsonObject
+            {
+                ["informatieobject"] = document.Url,
+                ["zaak"] = zaak.Url.ToString(),
+            }, cancellationToken: token);
+            await response.HandleOpenZaakErrorsAsync(token: token);
+        }
+
+        public async Task<List<Uri>> GetInformatieobjecttypenUrlsForZaaktype(Uri zaaktypeUri)
+        {
+            var endpoint = "catalogi/api/v1/zaaktype-informatieobjecttypen";
+            var result = await GetAllPagedData<JsonObject>(endpoint, $"zaaktype={zaaktypeUri}");
+            return result.Results?.Select(x => x?["informatieobjecttype"]?.GetValue<string>()).OfType<string>().Select(url => new Uri(url)).ToList() ?? [];
+        }
+
+        public async Task UploadBestand(OzDocument document, Stream inputStream, CancellationToken token)
+        {
+            ArgumentNullException.ThrowIfNull(document.Bestandsdelen);
+            ArgumentException.ThrowIfNullOrWhiteSpace(document.Lock);
+
+            foreach (var bestandsDeel in document.Bestandsdelen.OrderBy(x => x.Volgnummer))
+            {
+                ArgumentNullException.ThrowIfNull(bestandsDeel.Omvang);
+                var omvang = bestandsDeel.Omvang.Value;
+
+                using var streamContent = new PushStreamContent(
+                    (output) => inputStream.CopyBytesToAsync(output, omvang, token),
+                    omvang);
+
+                using var lockContent = new StringContent(document.Lock);
+
+                using var multipart = new MultipartFormDataContent
+                {
+                    { streamContent, "inhoud", document.Bestandsnaam },
+                    { lockContent, "lock" }
+                };
+
+                using var response = await _httpClient.PutAsync(bestandsDeel.Url, multipart, token);
+                await response.HandleOpenZaakErrorsAsync(token);
+            }
+        }
+
+
+
         protected override int GetDefaultStartingPage()
         {
             return DefaultStartingPage;
+        }
+
+        private class PushStreamContent(Func<Stream, Task> handler, long length = 0) : HttpContent
+        {
+            private readonly long _length = length;
+
+            protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context) => handler(stream);
+
+            protected override bool TryComputeLength(out long length)
+            {
+                length = _length;
+                return length >= 0;
+            }
         }
     }
 
