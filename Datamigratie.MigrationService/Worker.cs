@@ -37,7 +37,7 @@ public class Worker(IServiceProvider serviceProvider, IHostApplicationLifetime h
         {
             activity?.RecordException(ex);
             logger.LogCritical(ex, "Migrations failed");
-            // Exit process with error code to block PABC.Server startup
+            // Exit process with error code to block Datamigratie.Server startup
             Environment.ExitCode = 1;
         }
         finally
