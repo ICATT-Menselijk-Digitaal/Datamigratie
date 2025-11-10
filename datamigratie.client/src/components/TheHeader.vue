@@ -1,10 +1,8 @@
 <template>
   <header v-if="user.isLoggedIn">
+    <h1>Datamigratie</h1>
     <nav>
-      <ul>
-        <template v-if="user.hasFunctioneelBeheerderAccess">
-          <span class="heading-1">Datamigratie</span>
-        </template>
+      <ul class="reset">
         <li class="user-name">
           {{ user.name }}
         </li>
@@ -17,34 +15,22 @@
 </template>
 
 <script lang="ts" setup>
-  import { user } from "@/composables/use-user";
+import { user } from "@/composables/use-user";
 </script>
 
 <style lang="scss" scoped>
-  header {
-    nav ul {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-default);
-      list-style: none;
-      padding: 0;
-      margin: 0;
+ul {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-default);
+}
 
-      .heading-1 {
-        margin-block: 0;
-        margin-right: auto;
-      }
+li,
+a {
+  margin: 0;
+}
 
-      li {
-        display: flex;
-        align-items: center;
-        margin: 0;
-      }
-
-      a {
-        margin: 0;
-        padding: 0.5rem 1rem;
-      }
-    }
-  }
+.user-name {
+  margin-inline-start: auto;
+}
 </style>
