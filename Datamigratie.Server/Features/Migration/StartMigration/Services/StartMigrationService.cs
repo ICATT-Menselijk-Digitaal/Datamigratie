@@ -5,6 +5,7 @@ using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Data;
 using Datamigratie.Data.Entities;
 using Datamigratie.Server.Features.Migration.StartMigration.Queues.Items;
+using Datamigratie.Server.Features.MigrateZaak;
 using Datamigratie.Server.Helpers;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,15 +16,28 @@ public interface IStartMigrationService
     Task PerformMigrationAsync(MigrationQueueItem migrationQueueItem, CancellationToken stoppingToken);
 }
 
-public class StartMigrationService(DatamigratieDbContext context, IDetApiClient detApiClient, ILogger<StartMigrationService> logger, IRandomProvider randomProvider) : IStartMigrationService
+public class StartMigrationService(
+    DatamigratieDbContext context, 
+    IDetApiClient detApiClient, 
+    ILogger<StartMigrationService> logger, 
+    IMigrateZaakService migrateZaakService) : IStartMigrationService
 {
 
 
     public async Task PerformMigrationAsync(MigrationQueueItem migrationQueueItem, CancellationToken stoppingToken) 
     {
-        var zaken = await detApiClient.GetZakenByZaaktype(migrationQueueItem.DetZaaktypeId);
+        var allZaken = await detApiClient.GetZakenByZaaktype(migrationQueueItem.DetZaaktypeId);
+        
+        var closedZaken = allZaken.Where(z => !z.Open).ToList();
+        
+        logger.LogInformation(
+            "Found {TotalCount} zaken for zaaktype {ZaaktypeId}, {ClosedCount} are closed and will be migrated", 
+            allZaken.Count, 
+            migrationQueueItem.DetZaaktypeId, 
+            closedZaken.Count);
+        
         var mapping = await context.Mappings.FirstOrDefaultAsync(m => m.DetZaaktypeId == migrationQueueItem.DetZaaktypeId, stoppingToken);
-        var migration = await CreateMigrationAsync(migrationQueueItem, zaken.Count, stoppingToken);
+        var migration = await CreateMigrationAsync(migrationQueueItem, closedZaken.Count, stoppingToken);
 
         if (mapping == null)
         {
@@ -31,7 +45,7 @@ public class StartMigrationService(DatamigratieDbContext context, IDetApiClient 
             return;
         }
 
-        await ExecuteMigration(migration, zaken, mapping.OzZaaktypeId, stoppingToken);
+        await ExecuteMigration(migration, closedZaken, mapping.OzZaaktypeId, stoppingToken);
         await CompleteMigrationAsync(migration);
     }
     private async Task ExecuteMigration(Data.Entities.Migration migration, List<DetZaakMinimal> zaken, Guid openZaaktypeId, CancellationToken ct)
@@ -63,15 +77,77 @@ public class StartMigrationService(DatamigratieDbContext context, IDetApiClient 
             (double)migration.ProcessedRecords / migration.TotalRecords * 100);
     }
 
-    private async Task MigrateSingleZaakAsync(Data.Entities.Migration migration, DetZaakMinimal zaak, Guid openZaaktypeId, CancellationToken ct)
+    private async Task MigrateSingleZaakAsync(Data.Entities.Migration migration, DetZaakMinimal zaakMinimal, Guid openZaaktypeId, CancellationToken ct)
     {
-        await Task.Delay(randomProvider.Next(5000, 10000), ct); // Replace with actual OZ API call
-
-        if (randomProvider.NextDouble() < 0.9)
-            migration.SuccessfulRecords++;
-        else
+        MigrationRecord record;
+        
+        try
+        {
+            logger.LogDebug("Fetching full details for zaak {Zaaknummer}", zaakMinimal.FunctioneleIdentificatie);
+            var fullZaak = await detApiClient.GetZaakByZaaknummer(zaakMinimal.FunctioneleIdentificatie);
+            
+            if (fullZaak == null)
+            {
+                throw new InvalidOperationException($"Could not fetch full details for zaak {zaakMinimal.FunctioneleIdentificatie}");
+            }
+            
+            var result = await migrateZaakService.MigrateZaak(fullZaak, openZaaktypeId, ct);
+            
+            // create migration record based on result
+            if (result.IsSuccess)
+            {
+                migration.SuccessfulRecords++;
+                record = new MigrationRecord
+                {
+                    MigrationId = migration.Id,
+                    DetZaaknummer = zaakMinimal.FunctioneleIdentificatie,
+                    OzZaaknummer = result.Zaaknummer,
+                    IsSuccessful = true,
+                    ProcessedAt = DateTime.UtcNow
+                };
+                
+                logger.LogInformation("Successfully migrated zaak {DetZaaknummer} to {OzZaaknummer}", 
+                    zaakMinimal.FunctioneleIdentificatie, result.Zaaknummer);
+            }
+            else
+            {
+                migration.FailedRecords++;
+                record = new MigrationRecord
+                {
+                    MigrationId = migration.Id,
+                    DetZaaknummer = zaakMinimal.FunctioneleIdentificatie,
+                    IsSuccessful = false,
+                    ErrorTitle = result.Message,
+                    ErrorDetails = result.Details,
+                    StatusCode = result.Statuscode,
+                    ProcessedAt = DateTime.UtcNow
+                };
+                
+                logger.LogWarning("Failed to migrate zaak {DetZaaknummer}: {Message} - {Details}", 
+                    zaakMinimal.FunctioneleIdentificatie, result.Message, result.Details);
+            }
+        }
+        catch (Exception ex)
+        {
             migration.FailedRecords++;
-
+            record = new MigrationRecord
+            {
+                MigrationId = migration.Id,
+                DetZaaknummer = zaakMinimal.FunctioneleIdentificatie,
+                IsSuccessful = false,
+                ErrorTitle = "Unexpected error during migration",
+                ErrorDetails = ex.Message,
+                StatusCode = 500,
+                ProcessedAt = DateTime.UtcNow
+            };
+            
+            logger.LogError(ex, "Unexpected error while migrating zaak {DetZaaknummer}", 
+                zaakMinimal.FunctioneleIdentificatie);
+        }
+        
+        context.MigrationRecords.Add(record);
+        
+        // update migration progress counters
         migration.ProcessedRecords++;
         migration.LastUpdated = DateTime.UtcNow;
     }

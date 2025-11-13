@@ -30,7 +30,7 @@ namespace Datamigratie.Server.Config
                 return new MigrationBackgroundTaskQueue(MigrationBackgroundTaskQueueCapacity);
             });
             services.AddSingleton<MigrationWorkerState>();
-            services.AddScoped<IRandomProvider, RandomProvider>();
+            
             return services;
 
         }
