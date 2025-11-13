@@ -33,7 +33,7 @@ namespace Datamigratie.Common.Services.Det.Models
         [JsonConverter(typeof(DetZonedDateTimeConverter))]
         public DateTimeOffset WijzigDatumTijd { get; set; }
         public DetZaaktype? Zaaktype { get; set; }
-        public required List<DetDocument> Documenten { get; set; }
+        public List<DetDocument>? Documenten { get; set; }
     }
 
     public class DetDocument

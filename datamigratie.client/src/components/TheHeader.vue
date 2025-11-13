@@ -1,17 +1,36 @@
 <template>
-  <header>
-    <span class="heading-1">Datamigratie</span>
-
-    <!-- <nav>
-      <ul>
+  <header v-if="user.isLoggedIn">
+    <h1>Datamigratie</h1>
+    <nav>
+      <ul class="reset">
+        <li class="user-name">
+          {{ user.name }}
+        </li>
         <li>
-          <router-link :to="{ name: 'home' }">Zaaktypes</router-link>
+          <a href="/api/logoff">Uitloggen</a>
         </li>
       </ul>
-    </nav> -->
+    </nav>
   </header>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import { user } from "@/composables/use-user";
+</script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+ul {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-default);
+}
+
+li,
+a {
+  margin: 0;
+}
+
+.user-name {
+  margin-inline-start: auto;
+}
+</style>

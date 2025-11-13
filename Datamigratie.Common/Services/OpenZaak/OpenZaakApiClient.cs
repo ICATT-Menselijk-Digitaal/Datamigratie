@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
+using System.Runtime.Serialization;
 using System.Text.Json.Nodes;
 using Datamigratie.Common.Helpers;
 using Datamigratie.Common.Services.OpenZaak.Models;
@@ -63,7 +64,8 @@ namespace Datamigratie.Common.Services.OpenZaak
 
             await response.HandleOpenZaakErrorsAsync();
 
-            return await response.Content.ReadFromJsonAsync<OzZaaktype>();
+            return await response.Content.ReadFromJsonAsync<OzZaaktype>()
+                ?? throw new SerializationException("Unexpected null response");
         }
 
         public async Task<OzZaak?> GetZaakByIdentificatie(string zaakNummer)
@@ -94,16 +96,16 @@ namespace Datamigratie.Common.Services.OpenZaak
 
             using var response = await _httpClient.PostAsync(endpoint, content);
             await response.HandleOpenZaakErrorsAsync();
-            var result = await response.Content.ReadFromJsonAsync<OzZaak>()!;
-            return result!;
+            return await response.Content.ReadFromJsonAsync<OzZaak>()!
+                ?? throw new SerializationException("Unexpected null response"); ;
         }
 
         public async Task<OzDocument> CreateDocument(OzDocument document)
         {
             using var response = await _httpClient.PostAsJsonAsync("documenten/api/v1/enkelvoudiginformatieobjecten", document);
             await response.HandleOpenZaakErrorsAsync();
-            var result = await response.Content.ReadFromJsonAsync<OzDocument>();
-            return result!;
+            return await response.Content.ReadFromJsonAsync<OzDocument>()
+                ?? throw new SerializationException("Unexpected null response");
         }
 
         public async Task UnlockDocument(OzDocument document, CancellationToken token)
@@ -131,12 +133,13 @@ namespace Datamigratie.Common.Services.OpenZaak
 
         public async Task UploadBestand(OzDocument document, Stream inputStream, CancellationToken token)
         {
-            if (document.Bestandsdelen == null || string.IsNullOrWhiteSpace(document.Lock))
-                return;
+            ArgumentNullException.ThrowIfNull(document.Bestandsdelen);
+            ArgumentException.ThrowIfNullOrWhiteSpace(document.Lock);
 
             foreach (var bestandsDeel in document.Bestandsdelen.OrderBy(x => x.Volgnummer))
             {
-                var omvang = bestandsDeel.Omvang ?? 0;
+                ArgumentNullException.ThrowIfNull(bestandsDeel.Omvang);
+                var omvang = bestandsDeel.Omvang.Value;
 
                 using var streamContent = new PushStreamContent(
                     (output) => inputStream.CopyBytesToAsync(output, omvang, token),

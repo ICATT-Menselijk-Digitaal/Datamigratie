@@ -8,7 +8,7 @@ namespace Datamigratie.Tests.Common.Helpers
         [Fact]
         public async Task CopyBytesToAsync_CopiesExactBytes_WhenSourceHasEnoughData()
         {
-            const string Input = "This is a test string for PipeHelpers.";
+            const string Input = "This is a test string with some extra content that will not be in the expected output.";
             const string ExpectedOutput = "This is a test string";
             await RunTest(Input, ExpectedOutput);
         }

@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Json;
+using System.Runtime.Serialization;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.Shared;
 using Microsoft.Extensions.Logging;
@@ -12,8 +13,6 @@ namespace Datamigratie.Common.Services.Det
         Task<List<DetZaakMinimal>> GetZakenByZaaktype(string zaaktype);
 
         Task<DetZaak> GetZaakByZaaknummer(string zaaknummer);
-
-        Task<DetZaak> GetZaak(string zaaktype);
 
         Task<DetZaaktype?> GetZaaktype(string zaaktypeName);
 
@@ -60,9 +59,8 @@ namespace Datamigratie.Common.Services.Det
 
                 response.EnsureSuccessStatusCode();
 
-                var result = await response.Content.ReadFromJsonAsync<DetZaaktype>();
-
-                return result!;
+                return await response.Content.ReadFromJsonAsync<DetZaaktype>()
+                    ?? throw new SerializationException("Unexpected null response");
 
             }
             catch (HttpRequestException ex)
@@ -71,23 +69,6 @@ namespace Datamigratie.Common.Services.Det
                 throw;
             }
 
-        }
-
-        /// <summary>
-        /// Gets a specific zaak by its number.
-        /// Endpoint: /zaken/{zaaknummer}
-        /// </summary>
-        /// <param name="zaaknummer">The number of the specific zaak.</param>
-        /// <returns>A Zaak object, or null if not found.</returns>
-        public async Task<DetZaak> GetZaak(string zaaktypeId)
-        {
-            var endpoint = $"zaken/{zaaktypeId}";
-            var response = await _httpClient.GetAsync(endpoint);
-            response.EnsureSuccessStatusCode();
-
-            var result = await response.Content.ReadFromJsonAsync<DetZaak>();
-
-            return result!;
         }
 
         /// <summary>
@@ -121,9 +102,8 @@ namespace Datamigratie.Common.Services.Det
 
                 response.EnsureSuccessStatusCode();
 
-                var result = await response.Content.ReadFromJsonAsync<DetZaak>();
-
-                return result!;
+                return await response.Content.ReadFromJsonAsync<DetZaak>()
+                    ?? throw new SerializationException("Unexpected null response");
 
             }
             catch (HttpRequestException ex)

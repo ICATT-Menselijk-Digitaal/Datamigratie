@@ -30,7 +30,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
                 var informatieObjectTypen = await _openZaakApiClient.GetInformatieobjecttypenUrlsForZaaktype(createdZaak.Zaaktype);
                 var firstInformatieObjectType = informatieObjectTypen.First();
 
-                foreach (var item in detZaak.Documenten)
+                foreach (var item in detZaak?.Documenten ?? [])
                 {
                     var versie = item.DocumentVersies.Last();
 
