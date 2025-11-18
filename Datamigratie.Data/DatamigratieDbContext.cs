@@ -78,12 +78,8 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
             
             entity.HasOne(mr => mr.Migration)
                 .WithMany()
-                .HasForeignKey(mr => mr.MigrationId)
                 .OnDelete(DeleteBehavior.Restrict);
             
-            entity.HasIndex(e => e.MigrationId);
-            entity.HasIndex(e => e.IsSuccessful);
-            entity.HasIndex(e => e.ProcessedAt);
         });
     }
 

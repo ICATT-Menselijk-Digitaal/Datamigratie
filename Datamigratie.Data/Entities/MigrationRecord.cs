@@ -15,19 +15,15 @@ public class MigrationRecord
     public Migration Migration { get; set; } = null!;
     
     [Required]
-    [MaxLength(100)]
     public required string DetZaaknummer { get; set; }
     
-    [MaxLength(100)]
     public string? OzZaaknummer { get; set; }
     
     [Required]
     public bool IsSuccessful { get; set; }
     
-    [MaxLength(500)]
     public string? ErrorTitle { get; set; }
     
-    [MaxLength(2000)]
     public string? ErrorDetails { get; set; }
     
     public int? StatusCode { get; set; }
