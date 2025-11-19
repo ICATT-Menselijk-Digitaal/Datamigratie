@@ -3,6 +3,7 @@ using System;
 using Datamigratie.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Datamigratie.Data.Migrations
 {
     [DbContext(typeof(DatamigratieDbContext))]
-    partial class DatamigratieDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251106101944_AddMigrationRecords")]
+    partial class AddMigrationRecords
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -87,13 +90,16 @@ namespace Datamigratie.Data.Migrations
 
                     b.Property<string>("DetZaaknummer")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("ErrorDetails")
-                        .HasColumnType("text");
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<string>("ErrorTitle")
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<bool>("IsSuccessful")
                         .HasColumnType("boolean");
@@ -102,7 +108,8 @@ namespace Datamigratie.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("OzZaaknummer")
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTime>("ProcessedAt")
                         .HasColumnType("timestamp with time zone");
@@ -112,7 +119,11 @@ namespace Datamigratie.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IsSuccessful");
+
                     b.HasIndex("MigrationId");
+
+                    b.HasIndex("ProcessedAt");
 
                     b.ToTable("MigrationRecords");
                 });

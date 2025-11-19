@@ -52,8 +52,34 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
             entity.HasIndex(e => e.Status);
             entity.HasIndex(e => e.CreatedAt);
         });
+
+        modelBuilder.Entity<MigrationRecord>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            
+            entity.Property(e => e.DetZaaknummer)
+                .IsRequired();
+            
+            entity.Property(e => e.OzZaaknummer);
+            
+            entity.Property(e => e.IsSuccessful)
+                .IsRequired();
+            
+            entity.Property(e => e.ErrorTitle);
+            
+            entity.Property(e => e.ErrorDetails);
+            
+            entity.Property(e => e.ProcessedAt)
+                .IsRequired();
+            
+            entity.HasOne(mr => mr.Migration)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+            
+        });
     }
 
     public DbSet<ZaaktypenMapping> Mappings { get; set; }
     public DbSet<Migration> Migrations { get; set; }
+    public DbSet<MigrationRecord> MigrationRecords { get; set; }
 }
