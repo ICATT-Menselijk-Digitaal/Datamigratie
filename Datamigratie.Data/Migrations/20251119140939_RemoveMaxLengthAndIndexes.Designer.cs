@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Datamigratie.Data.Migrations
 {
     [DbContext(typeof(DatamigratieDbContext))]
-    [Migration("20251106101944_AddMigrationRecords")]
-    partial class AddMigrationRecords
+    [Migration("20251119140939_RemoveMaxLengthAndIndexes")]
+    partial class RemoveMaxLengthAndIndexes
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -90,16 +90,13 @@ namespace Datamigratie.Data.Migrations
 
                     b.Property<string>("DetZaaknummer")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ErrorDetails")
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ErrorTitle")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasColumnType("text");
 
                     b.Property<bool>("IsSuccessful")
                         .HasColumnType("boolean");
@@ -108,8 +105,7 @@ namespace Datamigratie.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("OzZaaknummer")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("ProcessedAt")
                         .HasColumnType("timestamp with time zone");
@@ -119,11 +115,7 @@ namespace Datamigratie.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IsSuccessful");
-
                     b.HasIndex("MigrationId");
-
-                    b.HasIndex("ProcessedAt");
 
                     b.ToTable("MigrationRecords");
                 });
