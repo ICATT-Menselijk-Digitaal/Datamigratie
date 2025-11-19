@@ -39,19 +39,9 @@ namespace Datamigratie.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_MigrationRecords_IsSuccessful",
-                table: "MigrationRecords",
-                column: "IsSuccessful");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_MigrationRecords_MigrationId",
                 table: "MigrationRecords",
                 column: "MigrationId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_MigrationRecords_ProcessedAt",
-                table: "MigrationRecords",
-                column: "ProcessedAt");
         }
 
         /// <inheritdoc />

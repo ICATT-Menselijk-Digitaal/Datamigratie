@@ -119,11 +119,7 @@ namespace Datamigratie.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IsSuccessful");
-
                     b.HasIndex("MigrationId");
-
-                    b.HasIndex("ProcessedAt");
 
                     b.ToTable("MigrationRecords");
                 });

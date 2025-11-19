@@ -58,20 +58,16 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
             entity.HasKey(e => e.Id);
             
             entity.Property(e => e.DetZaaknummer)
-                .IsRequired()
-                .HasMaxLength(100);
+                .IsRequired();
             
-            entity.Property(e => e.OzZaaknummer)
-                .HasMaxLength(100);
+            entity.Property(e => e.OzZaaknummer);
             
             entity.Property(e => e.IsSuccessful)
                 .IsRequired();
             
-            entity.Property(e => e.ErrorTitle)
-                .HasMaxLength(500);
+            entity.Property(e => e.ErrorTitle);
             
-            entity.Property(e => e.ErrorDetails)
-                .HasMaxLength(2000);
+            entity.Property(e => e.ErrorDetails);
             
             entity.Property(e => e.ProcessedAt)
                 .IsRequired();

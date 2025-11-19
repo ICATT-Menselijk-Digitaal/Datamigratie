@@ -11,8 +11,7 @@ public class MigrationRecord
     [Required]
     public int MigrationId { get; set; }
     
-    [ForeignKey(nameof(MigrationId))]
-    public Migration Migration { get; set; } = null!;
+    public required Migration Migration { get; set; } = null!;
     
     [Required]
     public required string DetZaaknummer { get; set; }
