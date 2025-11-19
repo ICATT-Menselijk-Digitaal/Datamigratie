@@ -11,7 +11,7 @@ public class MigrationRecord
     [Required]
     public int MigrationId { get; set; }
     
-    public required Migration Migration { get; set; } = null!;
+    public required Migration Migration { get; set; }
     
     [Required]
     public required string DetZaaknummer { get; set; }
