@@ -100,6 +100,7 @@ public class StartMigrationService(
                 record = new MigrationRecord
                 {
                     MigrationId = migration.Id,
+                    Migration = migration,
                     DetZaaknummer = zaakMinimal.FunctioneleIdentificatie,
                     OzZaaknummer = result.Zaaknummer,
                     IsSuccessful = true,
@@ -115,6 +116,7 @@ public class StartMigrationService(
                 record = new MigrationRecord
                 {
                     MigrationId = migration.Id,
+                    Migration = migration,
                     DetZaaknummer = zaakMinimal.FunctioneleIdentificatie,
                     IsSuccessful = false,
                     ErrorTitle = result.Message,
@@ -133,6 +135,7 @@ public class StartMigrationService(
             record = new MigrationRecord
             {
                 MigrationId = migration.Id,
+                Migration = migration,
                 DetZaaknummer = zaakMinimal.FunctioneleIdentificatie,
                 IsSuccessful = false,
                 ErrorTitle = "Unexpected error during migration",
