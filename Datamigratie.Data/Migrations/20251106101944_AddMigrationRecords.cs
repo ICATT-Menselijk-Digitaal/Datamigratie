@@ -19,11 +19,11 @@ namespace Datamigratie.Data.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     MigrationId = table.Column<int>(type: "integer", nullable: false),
-                    DetZaaknummer = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    OzZaaknummer = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    DetZaaknummer = table.Column<string>(type: "text", nullable: false),
+                    OzZaaknummer = table.Column<string>(type: "text", nullable: true),
                     IsSuccessful = table.Column<bool>(type: "boolean", nullable: false),
-                    ErrorTitle = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    ErrorDetails = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
+                    ErrorTitle = table.Column<string>(type: "text", nullable: true),
+                    ErrorDetails = table.Column<string>(type: "text", nullable: true),
                     StatusCode = table.Column<int>(type: "integer", nullable: true),
                     ProcessedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
