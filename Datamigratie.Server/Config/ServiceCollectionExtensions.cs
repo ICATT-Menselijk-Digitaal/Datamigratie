@@ -4,10 +4,10 @@ using Datamigratie.Common.Extensions;
 using Datamigratie.Server.Features.Mapping.MapZaaktypen;
 using Datamigratie.Server.Features.Mapping.ShowZaaktypenMapping;
 using Datamigratie.Server.Features.MigrateZaak;
-using Datamigratie.Server.Helpers;
 using Datamigratie.Server.Features.Migration.StartMigration.Services;
 using Datamigratie.Server.Features.Migration.StartMigration.Queues;
 using Datamigratie.Server.Features.Migration.StartMigration.State;
+using Datamigratie.Common.Services.Pdf;
 
 namespace Datamigratie.Server.Config
 {
@@ -21,6 +21,7 @@ namespace Datamigratie.Server.Config
             services.AddScoped<IMapZaaktypenService, MapZaaktypenService>();
             services.AddScoped<IShowZaaktypenMappingService, ShowZaaktypenMappingService>();
             services.AddScoped<IMigrateZaakService, MigrateZaakService>();
+            services.AddScoped<IZaakgegevensPdfGenerator, ZaakgegevensPdfGenerator>();
 
             services.AddScoped<IStartMigrationService, StartMigrationService>();
 
