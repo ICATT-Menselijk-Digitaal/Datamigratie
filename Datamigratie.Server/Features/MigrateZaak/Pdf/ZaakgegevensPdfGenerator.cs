@@ -3,7 +3,7 @@ using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 
-namespace Datamigratie.Common.Services.Pdf
+namespace Datamigratie.Server.Features.MigrateZaak.Pdf
 {
     public interface IZaakgegevensPdfGenerator
     {
@@ -45,11 +45,33 @@ namespace Datamigratie.Common.Services.Pdf
 
                             table.Cell().Text("afdeling");
                             table.Cell().Text(zaak.Afdeling ?? "-");
+
+                            table.Cell().Text("betaalgegevens");
+                            table.Cell().Text(FormatBetaalgegevens(zaak.Betaalgegevens));
                         });
                 });
             });
 
             return document.GeneratePdf();
+        }
+
+        private static string FormatBetaalgegevens(DetBetaalgegevens? betaalgegevens)
+        {
+            if (betaalgegevens == null)
+                return "-";
+
+            var parts = new List<string>();
+            
+            if (betaalgegevens.Bedrag.HasValue)
+                parts.Add($"Bedrag: €{betaalgegevens.Bedrag.Value:F2}");
+            
+            if (!string.IsNullOrEmpty(betaalgegevens.Betaalstatus))
+                parts.Add($"Status: {betaalgegevens.Betaalstatus}");
+            
+            if (!string.IsNullOrEmpty(betaalgegevens.Kenmerk))
+                parts.Add($"Kenmerk: {betaalgegevens.Kenmerk}");
+
+            return parts.Count > 0 ? string.Join(", ", parts) : "-";
         }
     }
 }

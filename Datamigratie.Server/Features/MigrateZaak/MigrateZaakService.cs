@@ -3,7 +3,7 @@ using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
-using Datamigratie.Common.Services.Pdf;
+using Datamigratie.Server.Features.MigrateZaak.Pdf;
 using Microsoft.Extensions.Options;
 
 namespace Datamigratie.Server.Features.MigrateZaak
@@ -40,19 +40,16 @@ namespace Datamigratie.Server.Features.MigrateZaak
                 foreach (var item in detZaak?.Documenten ?? [])
                 {
                     var versie = item.DocumentVersies.Last();
-
                     var ozDocument = MapToOzDocument(item, versie, firstInformatieObjectType);
 
-                    var savedDocument = await _openZaakApiClient.CreateDocument(ozDocument);
-
-                    await detClient.GetDocumentInhoudAsync(
-                        versie.DocumentInhoudID, 
-                        (stream, token) => _openZaakApiClient.UploadBestand(savedDocument, stream, token), 
+                    await CreateAndLinkDocumentAsync(
+                        ozDocument,
+                        createdZaak,
+                        (savedDoc, ct) => detClient.GetDocumentInhoudAsync(
+                            versie.DocumentInhoudID, 
+                            (stream, token) => _openZaakApiClient.UploadBestand(savedDoc, stream, token), 
+                            ct),
                         token);
-
-                    await _openZaakApiClient.UnlockDocument(savedDocument, token);
-
-                    await _openZaakApiClient.KoppelDocument(createdZaak, savedDocument, token);
                 }
 
                 return MigrateZaakResult.Success(createdZaak.Identificatie, "De zaak is aangemaakt in het doelsysteem");
@@ -85,7 +82,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
                 Creatiedatum = versie.Creatiedatum,
                 Status = DocumentStatus.in_bewerking,
                 Trefwoorden = [],
-                Verschijningsvorm = "verschijningsvorm",
+                Verschijningsvorm = item.DocumentVorm?.Naam ?? "verschijningsvorm",
                 Link = ""
             };
         }
@@ -93,6 +90,19 @@ namespace Datamigratie.Server.Features.MigrateZaak
         private static void CheckIfZaakAlreadyExists()
         {
             // TODO -> story DATA-48
+        }
+        private async Task CreateAndLinkDocumentAsync(
+            OzDocument ozDocument, 
+            OzZaak zaak, 
+            Func<OzDocument, CancellationToken, Task> uploadContentAction,
+            CancellationToken token)
+        {
+            var savedDocument = await _openZaakApiClient.CreateDocument(ozDocument);
+            
+            await uploadContentAction(savedDocument, token);
+            
+            await _openZaakApiClient.UnlockDocument(savedDocument, token);
+            await _openZaakApiClient.KoppelDocument(zaak, savedDocument, token);
         }
 
         private async Task UploadZaakgegevensPdfAsync(DetZaak detZaak, OzZaak createdZaak, Uri informatieObjectType, CancellationToken token)
@@ -120,15 +130,15 @@ namespace Datamigratie.Server.Features.MigrateZaak
                 Link = ""
             };
 
-            var savedDocument = await _openZaakApiClient.CreateDocument(ozDocument);
-
-            // upload PDF content
-            using var pdfStream = new MemoryStream(pdfBytes);
-            await _openZaakApiClient.UploadBestand(savedDocument, pdfStream, token);
-
-            // link to zaak
-            await _openZaakApiClient.UnlockDocument(savedDocument, token);
-            await _openZaakApiClient.KoppelDocument(createdZaak, savedDocument, token);
+            await CreateAndLinkDocumentAsync(
+                ozDocument,
+                createdZaak,
+                async (savedDoc, ct) =>
+                {
+                    using var pdfStream = new MemoryStream(pdfBytes);
+                    await _openZaakApiClient.UploadBestand(savedDoc, pdfStream, ct);
+                },
+                token);
         }
 
         private CreateOzZaakRequest CreateOzZaakCreationRequest(DetZaak detZaak, Guid ozZaaktypeId)
