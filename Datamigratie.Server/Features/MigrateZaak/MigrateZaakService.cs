@@ -34,9 +34,18 @@ namespace Datamigratie.Server.Features.MigrateZaak
                 {
                     var versie = item.DocumentVersies.Last();
 
-                    var ozDocument = MapToOzDocument(item, versie, firstInformatieObjectType);
+                    var (ozDocument, error) = MapToOzDocument(item, versie, firstInformatieObjectType);
 
-                    var savedDocument = await _openZaakApiClient.CreateDocument(ozDocument);
+                    if (error != null)
+                    {
+                        return MigrateZaakResult.Failed(
+                            detZaak!.FunctioneleIdentificatie,
+                            "De zaak kon niet worden aangemaakt in het doelsysteem.",
+                            error,
+                            StatusCodes.Status400BadRequest);
+                    }
+
+                    var savedDocument = await _openZaakApiClient.CreateDocument(ozDocument!);
 
                     await detClient.GetDocumentInhoudAsync(
                         versie.DocumentInhoudID, 
@@ -62,27 +71,39 @@ namespace Datamigratie.Server.Features.MigrateZaak
          
         }
 
-        private static OzDocument MapToOzDocument(DetDocument item, DetDocumentVersie versie, Uri informatieObjectType)
+        private static (OzDocument?, string?) MapToOzDocument(DetDocument item, DetDocumentVersie versie, Uri informatieObjectType)
         {
-            return new OzDocument
+            // Apply data transformations
+            const int MaxTitelLength = 200; // 197 + "..."
+            var titel = TruncateWithDots(item.Titel, MaxTitelLength);
+
+            const int MaxIdentificatieLength = 40;
+
+            // If kenmerk is longer than 40, fail the migration
+            if (item.Kenmerk?.Length > MaxIdentificatieLength)
+            {
+                return (null, $"Document '{item.Titel}' migration failed: The 'kenmerk' field length ({item.Kenmerk.Length}) exceeds the maximum allowed length of {MaxIdentificatieLength} characters.");
+            }
+
+            return (new OzDocument
             {
                 Bestandsnaam = versie.Bestandsnaam,
                 Bronorganisatie = "999990639", // moet een valide rsin zijn,
                 Formaat = versie.Mimetype,
-                Identificatie = item.Kenmerk ?? "kenmerk onbekend",
+                Identificatie = item.Kenmerk,
                 Informatieobjecttype = informatieObjectType,
-                Taal = "dut",
-                Titel = item.Titel,
+                Taal = item.Taal.FunctioneelId,
+                Titel = titel,
                 Vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar,
                 Bestandsomvang = versie.Documentgrootte,
-                Auteur = "auteur",
+                Auteur = versie.Auteur,
                 Beschrijving = "beschrijving",
                 Creatiedatum = versie.Creatiedatum,
                 Status = DocumentStatus.in_bewerking,
                 Trefwoorden = [],
                 Verschijningsvorm = "verschijningsvorm",
                 Link = ""
-            };
+            }, null);
         }
 
         private static void CheckIfZaakAlreadyExists()

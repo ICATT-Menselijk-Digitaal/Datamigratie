@@ -6,7 +6,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
     {
         public string? Url { get; init; }
 
-        public required string Identificatie { get; init; }
+        public string? Identificatie { get; init; }
 
         public required string Bronorganisatie { get; init; }
 
