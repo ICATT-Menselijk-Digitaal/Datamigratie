@@ -41,16 +41,18 @@ namespace Datamigratie.Common.Services.Det.Models
         public required List<DetDocumentVersie> DocumentVersies { get; set; }
         public string? Kenmerk { get; set; }
         public required string Titel { get; set; }
+        public string? Beschrijving {get; set; }
+        public required DocumentTaal Taal { get; set; }
 
-        public required DocumentTaal Taal {get; set;}
+        public DocumentVorm? DocumentVorm { get; set; }
     }
 
     public class DetDocumentVersie
     {
         public required int Versienummer { get; set; }
         public required long DocumentInhoudID { get; set; }
-        public required string Bestandsnaam { get; set; }
-        public required string Mimetype { get; set; }
+        public string? Bestandsnaam { get; set; }
+        public string? Mimetype { get; set; }
         public long? Documentgrootte { get; set; }
         public required string Auteur { get; set; }
         public required DateOnly Creatiedatum { get; set; }
@@ -59,5 +61,10 @@ namespace Datamigratie.Common.Services.Det.Models
     public class DocumentTaal
     {
         public required string FunctioneelId { get; set; }
+    }
+
+    public class DocumentVorm
+    {
+        public required string Naam { get; set; }
     }
 }
