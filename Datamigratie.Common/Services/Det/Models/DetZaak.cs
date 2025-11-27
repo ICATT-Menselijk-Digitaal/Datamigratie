@@ -40,7 +40,6 @@ namespace Datamigratie.Common.Services.Det.Models
     public class DetDocument
     {
         public required List<DetDocumentVersie> DocumentVersies { get; set; }
-        public DetDocumentVorm? DocumentVorm { get; set; }
         public string? Kenmerk { get; set; }
         public required string Titel { get; set; }
     }
@@ -53,11 +52,6 @@ namespace Datamigratie.Common.Services.Det.Models
         public required string Mimetype { get; set; }
         public long? Documentgrootte { get; set; }
         public required DateOnly Creatiedatum { get; set; }
-    }
-
-    public class DetDocumentVorm
-    {
-        public string? Naam { get; set; }
     }
 
     public class DetBetaalgegevens
