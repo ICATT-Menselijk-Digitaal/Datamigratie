@@ -14,6 +14,7 @@ namespace Datamigratie.Common.Services.Det.Models
     {
         public string? AangemaaktDoor { get; set; }
         public string? Afdeling { get; set; }
+        public DetBetaalgegevens? Betaalgegevens { get; set; }
 
         [JsonConverter(typeof(DetZonedDateTimeConverter))]
         public DateTimeOffset CreatieDatumTijd { get; set; }
@@ -51,5 +52,12 @@ namespace Datamigratie.Common.Services.Det.Models
         public required string Mimetype { get; set; }
         public long? Documentgrootte { get; set; }
         public required DateOnly Creatiedatum { get; set; }
+    }
+
+    public class DetBetaalgegevens
+    {
+        public decimal? Bedrag { get; set; }
+        public string? Betaalstatus { get; set; }
+        public string? Kenmerk { get; set; }
     }
 }

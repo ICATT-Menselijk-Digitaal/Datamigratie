@@ -3,6 +3,7 @@ using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
+using Datamigratie.Server.Features.MigrateZaak.Pdf;
 using Microsoft.Extensions.Options;
 
 namespace Datamigratie.Server.Features.MigrateZaak
@@ -12,7 +13,11 @@ namespace Datamigratie.Server.Features.MigrateZaak
         public Task<MigrateZaakResult> MigrateZaak(DetZaak detZaak, Guid ozZaaktypeId, CancellationToken token = default);
     }
 
-    public class MigrateZaakService(IOpenZaakApiClient openZaakApiClient, IDetApiClient detClient, IOptions<OpenZaakApiOptions> options) : IMigrateZaakService
+    public class MigrateZaakService(
+        IOpenZaakApiClient openZaakApiClient, 
+        IDetApiClient detClient, 
+        IOptions<OpenZaakApiOptions> options,
+        IZaakgegevensPdfGenerator pdfGenerator) : IMigrateZaakService
     {
         private readonly OpenZaakApiOptions _openZaakApiOptions = options.Value;
         private readonly IOpenZaakApiClient _openZaakApiClient = openZaakApiClient;
@@ -30,22 +35,21 @@ namespace Datamigratie.Server.Features.MigrateZaak
                 var informatieObjectTypen = await _openZaakApiClient.GetInformatieobjecttypenUrlsForZaaktype(createdZaak.Zaaktype);
                 var firstInformatieObjectType = informatieObjectTypen.First();
 
+                await UploadZaakgegevensPdfAsync(detZaak, createdZaak, firstInformatieObjectType, token);
+
                 foreach (var item in detZaak?.Documenten ?? [])
                 {
                     var versie = item.DocumentVersies.Last();
-
                     var ozDocument = MapToOzDocument(item, versie, firstInformatieObjectType);
 
-                    var savedDocument = await _openZaakApiClient.CreateDocument(ozDocument);
-
-                    await detClient.GetDocumentInhoudAsync(
-                        versie.DocumentInhoudID, 
-                        (stream, token) => _openZaakApiClient.UploadBestand(savedDocument, stream, token), 
+                    await CreateAndLinkDocumentAsync(
+                        ozDocument,
+                        createdZaak,
+                        (savedDoc, ct) => detClient.GetDocumentInhoudAsync(
+                            versie.DocumentInhoudID, 
+                            (stream, token) => _openZaakApiClient.UploadBestand(savedDoc, stream, token), 
+                            ct),
                         token);
-
-                    await _openZaakApiClient.UnlockDocument(savedDocument, token);
-
-                    await _openZaakApiClient.KoppelDocument(createdZaak, savedDocument, token);
                 }
 
                 return MigrateZaakResult.Success(createdZaak.Identificatie, "De zaak is aangemaakt in het doelsysteem");
@@ -58,8 +62,6 @@ namespace Datamigratie.Server.Features.MigrateZaak
 
                 return MigrateZaakResult.Failed(detZaak.FunctioneleIdentificatie, "De zaak kon niet worden aangemaakt in het doelsysteem.", ex.Message, status);
             }
-
-         
         }
 
         private static OzDocument MapToOzDocument(DetDocument item, DetDocumentVersie versie, Uri informatieObjectType)
@@ -88,6 +90,55 @@ namespace Datamigratie.Server.Features.MigrateZaak
         private static void CheckIfZaakAlreadyExists()
         {
             // TODO -> story DATA-48
+        }
+        private async Task CreateAndLinkDocumentAsync(
+            OzDocument ozDocument, 
+            OzZaak zaak, 
+            Func<OzDocument, CancellationToken, Task> uploadContentAction,
+            CancellationToken token)
+        {
+            var savedDocument = await _openZaakApiClient.CreateDocument(ozDocument);
+            
+            await uploadContentAction(savedDocument, token);
+            
+            await _openZaakApiClient.UnlockDocument(savedDocument, token);
+            await _openZaakApiClient.KoppelDocument(zaak, savedDocument, token);
+        }
+
+        private async Task UploadZaakgegevensPdfAsync(DetZaak detZaak, OzZaak createdZaak, Uri informatieObjectType, CancellationToken token)
+        {
+            var pdfBytes = pdfGenerator.GenerateZaakgegevensPdf(detZaak);
+            var fileName = $"zaakgegevens_{detZaak.FunctioneleIdentificatie}.pdf";
+
+            var ozDocument = new OzDocument
+            {
+                Bestandsnaam = fileName,
+                Bronorganisatie = "999990639",
+                Formaat = "application/pdf",
+                Identificatie = $"zaakgegevens-{detZaak.FunctioneleIdentificatie}",
+                Informatieobjecttype = informatieObjectType,
+                Taal = "dut",
+                Titel = $"Zaakgegevens {detZaak.FunctioneleIdentificatie}",
+                Vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar,
+                Bestandsomvang = pdfBytes.Length,
+                Auteur = "Datamigratie",
+                Beschrijving = "Automatisch gegenereerd document met basisgegevens van de zaak uit het bronsysteem",
+                Creatiedatum = DateOnly.FromDateTime(DateTime.Now),
+                Status = DocumentStatus.in_bewerking,
+                Trefwoorden = [],
+                Verschijningsvorm = "verschijningsvorm",
+                Link = ""
+            };
+
+            await CreateAndLinkDocumentAsync(
+                ozDocument,
+                createdZaak,
+                async (savedDoc, ct) =>
+                {
+                    using var pdfStream = new MemoryStream(pdfBytes);
+                    await _openZaakApiClient.UploadBestand(savedDoc, pdfStream, ct);
+                },
+                token);
         }
 
         private CreateOzZaakRequest CreateOzZaakCreationRequest(DetZaak detZaak, Guid ozZaaktypeId)
