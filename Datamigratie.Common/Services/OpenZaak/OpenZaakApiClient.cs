@@ -22,6 +22,10 @@ namespace Datamigratie.Common.Services.OpenZaak
 
         Task<OzDocument> CreateDocument(OzDocument document);
 
+        Task<OzDocument> UpdateDocument(OzDocument document);
+
+        Task<string> LockDocument(string documentUrl, CancellationToken token);
+
         Task KoppelDocument(OzZaak zaak, OzDocument document, CancellationToken token);
 
         Task UnlockDocument(OzDocument document, CancellationToken token);
@@ -106,6 +110,29 @@ namespace Datamigratie.Common.Services.OpenZaak
             await response.HandleOpenZaakErrorsAsync();
             return await response.Content.ReadFromJsonAsync<OzDocument>()
                 ?? throw new SerializationException("Unexpected null response");
+        }
+
+        public async Task<OzDocument> UpdateDocument(OzDocument document)
+        {
+            if (document.Url == null)
+                throw new ArgumentException("Document URL is required for update", nameof(document));
+
+            using var response = await _httpClient.PutAsJsonAsync(document.Url, document);
+            await response.HandleOpenZaakErrorsAsync();
+            return await response.Content.ReadFromJsonAsync<OzDocument>()
+                ?? throw new SerializationException("Unexpected null response");
+        }
+
+        public async Task<string> LockDocument(string documentUrl, CancellationToken token)
+        {
+            using var response = await _httpClient.PostAsJsonAsync($"{documentUrl}/lock", new JsonObject(), cancellationToken: token);
+            await response.HandleOpenZaakErrorsAsync(token: token);
+            
+            var lockResponse = await response.Content.ReadFromJsonAsync<JsonObject>(cancellationToken: token)
+                ?? throw new SerializationException("Unexpected null response from lock endpoint");
+            
+            return lockResponse["lock"]?.GetValue<string>() 
+                ?? throw new SerializationException("Lock token not found in response");
         }
 
         public async Task UnlockDocument(OzDocument document, CancellationToken token)
