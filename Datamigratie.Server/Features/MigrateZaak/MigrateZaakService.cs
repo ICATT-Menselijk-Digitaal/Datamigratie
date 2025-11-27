@@ -66,7 +66,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
         private static OzDocument MapToOzDocument(DetDocument item, DetDocumentVersie versie, Uri informatieObjectType)
         {
             var identificatie = string.IsNullOrWhiteSpace(item.Kenmerk) 
-                ? $"kenmerk-onbekend-v{versie.Versienummer}" 
+                ? "kenmerk-onbekend" 
                 : $"{item.Kenmerk}-v{versie.Versienummer}";
 
             return new OzDocument
