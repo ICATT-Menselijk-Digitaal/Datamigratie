@@ -37,22 +37,21 @@ namespace Datamigratie.Server.Features.MigrateZaak
 
                 await UploadZaakgegevensPdfAsync(detZaak, createdZaak, firstInformatieObjectType, token);
 
-                foreach (var item in detZaak?.Documenten ?? [])
-                {
-                    var versie = item.DocumentVersies.Last();
-                    var ozDocument = MapToOzDocument(item, versie, firstInformatieObjectType);
-
-                    await CreateAndLinkDocumentAsync(
-                        ozDocument,
-                        createdZaak,
-                        (savedDoc, ct) => detClient.GetDocumentInhoudAsync(
-                            versie.DocumentInhoudID, 
-                            (stream, token) => _openZaakApiClient.UploadBestand(savedDoc, stream, token), 
-                            ct),
-                        token);
-                }
+                // Migrate all documents with their versions
+                await MigrateDocumentsAsync(detZaak, createdZaak, firstInformatieObjectType, token);
 
                 return MigrateZaakResult.Success(createdZaak.Identificatie, "De zaak is aangemaakt in het doelsysteem");
+            }
+            catch (DocumentVersionMigrationException ex)
+            {
+                var errorMessage = $"Migratie onderbroken: versie {ex.VersionNumber} van document '{ex.DocumentTitle}' (bestand: {ex.FileName}) kon niet worden gemigreerd.";
+                var errorDetails = $"{ex.Message}\nInner exception: {ex.InnerException?.Message}";
+                
+                var status = (ex.InnerException is HttpRequestException httpRequestException && httpRequestException.StatusCode.HasValue)
+                    ? (int)httpRequestException.StatusCode
+                    : StatusCodes.Status500InternalServerError;
+
+                return MigrateZaakResult.Failed(detZaak.FunctioneleIdentificatie, errorMessage, errorDetails, status);
             }
             catch (Exception ex)
             {
@@ -139,6 +138,45 @@ namespace Datamigratie.Server.Features.MigrateZaak
                     await _openZaakApiClient.UploadBestand(savedDoc, pdfStream, ct);
                 },
                 token);
+        }
+
+        /// <summary>
+        /// Migrates all documents with their versions in the correct order
+        /// </summary>
+        private async Task MigrateDocumentsAsync(DetZaak detZaak, OzZaak createdZaak, Uri informatieObjectType, CancellationToken token)
+        {
+            foreach (var document in detZaak?.Documenten ?? [])
+            {
+                var sortedVersions = document.DocumentVersies.OrderBy(v => v.Versienummer).ToList();
+                
+                for (var i = 0; i < sortedVersions.Count; i++)
+                {
+                    var versie = sortedVersions[i];
+                    
+                    try
+                    {
+                        var ozDocument = MapToOzDocument(document, versie, informatieObjectType);
+                        await CreateAndLinkDocumentAsync(
+                            ozDocument,
+                            createdZaak,
+                            (savedDoc, ct) => detClient.GetDocumentInhoudAsync(
+                                versie.DocumentInhoudID,
+                                (stream, token) => _openZaakApiClient.UploadBestand(savedDoc, stream, token),
+                                ct),
+                            token);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new DocumentVersionMigrationException(
+                            detZaak?.FunctioneleIdentificatie ?? "unknown",
+                            document.Titel,
+                            versie.Versienummer,
+                            versie.Bestandsnaam,
+                            $"Failed to migrate version {versie.Versienummer} of document '{document.Titel}' (file: {versie.Bestandsnaam})",
+                            ex);
+                    }
+                }
+            }
         }
 
         private CreateOzZaakRequest CreateOzZaakCreationRequest(DetZaak detZaak, Guid ozZaaktypeId)
