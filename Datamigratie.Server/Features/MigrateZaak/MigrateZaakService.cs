@@ -82,7 +82,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
                 Creatiedatum = versie.Creatiedatum,
                 Status = DocumentStatus.in_bewerking,
                 Trefwoorden = [],
-                Verschijningsvorm = item.DocumentVorm?.Naam ?? "verschijningsvorm",
+                Verschijningsvorm = "verschijningsvorm",
                 Link = ""
             };
         }
