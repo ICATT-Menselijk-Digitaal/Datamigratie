@@ -134,9 +134,9 @@ namespace Datamigratie.Common.Services.OpenZaak
                 ?? throw new SerializationException("Lock token not found in response");
         }
 
-        public async Task UnlockDocument(Guid documentId, string? lockToken, CancellationToken token)
+        public async Task UnlockDocument(Guid id, string? lockToken, CancellationToken token)
         {
-            var url = $"documenten/api/v1/enkelvoudiginformatieobjecten/{documentId}/unlock";
+            var url = $"documenten/api/v1/enkelvoudiginformatieobjecten/{id}/unlock";
 
             using var response = await _httpClient.PostAsJsonAsync(url, new JsonObject { ["lock"] = lockToken }, cancellationToken: token);
             await response.HandleOpenZaakErrorsAsync(token: token);
