@@ -115,7 +115,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
             
             await uploadContentAction(savedDocument, token);
             
-            await _openZaakApiClient.UnlockDocument(savedDocument, token);
+            await _openZaakApiClient.UnlockDocument(savedDocument.Id, savedDocument.Lock, token);
             await _openZaakApiClient.KoppelDocument(zaak, savedDocument, token);
         }
 
