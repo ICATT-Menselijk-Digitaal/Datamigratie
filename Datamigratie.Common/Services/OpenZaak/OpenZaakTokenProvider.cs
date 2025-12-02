@@ -15,7 +15,8 @@ namespace Datamigratie.Common.Services.OpenZaak
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             // Set issued-at (iat) timestamp  
-            var issuedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            // one minute leeway to account for clock differences between machines
+            var issuedAt = DateTimeOffset.UtcNow.AddMinutes(-1).ToUnixTimeSeconds();
 
             // Create JWT payload  
             var claims = new List<Claim>
