@@ -22,13 +22,13 @@ namespace Datamigratie.Common.Services.OpenZaak
 
         Task<OzDocument> CreateDocument(OzDocument document);
 
-        Task<OzDocument> UpdateDocument(OzDocument document);
+        Task<OzDocument> UpdateDocument(Guid id, OzDocument document);
 
-        Task<string> LockDocument(string documentUrl, CancellationToken token);
+        Task<string> LockDocument(Guid id, CancellationToken token);
 
         Task KoppelDocument(OzZaak zaak, OzDocument document, CancellationToken token);
 
-        Task UnlockDocument(OzDocument document, CancellationToken token);
+        Task UnlockDocument(Guid id, String lockToken, CancellationToken token);
 
         Task UploadBestand(OzDocument document, Stream content, CancellationToken token);
     }
@@ -112,20 +112,19 @@ namespace Datamigratie.Common.Services.OpenZaak
                 ?? throw new SerializationException("Unexpected null response");
         }
 
-        public async Task<OzDocument> UpdateDocument(OzDocument document)
+        public async Task<OzDocument> UpdateDocument(Guid documentGuid, OzDocument document)
         {
-            if (document.Url == null)
-                throw new ArgumentException("Document URL is required for update", nameof(document));
-
-            using var response = await _httpClient.PutAsJsonAsync(document.Url, document);
+            var url = $"documenten/api/v1/enkelvoudiginformatieobjecten/{documentGuid}";
+            using var response = await _httpClient.PutAsJsonAsync(url, document);
             await response.HandleOpenZaakErrorsAsync();
             return await response.Content.ReadFromJsonAsync<OzDocument>()
                 ?? throw new SerializationException("Unexpected null response");
         }
 
-        public async Task<string> LockDocument(string documentUrl, CancellationToken token)
+        public async Task<string> LockDocument(Guid id, CancellationToken token)
         {
-            using var response = await _httpClient.PostAsJsonAsync($"{documentUrl}/lock", new JsonObject(), cancellationToken: token);
+            var url = $"documenten/api/v1/enkelvoudiginformatieobjecten/{id}/lock";
+            using var response = await _httpClient.PostAsJsonAsync(url, new JsonObject(), cancellationToken: token);
             await response.HandleOpenZaakErrorsAsync(token: token);
             
             var lockResponse = await response.Content.ReadFromJsonAsync<JsonObject>(cancellationToken: token)
@@ -135,9 +134,11 @@ namespace Datamigratie.Common.Services.OpenZaak
                 ?? throw new SerializationException("Lock token not found in response");
         }
 
-        public async Task UnlockDocument(OzDocument document, CancellationToken token)
+        public async Task UnlockDocument(Guid documentId, string lockToken, CancellationToken token)
         {
-            using var response = await _httpClient.PostAsJsonAsync($"{document.Url}/unlock", new JsonObject { ["lock"] = document.Lock }, cancellationToken: token);
+            var url = $"documenten/api/v1/enkelvoudiginformatieobjecten/{documentId}/unlock";
+
+            using var response = await _httpClient.PostAsJsonAsync(url, new JsonObject { ["lock"] = lockToken }, cancellationToken: token);
             await response.HandleOpenZaakErrorsAsync(token: token);
         }
 

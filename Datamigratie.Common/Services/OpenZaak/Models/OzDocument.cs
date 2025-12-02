@@ -1,10 +1,27 @@
 ﻿using System.Text.Json.Serialization;
+using Datamigratie.Common.Helpers;
 
 namespace Datamigratie.Common.Services.OpenZaak.Models
 {
     public sealed class OzDocument
     {
-        public string? Url { get; init; }
+
+        public Guid Id { get; private set; } = Guid.Empty;
+
+        private string? _url = null;
+
+        public string? Url
+        {
+            get => _url;
+            set
+            {
+                _url = value;
+                if (!string.IsNullOrEmpty(value))
+                {
+                    Id = OzUrlToGuidConverter.ExtractUuidFromUrl(value);
+                }
+            }
+        }
 
         public required string Identificatie { get; init; }
 
@@ -66,7 +83,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
         [JsonPropertyName("_expand")]
         public Expand? Expand { get; init; }
 
-        public string? Lock { get; init; }
+        public string? Lock { get; set; }
     }
 
     public sealed class Ondertekening

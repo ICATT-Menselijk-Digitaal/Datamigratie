@@ -42,17 +42,6 @@ namespace Datamigratie.Server.Features.MigrateZaak
 
                 return MigrateZaakResult.Success(createdZaak.Identificatie, "De zaak is aangemaakt in het doelsysteem");
             }
-            catch (DocumentVersionMigrationException ex)
-            {
-                var errorMessage = $"Migratie onderbroken: versie {ex.VersionNumber} van document '{ex.DocumentTitle}' (bestand: {ex.FileName}) kon niet worden gemigreerd.";
-                var errorDetails = $"{ex.Message}\nInner exception: {ex.InnerException?.Message}";
-                
-                var status = (ex.InnerException is HttpRequestException httpRequestException && httpRequestException.StatusCode.HasValue)
-                    ? (int)httpRequestException.StatusCode
-                    : StatusCodes.Status500InternalServerError;
-
-                return MigrateZaakResult.Failed(detZaak.FunctioneleIdentificatie, errorMessage, errorDetails, status);
-            }
             catch (Exception ex)
             {
                 var status = (ex is HttpRequestException httpRequestException && httpRequestException.StatusCode.HasValue)
@@ -83,31 +72,6 @@ namespace Datamigratie.Server.Features.MigrateZaak
                 Trefwoorden = [],
                 Verschijningsvorm = "verschijningsvorm",
                 Link = ""
-            };
-        }
-
-        private static OzDocument CreateOzDocumentWithLockAndUrl(OzDocument baseDocument, string url, string lockToken)
-        {
-            return new OzDocument
-            {
-                Url = url,
-                Lock = lockToken,
-                Bestandsnaam = baseDocument.Bestandsnaam,
-                Bronorganisatie = baseDocument.Bronorganisatie,
-                Formaat = baseDocument.Formaat,
-                Identificatie = baseDocument.Identificatie,
-                Informatieobjecttype = baseDocument.Informatieobjecttype,
-                Taal = baseDocument.Taal,
-                Titel = baseDocument.Titel,
-                Vertrouwelijkheidaanduiding = baseDocument.Vertrouwelijkheidaanduiding,
-                Bestandsomvang = baseDocument.Bestandsomvang,
-                Auteur = baseDocument.Auteur,
-                Beschrijving = baseDocument.Beschrijving,
-                Creatiedatum = baseDocument.Creatiedatum,
-                Status = baseDocument.Status,
-                Trefwoorden = baseDocument.Trefwoorden,
-                Verschijningsvorm = baseDocument.Verschijningsvorm,
-                Link = baseDocument.Link
             };
         }
 
@@ -201,7 +165,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
             {
                 var sortedVersions = document.DocumentVersies.OrderBy(v => v.Versienummer).ToList();
                 
-                string? documentUrl = null;
+                OzDocument? mainDocument = null;
                 
                 for (var i = 0; i < sortedVersions.Count; i++)
                 {
@@ -215,29 +179,38 @@ namespace Datamigratie.Server.Features.MigrateZaak
                         if (isFirstVersion)
                         {
                             // create new document and link to zaak
-                            var savedDocument = await _openZaakApiClient.CreateDocument(ozDocument);
-                            documentUrl = savedDocument.Url;
-                            
-                            await detClient.GetDocumentInhoudAsync(
-                                versie.DocumentInhoudID,
-                                (stream, ct) => _openZaakApiClient.UploadBestand(savedDocument, stream, ct),
+                            OzDocument? capturedDocument = null;
+
+                            await CreateAndLinkDocumentAsync(
+                                ozDocument,
+                                createdZaak,
+                                async (savedDoc, ct) =>
+                                {
+                                    capturedDocument = savedDoc;
+                                    await detClient.GetDocumentInhoudAsync(
+                                        versie.DocumentInhoudID,
+                                        (stream, streamCt) => _openZaakApiClient.UploadBestand(savedDoc, stream, streamCt),
+                                        ct);
+                                },
                                 token);
-                            
-                            await _openZaakApiClient.UnlockDocument(savedDocument, token);
-                            await _openZaakApiClient.KoppelDocument(createdZaak, savedDocument, token);
+                                
+
+                            mainDocument = capturedDocument;
                         }
                         else
                         {
                             // other versions: update existing document
-                            if (string.IsNullOrEmpty(documentUrl)) {
+                            if (mainDocument?.Id == null) {
                                 throw new InvalidOperationException("First document version must be created before updating");
                             }
-                            
+
                             // lock the document to get a lock token
-                            var lockToken = await _openZaakApiClient.LockDocument(documentUrl, token);
+                            var lockToken = await _openZaakApiClient.LockDocument(mainDocument.Id, token);
                             
-                            var documentWithLock = CreateOzDocumentWithLockAndUrl(ozDocument, documentUrl, lockToken);
-                            var updatedDocument = await _openZaakApiClient.UpdateDocument(documentWithLock);
+                            // set lock token
+                            ozDocument.Lock = lockToken;
+
+                            var updatedDocument = await _openZaakApiClient.UpdateDocument(mainDocument.Id, ozDocument);
                             
                             var documentForUpload = CreateOzDocumentForUpload(updatedDocument, lockToken);
                             
@@ -246,17 +219,13 @@ namespace Datamigratie.Server.Features.MigrateZaak
                                 (stream, ct) => _openZaakApiClient.UploadBestand(documentForUpload, stream, ct),
                                 token);
                             
-                            await _openZaakApiClient.UnlockDocument(documentWithLock, token);
+                            await _openZaakApiClient.UnlockDocument(mainDocument.Id, lockToken, token);
                         }
                     }
                     catch (Exception ex)
                     {
-                        throw new DocumentVersionMigrationException(
-                            detZaak?.FunctioneleIdentificatie ?? "unknown",
-                            document.Titel,
-                            versie.Versienummer,
-                            versie.Bestandsnaam,
-                            $"Failed to migrate version {versie.Versienummer} of document '{document.Titel}' (file: {versie.Bestandsnaam})",
+                        throw new Exception(
+                            $"Migratie onderbroken: versie {versie.Versienummer} van document '{document.Titel}' (bestand: {versie.Bestandsnaam}) kon niet worden gemigreerd.",
                             ex);
                     }
                 }
