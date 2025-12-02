@@ -28,7 +28,7 @@ namespace Datamigratie.Common.Services.OpenZaak
 
         Task KoppelDocument(OzZaak zaak, OzDocument document, CancellationToken token);
 
-        Task UnlockDocument(Guid id, String lockToken, CancellationToken token);
+        Task UnlockDocument(Guid id, String? lockToken, CancellationToken token);
 
         Task UploadBestand(OzDocument document, Stream content, CancellationToken token);
     }
@@ -134,7 +134,7 @@ namespace Datamigratie.Common.Services.OpenZaak
                 ?? throw new SerializationException("Lock token not found in response");
         }
 
-        public async Task UnlockDocument(Guid documentId, string lockToken, CancellationToken token)
+        public async Task UnlockDocument(Guid documentId, string? lockToken, CancellationToken token)
         {
             var url = $"documenten/api/v1/enkelvoudiginformatieobjecten/{documentId}/unlock";
 
