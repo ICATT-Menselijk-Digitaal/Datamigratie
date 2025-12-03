@@ -9,28 +9,29 @@ namespace Datamigratie.Common.Services.OpenZaak
     {
         public static string GenerateZakenApiToken(string jwtSecretKey, string clientId)
         {
-
-            // Convert secret key to bytes  
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey));
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            // Set issued-at (iat) timestamp  
+            var now = DateTimeOffset.UtcNow;
             // one minute leeway to account for clock differences between machines
-            var issuedAt = DateTimeOffset.UtcNow.AddMinutes(-1).ToUnixTimeSeconds();
+            var issuedAt = now.AddMinutes(-1);
+            var iat = issuedAt.ToUnixTimeSeconds();
 
-            // Create JWT payload  
-            var claims = new List<Claim>
-           {
-               new ("client_id", clientId),
-               new("iat", issuedAt.ToString(), ClaimValueTypes.Integer64)
-           };
-
-            var token = new JwtSecurityToken(
-                claims: claims,
-                signingCredentials: credentials
-            );
+            var claims = new Dictionary<string, object>
+            {
+                { "client_id", clientId },
+                { "iat", iat }
+            };
 
             var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(jwtSecretKey);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                IssuedAt = issuedAt.DateTime,
+                NotBefore = issuedAt.DateTime,
+                Claims = claims,
+                Subject = new ClaimsIdentity(),
+                Expires = now.AddHours(1).DateTime,
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
     }
