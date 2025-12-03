@@ -143,12 +143,12 @@ namespace Datamigratie.Server.Features.MigrateZaak
                 
                 for (var i = 0; i < sortedVersions.Count; i++)
                 {
-                    var versie = sortedVersions[i];
+                    var detVersie = sortedVersions[i];
                     var isFirstVersion = i == 0;
                     
                     try
                     {
-                        var ozDocument = MapToOzDocument(document, versie, informatieObjectType);
+                        var ozDocument = MapToOzDocument(document, detVersie, informatieObjectType);
                         
                         if (isFirstVersion)
                         {
@@ -162,7 +162,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
                                 {
                                     capturedDocument = savedDoc;
                                     await detClient.GetDocumentInhoudAsync(
-                                        versie.DocumentInhoudID,
+                                        detVersie.DocumentInhoudID,
                                         (stream, streamCt) => _openZaakApiClient.UploadBestand(savedDoc, stream, streamCt),
                                         ct);
                                 },
@@ -184,13 +184,14 @@ namespace Datamigratie.Server.Features.MigrateZaak
                             // set lock token
                             ozDocument.Lock = lockToken;
 
+                            // update document to create new version
                             var updatedDocument = await _openZaakApiClient.UpdateDocument(mainDocument.Id, ozDocument);
 
                             // set lock token again
                             updatedDocument.Lock = lockToken;
                             
                             await detClient.GetDocumentInhoudAsync(
-                                versie.DocumentInhoudID,
+                                detVersie.DocumentInhoudID,
                                 (stream, ct) => _openZaakApiClient.UploadBestand(updatedDocument, stream, ct),
                                 token);
                             
@@ -200,7 +201,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
                     catch (Exception ex)
                     {
                         throw new Exception(
-                            $"Migratie onderbroken: versie {versie.Versienummer} van document '{document.Titel}' (bestand: {versie.Bestandsnaam}) kon niet worden gemigreerd.",
+                            $"Migratie onderbroken: versie {detVersie.Versienummer} van document '{document.Titel}' (bestand: {detVersie.Bestandsnaam}) kon niet worden gemigreerd.",
                             ex);
                     }
                 }
