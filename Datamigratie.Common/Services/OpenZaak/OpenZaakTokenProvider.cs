@@ -28,7 +28,7 @@ namespace Datamigratie.Common.Services.OpenZaak
                 NotBefore = issuedAt.DateTime,
                 Claims = claims,
                 Subject = new ClaimsIdentity(),
-                Expires = now.AddHours(1).DateTime,
+                Expires = now.AddDays(7).DateTime,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
