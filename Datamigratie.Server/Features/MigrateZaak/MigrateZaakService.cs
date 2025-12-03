@@ -75,32 +75,6 @@ namespace Datamigratie.Server.Features.MigrateZaak
             };
         }
 
-        private static OzDocument CreateOzDocumentForUpload(OzDocument updatedDocument, string lockToken)
-        {
-            return new OzDocument
-            {
-                Url = updatedDocument.Url,
-                Lock = lockToken,
-                Bestandsdelen = updatedDocument.Bestandsdelen,
-                Bestandsnaam = updatedDocument.Bestandsnaam,
-                Bronorganisatie = updatedDocument.Bronorganisatie,
-                Formaat = updatedDocument.Formaat,
-                Identificatie = updatedDocument.Identificatie,
-                Informatieobjecttype = updatedDocument.Informatieobjecttype,
-                Taal = updatedDocument.Taal,
-                Titel = updatedDocument.Titel,
-                Vertrouwelijkheidaanduiding = updatedDocument.Vertrouwelijkheidaanduiding,
-                Bestandsomvang = updatedDocument.Bestandsomvang,
-                Auteur = updatedDocument.Auteur,
-                Beschrijving = updatedDocument.Beschrijving,
-                Creatiedatum = updatedDocument.Creatiedatum,
-                Status = updatedDocument.Status,
-                Trefwoorden = updatedDocument.Trefwoorden,
-                Verschijningsvorm = updatedDocument.Verschijningsvorm,
-                Link = updatedDocument.Link
-            };
-        }
-
         private static void CheckIfZaakAlreadyExists()
         {
             // TODO -> story DATA-48
@@ -211,12 +185,13 @@ namespace Datamigratie.Server.Features.MigrateZaak
                             ozDocument.Lock = lockToken;
 
                             var updatedDocument = await _openZaakApiClient.UpdateDocument(mainDocument.Id, ozDocument);
-                            
-                            var documentForUpload = CreateOzDocumentForUpload(updatedDocument, lockToken);
+
+                            // set lock token again
+                            updatedDocument.Lock = lockToken;
                             
                             await detClient.GetDocumentInhoudAsync(
                                 versie.DocumentInhoudID,
-                                (stream, ct) => _openZaakApiClient.UploadBestand(documentForUpload, stream, ct),
+                                (stream, ct) => _openZaakApiClient.UploadBestand(updatedDocument, stream, ct),
                                 token);
                             
                             await _openZaakApiClient.UnlockDocument(mainDocument.Id, lockToken, token);
