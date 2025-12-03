@@ -144,55 +144,6 @@ namespace Datamigratie.Server.Features.MigrateZaak
                 Creatiedatum = DateOnly.FromDateTime(DateTime.Now),
                 Status = DocumentStatus.in_bewerking,
                 Trefwoorden = [],
-                Verschijningsvorm = item?.DocumentVorm?.Naam,
-                Link = ""
-            };
-
-            await CreateAndLinkDocumentAsync(
-                ozDocument,
-                createdZaak,
-                async (savedDoc, ct) =>
-                {
-                    using var pdfStream = new MemoryStream(pdfBytes);
-                    await _openZaakApiClient.UploadBestand(savedDoc, pdfStream, ct);
-                },
-                token);
-        }
-        private async Task CreateAndLinkDocumentAsync(
-            OzDocument ozDocument, 
-            OzZaak zaak, 
-            Func<OzDocument, CancellationToken, Task> uploadContentAction,
-            CancellationToken token)
-        {
-            var savedDocument = await _openZaakApiClient.CreateDocument(ozDocument);
-            
-            await uploadContentAction(savedDocument, token);
-            
-            await _openZaakApiClient.UnlockDocument(savedDocument, token);
-            await _openZaakApiClient.KoppelDocument(zaak, savedDocument, token);
-        }
-
-        private async Task UploadZaakgegevensPdfAsync(DetZaak detZaak, OzZaak createdZaak, Uri informatieObjectType, CancellationToken token)
-        {
-            var pdfBytes = pdfGenerator.GenerateZaakgegevensPdf(detZaak);
-            var fileName = $"zaakgegevens_{detZaak.FunctioneleIdentificatie}.pdf";
-
-            var ozDocument = new OzDocument
-            {
-                Bestandsnaam = fileName,
-                Bronorganisatie = "999990639",
-                Formaat = "application/pdf",
-                Identificatie = $"zaakgegevens-{detZaak.FunctioneleIdentificatie}",
-                Informatieobjecttype = informatieObjectType,
-                Taal = "dut",
-                Titel = $"Zaakgegevens {detZaak.FunctioneleIdentificatie}",
-                Vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar,
-                Bestandsomvang = pdfBytes.Length,
-                Auteur = "Datamigratie",
-                Beschrijving = "Automatisch gegenereerd document met basisgegevens van de zaak uit het bronsysteem",
-                Creatiedatum = DateOnly.FromDateTime(DateTime.Now),
-                Status = DocumentStatus.in_bewerking,
-                Trefwoorden = [],
                 Verschijningsvorm = "verschijningsvorm",
                 Link = ""
             };
