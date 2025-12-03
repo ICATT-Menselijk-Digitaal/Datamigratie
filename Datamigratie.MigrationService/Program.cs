@@ -3,8 +3,6 @@
 using Datamigratie.Data;
 using Datamigratie.MigrationService;
 using Datamigratie.MigrationService.Features.DatabaseInitialization;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 var builder = Host.CreateApplicationBuilder(args);
 
