@@ -88,17 +88,3 @@ When a field value exceeds its maximum allowed length, the following truncation 
 - Input: `"Hello world"`, Max length: `5`
 - Output: `"He..."` (length = 5)
 
-### Migration Failures
-
-The migration will **fail** for a document if:
-- The `Kenmerk` field exceeds 40 characters (this field cannot be truncated as it serves as a unique identifier)
-
-When this occurs, an error message is returned indicating which document caused the failure and why.
-
-### Implementation Details
-
-All transformation logic is implemented in [MigrateZaakService.cs](Datamigratie.Server/Features/MigrateZaak/MigrateZaakService.cs):
-- `TruncateWithDots()` method handles string truncation (line 161)
-- `MapToOzDocument()` method applies document field transformations (line 75)
-- `CreateOzZaakCreationRequest()` method applies zaak field transformations (line 112)
-
