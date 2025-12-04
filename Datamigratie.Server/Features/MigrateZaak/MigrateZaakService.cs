@@ -51,7 +51,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
             }
         }
 
-        private static (OzDocument?, string?) MapToOzDocument(DetDocument item, DetDocumentVersie versie, Uri informatieObjectType)
+        private static OzDocument MapToOzDocument(DetDocument item, DetDocumentVersie versie, Uri informatieObjectType)
         {
             // Apply data transformations
             const int MaxTitelLength = 200; // 197 + "..."
@@ -65,12 +65,10 @@ namespace Datamigratie.Server.Features.MigrateZaak
             // If kenmerk is longer than 40, fail the migration
             if (item.Kenmerk?.Length > MaxIdentificatieLength)
             {
-                return (null, $"Document '{item.Titel}' migration failed: The 'kenmerk' field length ({item.Kenmerk.Length}) exceeds the maximum allowed length of {MaxIdentificatieLength} characters.");
+                throw new InvalidDataException($"Document '{item.Titel}' migration failed: The 'kenmerk' field length ({item.Kenmerk.Length}) exceeds the maximum allowed length of {MaxIdentificatieLength} characters.");
             }
 
-            
-
-            return (new OzDocument
+            return new OzDocument
             {
                 Bestandsnaam = versie.Bestandsnaam,
                 Bronorganisatie = "999990639", // moet een valide rsin zijn,
@@ -88,7 +86,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
                 Trefwoorden = [],
                 Verschijningsvorm = item?.DocumentVorm?.Naam,
                 Link = ""
-            }, null);
+            };
         }
         private async Task CreateAndLinkDocumentAsync(
             OzDocument ozDocument, 
@@ -159,12 +157,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
                     
                     try
                     {
-                        var (ozDocument, error) = MapToOzDocument(document, detVersie, informatieObjectType);
-
-                        if (error != null)
-                        {
-                            throw new Exception("DET document mapping failed with error: " + error);
-                        }
+                        var ozDocument = MapToOzDocument(document, detVersie, informatieObjectType);
                         
                         if (isFirstVersion)
                         {
