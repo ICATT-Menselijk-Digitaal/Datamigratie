@@ -37,20 +37,8 @@ namespace Datamigratie.Server.Features.MigrateZaak
 
                 await UploadZaakgegevensPdfAsync(detZaak, createdZaak, firstInformatieObjectType, token);
 
-                foreach (var item in detZaak?.Documenten ?? [])
-                {
-                    var versie = item.DocumentVersies.Last();
-                    var ozDocument = MapToOzDocument(item, versie, firstInformatieObjectType);
-
-                    await CreateAndLinkDocumentAsync(
-                        ozDocument,
-                        createdZaak,
-                        (savedDoc, ct) => detClient.GetDocumentInhoudAsync(
-                            versie.DocumentInhoudID, 
-                            (stream, token) => _openZaakApiClient.UploadBestand(savedDoc, stream, token), 
-                            ct),
-                        token);
-                }
+                // Migrate all documents with their versions
+                await MigrateDocumentsAsync(detZaak, createdZaak, firstInformatieObjectType, token);
 
                 return MigrateZaakResult.Success(createdZaak.Identificatie, "De zaak is aangemaakt in het doelsysteem");
             }
@@ -101,7 +89,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
             
             await uploadContentAction(savedDocument, token);
             
-            await _openZaakApiClient.UnlockDocument(savedDocument, token);
+            await _openZaakApiClient.UnlockDocument(savedDocument.Id, savedDocument.Lock, token);
             await _openZaakApiClient.KoppelDocument(zaak, savedDocument, token);
         }
 
@@ -139,6 +127,94 @@ namespace Datamigratie.Server.Features.MigrateZaak
                     await _openZaakApiClient.UploadBestand(savedDoc, pdfStream, ct);
                 },
                 token);
+        }
+
+        /// <summary>
+        /// Migrates all documents with their versions in the correct order.
+        /// First version is created, next versions update the same document (OpenZaak auto-increments version).
+        /// </summary>
+        private async Task MigrateDocumentsAsync(DetZaak detZaak, OzZaak createdZaak, Uri informatieObjectType, CancellationToken token)
+        {
+            foreach (var document in detZaak?.Documenten ?? [])
+            {
+                var sortedVersions = document.DocumentVersies.OrderBy(v => v.Versienummer).ToList();
+                
+                OzDocument? mainDocument = null;
+                
+                for (var i = 0; i < sortedVersions.Count; i++)
+                {
+                    var detVersie = sortedVersions[i];
+                    var isFirstVersion = i == 0;
+                    
+                    try
+                    {
+                        var ozDocument = MapToOzDocument(document, detVersie, informatieObjectType);
+                        
+                        if (isFirstVersion)
+                        {
+                            // create new document and link to zaak
+                            OzDocument? capturedDocument = null;
+
+                            await CreateAndLinkDocumentAsync(
+                                ozDocument,
+                                createdZaak,
+                                async (savedDoc, ct) =>
+                                {
+                                    capturedDocument = savedDoc;
+                                    await detClient.GetDocumentInhoudAsync(
+                                        detVersie.DocumentInhoudID,
+                                        async (stream, streamCt) => await _openZaakApiClient.UploadBestand(savedDoc, stream, streamCt),
+                                        ct);
+                                },
+                                token);
+                                
+
+                            mainDocument = capturedDocument;
+                        }
+                        else
+                        {
+                            // other versions: update existing document
+                            if (mainDocument?.Id == null) {
+                                throw new InvalidOperationException("First document version must be created before updating");
+                            }
+
+                            // lock the document to get a lock token
+                            var lockToken = await _openZaakApiClient.LockDocument(mainDocument.Id, token);
+                            
+                            // set lock token
+                            ozDocument.Lock = lockToken;
+
+                            // update document to create new version
+                            var updatedDocument = await _openZaakApiClient.UpdateDocument(mainDocument.Id, ozDocument);
+
+                            // after an update the document contains outdated bestandsdelen information. 
+                            // we need to GET a document again in order to get the latest bestandsdelen
+                            var refreshedDocument = await _openZaakApiClient.GetDocument(mainDocument.Id);
+
+                            if (refreshedDocument == null)
+                            {
+                                throw new InvalidDataException($"We cannot find the document with id {mainDocument.Id} that was updated.");
+                            }
+
+                            // set lock token again
+                            refreshedDocument.Lock = lockToken;
+                            
+                            await detClient.GetDocumentInhoudAsync(
+                                detVersie.DocumentInhoudID,
+                                async (stream, ct) => await openZaakApiClient.UploadBestand(refreshedDocument, stream, ct),
+                                token);
+                            
+                            await _openZaakApiClient.UnlockDocument(mainDocument.Id, lockToken, token);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception(
+                            $"Migratie onderbroken: versie {detVersie.Versienummer} van document '{document.Titel}' (bestand: {detVersie.Bestandsnaam}) kon niet worden gemigreerd.",
+                            ex);
+                    }
+                }
+            }
         }
 
         private CreateOzZaakRequest CreateOzZaakCreationRequest(DetZaak detZaak, Guid ozZaaktypeId)
@@ -201,10 +277,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
 
             return truncatedInput + dots;
         }
-
-         
     }
-
 
     public class MigrateZaakResult
     {
