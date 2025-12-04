@@ -43,7 +43,7 @@ namespace Datamigratie.Common.Services.Det.Models
         public string? Kenmerk { get; set; }
         public required string Titel { get; set; }
         public string? Beschrijving {get; set; }
-        public required DocumentTaal Taal { get; set; }
+        public DocumentTaal? Taal { get; set; }
 
         public DocumentVorm? DocumentVorm { get; set; }
     }
@@ -52,8 +52,8 @@ namespace Datamigratie.Common.Services.Det.Models
     {
         public required int Versienummer { get; set; }
         public required long DocumentInhoudID { get; set; }
-        public string? Bestandsnaam { get; set; }
-        public string? Mimetype { get; set; }
+        public required string Bestandsnaam { get; set; }
+        public string Mimetype { get; set; }
         public long? Documentgrootte { get; set; }
         public required string Auteur { get; set; }
         public required DateOnly Creatiedatum { get; set; }
