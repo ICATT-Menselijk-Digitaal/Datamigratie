@@ -1,4 +1,5 @@
 ﻿using System.Runtime.Serialization;
+using Datamigratie.Common.Helpers;
 
 namespace Datamigratie.Common.Services.OpenZaak.Models
 {
@@ -15,7 +16,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
                 _url = value;
                 if (!string.IsNullOrEmpty(value))
                 {
-                    Id = ExtractUuidFromUrl(value);
+                    Id = OzUrlToGuidConverter.ExtractUuidFromUrl(value);
                 }
             }
         }
@@ -23,19 +24,5 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
         public required string Identificatie { get; set; }
 
         public Guid Id { get; private set; } = Guid.Empty;
-
-        private static Guid ExtractUuidFromUrl(string url)
-        {
-            if (string.IsNullOrEmpty(url))
-                throw new ArgumentException("URL cannot be null or empty", nameof(url));
-
-            var uuid = url.Split('/').Last();
-
-            // Validate it's actually a valid GUID format
-            if (!Guid.TryParse(uuid, out _))
-                throw new ArgumentException($"Invalid UUID format in URL: {uuid}");
-
-            return Guid.Parse(uuid);
-        }
     }
 }
