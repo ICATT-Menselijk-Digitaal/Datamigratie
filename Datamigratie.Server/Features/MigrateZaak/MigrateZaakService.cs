@@ -187,7 +187,8 @@ namespace Datamigratie.Server.Features.MigrateZaak
                             // update document to create new version
                             var updatedDocument = await _openZaakApiClient.UpdateDocument(mainDocument.Id, ozDocument);
 
-                            // after an update the document contains outdated bestandsdelen information. We need to GET a document again in order to get the latest bestandsdelen
+                            // after an update the document contains outdated bestandsdelen information. 
+                            // we need to GET a document again in order to get the latest bestandsdelen
                             var refreshedDocument = await _openZaakApiClient.GetDocument(mainDocument.Id);
 
                             if (refreshedDocument == null)
