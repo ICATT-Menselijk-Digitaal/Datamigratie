@@ -163,7 +163,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
                                     capturedDocument = savedDoc;
                                     await detClient.GetDocumentInhoudAsync(
                                         detVersie.DocumentInhoudID,
-                                        (stream, streamCt) => _openZaakApiClient.UploadBestand(savedDoc, stream, streamCt),
+                                        async (stream, streamCt) => await _openZaakApiClient.UploadBestand(savedDoc, stream, streamCt),
                                         ct);
                                 },
                                 token);
@@ -187,12 +187,20 @@ namespace Datamigratie.Server.Features.MigrateZaak
                             // update document to create new version
                             var updatedDocument = await _openZaakApiClient.UpdateDocument(mainDocument.Id, ozDocument);
 
+                            // after an update the document contains outdated bestandsdelen information. We need to GET a document again in order to get the latest bestandsdelen
+                            var refreshedDocument = await _openZaakApiClient.GetDocument(mainDocument.Id);
+
+                            if (refreshedDocument == null)
+                            {
+                                throw new InvalidDataException($"We cannot find the document with id {mainDocument.Id} that was updated.");
+                            }
+
                             // set lock token again
-                            updatedDocument.Lock = lockToken;
+                            refreshedDocument.Lock = lockToken;
                             
                             await detClient.GetDocumentInhoudAsync(
                                 detVersie.DocumentInhoudID,
-                                (stream, ct) => _openZaakApiClient.UploadBestand(updatedDocument, stream, ct),
+                                async (stream, ct) => await openZaakApiClient.UploadBestand(refreshedDocument, stream, ct),
                                 token);
                             
                             await _openZaakApiClient.UnlockDocument(mainDocument.Id, lockToken, token);

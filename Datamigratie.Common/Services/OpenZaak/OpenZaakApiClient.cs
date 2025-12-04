@@ -22,6 +22,8 @@ namespace Datamigratie.Common.Services.OpenZaak
 
         Task<OzDocument> CreateDocument(OzDocument document);
 
+        Task<OzDocument?> GetDocument(Guid id);
+
         Task<OzDocument> UpdateDocument(Guid id, OzDocument document);
 
         Task<string> LockDocument(Guid id, CancellationToken token);
@@ -120,6 +122,22 @@ namespace Datamigratie.Common.Services.OpenZaak
             return await response.Content.ReadFromJsonAsync<OzDocument>()
                 ?? throw new SerializationException("Unexpected null response");
         }
+
+        public async Task<OzDocument?> GetDocument(Guid id)
+        {
+            var url = $"documenten/api/v1/enkelvoudiginformatieobjecten/{id}";
+            using var response = await _httpClient.GetAsync(url);
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+
+            await response.HandleOpenZaakErrorsAsync();
+            return await response.Content.ReadFromJsonAsync<OzDocument>()
+                ?? throw new SerializationException("Unexpected null response");
+        }
+
 
         public async Task<string> LockDocument(Guid id, CancellationToken token)
         {
