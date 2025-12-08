@@ -24,11 +24,11 @@ namespace Datamigratie.Common.Services.OpenZaak
             var key = Encoding.UTF8.GetBytes(jwtSecretKey);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                IssuedAt = issuedAt.DateTime,
-                NotBefore = issuedAt.DateTime,
+                //IssuedAt = issuedAt.DateTime,
+                //NotBefore = issuedAt.DateTime,
                 Claims = claims,
                 Subject = new ClaimsIdentity(),
-                Expires = now.AddDays(7).DateTime,
+                //Expires = now.AddDays(7).DateTime,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
