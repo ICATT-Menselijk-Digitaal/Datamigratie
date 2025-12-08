@@ -1,4 +1,4 @@
-﻿var builder = DistributedApplication.CreateBuilder(args);
+var builder = DistributedApplication.CreateBuilder(args);
 
 var postgres = builder.AddPostgres("postgres")
     .WithDataVolume()
@@ -17,6 +17,9 @@ builder.AddProject<Projects.Datamigratie_Server>("datamigratie-server")
     .WithReference(postgresdb)
     .WaitFor(postgresdb)
     .WaitForCompletion(migrations);
+
+
+builder.AddProject<Projects.Datamigratie_FakeDet>("datamigratie-fakedet");
 
 
 builder.Build().Run();
