@@ -55,7 +55,7 @@ namespace Datamigratie.Common.Services.Det.Models
         public required string Bestandsnaam { get; set; }
         public string Mimetype { get; set; }
         public long? Documentgrootte { get; set; }
-        public required string Auteur { get; set; }
+        public string? Auteur { get; set; }
         public required DateOnly Creatiedatum { get; set; }
     }
 

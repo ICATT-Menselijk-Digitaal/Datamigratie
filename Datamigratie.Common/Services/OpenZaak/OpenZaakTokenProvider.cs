@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Datamigratie.Common.Services.OpenZaak
 {
@@ -9,26 +10,24 @@ namespace Datamigratie.Common.Services.OpenZaak
     {
         public static string GenerateZakenApiToken(string jwtSecretKey, string clientId)
         {
-            var now = DateTimeOffset.UtcNow;
             // one minute leeway to account for clock differences between machines
-            var issuedAt = now.AddMinutes(-1);
-            var iat = issuedAt.ToUnixTimeSeconds();
+            var issuedAt = DateTime.UtcNow.AddMinutes(-1);
+
+            var issuer = "kissdev";
 
             var claims = new Dictionary<string, object>
             {
                 { "client_id", clientId },
-                { "iat", iat }
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(jwtSecretKey);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                IssuedAt = issuedAt.DateTime,
-                NotBefore = issuedAt.DateTime,
+                IssuedAt = issuedAt,
+                Issuer = issuer,
                 Claims = claims,
                 Subject = new ClaimsIdentity(),
-                Expires = now.AddDays(7).DateTime,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);

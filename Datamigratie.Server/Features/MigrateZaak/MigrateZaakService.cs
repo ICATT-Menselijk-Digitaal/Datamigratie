@@ -4,6 +4,7 @@ using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Server.Features.MigrateZaak.Pdf;
+using Grpc.Core;
 using Microsoft.Extensions.Options;
 using System.Diagnostics.CodeAnalysis;
 
@@ -41,13 +42,25 @@ namespace Datamigratie.Server.Features.MigrateZaak
 
                 return MigrateZaakResult.Success(createdZaak.Identificatie, "De zaak is aangemaakt in het doelsysteem");
             }
+            catch (HttpRequestException httpEx)
+            {
+                return MigrateZaakResult.Failed(
+                    detZaak.FunctioneleIdentificatie,
+                    "De zaak kon niet worden aangemaakt in het doelsysteem.",
+                    httpEx.Message,
+                    (int?)httpEx.StatusCode ?? StatusCodes.Status500InternalServerError);
+            }
             catch (Exception ex)
             {
-                var status = (ex is HttpRequestException httpRequestException && httpRequestException.StatusCode.HasValue)
-                    ? (int)httpRequestException.StatusCode
+                var statusCode = ex.InnerException is HttpRequestException innerHttpEx
+                    ? (int?)innerHttpEx.StatusCode ?? StatusCodes.Status500InternalServerError
                     : StatusCodes.Status500InternalServerError;
 
-                return MigrateZaakResult.Failed(detZaak.FunctioneleIdentificatie, "De zaak kon niet worden aangemaakt in het doelsysteem.", ex.Message, status);
+                return MigrateZaakResult.Failed(
+                    detZaak.FunctioneleIdentificatie,
+                    "De zaak kon niet worden aangemaakt in het doelsysteem.",
+                    ex.Message,
+                    statusCode);
             }
         }
 
@@ -218,8 +231,14 @@ namespace Datamigratie.Server.Features.MigrateZaak
                     }
                     catch (Exception ex)
                     {
+                        var httpStatusInfo = ex.InnerException is HttpRequestException httpEx && httpEx.StatusCode.HasValue
+                            ? $" | HTTP {(int)httpEx.StatusCode}: {httpEx.Message}"
+                            : ex is HttpRequestException httpExOuter && httpExOuter.StatusCode.HasValue
+                            ? $" | HTTP {(int)httpExOuter.StatusCode}: {httpExOuter.Message}"
+                            : "";
+
                         throw new Exception(
-                            $"Migratie onderbroken: versie {detVersie.Versienummer} van document '{document.Titel}' (bestand: {detVersie.Bestandsnaam}) kon niet worden gemigreerd.",
+                            $"Migratie onderbroken: versie {detVersie.Versienummer} van document '{document.Titel}' (bestand: {detVersie.Bestandsnaam}) kon niet worden gemigreerd{httpStatusInfo}",
                             ex);
                     }
                 }
