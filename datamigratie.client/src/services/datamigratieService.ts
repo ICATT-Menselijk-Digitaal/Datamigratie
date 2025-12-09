@@ -26,6 +26,18 @@ export type StartMigration = {
   detZaaktypeId: string;
 };
 
+export type MigrationHistoryItem = {
+  id: number;
+  status: string;
+  startedAt?: string;
+  completedAt?: string;
+  errorMessage?: string;
+  totalRecords: number;
+  processedRecords: number;
+  successfulRecords: number;
+  failedRecords: number;
+};
+
 export const datamigratieService = {
   getMappingByDETZaaktypeId: (detZaaktypeId: string): Promise<ZaaktypeMapping> =>
     get<ZaaktypeMapping>(`/api/mapping/${detZaaktypeId}`),
@@ -34,5 +46,7 @@ export const datamigratieService = {
   updateMapping: (payload: UpdateZaaktypeMapping): Promise<ZaaktypeMapping> =>
     put<ZaaktypeMapping>(`/api/mapping/${payload.detZaaktypeId}`, payload),
   startMigration: (payload: StartMigration): Promise<void> => post(`/api/migration/start`, payload),
-  getMigration: (): Promise<Migration> => get(`/api/migration`)
+  getMigration: (): Promise<Migration> => get(`/api/migration`),
+  getMigrationHistory: (detZaaktypeId: string): Promise<MigrationHistoryItem[]> =>
+    get<MigrationHistoryItem[]>(`/api/migration/history/${detZaaktypeId}`)
 };
