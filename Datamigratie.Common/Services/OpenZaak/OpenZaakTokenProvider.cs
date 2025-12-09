@@ -12,7 +12,6 @@ namespace Datamigratie.Common.Services.OpenZaak
         {
             // one minute leeway to account for clock differences between machines
             var issuedAt = DateTime.UtcNow.AddMinutes(-1);
-
             var issuer = "kissdev";
 
             var claims = new Dictionary<string, object>
