@@ -4,7 +4,6 @@ using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Server.Features.MigrateZaak.Pdf;
-using Grpc.Core;
 using Microsoft.Extensions.Options;
 using System.Diagnostics.CodeAnalysis;
 
