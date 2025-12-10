@@ -1,6 +1,7 @@
 using Datamigratie.Data;
 using Datamigratie.Data.Entities;
 using Datamigratie.Server.Features.Migration.GetMigrationHistory.Models;
+using Datamigratie.Server.Features.Migration.StartMigration.State;
 using Microsoft.EntityFrameworkCore;
 
 namespace Datamigratie.Server.Features.Migration.GetMigrationHistory.Services;
@@ -10,19 +11,20 @@ public interface IGetMigrationHistoryService
     Task<List<MigrationHistoryItem>> GetCompletedMigrations(string detZaaktypeId);
 }
 
-public class GetMigrationHistoryService(DatamigratieDbContext context) : IGetMigrationHistoryService
+public class GetMigrationHistoryService(DatamigratieDbContext context, MigrationWorkerState workerState) : IGetMigrationHistoryService
 {
     public async Task<List<MigrationHistoryItem>> GetCompletedMigrations(string detZaaktypeId)
     {
-        var completedStatuses = new[] 
-        { 
-            MigrationStatus.Completed, 
-            MigrationStatus.Failed, 
-            MigrationStatus.Cancelled 
-        };
+        var query = context.Migrations
+            .Where(m => m.DetZaaktypeId == detZaaktypeId);
 
-        return await context.Migrations
-            .Where(m => m.DetZaaktypeId == detZaaktypeId && completedStatuses.Contains(m.Status))
+        // exclude the currently running migration if exists
+        if (workerState.IsWorking && workerState.DetZaaktypeId == detZaaktypeId && workerState.MigrationId.HasValue)
+        {
+            query = query.Where(m => m.Id != workerState.MigrationId.Value);
+        }
+
+        return await query
             .OrderByDescending(m => m.CreatedAt)
             .Select(m => new MigrationHistoryItem
             {

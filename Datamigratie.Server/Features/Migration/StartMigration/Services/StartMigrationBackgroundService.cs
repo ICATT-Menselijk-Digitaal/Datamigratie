@@ -51,6 +51,7 @@ namespace Datamigratie.Server.Features.Migration.StartMigration.Services
                     // reset after task finishes or crashes
                     workerState.IsWorking = false;
                     workerState.DetZaaktypeId = null;
+                    workerState.MigrationId = null;
                 }
             }
         }
