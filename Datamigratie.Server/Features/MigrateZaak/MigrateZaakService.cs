@@ -5,6 +5,7 @@ using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Server.Features.MigrateZaak.Pdf;
 using Microsoft.Extensions.Options;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Datamigratie.Server.Features.MigrateZaak
 {
@@ -27,8 +28,6 @@ namespace Datamigratie.Server.Features.MigrateZaak
 
             try
             {
-                CheckIfZaakAlreadyExists();
-
                 var createZaakRequest = CreateOzZaakCreationRequest(detZaak, ozZaaktypeId);
 
                 var createdZaak = await _openZaakApiClient.CreateZaak(createZaakRequest);
@@ -42,42 +41,64 @@ namespace Datamigratie.Server.Features.MigrateZaak
 
                 return MigrateZaakResult.Success(createdZaak.Identificatie, "De zaak is aangemaakt in het doelsysteem");
             }
+            catch (HttpRequestException httpEx)
+            {
+                return MigrateZaakResult.Failed(
+                    detZaak.FunctioneleIdentificatie,
+                    "De zaak kon niet worden aangemaakt in het doelsysteem.",
+                    httpEx.Message,
+                    (int?)httpEx.StatusCode ?? StatusCodes.Status500InternalServerError);
+            }
             catch (Exception ex)
             {
-                var status = (ex is HttpRequestException httpRequestException && httpRequestException.StatusCode.HasValue)
-                    ? (int)httpRequestException.StatusCode
+                var statusCode = ex.InnerException is HttpRequestException innerHttpEx
+                    ? (int?)innerHttpEx.StatusCode ?? StatusCodes.Status500InternalServerError
                     : StatusCodes.Status500InternalServerError;
 
-                return MigrateZaakResult.Failed(detZaak.FunctioneleIdentificatie, "De zaak kon niet worden aangemaakt in het doelsysteem.", ex.Message, status);
+                return MigrateZaakResult.Failed(
+                    detZaak.FunctioneleIdentificatie,
+                    "De zaak kon niet worden aangemaakt in het doelsysteem.",
+                    ex.Message,
+                    statusCode);
             }
         }
 
         private static OzDocument MapToOzDocument(DetDocument item, DetDocumentVersie versie, Uri informatieObjectType)
         {
+            // Apply data transformations
+            const int MaxTitelLength = 200; // 197 + "..."
+            var titel = TruncateWithDots(item.Titel, MaxTitelLength);
+
+            const int MaxBeschijvingLength = 1000; // 997 + "..."
+            var beschrijving = TruncateWithDots(item.Beschrijving, MaxBeschijvingLength);
+
+            const int MaxIdentificatieLength = 40;
+
+            // If kenmerk is longer than 40, fail the migration
+            if (item.Kenmerk?.Length > MaxIdentificatieLength)
+            {
+                throw new InvalidDataException($"Document '{item.Titel}' migration failed: The 'kenmerk' field length ({item.Kenmerk.Length}) exceeds the maximum allowed length of {MaxIdentificatieLength} characters.");
+            }
+
             return new OzDocument
             {
                 Bestandsnaam = versie.Bestandsnaam,
                 Bronorganisatie = "999990639", // moet een valide rsin zijn,
                 Formaat = versie.Mimetype,
-                Identificatie = item.Kenmerk ?? "kenmerk onbekend",
+                Identificatie = item.Kenmerk,
                 Informatieobjecttype = informatieObjectType,
                 Taal = "dut",
-                Titel = item.Titel,
+                Titel = titel,
                 Vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar,
                 Bestandsomvang = versie.Documentgrootte,
-                Auteur = "auteur",
-                Beschrijving = "beschrijving",
+                Auteur = "onbekend",
+                Beschrijving = beschrijving,
                 Creatiedatum = versie.Creatiedatum,
                 Status = DocumentStatus.in_bewerking,
                 Trefwoorden = [],
-                Verschijningsvorm = "verschijningsvorm",
+                Verschijningsvorm = item?.DocumentVorm?.Naam,
                 Link = ""
             };
-        }
-
-        private static void CheckIfZaakAlreadyExists()
-        {
-            // TODO -> story DATA-48
         }
         private async Task CreateAndLinkDocumentAsync(
             OzDocument ozDocument, 
@@ -209,8 +230,14 @@ namespace Datamigratie.Server.Features.MigrateZaak
                     }
                     catch (Exception ex)
                     {
+                        var httpStatusInfo = ex.InnerException is HttpRequestException httpEx && httpEx.StatusCode.HasValue
+                            ? $" | HTTP {(int)httpEx.StatusCode}: {httpEx.Message}"
+                            : ex is HttpRequestException httpExOuter && httpExOuter.StatusCode.HasValue
+                            ? $" | HTTP {(int)httpExOuter.StatusCode}: {httpExOuter.Message}"
+                            : "";
+
                         throw new Exception(
-                            $"Migratie onderbroken: versie {detVersie.Versienummer} van document '{document.Titel}' (bestand: {detVersie.Bestandsnaam}) kon niet worden gemigreerd.",
+                            $"Migratie onderbroken: versie {detVersie.Versienummer} van document '{document.Titel}' (bestand: {detVersie.Bestandsnaam}) kon niet worden gemigreerd{httpStatusInfo}",
                             ex);
                     }
                 }
@@ -231,7 +258,6 @@ namespace Datamigratie.Server.Features.MigrateZaak
             var omschrijving = TruncateWithDots(detZaak.Omschrijving, MaxOmschrijvingLength);
 
             // Now create the request
-
             var createRequest = new CreateOzZaakRequest
             {
                 Identificatie = detZaak.FunctioneleIdentificatie,
@@ -254,11 +280,12 @@ namespace Datamigratie.Server.Features.MigrateZaak
         /// <summary>
         /// Truncates the string when the length of the input string exceeds the maxLength
         /// If this happen three dots are added to the end to indiciate that the orignal value was truncated
-        /// 
+        ///
         /// The maxLength param will be the length of the string with dots
         /// Example: input: [hello world], maxlength[5] -> output: he... [length=5]
         /// </summary>
-        private static string TruncateWithDots(string input, int maxLength)
+        [return: NotNullIfNotNull(nameof(input))]
+        private static string? TruncateWithDots(string? input, int maxLength)
         {
             if (string.IsNullOrWhiteSpace(input) || input.Length <= maxLength)
                 return input;
@@ -273,7 +300,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
                 return dots;
             }
 
-            var truncatedInput = input.Substring(0, maxLength - dots.Length).TrimEnd();
+            var truncatedInput = input[..(maxLength - dots.Length)].TrimEnd();
 
             return truncatedInput + dots;
         }

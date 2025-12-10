@@ -23,7 +23,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
             }
         }
 
-        public required string Identificatie { get; init; }
+        public string? Identificatie { get; init; }
 
         public required string Bronorganisatie { get; init; }
 
@@ -38,7 +38,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
         public required DocumentStatus Status { get; init; }
 
         /// MIME type, bijv. application/pdf
-        public required string Formaat { get; init; }
+        public string? Formaat { get; init; }
 
         /// Een ISO 639-2/B taalcode waarin de inhoud van het INFORMATIEOBJECT is vastgelegd. Voorbeeld: dut. Zie: https://www.iso.org/standard/4767.html
         public required string Taal { get; init; }
@@ -47,7 +47,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
 
         public DateTimeOffset? BeginRegistratie { get; init; }
 
-        public required string Bestandsnaam { get; init; }
+        public string? Bestandsnaam { get; init; }
 
         /// Base64-inhoud voor create; komt normaal niet terug op GET
         public string? Inhoud { get; init; }
@@ -56,7 +56,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
 
         public required string Link { get; init; }
 
-        public required string Beschrijving { get; init; }
+        public string? Beschrijving { get; init; }
 
         // Date-only (YYYY-MM-DD)
         public DateOnly? Ontvangstdatum { get; init; }
@@ -65,7 +65,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
 
         public bool? IndicatieGebruiksrecht { get; init; }
 
-        public required string Verschijningsvorm { get; init; }
+        public string? Verschijningsvorm { get; init; }
 
         public Ondertekening? Ondertekening { get; init; }
 
