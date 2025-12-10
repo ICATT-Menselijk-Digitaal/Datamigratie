@@ -9,6 +9,9 @@
 - [Aanmaken zaak in OpenZaak](https://dimpact.atlassian.net/browse/DATA-47)
 - [Authentication and Authorization (OIDC connection)](https://dimpact.atlassian.net/browse/DATA-103)
 - [Migrate attachments from e-Suite to OpenZaak)](https://dimpact.atlassian.net/browse/DATA-96)
+- [Migrate all versions of a Document from the e-Suite to OpenZaak](https://dimpact.atlassian.net/browse/DATA-119)
+- [Store e-Suite data as document in OpenZaak](https://dimpact.atlassian.net/browse/DATA-102)
+- [Migration of non-configurable additional Document properties from the e-Suite to OpenZaak)](https://dimpact.atlassian.net/browse/DATA-112)
 
 
  

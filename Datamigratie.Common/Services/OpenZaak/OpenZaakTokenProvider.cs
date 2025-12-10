@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Datamigratie.Common.Services.OpenZaak
 {
@@ -9,27 +10,26 @@ namespace Datamigratie.Common.Services.OpenZaak
     {
         public static string GenerateZakenApiToken(string jwtSecretKey, string clientId)
         {
+            // one minute leeway to account for clock differences between machines
+            var issuedAt = DateTime.UtcNow.AddMinutes(-1);
+            var issuer = "kissdev";
 
-            // Convert secret key to bytes  
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey));
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            // Set issued-at (iat) timestamp  
-            var issuedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-
-            // Create JWT payload  
-            var claims = new List<Claim>
-           {
-               new ("client_id", clientId),
-               new("iat", issuedAt.ToString(), ClaimValueTypes.Integer64)
-           };
-
-            var token = new JwtSecurityToken(
-                claims: claims,
-                signingCredentials: credentials
-            );
+            var claims = new Dictionary<string, object>
+            {
+                { "client_id", clientId },
+            };
 
             var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(jwtSecretKey);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                IssuedAt = issuedAt,
+                Issuer = issuer,
+                Claims = claims,
+                Subject = new ClaimsIdentity(),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
     }
