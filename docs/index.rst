@@ -1,4 +1,16 @@
-DMT Documentatie
-=================
+.. _`Common Ground`: https://commonground.nl/
 
-DMT is een appl;ication waarmee we data kunnen migreren van de E-suite naar Openzaak
+
+Datamigratie Tool (DMT)
+=============================================
+
+De Datamigratie Tool (DMT) stelt gemeenten in staat om zaken te migreren vanuit de E-Suite naar OpenZaak
+
+.. toctree::
+   :caption: DMT Documentatie
+   :maxdepth: 2
+   :hidden:
+
+   installation/index
+   manual/index
+   configuration/index
