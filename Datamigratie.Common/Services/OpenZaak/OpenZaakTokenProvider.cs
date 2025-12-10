@@ -9,10 +9,8 @@ namespace Datamigratie.Common.Services.OpenZaak
     {
         public static string GenerateZakenApiToken(string jwtSecretKey, string clientId)
         {
-            // one minute leeway to account for clock differences between machines
-            var issuedAt = DateTime.UtcNow.AddMinutes(-1);
-            var issuer = "kissdev";
-
+            var issuedAt = DateTime.UtcNow;
+            
             var claims = new Dictionary<string, object>
             {
                 { "client_id", clientId },
@@ -23,7 +21,8 @@ namespace Datamigratie.Common.Services.OpenZaak
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 IssuedAt = issuedAt,
-                Issuer = issuer,
+                NotBefore = issuedAt,
+                Issuer = clientId,
                 Claims = claims,
                 Subject = new ClaimsIdentity(),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
