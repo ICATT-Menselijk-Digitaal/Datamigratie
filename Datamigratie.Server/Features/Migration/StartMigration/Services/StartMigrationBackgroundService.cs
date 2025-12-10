@@ -22,16 +22,18 @@ namespace Datamigratie.Server.Features.Migration.StartMigration.Services
          
         private async Task BackgroundProcessing(CancellationToken stoppingToken)
         {
-            using var scope = scopeFactory.CreateScope();
-            // fetch the scoped service manually through the service provider
-            // scoped services cannot be injected directly into the constructor because of the nature of the background service
-            // see: https://learn.microsoft.com/en-us/dotnet/core/extensions/scoped-service
-            var migrationService = scope.ServiceProvider.GetRequiredService<IStartMigrationService>();
+
 
             while (!stoppingToken.IsCancellationRequested)
             {
                 var workItem =
                     await TaskQueue.DequeueMigrationAsync(stoppingToken);
+
+                    using var scope = scopeFactory.CreateScope();
+                    // fetch the scoped service manually through the service provider
+                    // scoped services cannot be injected directly into the constructor because of the nature of the background service
+                    // see: https://learn.microsoft.com/en-us/dotnet/core/extensions/scoped-service
+                    var migrationService = scope.ServiceProvider.GetRequiredService<IStartMigrationService>();
 
                 try
                 {
