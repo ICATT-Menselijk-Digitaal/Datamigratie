@@ -1,10 +1,10 @@
 ﻿using System;
 using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
-using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Data;
 using Datamigratie.Data.Entities;
 using Datamigratie.Server.Features.Migration.StartMigration.Queues.Items;
+using Datamigratie.Server.Features.Migration.StartMigration.State;
 using Datamigratie.Server.Features.MigrateZaak;
 using Datamigratie.Server.Helpers;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +20,8 @@ public class StartMigrationService(
     DatamigratieDbContext context, 
     IDetApiClient detApiClient, 
     ILogger<StartMigrationService> logger, 
-    IMigrateZaakService migrateZaakService) : IStartMigrationService
+    IMigrateZaakService migrateZaakService,
+    MigrationWorkerState workerState) : IStartMigrationService
 {
 
 
@@ -38,6 +39,8 @@ public class StartMigrationService(
         
         var mapping = await context.Mappings.FirstOrDefaultAsync(m => m.DetZaaktypeId == migrationQueueItem.DetZaaktypeId, stoppingToken);
         var migration = await CreateMigrationAsync(migrationQueueItem, closedZaken.Count, stoppingToken);
+
+        workerState.MigrationId = migration.Id;
 
         if (mapping == null)
         {
