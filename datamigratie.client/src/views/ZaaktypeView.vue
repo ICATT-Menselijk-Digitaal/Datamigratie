@@ -98,7 +98,12 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in migrationHistory" :key="item.id">
+          <tr
+            v-for="item in migrationHistory"
+            :key="item.id"
+            class="clickable-row"
+            @click="navigateToMigrationDetail(item.id)"
+          >
             <td>{{ item.status }}</td>
             <td>{{ formatDateTime(item.startedAt ?? null) }}</td>
             <td>{{ formatDateTime(item.completedAt ?? null) }}</td>
@@ -116,7 +121,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useConfirmDialog } from "@vueuse/core";
 import AlertInline from "@/components/AlertInline.vue";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
@@ -137,6 +142,7 @@ import { useMigration } from "@/composables/use-migration-status";
 const { detZaaktypeId } = defineProps<{ detZaaktypeId: string }>();
 
 const route = useRoute();
+const router = useRouter();
 const search = computed(() => String(route.query.search || "").trim());
 
 const detZaaktype = ref<DETZaaktype>();
@@ -269,6 +275,14 @@ const startMigration = async () => {
   }
 };
 
+const navigateToMigrationDetail = (migrationId: number) => {
+  router.push({
+    name: "migrationDetail",
+    params: { detZaaktypeId, migrationId: migrationId.toString() },
+    query: search.value ? { search: search.value } : undefined
+  });
+};
+
 onMounted(() => fetchMappingData());
 </script>
 
@@ -364,6 +378,14 @@ menu {
 
     tbody tr:hover {
       background-color: var(--background-secondary);
+    }
+
+    .clickable-row {
+      cursor: pointer;
+
+      &:hover {
+        background-color: var(--background-hover, #f0f0f0);
+      }
     }
 
     td:last-child {
