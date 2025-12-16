@@ -14,6 +14,7 @@ namespace Datamigratie.Server.Features.Migration.StartMigration.Services;
 public interface IStartMigrationService
 {
     Task PerformMigrationAsync(MigrationQueueItem migrationQueueItem, CancellationToken stoppingToken);
+    Task FailMigrationWithExceptionAsync(int migrationId, Exception exception);
 }
 
 public class StartMigrationService(
@@ -166,6 +167,21 @@ public class StartMigrationService(
     private async Task FailMigrationAsync(Data.Entities.Migration migration, string message)
     {
         await UpdateMigrationStatusAsync(migration, MigrationStatus.Failed, message);
+    }
+
+    public async Task FailMigrationWithExceptionAsync(int migrationId, Exception exception)
+    {
+        var migration = await context.Migrations.FindAsync(migrationId);
+        if (migration == null)
+        {
+            logger.LogError("Migration {Id} not found when trying to set exception", migrationId);
+            return;
+        }
+
+        var errorMessage = $"{exception.GetType().Name}: {exception.Message}";
+        await UpdateMigrationStatusAsync(migration, MigrationStatus.Failed, errorMessage);
+        
+        logger.LogError(exception, "Migration {Id} failed with exception", migrationId);
     }
 
     private async Task UpdateMigrationStatusAsync(Data.Entities.Migration migration, MigrationStatus status, string? errorMessage = null)

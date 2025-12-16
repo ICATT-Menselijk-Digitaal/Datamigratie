@@ -47,6 +47,18 @@ namespace Datamigratie.Server.Features.Migration.StartMigration.Services
                 {
                     logger.LogError(ex,
                         "Error occurred executing migration for DET Zaaktype Id {DetZaaktypeId}.", workItem.DetZaaktypeId);
+                    
+                    if (workerState.MigrationId.HasValue)
+                    {
+                        try
+                        {
+                            await migrationService.FailMigrationWithExceptionAsync(workerState.MigrationId.Value, ex);
+                        }
+                        catch (Exception innerEx)
+                        {
+                            logger.LogError(innerEx, "Failed to update migration {MigrationId} with exception details", workerState.MigrationId.Value);
+                        }
+                    }
                 }
                 finally
                 {
