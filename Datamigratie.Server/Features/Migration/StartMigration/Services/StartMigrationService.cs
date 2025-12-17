@@ -30,15 +30,6 @@ public class StartMigrationService(
 
     public async Task PerformMigrationAsync(MigrationQueueItem migrationQueueItem, CancellationToken stoppingToken)
     {
-        // First validate that RSIN is configured
-        var rsin = await globalConfigurationService.GetRsinAsync();
-        if (string.IsNullOrWhiteSpace(rsin) || !RsinValidator.IsValid(rsin))
-        {
-            var errorMessage = "Kan migratie niet starten: RSIN is niet of niet correct geconfigureerd. Configureer een geldig RSIN op de globale configuratiepagina.";
-            logger.LogError("Migration start failed: {Error}", errorMessage);
-            throw new InvalidOperationException(errorMessage);
-        }
-
         var allZaken = await detApiClient.GetZakenByZaaktype(migrationQueueItem.DetZaaktypeId);
 
         var closedZaken = allZaken.Where(z => !z.Open).ToList();
@@ -49,10 +40,20 @@ public class StartMigrationService(
             migrationQueueItem.DetZaaktypeId,
             closedZaken.Count);
 
-        var mapping = await context.Mappings.FirstOrDefaultAsync(m => m.DetZaaktypeId == migrationQueueItem.DetZaaktypeId, stoppingToken);
         var migration = await CreateMigrationAsync(migrationQueueItem, closedZaken.Count, stoppingToken);
 
         workerState.MigrationId = migration.Id;
+
+        // validate RSIN
+        var rsin = await globalConfigurationService.GetRsinAsync();
+        if (string.IsNullOrWhiteSpace(rsin) || !RsinValidator.IsValid(rsin))
+        {
+            var errorMessage = "Kan migratie niet starten: RSIN is niet of niet correct geconfigureerd. Configureer een geldig RSIN op de globale configuratiepagina.";
+            await FailMigrationAsync(migration, $"{errorMessage}");
+            return;
+        }
+
+        var mapping = await context.Mappings.FirstOrDefaultAsync(m => m.DetZaaktypeId == migrationQueueItem.DetZaaktypeId, stoppingToken);
 
         if (mapping == null)
         {
