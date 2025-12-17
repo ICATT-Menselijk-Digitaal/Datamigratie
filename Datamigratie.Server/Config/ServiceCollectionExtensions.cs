@@ -9,6 +9,7 @@ using Datamigratie.Server.Features.Migration.StartMigration.Services;
 using Datamigratie.Server.Features.Migration.StartMigration.Queues;
 using Datamigratie.Server.Features.Migration.StartMigration.State;
 using Datamigratie.Server.Features.Migration.GetMigrationHistory.Services;
+using Datamigratie.Server.Features.Migration.GetMigrationRecords.Services;
 
 namespace Datamigratie.Server.Config
 {
@@ -26,6 +27,7 @@ namespace Datamigratie.Server.Config
 
             services.AddScoped<IStartMigrationService, StartMigrationService>();
             services.AddScoped<IGetMigrationHistoryService, GetMigrationHistoryService>();
+            services.AddScoped<IGetMigrationRecordsService, GetMigrationRecordsService>();
 
             services.AddHostedService<StartMigrationBackgroundService>();
             services.AddSingleton<IMigrationBackgroundTaskQueue>(ctx =>

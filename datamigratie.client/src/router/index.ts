@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import ZaaktypesView from "@/views/ZaaktypesView.vue";
 import ZaaktypeView from "@/views/ZaaktypeView.vue";
+import MigrationDetailView from "@/views/MigrationDetailView.vue";
 import UnauthorizedView from "@/views/UnauthorizedView.vue";
 import LoginView from "@/views/LoginView.vue";
 
@@ -22,6 +23,15 @@ const router = createRouter({
       props: true,
       meta: {
         title: "e-Suite Zaaktype"
+      }
+    },
+    {
+      path: "/det/zaaktype/:detZaaktypeId/migration/:migrationId",
+      name: "migrationDetail",
+      component: MigrationDetailView,
+      props: true,
+      meta: {
+        title: "Migratie details"
       }
     },
     {
