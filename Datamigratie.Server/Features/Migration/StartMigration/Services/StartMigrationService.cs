@@ -7,6 +7,7 @@ using Datamigratie.Server.Features.Migration.StartMigration.Queues.Items;
 using Datamigratie.Server.Features.Migration.StartMigration.State;
 using Datamigratie.Server.Features.MigrateZaak;
 using Datamigratie.Server.Helpers;
+using Datamigratie.Server.Features.GlobalConfiguration;
 using Microsoft.EntityFrameworkCore;
 
 namespace Datamigratie.Server.Features.Migration.StartMigration.Services;
@@ -18,26 +19,36 @@ public interface IStartMigrationService
 }
 
 public class StartMigrationService(
-    DatamigratieDbContext context, 
-    IDetApiClient detApiClient, 
-    ILogger<StartMigrationService> logger, 
+    DatamigratieDbContext context,
+    IDetApiClient detApiClient,
+    ILogger<StartMigrationService> logger,
     IMigrateZaakService migrateZaakService,
-    MigrationWorkerState workerState) : IStartMigrationService
+    MigrationWorkerState workerState,
+    IGlobalConfigurationService globalConfigurationService) : IStartMigrationService
 {
 
 
-    public async Task PerformMigrationAsync(MigrationQueueItem migrationQueueItem, CancellationToken stoppingToken) 
+    public async Task PerformMigrationAsync(MigrationQueueItem migrationQueueItem, CancellationToken stoppingToken)
     {
+        // First validate that RSIN is configured
+        var rsin = await globalConfigurationService.GetRsinAsync();
+        if (string.IsNullOrWhiteSpace(rsin) || !RsinValidator.IsValid(rsin))
+        {
+            var errorMessage = "Kan migratie niet starten: RSIN is niet of niet correct geconfigureerd. Configureer een geldig RSIN op de globale configuratiepagina.";
+            logger.LogError("Migration start failed: {Error}", errorMessage);
+            throw new InvalidOperationException(errorMessage);
+        }
+
         var allZaken = await detApiClient.GetZakenByZaaktype(migrationQueueItem.DetZaaktypeId);
-        
+
         var closedZaken = allZaken.Where(z => !z.Open).ToList();
-        
+
         logger.LogInformation(
-            "Found {TotalCount} zaken for zaaktype {ZaaktypeId}, {ClosedCount} are closed and will be migrated", 
-            allZaken.Count, 
-            migrationQueueItem.DetZaaktypeId, 
+            "Found {TotalCount} zaken for zaaktype {ZaaktypeId}, {ClosedCount} are closed and will be migrated",
+            allZaken.Count,
+            migrationQueueItem.DetZaaktypeId,
             closedZaken.Count);
-        
+
         var mapping = await context.Mappings.FirstOrDefaultAsync(m => m.DetZaaktypeId == migrationQueueItem.DetZaaktypeId, stoppingToken);
         var migration = await CreateMigrationAsync(migrationQueueItem, closedZaken.Count, stoppingToken);
 
