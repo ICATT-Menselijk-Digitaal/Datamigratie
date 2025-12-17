@@ -24,8 +24,10 @@ namespace Datamigratie.Common.Services.OpenZaak
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 IssuedAt = timeNow,
-                NotBefore = timeNow,
-                Expires = timeNow.AddHours(1),
+                // nbf and expires required or else it is automatically added by the library with a default value
+                // this keeps time consistent and adds our leeway
+                NotBefore = timeNow, 
+                Expires = timeNow.AddHours(1), 
                 Issuer = issuer,
                 Claims = claims,
                 Subject = new ClaimsIdentity(),
