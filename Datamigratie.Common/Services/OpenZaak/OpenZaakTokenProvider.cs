@@ -24,6 +24,8 @@ namespace Datamigratie.Common.Services.OpenZaak
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 IssuedAt = issuedAt,
+                NotBefore = issuedAt,
+                Expires = issuedAt.AddHours(1),
                 Issuer = issuer,
                 Claims = claims,
                 Subject = new ClaimsIdentity(),
