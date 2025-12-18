@@ -84,79 +84,126 @@ public class StartMigrationService(
     private async Task MigrateSingleZaakAsync(Data.Entities.Migration migration, DetZaakMinimal zaakMinimal, Guid openZaaktypeId, CancellationToken ct)
     {
         MigrationRecord record;
-        
+
         try
         {
-            logger.LogDebug("Fetching full details for zaak {Zaaknummer}", zaakMinimal.FunctioneleIdentificatie);
-            var fullZaak = await detApiClient.GetZaakByZaaknummer(zaakMinimal.FunctioneleIdentificatie);
-            
-            if (fullZaak == null)
-            {
-                throw new InvalidOperationException($"Could not fetch full details for zaak {zaakMinimal.FunctioneleIdentificatie}");
-            }
-            
+            var fullZaak = await FetchZaakFromDetAsync(zaakMinimal.FunctioneleIdentificatie);
             var result = await migrateZaakService.MigrateZaak(fullZaak, openZaaktypeId, ct);
-            
-            // create migration record based on result
-            if (result.IsSuccess)
-            {
-                migration.SuccessfulRecords++;
-                record = new MigrationRecord
-                {
-                    MigrationId = migration.Id,
-                    Migration = migration,
-                    DetZaaknummer = zaakMinimal.FunctioneleIdentificatie,
-                    OzZaaknummer = result.Zaaknummer,
-                    IsSuccessful = true,
-                    ProcessedAt = DateTime.UtcNow
-                };
-                
-                logger.LogInformation("Successfully migrated zaak {DetZaaknummer} to {OzZaaknummer}", 
-                    zaakMinimal.FunctioneleIdentificatie, result.Zaaknummer);
-            }
-            else
-            {
-                migration.FailedRecords++;
-                record = new MigrationRecord
-                {
-                    MigrationId = migration.Id,
-                    Migration = migration,
-                    DetZaaknummer = zaakMinimal.FunctioneleIdentificatie,
-                    IsSuccessful = false,
-                    ErrorTitle = result.Message,
-                    ErrorDetails = result.Details,
-                    StatusCode = result.Statuscode,
-                    ProcessedAt = DateTime.UtcNow
-                };
-                
-                logger.LogWarning("Failed to migrate zaak {DetZaaknummer}: {Message} - {Details}", 
-                    zaakMinimal.FunctioneleIdentificatie, result.Message, result.Details);
-            }
+
+            record = CreateMigrationRecord(migration, zaakMinimal.FunctioneleIdentificatie, result);
+            LogMigrationResult(zaakMinimal.FunctioneleIdentificatie, result);
+        }
+        catch (HttpRequestException httpEx)
+        {
+            var statusCode = (int?)httpEx.StatusCode ?? 500;
+            logger.LogError(httpEx, "Failed to fetch zaak {DetZaaknummer}, Status: {StatusCode}",
+                zaakMinimal.FunctioneleIdentificatie, statusCode);
+
+            record = CreateFailedRecord(migration, zaakMinimal.FunctioneleIdentificatie,
+                "De zaak kon niet opgehaald worden uit het bronsysteem.",
+                $"HTTP {statusCode}: {httpEx.Message}",
+                statusCode);
         }
         catch (Exception ex)
         {
-            migration.FailedRecords++;
-            record = new MigrationRecord
+            var statusCode = ex is HttpRequestException httpExInner && httpExInner.StatusCode.HasValue
+                ? (int)httpExInner.StatusCode
+                : 500;
+
+            logger.LogError(ex, "Unexpected error while migrating zaak {DetZaaknummer}. Exception: {ExceptionType}",
+                zaakMinimal.FunctioneleIdentificatie, ex.GetType().Name);
+
+            record = CreateFailedRecord(migration, zaakMinimal.FunctioneleIdentificatie,
+                "Onverwachte fout tijdens migratie",
+                ex.Message,
+                statusCode);
+        }
+
+        context.MigrationRecords.Add(record);
+        migration.ProcessedRecords++;
+        migration.LastUpdated = DateTime.UtcNow;
+    }
+
+    private async Task<DetZaak> FetchZaakFromDetAsync(string zaaknummer)
+    {
+        logger.LogDebug("Fetching full details for zaak {Zaaknummer} from DET", zaaknummer);
+
+        try
+        {
+            var zaak = await detApiClient.GetZaakByZaaknummer(zaaknummer);
+
+            if (zaak == null)
+            {
+                throw new InvalidOperationException($"DET API returned null for zaak {zaaknummer}");
+            }
+
+            return zaak;
+        }
+        catch (HttpRequestException ex)
+        {
+            // rethrow so we can identity the bronsysteem which we called in the logs
+            throw new HttpRequestException($"Failed to fetch zaak from DET API: {ex.Message}", ex, ex.StatusCode);
+        }
+    }
+
+    private static MigrationRecord CreateMigrationRecord(Data.Entities.Migration migration, string detZaaknummer, MigrateZaakResult result)
+    {
+        if (result.IsSuccess)
+        {
+            migration.SuccessfulRecords++;
+            return new MigrationRecord
             {
                 MigrationId = migration.Id,
                 Migration = migration,
-                DetZaaknummer = zaakMinimal.FunctioneleIdentificatie,
-                IsSuccessful = false,
-                ErrorTitle = "Unexpected error during migration",
-                ErrorDetails = ex.Message,
-                StatusCode = 500,
+                DetZaaknummer = detZaaknummer,
+                OzZaaknummer = result.Zaaknummer,
+                IsSuccessful = true,
                 ProcessedAt = DateTime.UtcNow
             };
-            
-            logger.LogError(ex, "Unexpected error while migrating zaak {DetZaaknummer}", 
-                zaakMinimal.FunctioneleIdentificatie);
         }
-        
-        context.MigrationRecords.Add(record);
-        
-        // update migration progress counters
-        migration.ProcessedRecords++;
-        migration.LastUpdated = DateTime.UtcNow;
+
+        migration.FailedRecords++;
+        return new MigrationRecord
+        {
+            MigrationId = migration.Id,
+            Migration = migration,
+            DetZaaknummer = detZaaknummer,
+            IsSuccessful = false,
+            ErrorTitle = result.Message,
+            ErrorDetails = result.Details,
+            StatusCode = result.Statuscode,
+            ProcessedAt = DateTime.UtcNow
+        };
+    }
+
+    private static MigrationRecord CreateFailedRecord(Data.Entities.Migration migration, string detZaaknummer, string errorTitle, string errorDetails, int statusCode)
+    {
+        migration.FailedRecords++;
+        return new MigrationRecord
+        {
+            MigrationId = migration.Id,
+            Migration = migration,
+            DetZaaknummer = detZaaknummer,
+            IsSuccessful = false,
+            ErrorTitle = errorTitle,
+            ErrorDetails = errorDetails,
+            StatusCode = statusCode,
+            ProcessedAt = DateTime.UtcNow
+        };
+    }
+
+    private void LogMigrationResult(string detZaaknummer, MigrateZaakResult result)
+    {
+        if (result.IsSuccess)
+        {
+            logger.LogInformation("Successfully migrated zaak {DetZaaknummer} to OpenZaak as {OzZaaknummer}",
+                detZaaknummer, result.Zaaknummer);
+        }
+        else
+        {
+            logger.LogWarning("Failed to migrate zaak {DetZaaknummer} to OpenZaak. {ErrorTitle}: {ErrorDetails} (Status: {StatusCode})",
+                detZaaknummer, result.Message, result.Details, result.Statuscode);
+        }
     }
 
     private async Task CancelMigrationAsync(Data.Entities.Migration migration)
