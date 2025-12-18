@@ -95,27 +95,13 @@ namespace Datamigratie.Common.Services.Det
         /// <returns>The DetZaak object if found, otherwise null.</returns>
         public async Task<DetZaak> GetZaakByZaaknummer(string zaaknummer)
         {
-            try
-            {
-                var endpoint = $"zaken/{Uri.EscapeDataString(zaaknummer)}";
-                var response = await _httpClient.GetAsync(endpoint);
+            var endpoint = $"zaken/{Uri.EscapeDataString(zaaknummer)}";
+            var response = await _httpClient.GetAsync(endpoint);
 
-                response.EnsureSuccessStatusCode();
+            response.EnsureSuccessStatusCode();
 
-                return await response.Content.ReadFromJsonAsync<DetZaak>()
-                    ?? throw new SerializationException("Unexpected null response");
-
-            }
-            catch (HttpRequestException ex)
-            {
-                _logger.LogError(ex, "HTTP error occurred while fetching zaak with zaaknummer: {zaaknummer}", SanitizeForLogging(zaaknummer));
-                throw;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unexpected error occurred while fetching zaak with zaaknummer: {zaaknummer}", SanitizeForLogging(zaaknummer));
-                throw;
-            }
+            return await response.Content.ReadFromJsonAsync<DetZaak>()
+                ?? throw new SerializationException("Unexpected null response");
         }
 
         public async Task GetDocumentInhoudAsync(long id, Func<Stream, CancellationToken, Task> handleInhoud, CancellationToken token)

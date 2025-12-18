@@ -131,12 +131,6 @@ public class StartMigrationService(
         try
         {
             var zaak = await detApiClient.GetZaakByZaaknummer(zaaknummer);
-
-            if (zaak == null)
-            {
-                throw new InvalidOperationException($"DET API returned null for zaak {zaaknummer}");
-            }
-
             return zaak;
         }
         catch (HttpRequestException ex)
