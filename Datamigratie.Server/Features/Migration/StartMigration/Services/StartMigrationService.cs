@@ -131,6 +131,12 @@ public class StartMigrationService(
         try
         {
             var zaak = await detApiClient.GetZaakByZaaknummer(zaaknummer);
+
+            if (zaak == null)
+            {
+                throw new InvalidOperationException($"This zaaknumber '{zaaknummer}' is not found in the DET API");
+            }
+
             return zaak;
         }
         catch (HttpRequestException ex)
