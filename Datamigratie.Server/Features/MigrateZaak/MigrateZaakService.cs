@@ -1,43 +1,42 @@
-﻿using Datamigratie.Common.Config;
+﻿using System.Diagnostics.CodeAnalysis;
+using Datamigratie.Common.Config;
 using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
+using Datamigratie.Server.Features.MigrateZaak.Models;
 using Datamigratie.Server.Features.MigrateZaak.Pdf;
-using Datamigratie.Server.Features.GlobalConfiguration;
 using Microsoft.Extensions.Options;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Datamigratie.Server.Features.MigrateZaak
 {
     public interface IMigrateZaakService
     {
-        public Task<MigrateZaakResult> MigrateZaak(DetZaak detZaak, Guid ozZaaktypeId, CancellationToken token = default);
+        public Task<MigrateZaakResult> MigrateZaak(DetZaak detZaak, MigrateZaakMappingModel mapping, CancellationToken token = default);
     }
 
     public class MigrateZaakService(
         IOpenZaakApiClient openZaakApiClient,
         IDetApiClient detClient,
         IOptions<OpenZaakApiOptions> options,
-        IZaakgegevensPdfGenerator pdfGenerator,
-        IGlobalConfigurationService globalConfigurationService) : IMigrateZaakService
+        IZaakgegevensPdfGenerator pdfGenerator ) : IMigrateZaakService
     {
         private readonly OpenZaakApiOptions _openZaakApiOptions = options.Value;
         private readonly IOpenZaakApiClient _openZaakApiClient = openZaakApiClient;
 
-        public async Task<MigrateZaakResult> MigrateZaak(DetZaak detZaak, Guid ozZaaktypeId, CancellationToken token = default)
+        public async Task<MigrateZaakResult> MigrateZaak(DetZaak detZaak, MigrateZaakMappingModel mapping, CancellationToken token = default)
         {
 
             try
             {
                 // Get RSIN from global configuration
-                var rsin = await globalConfigurationService.GetRsinAsync();
+                var rsin = mapping.Rsin;
                 if (string.IsNullOrWhiteSpace(rsin))
                 {
                     throw new InvalidOperationException("RSIN is niet geconfigureerd. Configureer een geldig RSIN voordat u een migratie start.");
                 }
 
-                var createZaakRequest = CreateOzZaakCreationRequest(detZaak, ozZaaktypeId, rsin);
+                var createZaakRequest = CreateOzZaakCreationRequest(detZaak, mapping.OpenZaaktypeId, rsin);
 
                 var createdZaak = await _openZaakApiClient.CreateZaak(createZaakRequest);
                 var informatieObjectTypen = await _openZaakApiClient.GetInformatieobjecttypenUrlsForZaaktype(createdZaak.Zaaktype);
@@ -231,7 +230,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
                             
                             await detClient.GetDocumentInhoudAsync(
                                 detVersie.DocumentInhoudID,
-                                async (stream, ct) => await openZaakApiClient.UploadBestand(refreshedDocument, stream, ct),
+                                async (stream, ct) => await _openZaakApiClient.UploadBestand(refreshedDocument, stream, ct),
                                 token);
                             
                             await _openZaakApiClient.UnlockDocument(mainDocument.Id, lockToken, token);

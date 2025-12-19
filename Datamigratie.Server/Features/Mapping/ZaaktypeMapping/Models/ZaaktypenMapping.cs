@@ -1,4 +1,4 @@
-﻿namespace Datamigratie.Server.Features.Mapping.MapZaaktypen.Models
+﻿namespace Datamigratie.Server.Features.Mapping.ZaaktypeMapping.Models
 {
     public class ZaaktypenMapping
     {

@@ -1,4 +1,4 @@
-namespace Datamigratie.Server.Helpers;
+﻿namespace Datamigratie.Server.Features.Mapping.GlobalMapping.Upsert;
 
 /// <summary>
 /// Validates RSIN (Rechtspersonen Samenwerkingsverbanden Informatienummer) numbers
@@ -39,13 +39,13 @@ public static class RsinValidator
     /// </summary>
     private static bool PassesElevenTest(string number)
     {
-        int sum = 0;
+        var sum = 0;
 
         // Multiply each digit by its position (9, 8, 7, 6, 5, 4, 3, 2, -1)
-        for (int i = 0; i < 9; i++)
+        for (var i = 0; i < 9; i++)
         {
-            int digit = int.Parse(number[i].ToString());
-            int multiplier = i == 8 ? -1 : (9 - i);
+            var digit = int.Parse(number[i].ToString());
+            var multiplier = i == 8 ? -1 : 9 - i;
             sum += digit * multiplier;
         }
 
