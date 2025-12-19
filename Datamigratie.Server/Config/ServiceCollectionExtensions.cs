@@ -1,8 +1,5 @@
 ﻿
 using Datamigratie.Common.Extensions;
-
-using Datamigratie.Server.Features.Mapping.MapZaaktypen;
-using Datamigratie.Server.Features.Mapping.ShowZaaktypenMapping;
 using Datamigratie.Server.Features.MigrateZaak;
 using Datamigratie.Server.Features.MigrateZaak.Pdf;
 using Datamigratie.Server.Features.Migration.StartMigration.Services;
@@ -10,6 +7,8 @@ using Datamigratie.Server.Features.Migration.StartMigration.Queues;
 using Datamigratie.Server.Features.Migration.StartMigration.State;
 using Datamigratie.Server.Features.Migration.GetMigrationHistory.Services;
 using Datamigratie.Server.Features.Migration.GetMigrationRecords.Services;
+using Datamigratie.Server.Features.Mapping.ZaaktypeMapping.ShowZaaktypenMapping;
+using Datamigratie.Server.Features.Mapping.ZaaktypeMapping.MapZaaktypen;
 
 namespace Datamigratie.Server.Config
 {

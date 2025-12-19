@@ -1,9 +1,8 @@
-﻿
-using Datamigratie.Data;
-using Datamigratie.Server.Features.Mapping.MapZaaktypen.Models;
+﻿using Datamigratie.Data;
+using Datamigratie.Server.Features.Mapping.ZaaktypeMapping.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Datamigratie.Server.Features.Mapping.ShowZaaktypenMapping
+namespace Datamigratie.Server.Features.Mapping.ZaaktypeMapping.ShowZaaktypenMapping
 {
     public interface IShowZaaktypenMappingService
     {

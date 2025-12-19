@@ -6,8 +6,10 @@ using Datamigratie.Data.Entities;
 using Datamigratie.Server.Features.Migration.StartMigration.Queues.Items;
 using Datamigratie.Server.Features.Migration.StartMigration.State;
 using Datamigratie.Server.Features.MigrateZaak;
-using Datamigratie.Server.Helpers;
 using Microsoft.EntityFrameworkCore;
+using Datamigratie.Server.Features.Mapping.GlobalMapping.Upsert;
+using Datamigratie.Server.Features.Migration.StartMigration.Models;
+using Datamigratie.Server.Features.MigrateZaak.Models;
 
 namespace Datamigratie.Server.Features.Migration.StartMigration.Services;
 
@@ -18,41 +20,53 @@ public interface IStartMigrationService
 }
 
 public class StartMigrationService(
-    DatamigratieDbContext context, 
-    IDetApiClient detApiClient, 
-    ILogger<StartMigrationService> logger, 
+    DatamigratieDbContext context,
+    IDetApiClient detApiClient,
+    ILogger<StartMigrationService> logger,
     IMigrateZaakService migrateZaakService,
     MigrationWorkerState workerState) : IStartMigrationService
 {
 
 
-    public async Task PerformMigrationAsync(MigrationQueueItem migrationQueueItem, CancellationToken stoppingToken) 
+    public async Task PerformMigrationAsync(MigrationQueueItem migrationQueueItem, CancellationToken stoppingToken)
     {
         var allZaken = await detApiClient.GetZakenByZaaktype(migrationQueueItem.DetZaaktypeId);
-        
+
         var closedZaken = allZaken.Where(z => !z.Open).ToList();
-        
+
         logger.LogInformation(
-            "Found {TotalCount} zaken for zaaktype {ZaaktypeId}, {ClosedCount} are closed and will be migrated", 
-            allZaken.Count, 
-            migrationQueueItem.DetZaaktypeId, 
+            "Found {TotalCount} zaken for zaaktype {ZaaktypeId}, {ClosedCount} are closed and will be migrated",
+            allZaken.Count,
+            migrationQueueItem.DetZaaktypeId,
             closedZaken.Count);
-        
-        var mapping = await context.Mappings.FirstOrDefaultAsync(m => m.DetZaaktypeId == migrationQueueItem.DetZaaktypeId, stoppingToken);
+
         var migration = await CreateMigrationAsync(migrationQueueItem, closedZaken.Count, stoppingToken);
 
         workerState.MigrationId = migration.Id;
 
-        if (mapping == null)
+        // validate RSIN
+        var globalmapping = await context.GlobalConfigurations.Select(x=> new GlobalMapping { Rsin = x.Rsin }).SingleAsync(cancellationToken: stoppingToken);
+
+
+        if (globalmapping == null || !RsinValidator.IsValid(globalmapping?.Rsin))
+        {
+            var errorMessage = "Kan migratie niet starten: RSIN is niet of niet correct geconfigureerd. Configureer een geldig RSIN op de globale configuratiepagina.";
+            await FailMigrationAsync(migration, $"{errorMessage}");
+            return;
+        }
+
+        var zaakTypeMapping = await context.Mappings.FirstOrDefaultAsync(m => m.DetZaaktypeId == migrationQueueItem.DetZaaktypeId, stoppingToken);
+
+        if (zaakTypeMapping == null)
         {
             await FailMigrationAsync(migration, $"mapping was not found for DetZaaktypeId {migrationQueueItem.DetZaaktypeId}");
             return;
         }
 
-        await ExecuteMigration(migration, closedZaken, mapping.OzZaaktypeId, stoppingToken);
+        await ExecuteMigration(migration, closedZaken, zaakTypeMapping.OzZaaktypeId, globalmapping, stoppingToken);
         await CompleteMigrationAsync(migration);
     }
-    private async Task ExecuteMigration(Data.Entities.Migration migration, List<DetZaakMinimal> zaken, Guid openZaaktypeId, CancellationToken ct)
+    private async Task ExecuteMigration(Data.Entities.Migration migration, List<DetZaakMinimal> zaken, Guid openZaaktypeId, GlobalMapping? globalmapping, CancellationToken ct)
     {
         logger.LogInformation("Starting migration {Id} for DET ZaaktypeId {DetZaaktypeId} to OZ ZaaktypeId {OpenZaaktypeId} with zaken count {Count} to migrate", 
             migration.Id, migration.DetZaaktypeId, openZaaktypeId, zaken.Count);
@@ -65,7 +79,7 @@ public class StartMigrationService(
                 return;
             }
 
-            await MigrateSingleZaakAsync(migration, zaak, openZaaktypeId, ct);
+            await MigrateSingleZaakAsync(migration, zaak, openZaaktypeId, globalmapping, ct);
             await ReportProgressAsync(migration, ct);
         }
     }
@@ -81,7 +95,7 @@ public class StartMigrationService(
             (double)migration.ProcessedRecords / migration.TotalRecords * 100);
     }
 
-    private async Task MigrateSingleZaakAsync(Data.Entities.Migration migration, DetZaakMinimal zaakMinimal, Guid openZaaktypeId, CancellationToken ct)
+    private async Task MigrateSingleZaakAsync(Data.Entities.Migration migration, DetZaakMinimal zaakMinimal, Guid openZaaktypeId, GlobalMapping? globalmapping, CancellationToken ct)
     {
         MigrationRecord record;
         
@@ -94,8 +108,12 @@ public class StartMigrationService(
             {
                 throw new InvalidOperationException($"Could not fetch full details for zaak {zaakMinimal.FunctioneleIdentificatie}");
             }
-            
-            var result = await migrateZaakService.MigrateZaak(fullZaak, openZaaktypeId, ct);
+
+       
+
+           var migrateZaakMappingModel  = new MigrateZaakMappingModel {  OpenZaaktypeId = openZaaktypeId,  Rsin = globalmapping?.Rsin  };
+
+            var result = await migrateZaakService.MigrateZaak(fullZaak, migrateZaakMappingModel, ct);
             
             // create migration record based on result
             if (result.IsSuccess)

@@ -6,7 +6,7 @@ using Datamigratie.Data;
 using Datamigratie.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Datamigratie.Server.Features.Mapping.MapZaaktypen
+namespace Datamigratie.Server.Features.Mapping.ZaaktypeMapping.MapZaaktypen
 {
     public interface IMapZaaktypenService
     {
