@@ -21,18 +21,18 @@
           <input
             type="text"
             id="rsin"
+            ref="rsinInput"
             v-model="rsin"
             maxlength="9"
             pattern="[0-9]{9}"
             placeholder="Voer 9 cijfers in"
+            required
             @input="validateRsin"
           />
           <small class="help-text">
             Het RSIN (Rechtspersonen Samenwerkingsverbanden Informatienummer) moet precies 9
             cijfers bevatten en voldoen aan de 11-proef.
           </small>
-          <div v-if="validationError" class="validation-error">{{ validationError }}</div>
-          <div v-if="rsinValid" class="validation-success">RSIN is geldig</div>
         </div>
 
         <div v-if="configuration.updatedAt" class="last-updated">
@@ -45,7 +45,7 @@
           <router-link to="/" class="button button-secondary">&lt; Terug</router-link>
         </li>
         <li>
-          <button type="submit" :disabled="!canSave">Opslaan</button>
+          <button type="submit">Opslaan</button>
         </li>
       </menu>
     </form>
@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, onMounted, useTemplateRef } from "vue";
 import { datamigratieService, type GlobalConfiguration } from "@/services/datamigratieService";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
 import AlertInline from "@/components/AlertInline.vue";
@@ -62,30 +62,19 @@ const loading = ref(true);
 const errorMessage = ref("");
 const successMessage = ref("");
 const rsin = ref("");
-const validationError = ref("");
-const rsinValid = ref(false);
 const configuration = ref<GlobalConfiguration>({});
-
-const canSave = computed(() => {
-  return rsin.value.length === 9 && rsinValid.value && !validationError.value;
-});
+const rsinInput = useTemplateRef<HTMLInputElement>("rsinInput");
 
 function validateRsin() {
   successMessage.value = "";
-  validationError.value = "";
-  rsinValid.value = false;
 
-  if (!rsin.value) {
+  if (!rsinInput.value) {
     return;
   }
 
-  if (rsin.value.length !== 9) {
-    validationError.value = "RSIN moet precies 9 cijfers bevatten.";
-    return;
-  }
-
-  if (!/^\d{9}$/.test(rsin.value)) {
-    validationError.value = "RSIN mag alleen cijfers bevatten.";
+  // Clear any previous custom validation message if input is not complete
+  if (!rsin.value || rsin.value.length !== 9) {
+    rsinInput.value.setCustomValidity("");
     return;
   }
 
@@ -97,12 +86,11 @@ function validateRsin() {
     sum += digit * multiplier;
   }
 
-  if (sum % 11 !== 0) {
-    validationError.value = "RSIN is niet geldig volgens de 11-proef.";
-    return;
-  }
+  const message = sum % 11 !== 0 ? "RSIN is niet geldig volgens de 11-proef." : "";
+  rsinInput.value.setCustomValidity(message);
 
-  rsinValid.value = true;
+  // Trigger the browser to show the validation message
+  rsinInput.value.reportValidity();
 }
 
 async function loadConfiguration() {
@@ -192,18 +180,6 @@ onMounted(() => {
   display: block;
   margin-top: 0.5rem;
   color: #666;
-  font-size: 0.875rem;
-}
-
-.validation-error {
-  margin-top: 0.5rem;
-  color: #d32f2f;
-  font-size: 0.875rem;
-}
-
-.validation-success {
-  margin-top: 0.5rem;
-  color: #2e7d32;
   font-size: 0.875rem;
 }
 
