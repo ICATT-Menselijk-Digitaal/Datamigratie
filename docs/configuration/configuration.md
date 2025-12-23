@@ -41,7 +41,7 @@ Om in de UI in te kunnen loggen, moet je in de user secrets van het Datamigratie
 
 ### Overzicht
 
-De Datamigratie Tool vereist een geldig RSIN (Rechtspersonen Samenwerkingsverbanden Informatienummer) van de gemeente om migraties uit te kunnen voeren. Het RSIN is een uniek 9-cijferig identificatienummer dat wordt gebruikt voor het identificeren van rechtspersonen en samenwerkingsverbanden in Nederland.
+De Datamigratie Tool vereist een geldig RSIN (Rechtspersonen Samenwerkingsverbanden Informatienummer) om migraties uit te kunnen voeren.
 
 ### Technische Details
 
@@ -85,6 +85,4 @@ Voorbeeld voor RSIN `123456782`:
 ### Gebruik tijdens Migratie
 
 Het RSIN wordt gebruikt voor:
-- **Zaak metadata**: Het RSIN identificeert de bronorganisatie voor elke zaak
-- **Meerdere eigenschappen**: Het RSIN wordt als herbruikbare variabele ingevuld voor verschillende eigenschappen tijdens de migratie
-- **Uniformiteit**: Hetzelfde RSIN geldt voor alle zaken van alle zaaktypen, omdat alle zaken tot dezelfde gemeente behoren
+- **Zaak metadata**: Het RSIN identificeert de bronorganisatie voor elke zaak en wordt ook gebruikt als standaardwaarde voor andere zaak data velden.
