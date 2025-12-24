@@ -8,7 +8,7 @@ namespace Datamigratie.Server.Features.Mapping.ShowResultaattypeMapping
     public class ShowResultaattypeMappingController(IShowResultaattypeMappingService showResultaattypeMappingService) : ControllerBase
     {
         [HttpGet("{detZaaktypeId}/{detResultaattypeId}")]
-        public async Task<ActionResult<ResultaattypeMapping>> GetResultaattypeMapping(string detZaaktypeId, string detResultaattypeId)
+        public async Task<ActionResult<ResultaattypeMappingResponse>> GetResultaattypeMapping(string detZaaktypeId, string detResultaattypeId)
         {
             var mapping = await showResultaattypeMappingService.GetResultaattypeMapping(detZaaktypeId, detResultaattypeId);
 
@@ -21,7 +21,7 @@ namespace Datamigratie.Server.Features.Mapping.ShowResultaattypeMapping
         }
 
         [HttpGet("{detZaaktypeId}")]
-        public async Task<ActionResult<List<ResultaattypeMapping>>> GetAllResultaattypeMappingsForZaaktype(string detZaaktypeId)
+        public async Task<ActionResult<List<ResultaattypeMappingResponse>>> GetAllResultaattypeMappingsForZaaktype(string detZaaktypeId)
         {
             var mappings = await showResultaattypeMappingService.GetAllResultaattypeMappingsForZaaktype(detZaaktypeId);
             return Ok(mappings);

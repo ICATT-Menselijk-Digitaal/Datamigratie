@@ -15,11 +15,6 @@ export type ResultaattypeMapping = {
   ozResultaattypeId: string;
 };
 
-export type UpdateResultaattypeMapping = {
-  ozZaaktypeId: string;
-  updatedOzResultaattypeId: string;
-};
-
 export const MigrationStatus = Object.freeze({
   none: "None",
   inProgress: "InProgress"
@@ -72,7 +67,7 @@ export const datamigratieService = {
     get<ResultaattypeMapping[]>(`/api/mapping/resultaattype/${detZaaktypeId}`),
   createResultaattypeMapping: (detZaaktypeId: string, detResultaattypeId: string, payload: ResultaattypeMapping): Promise<void> =>
     post(`/api/mapping/resultaattype/${detZaaktypeId}/${detResultaattypeId}`, payload),
-  updateResultaattypeMapping: (detZaaktypeId: string, detResultaattypeId: string, payload: UpdateResultaattypeMapping): Promise<void> =>
+  updateResultaattypeMapping: (detZaaktypeId: string, detResultaattypeId: string, payload: ResultaattypeMapping): Promise<void> =>
     put(`/api/mapping/resultaattype/${detZaaktypeId}/${detResultaattypeId}`, payload),
   startMigration: (payload: StartMigration): Promise<void> => post(`/api/migration/start`, payload),
   getMigration: (): Promise<Migration> => get(`/api/migration`),

@@ -1,4 +1,3 @@
-using Datamigratie.Server.Features.Mapping.MapResultaattypen.Models;
 using Datamigratie.Server.Features.Mapping.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +8,7 @@ namespace Datamigratie.Server.Features.Mapping.MapResultaattypen
     public class MapResultaattypenController(IMapResultaattypenService mapResultaattypenService) : ControllerBase
     {
         [HttpPost("{detZaaktypeId}/{detResultaattypeId}")]
-        public async Task<ActionResult> PostMapResultaattype(string detZaaktypeId, string detResultaattypeId, [FromBody] ResultaattypeMapping mapping)
+        public async Task<ActionResult> PostMapResultaattype(string detZaaktypeId, string detResultaattypeId, [FromBody] ResultaattypeMappingRequest mapping)
         {
             await mapResultaattypenService.CreateResultaattypeMapping(
                 detZaaktypeId,
@@ -20,13 +19,13 @@ namespace Datamigratie.Server.Features.Mapping.MapResultaattypen
         }
 
         [HttpPut("{detZaaktypeId}/{detResultaattypeId}")]
-        public async Task<ActionResult> PutMapResultaattype(string detZaaktypeId, string detResultaattypeId, [FromBody] UpdateResultaattypeMapping mapping)
+        public async Task<ActionResult> PutMapResultaattype(string detZaaktypeId, string detResultaattypeId, [FromBody] ResultaattypeMappingRequest mapping)
         {
             await mapResultaattypenService.UpdateResultaattypeMapping(
                 detZaaktypeId,
                 detResultaattypeId,
                 mapping.OzZaaktypeId,
-                mapping.UpdatedOzResultaattypeId);
+                mapping.OzResultaattypeId);
             return Ok();
         }
     }

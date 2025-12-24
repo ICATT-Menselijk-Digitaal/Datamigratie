@@ -29,6 +29,7 @@ namespace Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo
                 Omschrijving = detZaaktype.Omschrijving,
                 Actief = detZaaktype.Actief,
                 FunctioneleIdentificatie = detZaaktype.FunctioneleIdentificatie,
+                Resultaten = detZaaktype.Resultaten,
                 ClosedZakenCount = closedDetZaken,
             };
 

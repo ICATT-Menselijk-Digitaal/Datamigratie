@@ -6,13 +6,13 @@ namespace Datamigratie.Server.Features.Mapping.ShowResultaattypeMapping
 {
     public interface IShowResultaattypeMappingService
     {
-        Task<ResultaattypeMapping?> GetResultaattypeMapping(string detZaaktypeId, string detResultaattypeId);
-        Task<List<ResultaattypeMapping>> GetAllResultaattypeMappingsForZaaktype(string detZaaktypeId);
+        Task<ResultaattypeMappingResponse?> GetResultaattypeMapping(string detZaaktypeId, string detResultaattypeId);
+        Task<List<ResultaattypeMappingResponse>> GetAllResultaattypeMappingsForZaaktype(string detZaaktypeId);
     }
 
     public class ShowResultaattypeMappingService(DatamigratieDbContext context) : IShowResultaattypeMappingService
     {
-        public async Task<ResultaattypeMapping?> GetResultaattypeMapping(string detZaaktypeId, string detResultaattypeId)
+        public async Task<ResultaattypeMappingResponse?> GetResultaattypeMapping(string detZaaktypeId, string detResultaattypeId)
         {
             var resultaattypeMappingEntity = await context.ResultaattypeMappings
                 .FirstOrDefaultAsync(m => m.DetZaaktypeId == detZaaktypeId && m.DetResultaattypeId == detResultaattypeId);
@@ -22,7 +22,7 @@ namespace Datamigratie.Server.Features.Mapping.ShowResultaattypeMapping
                 return null;
             }
 
-            var resultaattypeMapping = new ResultaattypeMapping
+            var resultaattypeMapping = new ResultaattypeMappingResponse
             {
                 DetZaaktypeId = resultaattypeMappingEntity.DetZaaktypeId,
                 DetResultaattypeId = resultaattypeMappingEntity.DetResultaattypeId,
@@ -33,13 +33,13 @@ namespace Datamigratie.Server.Features.Mapping.ShowResultaattypeMapping
             return resultaattypeMapping;
         }
 
-        public async Task<List<ResultaattypeMapping>> GetAllResultaattypeMappingsForZaaktype(string detZaaktypeId)
+        public async Task<List<ResultaattypeMappingResponse>> GetAllResultaattypeMappingsForZaaktype(string detZaaktypeId)
         {
             var resultaattypeMappingEntities = await context.ResultaattypeMappings
                 .Where(m => m.DetZaaktypeId == detZaaktypeId)
                 .ToListAsync();
 
-            return resultaattypeMappingEntities.Select(entity => new ResultaattypeMapping
+            return resultaattypeMappingEntities.Select(entity => new ResultaattypeMappingResponse
             {
                 DetZaaktypeId = entity.DetZaaktypeId,
                 DetResultaattypeId = entity.DetResultaattypeId,
