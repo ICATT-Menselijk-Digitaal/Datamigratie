@@ -3,6 +3,8 @@ using Datamigratie.Common.Extensions;
 
 using Datamigratie.Server.Features.Mapping.MapZaaktypen;
 using Datamigratie.Server.Features.Mapping.ShowZaaktypenMapping;
+using Datamigratie.Server.Features.Mapping.MapResultaattypen;
+using Datamigratie.Server.Features.Mapping.ShowResultaattypeMapping;
 using Datamigratie.Server.Features.MigrateZaak;
 using Datamigratie.Server.Features.MigrateZaak.Pdf;
 using Datamigratie.Server.Features.Migration.StartMigration.Services;
@@ -22,6 +24,8 @@ namespace Datamigratie.Server.Config
             services.AddDatamigrationApiClients(configuration);
             services.AddScoped<IMapZaaktypenService, MapZaaktypenService>();
             services.AddScoped<IShowZaaktypenMappingService, ShowZaaktypenMappingService>();
+            services.AddScoped<IMapResultaattypenService, MapResultaattypenService>();
+            services.AddScoped<IShowResultaattypeMappingService, ShowResultaattypeMappingService>();
             services.AddScoped<IMigrateZaakService, MigrateZaakService>();
             services.AddScoped<IZaakgegevensPdfGenerator, ZaakgegevensPdfGenerator>();
 

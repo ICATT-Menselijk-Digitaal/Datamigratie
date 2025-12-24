@@ -10,6 +10,16 @@ export type UpdateZaaktypeMapping = {
   updatedOzZaaktypeId: string;
 };
 
+export type ResultaattypeMapping = {
+  ozZaaktypeId: string;
+  ozResultaattypeId: string;
+};
+
+export type UpdateResultaattypeMapping = {
+  ozZaaktypeId: string;
+  updatedOzResultaattypeId: string;
+};
+
 export const MigrationStatus = Object.freeze({
   none: "None",
   inProgress: "InProgress"
@@ -56,6 +66,14 @@ export const datamigratieService = {
     post<ZaaktypeMapping>(`/api/mapping/${payload.detZaaktypeId}`, payload),
   updateMapping: (payload: UpdateZaaktypeMapping): Promise<ZaaktypeMapping> =>
     put<ZaaktypeMapping>(`/api/mapping/${payload.detZaaktypeId}`, payload),
+  getResultaattypeMapping: (detZaaktypeId: string, detResultaattypeId: string): Promise<ResultaattypeMapping> =>
+    get<ResultaattypeMapping>(`/api/mapping/resultaattype/${detZaaktypeId}/${detResultaattypeId}`),
+  getAllResultaattypeMappingsForZaaktype: (detZaaktypeId: string): Promise<ResultaattypeMapping[]> =>
+    get<ResultaattypeMapping[]>(`/api/mapping/resultaattype/${detZaaktypeId}`),
+  createResultaattypeMapping: (detZaaktypeId: string, detResultaattypeId: string, payload: ResultaattypeMapping): Promise<void> =>
+    post(`/api/mapping/resultaattype/${detZaaktypeId}/${detResultaattypeId}`, payload),
+  updateResultaattypeMapping: (detZaaktypeId: string, detResultaattypeId: string, payload: UpdateResultaattypeMapping): Promise<void> =>
+    put(`/api/mapping/resultaattype/${detZaaktypeId}/${detResultaattypeId}`, payload),
   startMigration: (payload: StartMigration): Promise<void> => post(`/api/migration/start`, payload),
   getMigration: (): Promise<Migration> => get(`/api/migration`),
   getMigrationHistory: (detZaaktypeId: string): Promise<MigrationHistoryItem[]> =>

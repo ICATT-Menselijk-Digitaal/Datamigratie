@@ -28,6 +28,29 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
                 .HasDatabaseName("IX_Mapping_DetZaaktypeId_Unique");
         });
 
+        modelBuilder.Entity<ResultaattypeMapping>(entity =>
+        {
+            entity.HasKey(m => m.Id);
+
+            // Required fields (non-nullable)
+            entity.Property(m => m.DetZaaktypeId)
+                .IsRequired();
+
+            entity.Property(m => m.DetResultaattypeId)
+                .IsRequired();
+
+            entity.Property(m => m.OzZaaktypeId)
+                .IsRequired();
+
+            entity.Property(m => m.OzResultaattypeId)
+                .IsRequired();
+
+            // Unique constraint: One DET Resultaattype (per zaaktype) can only map to one OZ Resultaattype
+            entity.HasIndex(m => new { m.DetZaaktypeId, m.DetResultaattypeId })
+                .IsUnique()
+                .HasDatabaseName("IX_ResultaattypeMapping_DetZaaktypeId_DetResultaattypeId_Unique");
+        });
+
         modelBuilder.Entity<Migration>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -80,6 +103,7 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
     }
 
     public DbSet<ZaaktypenMapping> Mappings { get; set; }
+    public DbSet<ResultaattypeMapping> ResultaattypeMappings { get; set; }
     public DbSet<Migration> Migrations { get; set; }
     public DbSet<MigrationRecord> MigrationRecords { get; set; }
 }
