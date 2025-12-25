@@ -1,0 +1,3062 @@
+{
+  "catalogus_metadata": {
+    "naam": "Omgevingsdienst Haaglanden Zaaktypecatalogus",
+    "versie": "1.0",
+    "rsin": "000000000",
+    "begindatum": "2012-02-10T00:00:00"
+  },
+  "zaaktypen": [
+    {
+      "id": "ODH001",
+      "omschrijving": "Advies verstrekken",
+      "details": {
+        "categorie": "Omgevingsdienst Haaglanden",
+        "doel": "Het (vroegtijdig) inbrengen van kennis en inzicht over een mogelijk toekomstige beoordeling van plannen, aanvragen e.d.",
+        "aanleiding": "Een andere organisatie (bevoegd gezag, andere omgevingsdienst, andere overheidsorganisatie of privaat bedrijf) of burger verzoekt om de inbreng van expertise , met het oog op de beantwoording van de vraag hoe een beoogde of bestaande activiteit zich verhoudt tot wet- en regelgeving, vastgesteld beleid en/of omgevingsfactoren, of: de eigen of een andere organisatie verzoekt om de inbreng van expertise ten behoeve van beleidsontwikkeling.",
+        "verantwoordelijke_organisatie": "Teamleider Toetsing & Vergunningen",
+        "doorlooptijd": "Geen wettelijke vereisten",
+        "servicenorm": "Afhankelijk van het soort toets: - Normaal: 10 werkdagen - Complex: 20 werkdagen",
+        "toelichting_doorlooptijd": "Een advies is vrijblijvend en richtinggevend. Dit advies gaat niet over het od haaglanden - zaaktypecatalogus v1.0 - 20120210 14 / 155 opstellen van onderzoeksrapporten zoals adviesbureaus doen. Het betreft een breed scala aan adviezen op het gebied van Bodem, Lucht, Geluid en Externe veiligheid. Het kan ook het verzamelen en analyseren van gegevens t.b.v. BIBOB-onderzoeken betreffen.",
+        "begindatum": "2012-02-10T00:00:00"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond",
+          "doorlooptijd": "2 werkdagen",
+          "toelichting": "Allereerst wordt beoordeeld of de ontvangen aanvraag dit zaaktype betreft. Zo ja, dan wordt de zaak aangemaakt met daarbij de ontvangen documenten en wordt de zaakbehandelaar bepaald (medewerker of organisatie-onderdeel). De aanvragende organisatie wordt geïnformeerd dat de intake heeft plaatsgevonden (d.m.v. een digitaal bericht)."
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Advies opgesteld",
+          "doorlooptijd": "8 – 18 werkdagen",
+          "toelichting": "De in de aanvraag genoemde documenten worden beoordeeld op de relevante od haaglanden - zaaktypecatalogus v1.0 - 20120210 15 / 155 wet- en regelgeving, beleid, omgevingsfactoren en informatie over de milieu-inrichting of -locatie. Waar nodig vindt collegiale toetsing en/of overleg met de opdrachtgever plaats. De status is bereikt als het adviesrapport inhoudelijk op- en vastge- steld is."
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Adviesrapport opgeleverd",
+          "doorlooptijd": "2 werkdagen",
+          "toelichting": "Het adviesrapport wordt ter beschikking gesteld van de opdrachtgever en het zaakdossier wordt afgesloten en gearchiveerd (indien de provincie het bevoegd gezag is) dan wel ter archivering overgedragen aan het bevoegd gezag (indien dat de gemeente is)."
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviesaanvrager",
+          "omschrijving": "Adviesaanvrager",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Zaakverantwoordelijke",
+          "omschrijving": "Zaakverantwoordelijke",
+          "categorie": "Verantwoordelijke"
+        },
+        {
+          "type": "Adviesopsteller",
+          "omschrijving": "Adviesopsteller",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "Juridisch adviseur",
+          "omschrijving": "Juridisch adviseur",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "ondersteuner",
+          "omschrijving": "ondersteuner",
+          "categorie": "Overig"
+        },
+        {
+          "type": "Procesondersteuner",
+          "omschrijving": "Procesondersteuner",
+          "categorie": "Overig"
+        }
+      ],
+      "objecten": [
+        {
+          "type": "Milieu-inrichting of -",
+          "omschrijving": "locatie De milieu-inrichting(en) en/of milieulocatie(s) waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Pand (BAG)",
+          "omschrijving": "Het (de) pand(en) (in de BAG) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Verblijfsobject (BAG)",
+          "omschrijving": "Het (de) verblijfsobject(en) (in de BAG) met bijbehorend adres(sen) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Overig bouwwerk (BGT)",
+          "omschrijving": "Het (de) overige bouwwerk(en) (in de BGT) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Vestiging (NHR)",
+          "omschrijving": "De vestiging(en) (in het NHR) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Locatie",
+          "omschrijving": "De locatie waarop de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft indien deze geen pand, verblijfsobject en overig bouwwerk betreft."
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Adviesaanvraag",
+          "richting": "inkomend",
+          "volgnummer": 1,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Te beoordelen document(en)",
+          "richting": "inkomend",
+          "volgnummer": 2,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Statusmelding",
+          "richting": "uitgaand",
+          "volgnummer": 3,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Aanvullende informatie",
+          "richting": "inkomend",
+          "volgnummer": 5,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Adviesrapport",
+          "richting": "uitgaand",
+          "volgnummer": 6,
+          "verplicht": true
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Vastgesteld",
+          "omschrijving": "Vastgesteld"
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        }
+      ]
+    },
+    {
+      "id": "ODH002",
+      "omschrijving": "Beroep behandelen",
+      "details": {
+        "categorie": "Omgevingsdienst Haaglanden",
+        "doel": "Het bij de Rechtbank of de Raad van state verdedigen van een eerder genomen besluit",
+        "aanleiding": "Via het bevoegd gezag is van de Rechtbank of Raad van State een beroepschrift ontvangen tegen een door de ODH (als gemandateerde) genomen besluit.",
+        "verantwoordelijke_organisatie": "Hoofd afdeling Toetsing & Vergunningverlening dan wel hoofd Toezicht & Handhaving",
+        "doorlooptijd": "12 weken (60 werkdagen) (vanaf ontvangst door de Rechtbank of Raad van State). De doorlooptijd is afhankelijk van de planning van de rechtbank of Raad van State.",
+        "servicenorm": "N.v.t.",
+        "toelichting_doorlooptijd": "Het betreft zowel het beroep als het hoger beroep. Het beroepschrift is gericht aan de Rechtbank of Raad van State en ter verweer doorgestuurd naar het bevoegd gezag. Daar wordt het beroepschrift geregistreerd. Voor beschikkingen die door de ODH zijn voorbereid of in mandaat genomen, stuurt de gemeente of provincie het beroepschrift ter verdere afhandeling door naar de ODH. De verdere uitvoering van de procedure ligt in handen van de ODH met dien verstande dat de Rechtbank of Raad van State de beslissing op het beroep neemt. Als het betreffende beroep gericht is tegen een door het bevoegd gezag genomen besluit is de behandeling van dat beroep de verantwoordelijkheid van het bevoegd gezag. Ook als er sprake is van een milieucomponent. Desgevraagd adviseert de ODH haar in dezen (door middel van een zaak van het type ‘Advies verstrekken’).",
+        "begindatum": "2012-02-10T00:00:00"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond",
+          "doorlooptijd": "1 werkdag",
+          "toelichting": "Het registreren van de zaak, het bepalen van de behandelend medewerker of het behandelend organisatie-onderdeel en het informeren van het bevoegd gezag over het bereiken van de status."
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Stukken toegezonden",
+          "doorlooptijd": "10 werkdagen",
+          "toelichting": "In overleg met de Rechtbank of Raad van State worden relevante stukken opgezocht en verstrekt."
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Verweerschrift opgesteld",
+          "doorlooptijd": "15 werkdagen",
+          "toelichting": "Zo nodig worden interne en/of externe adviezen opgevraagd ten behoeve van het verweerschrift. Dit kan door een zaak van het type ‘Advies verstrekken‘ uit te voeren. Het verweerschrift wordt mede opgesteld met behulp van de ingewonnen adviezen en wordt met eventuele overige stukken ter beschikking gesteld aan partijen."
+        },
+        {
+          "volgnummer": 4,
+          "omschrijving": "Zitting bijgewoond",
+          "doorlooptijd": "15 werkdagen",
+          "toelichting": "De pleitnota wordt opgesteld ter verdediging in de zitting. Vervolgens wordt de zitting van de Rechtbank of Raad van State bijgewoond. In de zitting wordt het beroepschrift behandeld en het pleidooi gehouden. od haaglanden - zaaktypecatalogus v1.0 - 20120210 22 / 155"
+        },
+        {
+          "volgnummer": 5,
+          "omschrijving": "Zaak afgerond",
+          "doorlooptijd": "28 werkdagen",
+          "toelichting": "De ODH ontvangt de beslissing op het beroep die door de Rechtbank of Raad van State is genomen. Als het beroep ongegrond of niet ontvankelijk wordt verklaard blijft het bestreden besluit in stand. Als het beroep gegrond wordt verklaard, heeft de uitkomst hiervan invloed op het primaire besluit; dit kan zelfs komen te vervallen. In dat geval worden vervolgzaken in gang gezet. De zaak wordt afgerond en het zaakdossier afgesloten en gearchiveerd (indien de provincie het bevoegd gezag is) dan wel ter archivering overgedragen aan het bevoegd gezag (indien dat de gemeente is)."
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Beroepindiener",
+          "omschrijving": "Beroepindiener",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "instantie",
+          "omschrijving": "instantie",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Bevoegd gezag",
+          "omschrijving": "Bevoegd gezag",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Zaakverantwoordelijke",
+          "omschrijving": "Zaakverantwoordelijke",
+          "categorie": "Verantwoordelijke"
+        },
+        {
+          "type": "Beroepbehandelaar",
+          "omschrijving": "Beroepbehandelaar",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "ondersteuner",
+          "omschrijving": "ondersteuner",
+          "categorie": "Overig"
+        },
+        {
+          "type": "Procesondersteuner",
+          "omschrijving": "Procesondersteuner",
+          "categorie": "Overig"
+        }
+      ],
+      "objecten": [
+        {
+          "type": "Milieu-inrichting of -",
+          "omschrijving": "locatie De milieu-inrichting(en) en/of milieulocatie(s) waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Pand (BAG)",
+          "omschrijving": "Het (de) pand(en) (in de BAG) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Verblijfsobject (BAG)",
+          "omschrijving": "Het (de) verblijfsobject(en) (in de BAG) met bijbehorend adres(sen) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Overig bouwwerk (BGT)",
+          "omschrijving": "Het (de) overige bouwwerk(en) (in de BGT) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Vestiging (NHR)",
+          "omschrijving": "De vestiging(en) (in het NHR) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Locatie",
+          "omschrijving": "De locatie waarop de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft indien deze geen pand, verblijfsobject en overig bouwwerk betreft."
+        },
+        {
+          "type": "Besluit",
+          "omschrijving": "Het oorspronkelijk door de ODH genomen besluit waartegen het beroep zich richt."
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Zittingsdatum",
+          "omschrijving": "De datum van de zitting waarin het verweer gevoerd moet worden."
+        },
+        {
+          "naam": "Beslissing op beroep",
+          "omschrijving": "De door de Rechtbank of Raad van State genomen beslissing op het"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Beroepschrift",
+          "richting": "inkomend",
+          "volgnummer": 1,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Relevante stukken",
+          "richting": "uitgaand",
+          "volgnummer": 2,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Verweerschrift",
+          "richting": "uitgaand",
+          "volgnummer": 5,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Adviesrapport",
+          "richting": "intern",
+          "volgnummer": 6,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Onderzoeksverslag",
+          "richting": "inkomend",
+          "volgnummer": 7,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Pleitnota",
+          "richting": "intern",
+          "volgnummer": 8,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Beslissing op beroep",
+          "richting": "inkomend",
+          "volgnummer": 9,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Statusmelding",
+          "richting": "uitgaand",
+          "volgnummer": 10,
+          "verplicht": false
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Toegekend",
+          "omschrijving": "Toegekend"
+        },
+        {
+          "type": "Afgewezen",
+          "omschrijving": "Afgewezen"
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        }
+      ],
+      "gerelateerde_zaken": [
+        {
+          "zaaktype_id": "Beroep behandelen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "Toezicht uitvoeren",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "Bezwaar behandelen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "uitgebreid behandelen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "behandelen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "nemen",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "behandelen",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "behandelen",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "Beroep behandelen",
+          "relatietype": "Vervolg"
+        }
+      ]
+    },
+    {
+      "id": "ODH003",
+      "omschrijving": "Bestuursdwang ten uitvoer leggen",
+      "details": {
+        "categorie": "Omgevingsdienst Haaglanden",
+        "doel": "De naleving van wet- en regelgeving afdwingen door bestuursdwang ten uitvoer te leggen.",
+        "aanleiding": "Bij het toezicht houden (zaak van het type ‘Toezicht uitvoeren’) of anderszins zijn strijdigheden geconstateerd met wet- en regelgeving en/of vergunningen die niet of niet tijdig opgelost konden worden. Naar aanleiding hiervan is een handhavingsbesluit genomen waarin bestuursdwang is opgelegd.",
+        "verantwoordelijke_organisatie": "Afdelingshoofd Toezicht & Handhaving dan wel teamleider, afhankelijk van mandatering",
+        "doorlooptijd": "Variabel, afhankelijk van omstandigheden",
+        "servicenorm": "N.v.t.",
+        "toelichting_doorlooptijd": "Het handhavingstraject, dat volgde op een geconstateerde strijdigheid, is begonnen met een zaak van het type ‘Handhavingsbesluit nemen’. Daarin is besloten om over te gaan tot bestuursdwang. De hieronder vermelde zaakstatussen betreffen de normale gang van zaken. Bij een spoedprocedure kunnen statussen korter of zelfs helemaal niet doorlopen worden. 1) Bron: Aanzet producten- en dienstencatalogus OD Haaglanden (oktober 2011) od haaglanden - zaaktypecatalogus v1.0 - 20120210 29 / 155",
+        "begindatum": "2012-02-10T00:00:00"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Nakoming getoetst",
+          "doorlooptijd": "situatie-afhankelijk",
+          "toelichting": "Met een hercontrole wordt getoetst of de eerder geconstateerde strijdigheid is opgeheven (deelzaak van het type ‘Toezicht uitvoeren’). Als dat het geval is, wordt de overtreder hiervan op de hoogte gesteld, worden de statussen 2, 3 en 4 niet uitgevoerd en wordt de zaak afgerond in status 5."
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Draaiboek opgesteld",
+          "doorlooptijd": "situatie-afhankelijk",
+          "toelichting": "De uit te voeren actie wordt voorbereid en afgestemd zowel intern als extern (bijv. gemeente, politie, Openbaar Ministerie en waterschappen). Daarna wordt het draaiboek op- en vastgesteld."
+        },
+        {
+          "volgnummer": 4,
+          "omschrijving": "Kostenverhaal vastgesteld",
+          "doorlooptijd": "situatie-afhankelijk",
+          "toelichting": "Een evaluatieverslag van de actie wordt opgesteld, met als bijlagen de rekeningen van de bij de actie ingeschakelde bedrijven. Op basis hiervan wordt het kostenverhaal op- en vastgesteld in de vorm van een invorderingsbesluit."
+        },
+        {
+          "volgnummer": 5,
+          "omschrijving": "Zaak afgerond",
+          "doorlooptijd": "situatie-afhankelijk",
+          "toelichting": "Aan alle betrokkenen wordt een brief gezonden over de beëindiging van het handhavingstraject. Normaliter wordt hierin tevens de intrekking van de sanctie vermeld. Indien van toepassing is geverifieerd of invorderingsacties correct zijn overgedragen aan het bevoegd gezag. Het zaakdossier en het dossier van de voorafgaande zaak van het type ‘Handhavingsbesluit nemen’ worden ten slotte afgesloten en gearchiveerd (indien de provincie het bevoegd gezag is) dan wel ter archivering overgedragen aan het bevoegd gezag (indien dat de gemeente is)."
+        }
+      ],
+      "rollen": [
+        {
+          "type": "uitvoer-legger",
+          "omschrijving": "uitvoer-legger",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Te handhaven persoon",
+          "omschrijving": "Te handhaven persoon",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Bevoegd gezag",
+          "omschrijving": "Bevoegd gezag",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Zaakverantwoordelijke",
+          "omschrijving": "Zaakverantwoordelijke",
+          "categorie": "Verantwoordelijke"
+        },
+        {
+          "type": "Handhaver",
+          "omschrijving": "Handhaver",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "Juridisch adviseur",
+          "omschrijving": "Juridisch adviseur",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "ondersteuner",
+          "omschrijving": "ondersteuner",
+          "categorie": "Overig"
+        },
+        {
+          "type": "Procesondersteuner",
+          "omschrijving": "Procesondersteuner",
+          "categorie": "Overig"
+        }
+      ],
+      "objecten": [
+        {
+          "type": "Milieu-inrichting of -",
+          "omschrijving": "locatie De milieu-inrichting(en) en/of milieulocatie(s) waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Pand (BAG)",
+          "omschrijving": "Het (de) pand(en) (in de BAG) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Verblijfsobject (BAG)",
+          "omschrijving": "Het (de) verblijfsobject(en) (in de BAG) met bijbehorend adres(sen) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Overig bouwwerk (BGT)",
+          "omschrijving": "Het (de) overige bouwwerk(en) (in de BGT) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Vestiging (NHR)",
+          "omschrijving": "De vestiging(en) (in het NHR) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Locatie",
+          "omschrijving": "De locatie waarop de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft indien deze geen pand, verblijfsobject en overig bouwwerk betreft."
+        },
+        {
+          "type": "Besluit",
+          "omschrijving": "Het handhavingsbesluit waarin de bestuursdwang is opgelegd."
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Handhavingsbesluit",
+          "richting": "intern",
+          "volgnummer": 1,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Draaiboek handhavingsactie",
+          "richting": "intern",
+          "volgnummer": 2,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Rekening(en)",
+          "richting": "inkomend",
+          "volgnummer": 4,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Kostenverhaal",
+          "richting": "uitgaand",
+          "volgnummer": 5,
+          "verplicht": true
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Ten uitvoer",
+          "omschrijving": "Ten uitvoer"
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        }
+      ],
+      "gerelateerde_zaken": [
+        {
+          "zaaktype_id": "nemen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "De zaak waarin besloten is om bestuursdwang op te leggen.",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "Toezicht uitvoeren",
+          "relatietype": "Vervolg"
+        }
+      ]
+    },
+    {
+      "id": "ODH004",
+      "omschrijving": "Bezwaar behandelen",
+      "details": {
+        "categorie": "Omgevingsdienst Haaglanden",
+        "doel": "Het verdedigen van een eerder genomen besluit, voor de bezwaren- commissie van het bevoegd gezag",
+        "aanleiding": "Via het bevoegd gezag is een bezwaarschrift ontvangen tegen een door de ODH (als gemandateerde) genomen besluit",
+        "verantwoordelijke_organisatie": "Hoofd afdeling Toetsing & Vergunningverlening dan wel hoofd Toezicht & Handhaving",
+        "doorlooptijd": "12 weken (84 werkdagen) (vanaf ontvangst door bevoegd gezag)",
+        "servicenorm": "N.v.t.",
+        "toelichting_doorlooptijd": "Het bezwaarschrift is gericht aan het bevoegd gezag. Daar wordt het bezwaarschrift geregistreerd en een ontvangstbevestiging verzonden. Voor beschikkingen die door de ODH zijn voorbereid of in mandaat genomen, stuurt de gemeente of provincie het bezwaarschrift ter verdere afhandeling door naar de ODH. De verdere uitvoering van de procedure ligt in handen van de ODH met dien verstande dat de bezwarencommissie van het bevoegd gezag een advies opstelt en het bestuursorgaan in alle od haaglanden - zaaktypecatalogus v1.0 - 20120210 36 / 155 gevallen de uiteindelijke beslissing op het bezwaar neemt. Als het betreffende bezwaar gericht is tegen een door het bevoegd gezag genomen (niet gemandateerd) besluit is de behandeling van dat bezwaar de verantwoordelijkheid van het bevoegd gezag. Ook als er sprake is van een milieucomponent. Desgevraagd adviseert de ODH haar in dezen (door middel van een zaak van het type ‘Advies verstrekken’).",
+        "begindatum": "2012-02-10T00:00:00"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond",
+          "doorlooptijd": "1 werkdag",
+          "toelichting": "Het registreren van de zaak, het bepalen van de behandelend medewerker of het behandelend organisatie-onderdeel en het informeren van het bevoegd gezag over het bereiken van de status."
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Stukken toegezonden",
+          "doorlooptijd": "10 werkdagen",
+          "toelichting": "In overleg met het bestuursorgaan worden relevante stukken opgezocht en verstrekt aan de Adviescommissie Bezwaarschriften."
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Verweerschrift opgesteld",
+          "doorlooptijd": "15 werkdagen",
+          "toelichting": "Zo nodig worden interne en/of externe adviezen opgevraagd ten behoeve van het verweerschrift. Dit kan door een zaak van het type ‘Advies verstrekken‘ uit te voeren. Het verweerschrift wordt mede opgesteld met behulp van de ingewonnen adviezen en met eventuele overige stukken ter beschikking gesteld aan partijen."
+        },
+        {
+          "volgnummer": 4,
+          "omschrijving": "Zitting bijgewoond",
+          "doorlooptijd": "15 werkdagen",
+          "toelichting": "De pleitnota wordt opgesteld ter verdediging in de zitting. Vervolgens wordt de zitting bijgewoond van de bezwarencommissie van het bevoegd gezag. In de zitting wordt het bezwaarschrift behandeld en het pleidooi gehouden."
+        },
+        {
+          "volgnummer": 6,
+          "omschrijving": "Zaak afgerond",
+          "doorlooptijd": "28 werkdagen",
+          "toelichting": "De ODH ontvangt de beslissing op het bezwaar die door het bestuursorgaan is genomen. Als het bezwaar ongegrond of niet ontvankelijk wordt verklaard, blijft het bestreden besluit in stand. Als het bezwaar gegrond wordt verklaard, heeft de uitkomst hiervan invloed op het primaire besluit; dit kan zelfs komen te vervallen. In dat geval worden de nodige acties in gang gezet in de vorm van vervolgzaken. De zaak wordt afgerond en het zaakdossier afgesloten en gearchiveerd (indien de provincie het bevoegd gezag is) dan wel ter archivering overgedragen aan het bevoegd gezag (indien dat de gemeente is). od haaglanden - zaaktypecatalogus v1.0 - 20120210 38 / 155"
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Bezwaarindiener",
+          "omschrijving": "Bezwaarindiener",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Bevoegd gezag",
+          "omschrijving": "Bevoegd gezag",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Zaakverantwoordelijke",
+          "omschrijving": "Zaakverantwoordelijke",
+          "categorie": "Verantwoordelijke"
+        },
+        {
+          "type": "Bezwaarbehandelaar",
+          "omschrijving": "Bezwaarbehandelaar",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "ondersteuner",
+          "omschrijving": "ondersteuner",
+          "categorie": "Overig"
+        },
+        {
+          "type": "Procesondersteuner",
+          "omschrijving": "Procesondersteuner",
+          "categorie": "Overig"
+        }
+      ],
+      "objecten": [
+        {
+          "type": "Milieu-inrichting of -",
+          "omschrijving": "locatie De milieu-inrichting(en) en/of milieulocatie(s) waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Pand (BAG)",
+          "omschrijving": "Het (de) pand(en) (in de BAG) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Verblijfsobject (BAG)",
+          "omschrijving": "Het (de) verblijfsobject(en) (in de BAG) met bijbehorend adres(sen) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Overig bouwwerk (BGT)",
+          "omschrijving": "Het (de) overige bouwwerk(en) (in de BGT) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Vestiging (NHR)",
+          "omschrijving": "De vestiging(en) (in het NHR) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Locatie",
+          "omschrijving": "De locatie waarop de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft indien deze geen pand, verblijfsobject en overig bouwwerk betreft."
+        },
+        {
+          "type": "Besluit",
+          "omschrijving": "Het oorspronkelijk door de ODH genomen besluit waartegen het bezwaar zich richt."
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Zittingsdatum",
+          "omschrijving": "De datum van de zitting waarin het verweer gevoerd moet worden."
+        },
+        {
+          "naam": "Advies op bezwaar",
+          "omschrijving": "Het advies van de bezwarencommissie over de te nemen beslissing op het"
+        },
+        {
+          "naam": "bezwaar: Toegekend / Ongegrond / Niet-ontvankelijk.",
+          "omschrijving": "Beslissing op bezwaar"
+        },
+        {
+          "naam": "De door het bestuursorgaan genomen beslissing op het bezwaar:",
+          "omschrijving": "Toegekend / Ongegrond / Niet-ontvankelijk."
+        },
+        {
+          "naam": "Contrair-indicatie",
+          "omschrijving": "De beslissing om wel of niet af te wijken van het advies van de"
+        },
+        {
+          "naam": "bezwarencommissie. Geeft indicatie over mogelijke toekomstige politieke",
+          "omschrijving": "gevoeligheden."
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Bezwaarschrift",
+          "richting": "inkomend",
+          "volgnummer": 1,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Ontvangstbevestiging",
+          "richting": "inkomend",
+          "volgnummer": 2,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Relevante stukken",
+          "richting": "uitgaand",
+          "volgnummer": 3,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Verweerschrift",
+          "richting": "uitgaand",
+          "volgnummer": 6,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Adviesrapport",
+          "richting": "intern",
+          "volgnummer": 7,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Pleitnota",
+          "richting": "intern",
+          "volgnummer": 8,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Beslissing op bezwaar",
+          "richting": "inkomend",
+          "volgnummer": 11,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Statusmelding",
+          "richting": "uitgaand",
+          "volgnummer": 12,
+          "verplicht": true
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Toegekend",
+          "omschrijving": "Toegekend"
+        },
+        {
+          "type": "Afgewezen",
+          "omschrijving": "Afgewezen"
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        }
+      ],
+      "gerelateerde_zaken": [
+        {
+          "zaaktype_id": "behandelen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "Toezicht uitvoeren",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "behandelen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "nemen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "regulier behandelen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "Beroep behandelen",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "nemen",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "behandelen",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "behandelen",
+          "relatietype": "Vervolg"
+        }
+      ]
+    },
+    {
+      "id": "ODH005",
+      "omschrijving": "Handhavingsbesluit nemen",
+      "details": {
+        "categorie": "Omgevingsdienst Haaglanden",
+        "doel": "Nemen van een besluit om de naleving van wet- en regelgeving af te dwingen.",
+        "aanleiding": "Bij het toezicht houden (zaak van het type ‘Toezicht uitvoeren’) of anderszins zijn strijdigheden geconstateerd met wet- en regelgeving en/of vergunningen die niet of niet tijdig opgelost konden worden.",
+        "verantwoordelijke_organisatie": "Afdelingshoofd Toezicht & Handhaving dan wel teamleider, afhankelijk van mandatering",
+        "doorlooptijd": "6 weken",
+        "servicenorm": "N.v.t.",
+        "toelichting_doorlooptijd": "Het handhavingstraject dat volgt op een geconstateerde strijdigheid is een keten van separate zaken, los van de toezichtzaak of een andere zaak waarin de strijdigheid is geconstateerd. De zaak van het type ‘Handhavingsbesluit nemen’ is daarin de eerste. Daarna volgt, indien van toepassing, een zaak van het type ‘Bestuursdwang ten uitvoer leggen’ of ‘Last onder dwangsom ten uitvoer leggen’. De hieronder vermelde zaakstatussen betreffen de normale gang van zaken. Bij een spoedprocedure kunnen statussen korter of zelfs helemaal niet doorlopen worden. 1) Bron: Aanzet producten- en dienstencatalogus OD Haaglanden (oktober 2011)",
+        "begindatum": "2012-02-10T00:00:00"
+      },
+      "statussen": [
+        {
+          "volgnummer": 2,
+          "omschrijving": "Sanctie opgelegd",
+          "doorlooptijd": "3 weken",
+          "toelichting": "De sanctie wordt bepaald en vervolgens opgelegd door middel van een handhavingsbesluit. Indien nodig wordt het concept van dit besluit afgestemd met het bevoegd gezag (afhankelijk van mandatering). De overtreder wordt van de sanctie op de hoogte gesteld door toezending van het handhavingsbesluit. Als er geen last onder dwangsom of bestuursdwang wordt opgelegd, wordt het zaakdossier afgesloten (het handhavingstraject is dan immers afgesloten) en gearchiveerd (indien de provincie het bevoegd gezag is) dan wel ter archivering overgedragen aan het bevoegd gezag (indien dat de gemeente is)."
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Handhavingsinitiator",
+          "omschrijving": "Handhavingsinitiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Te handhaven persoon",
+          "omschrijving": "Te handhaven persoon",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Bevoegd gezag",
+          "omschrijving": "Bevoegd gezag",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Zaakverantwoordelijke",
+          "omschrijving": "Zaakverantwoordelijke",
+          "categorie": "Verantwoordelijke"
+        },
+        {
+          "type": "Toezichthouder",
+          "omschrijving": "Toezichthouder",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "Juridisch adviseur",
+          "omschrijving": "Juridisch adviseur",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "ondersteuner",
+          "omschrijving": "ondersteuner",
+          "categorie": "Overig"
+        },
+        {
+          "type": "Procesondersteuner",
+          "omschrijving": "Procesondersteuner",
+          "categorie": "Overig"
+        }
+      ],
+      "objecten": [
+        {
+          "type": "Milieu-inrichting of -",
+          "omschrijving": "locatie De milieu-inrichting(en) en/of milieulocatie(s) waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Pand (BAG)",
+          "omschrijving": "Het (de) pand(en) (in de BAG) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Verblijfsobject (BAG)",
+          "omschrijving": "Het (de) verblijfsobject(en) (in de BAG) met bijbehorend adres(sen) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Overig bouwwerk (BGT)",
+          "omschrijving": "Het (de) overige bouwwerk(en) (in de BGT) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Vestiging (NHR)",
+          "omschrijving": "De vestiging(en) (in het NHR) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Locatie",
+          "omschrijving": "De locatie waarop de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft indien deze geen pand, verblijfsobject en overig bouwwerk betreft."
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Sanctie(s)",
+          "omschrijving": "Bestuursdwang / Dwangsom / Intrekken vergunning / Bestuurlijke boete"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Handhavingsvoornemen",
+          "richting": "uitgaand",
+          "volgnummer": 1,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Zienswijze",
+          "richting": "inkomend",
+          "volgnummer": 2,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Concept-handhavingsbesluit",
+          "richting": "uitgaand",
+          "volgnummer": 3,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Handhavingsbesluit",
+          "richting": "uitgaand",
+          "volgnummer": 4,
+          "verplicht": true
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Vastgesteld",
+          "omschrijving": "Vastgesteld"
+        },
+        {
+          "type": "Niet nodig",
+          "omschrijving": "Niet nodig"
+        }
+      ],
+      "gerelateerde_zaken": [
+        {
+          "zaaktype_id": "Toezicht uitvoeren",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "ten uitvoer leggen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "Als naar aanleiding van het opleggen van een last onder dwangsom de",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "ten uitvoer leggen",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "uitvoer leggen",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "behandelen",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "Melding behandelen",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "Bezwaar behandelen",
+          "relatietype": "Vervolg"
+        }
+      ]
+    },
+    {
+      "id": "ODH006",
+      "omschrijving": "Handhavingsverzoek behandelen",
+      "details": {
+        "categorie": "Omgevingsdienst Haaglanden",
+        "doel": "Een beschikking verkrijgen op een verzoek van een burger, bedrijf of andere organisatie om een sanctie op een vermeende milieu-overtreding toe te passen.",
+        "aanleiding": "Een burger, bedrijf of andere organisatie heeft expliciet een verzoek tot handhaving ingediend naar aanleiding van milieuhinder, -klachten en/of - incidenten. Het verzoek is ingediend bij het bevoegd gezag of rechtstreeks bij de ODH.",
+        "verantwoordelijke_organisatie": "Teamleider Toezicht & Handhaving",
+        "doorlooptijd": "8 weken",
+        "toelichting_doorlooptijd": "Het gaat hier om de indiening van een expliciet verzoek tot handhaving cq. verzoek tot toepassen van een sanctie. Het gaat dus niet om een klacht, incident- of overlastmelding (zie het zaaktype ‘Incidentmelding behandelen’). De behandeling van het handhavingsverzoek kan leiden tot een handhavingsactie. Deze actie vindt plaats binnen een vervolgzaak van het type ‘Handhavingsbesluit nemen’. Het handhavingsverzoek kan ingediend zijn bij de ODH of bij het bevoegd gezag. Als het verzoek niet rechtstreeks bij de ODH is gedaan, is het uitgangspunt dat het bevoegd gezag (m.u.v. de provincie) zelf ook een zaak over het verzoek heeft lopen (om bij eventueel contact met de melder te weten waarover het gaat) en vanuit de ODH geïnformeerd wil worden over de voortgang middels statusmeldingen. De ODH informeert de verzoeker wel rechtstreeks.",
+        "begindatum": "2012-02-10T00:00:00"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond",
+          "doorlooptijd": "4 werkdagen",
+          "toelichting": "Er wordt beoordeeld of het daadwerkelijk een verzoek tot handhaving betreft. Eventueel wordt contact opgenomen met de od haaglanden - zaaktypecatalogus v1.0 - 20120210 53 / 155 persoon die het verzoek ingediend heeft. De zaak wordt geregistreerd (de startdatum is de datum van ontvangst door het bevoegd gezag, indien van toepassing) en de behandelend medewerker of het behandelend organisatie-onderdeel wordt aangewezen. Als het verzoek rechtstreeks bij de ODH of bij de provincie is gedaan, wordt een ontvangstbevestiging verzonden. Als de melding is ontvangen via een bevoegd gezag is het uitgangspunt dat die al een ontvangstbevestiging gezonden heeft."
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond",
+          "doorlooptijd": "2 werkdagen",
+          "toelichting": "De beschikking wordt verzonden, het bevoegd gezag wordt – indien van toepassing – geïnformeerd over het afronden van de zaak en het zaakdossier wordt afgesloten en gearchiveerd (indien de provincie het bevoegd gezag is) of ter archivering overgedragen aan het bevoegd gezag (indien dat de gemeente is)."
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Handhavingsverzoeker",
+          "omschrijving": "Handhavingsverzoeker",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Bevoegd gezag",
+          "omschrijving": "Bevoegd gezag",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "catie-houder",
+          "omschrijving": "catie-houder",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Zaakverantwoordelijke",
+          "omschrijving": "Zaakverantwoordelijke",
+          "categorie": "Verantwoordelijke"
+        },
+        {
+          "type": "behandelaar",
+          "omschrijving": "behandelaar",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "Juridisch adviseur",
+          "omschrijving": "Juridisch adviseur",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "ondersteuner",
+          "omschrijving": "ondersteuner",
+          "categorie": "Overig"
+        },
+        {
+          "type": "Procesondersteuner",
+          "omschrijving": "Procesondersteuner",
+          "categorie": "Overig"
+        }
+      ],
+      "objecten": [
+        {
+          "type": "Milieu-inrichting of -",
+          "omschrijving": "locatie De milieu-inrichting(en) en/of milieulocatie(s) waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Pand (BAG)",
+          "omschrijving": "Het (de) pand(en) (in de BAG) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Verblijfsobject (BAG)",
+          "omschrijving": "Het (de) verblijfsobject(en) (in de BAG) met bijbehorend adres(sen) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Overig bouwwerk (BGT)",
+          "omschrijving": "Het (de) overige bouwwerk(en) (in de BGT) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Vestiging (NHR)",
+          "omschrijving": "De vestiging(en) (in het NHR) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Locatie",
+          "omschrijving": "De locatie waarop de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft indien deze geen pand, verblijfsobject en overig bouwwerk betreft."
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Organisatie van",
+          "omschrijving": "ontvangst"
+        },
+        {
+          "naam": "De organisatie waarbij het verzoek is ingediend: gemeente [naam] /",
+          "omschrijving": "provincie Zuid-Holland / Omgevingsdienst Haaglanden."
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Handhavingsverzoek",
+          "richting": "inkomend",
+          "volgnummer": 1,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Ontvangstbevestiging",
+          "richting": "uitgaand",
+          "volgnummer": 2,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Controlerapport",
+          "richting": "intern",
+          "volgnummer": 3,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Handhavingsvoornemen",
+          "richting": "uitgaand",
+          "volgnummer": 4,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Statusmelding",
+          "richting": "uitgaand",
+          "volgnummer": 6,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Advies n.a.v. zienswijzen",
+          "richting": "intern",
+          "volgnummer": 7,
+          "verplicht": false
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Toegekend",
+          "omschrijving": "Toegekend"
+        },
+        {
+          "type": "Geweigerd",
+          "omschrijving": "Geweigerd"
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        }
+      ],
+      "gerelateerde_zaken": [
+        {
+          "zaaktype_id": "behandelen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "nemen",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "Een handhavingsverzoek kan leiden tot het daadwerkelijk opleggen van",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "nemen’.",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "Bezwaar behandelen",
+          "relatietype": "Vervolg"
+        }
+      ]
+    },
+    {
+      "id": "ODH007",
+      "omschrijving": "Incidentmelding behandelen",
+      "details": {
+        "categorie": "Omgevingsdienst Haaglanden",
+        "doel": "Een oplossing vinden voor gemelde overlast van milieu-activiteiten of een gemeld voorval bij een milieu-inrichting of op een milieulocatie.",
+        "aanleiding": "Door een burger, bedrijf of andere organisatie of vanuit de eigen organisatie is – bij de ODH, het bevoegd gezag of een andere OD (milieutelefoon) - een klacht of (overlast)melding ingediend naar aanleiding van (vermeende) milieuhinder, of: Een bedrijf heeft, of vanuit de eigen organisatie is, een voorval gemeld (bij één van de genoemde organisaties) met betrekking tot milieu- activiteiten.",
+        "verantwoordelijke_organisatie": "Teamleider Toezicht & Handhaving",
+        "doorlooptijd": "Afhankelijk van de soort melding (complex-normaal)",
+        "servicenorm": "26 dagen voor normale gevallen",
+        "toelichting_doorlooptijd": "Het gaat hier om een klacht, een overlast- of een voorvalmelding. Het gaat niet om een expliciet verzoek tot handhaving cq. verzoek tot toepassen sanctie (zie daarvoor het zaaktype ‘Handhavingsverzoek behandelen’). De melding kan gedaan zijn bij de ODH, het bevoegd gezag of een andere OD. Indien de melding niet rechtstreeks bij de ODH gedaan is, is het uitgangspunt dat het bevoegd gezag of de andere OD (m.u.v. de provincie) zelf ook een zaak over de melding heeft lopen (om bij eventueel contact met de melder te weten waarover het gaat) en vanuit de ODH geïnformeerd wil worden over de voortgang middels statusmeldingen. Wel informeert de ODH de melder rechtstreeks. In de praktijk komt het voor dat de melder weliswaar contact heeft gezocht met het bevoegd gezag maar aldaar is doorverwezen naar de ODH. Die melding is in dat geval niet bekend bij het bevoegd gezag. Het doel van de zaak is een oplossing voor het probleem te vinden. Maar het gemelde probleem wordt gedurende de uitvoering van de zaak niet altijd opgelost.",
+        "begindatum": "2012-02-10T00:00:00"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond",
+          "doorlooptijd": "3 werkdagen",
+          "toelichting": "Er wordt beoordeeld of het daadwerkelijk een incidentmelding betreft. Eventueel wordt contact opgenomen met de persoon die, of het bedrijf dat de melding gedaan heeft. De zaak wordt geregistreerd en de behandelend medewerker of het behandelend organisatie-onderdeel wordt aangewezen. Tot slot wordt een ontvangstbevestiging verzonden indien de melding rechtstreeks bij de ODH of bij de provincie is gedaan. Als de melding is ontvangen via een bevoegd gezag of een andere OD is het uitgangspunt dat zij een ontvangstbevestiging gezonden heeft."
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond",
+          "doorlooptijd": "3 werkdagen",
+          "toelichting": "De melder en andere belanghebbenden (brandweer, politie, ondernemer e.d.) worden formeel op de hoogte gesteld van de afhandeling van de melding. Eventueel wordt het uitvoeren van de oplossingsrichting in gang gezet, wordt – indien van toepassing – het bevoegd gezag of de andere od haaglanden - zaaktypecatalogus v1.0 - 20120210 62 / 155 OD geïnformeerd over het afronden van de zaak en wordt het zaakdossier afgesloten en gearchiveerd (indien de provincie het bevoegd gezag is) of ter archivering overgedragen aan het bevoegd gezag (indien dat de gemeente is)."
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Incidentmelde",
+          "omschrijving": "Incidentmelde",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Bevoegd gezag",
+          "omschrijving": "Bevoegd gezag",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "catie-houder",
+          "omschrijving": "catie-houder",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Zaakverantwoordelijke",
+          "omschrijving": "Zaakverantwoordelijke",
+          "categorie": "Verantwoordelijke"
+        },
+        {
+          "type": "Meldingbehandelaar",
+          "omschrijving": "Meldingbehandelaar",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "Juridisch adviseur",
+          "omschrijving": "Juridisch adviseur",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "ondersteuner",
+          "omschrijving": "ondersteuner",
+          "categorie": "Overig"
+        },
+        {
+          "type": "Procesondersteuner",
+          "omschrijving": "Procesondersteuner",
+          "categorie": "Overig"
+        }
+      ],
+      "objecten": [
+        {
+          "type": "Milieu-inrichting of -",
+          "omschrijving": "locatie De milieu-inrichting(en) en/of milieulocatie(s) waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Pand (BAG)",
+          "omschrijving": "Het (de) pand(en) (in de BAG) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Verblijfsobject (BAG)",
+          "omschrijving": "Het (de) verblijfsobject(en) (in de BAG) met bijbehorend adres(sen) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Overig bouwwerk (BGT)",
+          "omschrijving": "Het (de) overige bouwwerk(en) (in de BGT) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Vestiging (NHR)",
+          "omschrijving": "De vestiging(en) (in het NHR) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Locatie",
+          "omschrijving": "De locatie waarop de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft indien deze geen pand, verblijfsobject en overig bouwwerk betreft."
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Organisatie van",
+          "omschrijving": "ontvangst"
+        },
+        {
+          "naam": "De organisatie waarbij de incidentmelding is gedaan: gemeente [naam] /",
+          "omschrijving": "provincie Zuid-Holland / Omgevingsdienst [naam] / Milieutelefoon"
+        },
+        {
+          "naam": "Aard incidentmelding",
+          "omschrijving": "Geurklacht / Geluidsklacht / Stofmelding / Calamiteit."
+        },
+        {
+          "naam": "Van belang om klacht af te kunnen handelen, om te achterhalen wat voor",
+          "omschrijving": "overlast wordt ondervonden. En om tijdsduur te kunnen ondervangen."
+        },
+        {
+          "naam": "Tijdstip incident",
+          "omschrijving": "Is relevant voor het vervolgtraject, om te achterhalen of de klacht"
+        },
+        {
+          "naam": "gegrond is.",
+          "omschrijving": "Tijdstip melding"
+        },
+        {
+          "naam": "Is relevant voor het vervolgtraject, om te achterhalen of de klacht",
+          "omschrijving": "gegrond is."
+        },
+        {
+          "naam": "Indicatie anonimiteit",
+          "omschrijving": "Ja / Nee."
+        },
+        {
+          "naam": "Degene die meldt, mag dit anoniem doen. De naam van de melder wordt",
+          "omschrijving": "niet vermeld in de"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Incidentmelding",
+          "richting": "inkomend",
+          "volgnummer": 1,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Ontvangstbevestiging",
+          "richting": "uitgaand",
+          "volgnummer": 2,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Controlerapport",
+          "richting": "intern",
+          "volgnummer": 3,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Uitspraak op incidentmelding",
+          "richting": "uitgaand",
+          "volgnummer": 4,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Statusmelding",
+          "richting": "uitgaand",
+          "volgnummer": 5,
+          "verplicht": true
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Verwerkt",
+          "omschrijving": "Verwerkt"
+        },
+        {
+          "type": "Ongegrond",
+          "omschrijving": "Ongegrond"
+        }
+      ],
+      "gerelateerde_zaken": [
+        {
+          "zaaktype_id": "nemen",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "Een incidentmelding kan leiden tot het opleggen van sancties door een",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "zaak van het type ‘Handhaven’ uit te voeren.",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "behandelen",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "behandelen",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "Toezicht uitvoeren",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "Melding behandelen",
+          "relatietype": "Vervolg"
+        }
+      ]
+    },
+    {
+      "id": "ODH008",
+      "omschrijving": "Last onder dwangsom ten uitvoer leggen",
+      "details": {
+        "categorie": "Omgevingsdienst Haaglanden",
+        "doel": "De naleving van wet- en regelgeving afdwingen door een last onder dwangsom ten uitvoer te leggen.",
+        "aanleiding": "Bij het toezicht houden (zaak van het type ‘Toezicht uitvoeren’) of anderszins zijn strijdigheden geconstateerd met wet- en regelgeving en/of vergunningen die niet of niet tijdig opgelost konden worden. Naar aanleiding hiervan is een handhavingsbesluit genomen waarin een last onder dwangsom is opgelegd. Voor elke termijn van het verbeurd kunnen verklaren van de dwangsom wordt de zaak uitgevoerd.",
+        "verantwoordelijke_organisatie": "Afdelingshoofd Toezicht & Handhaving dan wel teamleider, afhankelijk van mandatering",
+        "doorlooptijd": "Variabel, afhankelijk van omstandigheden en begunstigingstermijn.",
+        "servicenorm": "N.v.t.",
+        "toelichting_doorlooptijd": "Het handhavingstraject dat volgde op een geconstateerde strijdigheid is begonnen met een zaak van het type ‘Handhavingsbesluit nemen’. Daarin is besloten om over te gaan tot een last onder dwangsom. De zaak van het onderhavige zaaktype wordt net zolang herhaald totdat de strijdigheid is opgeheven of de maximale dwangsom verbeurd is. De hieronder vermelde zaakstatussen betreffen de normale gang van zaken. Bij een spoedprocedure kunnen statussen korter of zelfs helemaal niet doorlopen worden. 1) Bron: Aanzet producten- en dienstencatalogus OD Haaglanden (oktober 2011)",
+        "begindatum": "2012-02-10T00:00:00"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Nakoming getoetst",
+          "doorlooptijd": "situatie-afhankelijk",
+          "toelichting": "Met een hercontrole wordt getoetst of de eerder geconstateerde strijdigheid is opgeheven (deelzaak van het type ‘Toezicht uitvoeren’). Als dat het geval is, wordt de overtreder hiervan op de hoogte gesteld (bij het afronden van de zaak), de status 2 niet uitgevoerd en de zaak afgerond (in status 3)."
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inningsbrief verzonden",
+          "doorlooptijd": "situatie-afhankelijk",
+          "toelichting": "Het verbeurd verklaren van de (termijn van de) dwangsom wordt verwoord in de inningsbrief die aan de overtreder wordt verzonden. Beoordeeld wordt of hiermee het maximum van de op te leggen dwangsom bereikt is."
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond",
+          "doorlooptijd": "situatie-afhankelijk",
+          "toelichting": "Als de strijdigheid niet is opgeheven en het maximum van de dwangsom nog niet is bereikt, wordt na het afsluiten van de zaak een nieuwe zaak van dit type gepland. Als de strijdigheid niet is opgeheven en het maximum van de dwangsom wel is bereikt, wordt eventueel een nieuw handhavingstraject gestart. Als de strijdigheid is opgeheven, wordt aan de betrokkenen een brief gezonden over de beëindiging van het handhavingstraject. Normaliter wordt hierin tevens de intrekking van de sanctie vermeld. Verder wordt geverifieerd of invorderingsacties correct zijn overgedragen aan het bevoegd gezag. Het zaakdossier, dossier van eventuele voorafgaande zaken van dit type en het dossier van de voorafgaande zaak van het type ‘Handhavingsbesluit nemen’ worden ten slotte afgesloten en gearchiveerd (indien de provincie het bevoegd gezag is) of ter archivering overgedragen aan het bevoegd gezag (indien dat de gemeente is)."
+        }
+      ],
+      "rollen": [
+        {
+          "type": "uitvoer-legger",
+          "omschrijving": "uitvoer-legger",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Te handhaven persoon",
+          "omschrijving": "Te handhaven persoon",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Bevoegd gezag",
+          "omschrijving": "Bevoegd gezag",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Zaakverantwoordelijke",
+          "omschrijving": "Zaakverantwoordelijke",
+          "categorie": "Verantwoordelijke"
+        },
+        {
+          "type": "Handhaver",
+          "omschrijving": "Handhaver",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "Juridisch adviseur",
+          "omschrijving": "Juridisch adviseur",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "verantwoordelijke",
+          "omschrijving": "verantwoordelijke",
+          "categorie": "Overig"
+        },
+        {
+          "type": "Procesondersteuner",
+          "omschrijving": "Procesondersteuner",
+          "categorie": "Overig"
+        }
+      ],
+      "objecten": [
+        {
+          "type": "Milieu-inrichting of -",
+          "omschrijving": "locatie De milieu-inrichting(en) en/of milieulocatie(s) waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Pand (BAG)",
+          "omschrijving": "Het (de) pand(en) (in de BAG) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Verblijfsobject (BAG)",
+          "omschrijving": "Het (de) verblijfsobject(en) (in de BAG) met bijbehorend adres(sen) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Overig bouwwerk (BGT)",
+          "omschrijving": "Het (de) overige bouwwerk(en) (in de BGT) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Vestiging (NHR)",
+          "omschrijving": "De vestiging(en) (in het NHR) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Locatie",
+          "omschrijving": "De locatie waarop de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft indien deze geen pand, verblijfsobject en overig bouwwerk betreft."
+        },
+        {
+          "type": "Besluit",
+          "omschrijving": "Het handhavingsbesluit waarin de last onder dwangsom is opgelegd."
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Handhavingsbesluit",
+          "richting": "intern",
+          "volgnummer": 1,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Inningsbrief",
+          "richting": "uitgaand",
+          "volgnummer": 2,
+          "verplicht": false
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Ten uitvoer",
+          "omschrijving": "Ten uitvoer"
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        }
+      ],
+      "gerelateerde_zaken": [
+        {
+          "zaaktype_id": "nemen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "De zaak waarin besloten is om de last onder dwangsom op te leggen.",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "ten uitvoer leggen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "ten uitvoer leggen",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "aanleiding van het opleggen van de last onder dwangsom.",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "nemen",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "opleggen van de last onder dwangsom.",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "Toezicht uitvoeren",
+          "relatietype": "Vervolg"
+        }
+      ]
+    },
+    {
+      "id": "ODH009",
+      "omschrijving": "Melding behandelen",
+      "details": {
+        "categorie": "Omgevingsdienst Haaglanden",
+        "doel": "Een melding inzake de milieuwet- en regelgeving verwerken.",
+        "aanleiding": "De gemeente of de provincie als bevoegd gezag heeft een melding inzake od haaglanden - zaaktypecatalogus v1.0 - 20120210 74 / 155 de vigerende milieuwet- en -regelgeving ontvangen. Zij heeft de ODH gemandateerd om dergelijke meldingen te behandelen. Zij draagt de ODH op om de ontvangen melding te behandelen.",
+        "doorlooptijd": "Doorlooptijden voor de producten en diensten verschillen en zijn niet in alle gevallen wettelijk vastgelegd.  Melding BUS: 5 weken, (wel lex silencio).  Meldingen Besluit bodemkwaliteit: 5 werkdagen (wel lex silencio).  Vuurwerktoestemming: 8 weken.",
+        "servicenorm": "Betreft de doorlooptijden van producten en diensten waarvan de termijnen niet wettelijk zijn vastgelegd, en de beoogde doorlooptijd van producten en diensten waarvan de termijnen wel wettelijk zijn vastgelegd:",
+        "begindatum": "2012-02-10T00:00:00"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond",
+          "doorlooptijd": "2 werkdagen",
+          "toelichting": "Er wordt beoordeeld of de ontvangen melding dit zaaktype betreft. Zo ja, dan wordt de zaak aangemaakt met daarbij de ontvangen documenten (melding met bijlagen, opdracht tot behandeling van bevoegd gezag en eventueel ontvangstbevestiging) en wordt de zaakbehandelaar (medewerker of organisatie- onderdeel) bepaald (de startdatum is de datum van ontvangst door het bevoegd gezag, indien van toepassing). Als het bevoegd gezag de gemeente is, wordt zij geïnformeerd dat de intake heeft plaatsgevonden (d.m.v. een digitaal bericht). Als het bevoegd gezag de provincie is, wordt de ontvangstbevestiging aan de melder gezonden, cc. naar provincie. Indien van toepassing wordt de melding gepubliceerd."
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld",
+          "doorlooptijd": "2 weken (indieningsvereiste bij",
+          "toelichting": "De melding wordt beoordeeld op de relevante wetgeving en informatie over de milieu-inrichting of -locatie. Waar nodig wordt contact opgenomen met de melder, wordt om aanvullende informatie gevraagd en/of wordt contact opgenomen met de gemeente in verband met een relatie met een omgevingsvergunning- aanvraag. De status is bereikt als de publicatie van de melding op- en vastgesteld is."
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond",
+          "doorlooptijd": "3 werkdagen",
+          "toelichting": "De melding wordt gepubliceerd, de melder wordt hierover geïnformeerd en het zaakdossier wordt afgesloten en gearchiveerd (indien de provincie het bevoegd gezag is) of ter archivering overgedragen aan het bevoegd gezag (indien dat de gemeente is)."
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Meldingindiener",
+          "omschrijving": "Meldingindiener",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Bevoegd gezag",
+          "omschrijving": "Bevoegd gezag",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Zaakverantwoordelijke",
+          "omschrijving": "Zaakverantwoordelijke",
+          "categorie": "Verantwoordelijke"
+        },
+        {
+          "type": "Meldingbehandelaar",
+          "omschrijving": "Meldingbehandelaar",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "Juridisch adviseur",
+          "omschrijving": "Juridisch adviseur",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "ondersteuner",
+          "omschrijving": "ondersteuner",
+          "categorie": "Overig"
+        },
+        {
+          "type": "Procesondersteuner",
+          "omschrijving": "Procesondersteuner",
+          "categorie": "Overig"
+        }
+      ],
+      "objecten": [
+        {
+          "type": "Milieu-inrichting of -",
+          "omschrijving": "locatie De milieu-inrichting(en) en/of milieulocatie(s) waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Pand (BAG)",
+          "omschrijving": "Het (de) pand(en) (in de BAG) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Verblijfsobject (BAG)",
+          "omschrijving": "Het (de) verblijfsobject(en) (in de BAG) met bijbehorend adres(sen) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Overig bouwwerk (BGT)",
+          "omschrijving": "Het (de) overige bouwwerk(en) (in de BGT) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Vestiging (NHR)",
+          "omschrijving": "De vestiging(en) (in het NHR) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Locatie",
+          "omschrijving": "De locatie waarop de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft indien deze geen pand, verblijfsobject en overig bouwwerk betreft."
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Beoogd(e) product(en)",
+          "omschrijving": "Specificatie van het (de) product(en) (zie  ‘Kerngegevens’, ‘Producten en"
+        },
+        {
+          "naam": "diensten’) waarop de melding betrekking heeft. De behandeling van de",
+          "omschrijving": "zaak kan op proces-detail-niveau verschillen, afhankelijk van het beoogde"
+        },
+        {
+          "naam": "product.",
+          "omschrijving": "Wet of besluit"
+        },
+        {
+          "naam": "Aanduiding van de wet of het besluit met betrekking tot de melding.",
+          "omschrijving": "Bijvoorbeeld ‘Activiteitenbesluit / Besluit glastuinbouw’."
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Ingediende melding",
+          "richting": "inkomend",
+          "volgnummer": 1,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Ontvangstbevestiging",
+          "richting": "inkomend",
+          "volgnummer": 2,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Opdracht tot behandeling",
+          "richting": "inkomend",
+          "volgnummer": 3,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Aanvullende informatie",
+          "richting": "inkomend",
+          "volgnummer": 5,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Brief niet-melding-plichtig",
+          "richting": "uitgaand",
+          "volgnummer": 6,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Publicatie van melding",
+          "richting": "uitgaand",
+          "volgnummer": 7,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Publicatiebrief",
+          "richting": "uitgaand",
+          "volgnummer": 8,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Statusmelding",
+          "richting": "uitgaand",
+          "volgnummer": 9,
+          "verplicht": true
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Verwerkt",
+          "omschrijving": "Verwerkt"
+        },
+        {
+          "type": "Niet nodig",
+          "omschrijving": "Niet nodig"
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        }
+      ],
+      "gerelateerde_zaken": [
+        {
+          "zaaktype_id": "behandelen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "Toezicht uitvoeren",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "nemen tot het doen van een melding.",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "nemen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "Indien bij het nemen van een handhavingsbesluit is gebleken dat er",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "Toezicht uitvoeren",
+          "relatietype": "Vervolg"
+        }
+      ]
+    },
+    {
+      "id": "ODH010",
+      "omschrijving": "Toetsing uitvoeren",
+      "details": {
+        "categorie": "Omgevingsdienst Haaglanden",
+        "doel": "Een beoordeling verkrijgen van één of meer onderzoeken, (bouw)plannen, aanvragen en/of voorstellen op geldende wetgeving en (vastgesteld) beleid.",
+        "aanleiding": " Een bevoegd gezag heeft een aanvraag voor een omgevingsvergunning (of vergelijkbaar) ontvangen die zij zelf behandelt. Zij verzoekt de ODH om deze aanvraag op de milieu-aspecten te toetsen.  Een andere omgevingsdienst heeft een vergunningaanvraag (of vergelijkbaar) in behandeling. Zij verzoekt de ODH om deze aanvraag op specifieke milieu-aspecten te toetsen.  Een bevoegd gezag of andere omgevingsdienst verzoekt een toets uit te voeren op een milieu-aspect(en) omdat zij een niet-vrijblijvend oordeel wil.  Bij de behandeling van een zaak van het type ‘Vergunningaanvraag behandelen’ bleek de noodzaak van een deeltoets op specifieke milieu- aspecten.",
+        "verantwoordelijke_organisatie": "Teamleider Toetsing & Vergunningen",
+        "doorlooptijd": "10 werkdagen bij toetsing in het kader van een omgevingsvergunning- procedure. In andere gevallen geen wettelijke vereisten.",
+        "servicenorm": "Afhankelijk van het soort toets: - Normaal: 10 werkdagen - Complex: 20 werkdagen",
+        "toelichting_doorlooptijd": "Bij toetsing kan het gaan om onderzoeken in een wettelijke procedure (bijvoorbeeld wm, wbb of wgh) of om onderzoeksrapporten als onderdeel van een omgevingsvergunning of bestemmingsplan. Niet alle toetsingen hebben een vooraf dwingend karakter. De beoordeling heeft een voorschrijvend karakter en is niet vrijblijvend; niet naleven van het oordeel leidt met grote zekerheid tot handhaving.",
+        "begindatum": "2012-02-10T00:00:00"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond",
+          "doorlooptijd": "2 werkdagen",
+          "toelichting": "Er wordt beoordeeld of het od haaglanden - zaaktypecatalogus v1.0 - 20120210 83 / 155 ontvangen verzoek dit zaaktype betreft. Zo ja, dan wordt de zaak aangemaakt met daarbij de ontvangen documenten en wordt de zaakbehandelaar (medewerker of organisatie- onderdeel) bepaald. Indien het verzoek van een andere organisatie komt wordt deze geïnformeerd dat de intake heeft plaatsgevonden (d.m.v. een digitaal bericht)."
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Toets uitgevoerd",
+          "doorlooptijd": "8 – 18 werkdagen",
+          "toelichting": "De in het verzoek genoemde documenten worden beoordeeld op de relevante wetgeving en informatie over de milieu-inrichting of -locatie. Waar nodig vindt collegiale afstemming en/of overleg met de opdrachtgever plaats. De status is bereikt als het toetsingsrapport inhoudelijk op- en vastgesteld is."
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Toetsrapport opgeleverd",
+          "doorlooptijd": "2 werkdagen",
+          "toelichting": "Het toetsingsrapport wordt ter beschikking gesteld van de opdrachtgever en het zaakdossier wordt afgesloten en gearchiveerd (indien de provincie het bevoegd gezag is) dan wel ter archivering overgedragen aan het bevoegd gezag (indien dat de gemeente is)."
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Toetsingaanvrager",
+          "omschrijving": "Toetsingaanvrager",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Zaakverantwoordelijke",
+          "omschrijving": "Zaakverantwoordelijke",
+          "categorie": "Verantwoordelijke"
+        },
+        {
+          "type": "Toetser",
+          "omschrijving": "Toetser",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "Juridisch adviseur",
+          "omschrijving": "Juridisch adviseur",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "ondersteuner",
+          "omschrijving": "ondersteuner",
+          "categorie": "Overig"
+        },
+        {
+          "type": "Procesondersteuner",
+          "omschrijving": "Procesondersteuner",
+          "categorie": "Overig"
+        }
+      ],
+      "objecten": [
+        {
+          "type": "Milieu-inrichting of -",
+          "omschrijving": "locatie De milieu-inrichting(en) en/of milieulocatie(s) waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Pand (BAG)",
+          "omschrijving": "Het (de) pand(en) (in de BAG) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Verblijfsobject (BAG)",
+          "omschrijving": "Het (de) verblijfsobject(en) (in de BAG) met bijbehorend adres(sen) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Overig bouwwerk (BGT)",
+          "omschrijving": "Het (de) overige bouwwerk(en) (in de BGT) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Vestiging (NHR)",
+          "omschrijving": "De vestiging(en) (in het NHR) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Locatie",
+          "omschrijving": "De locatie waarop de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft indien deze geen pand, verblijfsobject en overig bouwwerk betreft."
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Toetsingverzoek",
+          "richting": "inkomend",
+          "volgnummer": 1,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Te toetsen document(en)",
+          "richting": "inkomend",
+          "volgnummer": 2,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Statusmelding",
+          "richting": "uitgaand",
+          "volgnummer": 3,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Toetsingsrapport",
+          "richting": "uitgaand",
+          "volgnummer": 4,
+          "verplicht": true
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Vastgesteld",
+          "omschrijving": "Vastgesteld"
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        }
+      ],
+      "gerelateerde_zaken": [
+        {
+          "zaaktype_id": "behandelen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "het type ‘Vergunningaanvraag behandelen’.",
+          "relatietype": "Gerelateerd"
+        }
+      ]
+    },
+    {
+      "id": "ODH011",
+      "omschrijving": "Toezicht uitvoeren",
+      "details": {
+        "categorie": "Omgevingsdienst Haaglanden",
+        "doel": "Milieugebonden activiteiten (preventief) controleren op de hiervoor geldende wet- en regelgeving en de afgegeven vergunningen.",
+        "aanleiding": "Een gerealiseerde vergunning (‘opleveringscontrole’), een ingekomen klacht, melding of verzoek, een ‘toevallige’ waarneming, een handhavingstraject of het gepland zijn van toezicht (‘periodieke controle’).",
+        "doorlooptijd": "",
+        "servicenorm": " Normale situaties: 11 werkdagen  Complexe situaties: 21 werkdagen",
+        "begindatum": "2012-02-10T00:00:00"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Zaak gepland",
+          "doorlooptijd": "1 dag",
+          "toelichting": "Het definitief inplannen van de start van de zaak op de geplande bezoekdatum. De zaak stond daarvoor gepland op een voorlopige datum. Door toezichtzaken voor bijvoorbeeld een bepaald jaar voorlopig in te plannen (bijvoorbeeld op 1-1 van dat jaar) wordt zicht gehouden op alle in dat jaar uit te voeren toezichtzaken, ook al zijn deze nog niet alle definitief gepland."
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Controlebezoek uitgevoerd",
+          "doorlooptijd": "2 dagen",
+          "toelichting": "Het voorbereiden en uitvoeren van het bezoek aan de te inspecteren inrichting of locatie. Ter voorbereiding op de uit te voeren controle raadpleegt de toezichthouder verschillende in- en externe bronnen. Als de in- en externe bronnen onvoldoende informatie en inzicht bieden voor het uit te voeren toezicht vindt (extern) overleg plaats. Daarin worden aandachtspunten, risico’s, knelpunten en randvoorwaarden van het toezicht besproken. De daadwerkelijke inspectie kan zowel de beoordeling van documenten (administratief toezicht) inhouden, als het bezoeken van de te controleren inrichting of locatie. De constateringen worden vastgelegd in een bezoeknotitie."
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Bevindingen vastgesteld",
+          "doorlooptijd": "6 dagen (normaal),",
+          "toelichting": "Aan de hand van de bezoeknotitie stelt de toezichthouder een controlerapport op. Indien nodig wordt op een specifiek(e) aspect(en) een toetsing(en) uitgevoerd (door middel van een gelijknamige zaak). Op basis van de verkregen inzichten wordt besloten om de zaak af te handelen dan wel een waarschuwing te geven of een handhavingstraject te starten naar aanleiding van geconstateerde strijdigheden (tekortkomingen en/of overtredingen). De uitvoering van het handhavingstraject vindt plaats door middel van een nieuwe zaak (zie od haaglanden - zaaktypecatalogus v1.0 - 20120210 90 / 155 ‘Vervolgzaken’). De status wordt afgesloten met de oplevering en vaststelling van het controlerapport en de oplevering van de concept-bevindingenbrief (inhoudelijk akkoord)."
+        },
+        {
+          "volgnummer": 4,
+          "omschrijving": "Toezicht afgerond",
+          "doorlooptijd": "2 dagen",
+          "toelichting": "De bevindingenbrief wordt verzonden aan de gecontroleerde milieu-inrichting of –locatie. Daarin staat eventueel een waarschuwing, een legalisatievoorstel of een aankondiging dat een handhavingstraject gestart gaat worden. Indien van toepassing is een zaak van het type ‘Handhavingsbesluit nemen’ gestart. Het zaakdossier wordt afgesloten en gearchiveerd (indien de provincie het bevoegd gezag is) dan wel ter archivering overgedragen aan het bevoegd gezag (indien dat de gemeente is)."
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Toezichtinitiator",
+          "omschrijving": "Toezichtinitiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "catie-houder",
+          "omschrijving": "catie-houder",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Zaakverantwoordelijke",
+          "omschrijving": "Zaakverantwoordelijke",
+          "categorie": "Verantwoordelijke"
+        },
+        {
+          "type": "Toezichthouder",
+          "omschrijving": "Toezichthouder",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "Juridisch adviseur",
+          "omschrijving": "Juridisch adviseur",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "ondersteuner",
+          "omschrijving": "ondersteuner",
+          "categorie": "Overig"
+        }
+      ],
+      "objecten": [
+        {
+          "type": "Milieu-inrichting of -",
+          "omschrijving": "locatie De milieu-inrichting(en) en/of milieulocatie(s) waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Pand (BAG)",
+          "omschrijving": "Het (de) pand(en) (in de BAG) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Verblijfsobject (BAG)",
+          "omschrijving": "Het (de) verblijfsobject(en) (in de BAG) met bijbehorend adres(sen) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Overig bouwwerk (BGT)",
+          "omschrijving": "Het (de) overige bouwwerk(en) (in de BGT) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Vestiging (NHR)",
+          "omschrijving": "De vestiging(en) (in het NHR) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Locatie",
+          "omschrijving": "De locatie waarop de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft indien deze geen pand, verblijfsobject en overig bouwwerk betreft."
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Type controle",
+          "omschrijving": "Opleveringscontrole / Periodieke controle/ Hercontrole /"
+        },
+        {
+          "naam": "Handhavingscontrole / Incidentele controle / Themacontrole /",
+          "omschrijving": "Meetcontrole"
+        },
+        {
+          "naam": "Vervolg",
+          "omschrijving": "Geen / Waarschuwing / Handhaving"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Gereedmelding vergunning",
+          "richting": "inkomend",
+          "volgnummer": 1,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Bezoeknotitie",
+          "richting": "intern",
+          "volgnummer": 2,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Aanvullende informatie",
+          "richting": "inkomend",
+          "volgnummer": 3,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Controlerapport",
+          "richting": "intern",
+          "volgnummer": 4,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Brief toezichtsbevindingen",
+          "richting": "uitgaand",
+          "volgnummer": 5,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Constatering andere afwijking",
+          "richting": "uitgaand",
+          "volgnummer": 6,
+          "verplicht": false
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Verwerkt",
+          "omschrijving": "Verwerkt"
+        }
+      ],
+      "gerelateerde_zaken": [
+        {
+          "zaaktype_id": "nemen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "uiitvoer leggen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "ten uitvoer leggen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "behandelen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "behandelen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "nemen",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "Toezicht uitvoeren",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "behandelen",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "geboden wordt om de geconstateerde strijdigheid weg te nemen door",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "Melding behandelen",
+          "relatietype": "Vervolg"
+        }
+      ]
+    },
+    {
+      "id": "ODH012",
+      "omschrijving": "Vergunningaanvraag regulier behandelen",
+      "details": {
+        "categorie": "Omgevingsdienst Haaglanden",
+        "doel": "Een besluit nemen op een aanvraag voor een vergunning, ontheffing of vergelijkbare beschikking op basis van een gedegen beoordeling van die aanvraag in een reguliere procedure.",
+        "aanleiding": "De gemeente als bevoegd gezag heeft een aanvraag voor een omgevingsvergunning of milieuwetgeving-gerelateerde vergunning od haaglanden - zaaktypecatalogus v1.0 - 20120210 97 / 155 ontvangen. De gemeente heeft geconstateerd dat het een enkelvoudige aanvraag betreft met alleen een milieu-component of dat het een meervoudige aanvraag betreft met betrekking tot een milieuvergunningplichtige inrichting of -locatie en met een milieu-component (milieu-aspect is ‘zwaartepunt’) . De gemeente heeft de ODH gemandateerd om dergelijke aanvragen te behandelen. Zij draagt de ODH op om de ontvangen aanvraag te behandelen. De ODH heeft vastgesteld dat de aanvraag in een reguliere procedure behandeld kan worden. of: De provincie als bevoegd gezag heeft een aanvraag voor een omgevingsvergunning of milieuwetgevinggerelateerde vergunning ontvangen. Zij heeft de ODH gemandateerd om dergelijke aanvragen te behandelen. Zij draagt de ODH op om de ontvangen aanvraag te behandelen. De ODH heeft vastgesteld dat de aanvraag in een reguliere procedure behandeld kan worden. Ook is het mogelijk dat het bevoegd gezag of de ODH zelf (afhankelijk van de mandatering) het initiatief neemt voor het wijzigen of intrekken van een vergunning, veelal naar aanleiding van een constatering tijdens de uitvoering van een zaak van het type ‘Toezicht uitvoeren’. Zie ook bovenstaande figuren.",
+        "verantwoordelijke_organisatie": "Teamleider Toetsing & Vergunning",
+        "doorlooptijd": "Op hoofdlijnen: 8 weken. Doorlooptijden voor de producten en diensten zijn verschillend, een aantal hebben wettelijke vastgelegde termijnen. Maatwerkvoorschrift Activiteitenbesluit/Besluit lozen buiten inrichtingen: ca. 6 weken (geen lex silencio) OBM: 8 weken, wettelijk wel lex silencio Wabo 3.10.3 (oude 8.19): 8 weken, wettelijk wel lex silencio Beschikking Wbb: ernst en spoed: 15 weken, geen lex silencio, saneringsplan: 15 + eventueel 15 weken, wel lex silencio, saneringsevaluatie: 8 weken, nazorgplan: 6 maanden",
+        "toelichting_doorlooptijd": "Bij dit zaaktype draagt het bevoegd gezag de behandeling van de vergunningaanvraag op aan de ODH. De start van de zaakbehandeling verschilt naar gelang de aanvraag ontvangen is door de gemeente dan wel de provincie als bevoegd gezag. Aangezien de gemeente de front- office vormt (in het geval zij bevoegd gezag is), verzorgt zij haar deel van de intake, met name registratie van de zaak en uitdoen van de ontvangst- bevestiging. Daarna zet de ODH als back-office de behandeling voort. Als de provincie het bevoegd gezag is, verzorgt de ODH het front-office en voert de gehele intake uit, waaronder het uitdoen van de ontvangst- bevestiging, en zet daarna als back-office de behandeling voort. De ODH bepaalt tijdens haar intake, of zo spoedig mogelijk daarna, dat de aanvraag in een reguliere procedure behandeld kan worden. Als dit niet mogelijk is, betreft het een zaak van het type ´Aanvraag vergunning uitgebreid behandelen´. Het alternatief, waarbij het bevoegd gezag zelf de behandeling doet en de ODH om toetsing vraagt, betreft een zaak van het type ‘Toetsing uitvoeren’. Hiervan is sprake als het een meervoudige aanvraag betreft met een milieu-component die geen betrekking heeft op een milieu- inrichting of -locatie (‘het zwaartepunt ligt niet bij het milieu-aspect’). Enkel- en meervoudige aanvragen zonder milieucomponent worden geheel door het bevoegd gezag behandeld. Een uitzondering hierop vormen de aanvragen om zgn. BRIKS- vergunningen waarbij de provincie het bevoegd gezag is. De provincie draagt deze taak geheel over aan de ODH. Bij de behandeling van dergelijke aanvragen en ook bij de behandeling van BRIKS-onderdelen in meervoudige vergunningaanvragen (door de ODH) vraagt de ODH de gemeente om toetsing op de betreffende BRIKS-onderdelen. 1) Bron: Aanzet producten- en dienstencatalogus OD Haaglanden (oktober 2011)",
+        "begindatum": "2012-02-10T00:00:00"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond",
+          "doorlooptijd": "2 werkdagen",
+          "toelichting": "Er wordt beoordeeld of de ontvangen aanvraag inderdaad in een reguliere procedure behandeld kan worden en of de aanvraag volledig is. Zo ja, dan wordt de zaak aangemaakt met daarbij de ontvangen documenten (aanvraag met bijlagen, opdracht tot behandeling van bevoegd gezag en eventueel ontvangstbevestiging) en wordt de zaakbehandelaar (medewerker of organisatie- onderdeel) bepaald (de startdatum is de datum van ontvangst door het bevoegd gezag, indien van toepassing). Als het bevoegd gezag de gemeente is, wordt zij geïnformeerd dat de intake heeft plaatsgevonden (d.m.v. een digitaal bericht). Als het bevoegd gezag de provincie is, wordt de ontvangstbevestiging aan de aanvrager gezonden, cc. naar provincie. Als de aanvraag niet in een reguliere procedure behandeld kan worden, wordt overgestapt naar een zaak van het type ‘Vergunningaanvraag uitgebreid behandelen’."
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Inhoudelijk behandeld",
+          "doorlooptijd": "3 weken",
+          "toelichting": "De aanvraag wordt allereerst beoordeeld op de relevante wetgeving en informatie over de milieu-inrichting of -locatie. Waar nodig wordt in- en/of extern om een beoordeling (toetsing) gevraagd (bijvoorbeeld als er sprake is van BRIKS-onderdelen of van milieu- aspecten die binnen de provincie ondergebracht zijn bij één RUD). Dat kan leiden tot in- en/of externe deelzaken (‘Toetsing uitvoeren’). De status is bereikt met een eenduidig advies over het al dan niet verlenen van de vergunning."
+        },
+        {
+          "volgnummer": 4,
+          "omschrijving": "Besluit genomen",
+          "doorlooptijd": "2 werkdagen",
+          "toelichting": "Op basis van de aanvraag en het advies met betrekking tot de vergunning wordt het definitieve besluit op- en vastgesteld."
+        },
+        {
+          "volgnummer": 6,
+          "omschrijving": "Producten geleverd",
+          "doorlooptijd": "3 werkdagen",
+          "toelichting": "Het besluit wordt verzonden en gepubliceerd en het zaakdossier wordt afgesloten en gearchiveerd (indien de provincie het bevoegd gezag is) dan wel ter archivering overgedragen aan het bevoegd gezag (indien dat de gemeente is). od haaglanden - zaaktypecatalogus v1.0 - 20120210 101 / 155"
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Vergunningaanvrager",
+          "omschrijving": "Vergunningaanvrager",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Bevoegd gezag",
+          "omschrijving": "Bevoegd gezag",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Zaakverantwoordelijke",
+          "omschrijving": "Zaakverantwoordelijke",
+          "categorie": "Verantwoordelijke"
+        },
+        {
+          "type": "laar",
+          "omschrijving": "laar",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "Juridisch adviseur",
+          "omschrijving": "Juridisch adviseur",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "ondersteuner",
+          "omschrijving": "ondersteuner",
+          "categorie": "Overig"
+        },
+        {
+          "type": "Procesondersteuner",
+          "omschrijving": "Procesondersteuner",
+          "categorie": "Overig"
+        }
+      ],
+      "objecten": [
+        {
+          "type": "Milieu-inrichting of -",
+          "omschrijving": "locatie De milieu-inrichting(en) en/of milieulocatie(s) waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Pand (BAG)",
+          "omschrijving": "Het (de) pand(en) (in de BAG) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Verblijfsobject (BAG)",
+          "omschrijving": "Het (de) verblijfsobject(en) (in de BAG) met bijbehorend adres(sen) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Overig bouwwerk (BGT)",
+          "omschrijving": "Het (de) overige bouwwerk(en) (in de BGT) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Vestiging (NHR)",
+          "omschrijving": "De vestiging(en) (in het NHR) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Locatie",
+          "omschrijving": "De locatie waarop de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft indien deze geen pand, verblijfsobject en overig bouwwerk betreft."
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Beoogd(e) product(en)",
+          "omschrijving": "Specificatie van het (de) product(en) (zie  ‘Kerngegevens’, ‘Producten en"
+        },
+        {
+          "naam": "diensten’) waarop de aanvraag betrekking heeft. De behandeling van de",
+          "omschrijving": "zaak kan op proces-detail-niveau verschillen afhankelijk van het beoogde"
+        },
+        {
+          "naam": "product.",
+          "omschrijving": "Aard product"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Vergunningaanvraag",
+          "richting": "inkomend",
+          "volgnummer": 1,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Ontvangstbevestiging",
+          "richting": "inkomend",
+          "volgnummer": 2,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Opdracht tot behandeling",
+          "richting": "inkomend",
+          "volgnummer": 3,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Brief niet-vergunning-plichtig",
+          "richting": "uitgaand",
+          "volgnummer": 5,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Aanhoudingsbesluit",
+          "richting": "uitgaand",
+          "volgnummer": 6,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Niet-ontvankelijk-besluit",
+          "richting": "uitgaand",
+          "volgnummer": 7,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Toetsingsuitkomst",
+          "richting": "inkomend",
+          "volgnummer": 8,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Kennisgeving",
+          "richting": "uitgaand",
+          "volgnummer": 11,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Bekendmaking",
+          "richting": "uitgaand",
+          "volgnummer": 12,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Besluit op aanvraag",
+          "richting": "uitgaand",
+          "volgnummer": 15,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Statusmelding",
+          "richting": "uitgaand",
+          "volgnummer": 16,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Aanvullende informatie",
+          "richting": "inkomend",
+          "volgnummer": 17,
+          "verplicht": false
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Verleend",
+          "omschrijving": "Verleend"
+        },
+        {
+          "type": "Geweigerd",
+          "omschrijving": "Geweigerd"
+        },
+        {
+          "type": "Niet",
+          "omschrijving": "Niet"
+        },
+        {
+          "type": "Niet nodig",
+          "omschrijving": "Niet nodig"
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        }
+      ],
+      "gerelateerde_zaken": [
+        {
+          "zaaktype_id": "Vooroverleg voeren",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "Bezwaar behandelen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "Beroep behandelen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "behandelen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "Toezicht uitvoeren",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "geconstateerde strijdigheid weg te nemen door middel van legalisatie of",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "nemen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "Indien bij het nemen van het handhavingsbesluit blijkt dat er sprake is",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "Bezwaar behandelen",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "Zienswijze behandelen",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "Toezicht uitvoeren",
+          "relatietype": "Vervolg"
+        }
+      ]
+    },
+    {
+      "id": "ODH013",
+      "omschrijving": "Vergunningaanvraag uitgebreid behandelen",
+      "details": {
+        "categorie": "Omgevingsdienst Haaglanden",
+        "doel": "Een besluit nemen op een aanvraag voor een vergunning, ontheffing of vergelijkbare beschikking op basis van een gedegen beoordeling van die aanvraag in een uitgebreide procedure.",
+        "aanleiding": "De gemeente als bevoegd gezag heeft een aanvraag voor een omgevingsvergunning of milieuwetgeving-gerelateerde vergunning ontvangen. De gemeente heeft geconstateerd dat het een enkelvoudige aanvraag betreft met alleen een milieu-component of dat het een meervoudige aanvraag betreft met betrekking tot een milieuvergunningplichtige inrichting of -locatie en met een milieu-component. De gemeente heeft de ODH gemandateerd om dergelijke aanvragen te behandelen. Zij draagt de ODH op om de ontvangen aanvraag te behandelen. De ODH heeft vastgesteld dat de aanvraag in een uitgebreide procedure behandeld moet worden. of: De provincie als bevoegd gezag heeft een aanvraag voor een omgevingsvergunning of milieuwetgeving-gerelateerde vergunning ontvangen. Zij heeft de ODH gemandateerd om dergelijke aanvragen te behandelen. Zij draagt de ODH op om de ontvangen aanvraag te behandelen. De ODH heeft vastgesteld dat de aanvraag in een uitgebreide procedure behandeld moet worden. Ook is het mogelijk dat het bevoegd gezag of de ODH zelf (afhankelijk van de mandatering) het initiatief neemt voor het wijzigen of intrekken van een vergunning, veelal naar aanleiding van een constatering tijdens de uitvoering van een zaak van het type ‘Toezicht uitvoeren’. Zie ook bovenstaande figuren.",
+        "verantwoordelijke_organisatie": "Teamleider Toetsing & Vergunning",
+        "doorlooptijd": "26 weken",
+        "servicenorm": "Afhankelijk van hetgeen aangevraagd is",
+        "toelichting_doorlooptijd": "Bij dit zaaktype draagt het bevoegd gezag de behandeling van de vergunningaanvraag op aan de ODH. De start van de zaakbehandeling verschilt naar gelang de aanvraag ontvangen is door de gemeente dan wel de provincie als bevoegd gezag. Aangezien de gemeente de front- office vormt (in het geval zij bevoegd gezag is), verzorgt zij haar deel van de intake, met name registratie van de zaak en uitdoen van de ontvangst- bevestiging. Daarna zet de ODH als back-office de behandeling voort. Als de provincie het bevoegd gezag is, verzorgt de ODH het front-office en voert de gehele intake uit, waaronder het uitdoen van de ontvangst- bevestiging, en zet daarna als back-office de behandeling voort. De ODH heeft tijdens haar intake, of zo spoedig mogelijk daarna, vastgesteld dat de aanvraag in een uitgebreide procedure behandeld moet worden. Het alternatief, waarbij het bevoegd gezag zelf de behandeling doet en de ODH om toetsing vraagt, betreft het zaaktype ‘Toetsing uitvoeren’. Hiervan is sprake als het een meervoudige aanvraag betreft met een milieu-component (‘het zwaartepunt ligt niet bij het milieu-aspect’) die geen betrekking heeft op een milieu-inrichting of -locatie. Enkel- en meervoudige aanvragen zonder milieucomponent worden geheel door het bevoegd gezag behandeld. Een uitzondering hierop vormen de aanvragen om zgn. BRIKS- vergunningen waarbij de provincie het bevoegd gezag is. De provincie draagt deze taak geheel over aan de ODH. Bij de behandeling van dergelijke aanvragen en ook bij de behandeling van BRIKS-onderdelen in meervoudige vergunningaanvragen (door de ODH) vraagt de ODH de gemeente om toetsing op de betreffende BRIKS-onderdelen. 1) Bron: Aanzet producten- en dienstencatalogus OD Haaglanden (oktober 2011)",
+        "begindatum": "2012-02-10T00:00:00"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond",
+          "doorlooptijd": "2 werkdagen",
+          "toelichting": "Er wordt beoordeeld of de ontvangen aanvraag dit zaaktype betreft en of de aanvraag volledig is. Zo ja, dan wordt de zaak aangemaakt met daarbij de ontvangen documenten (aanvraag met bijlagen, opdracht tot behandeling van bevoegd gezag en eventueel ontvangstbevestiging) en wordt de zaakbehandelaar (medewerker of organisatie- onderdeel) bepaald (de startdatum is de datum van ontvangst door het bevoegd gezag, indien van toepassing). Als het bevoegd gezag de gemeente is, wordt zij geïnformeerd dat de intake heeft plaatsgevonden (d.m.v. een digitaal bericht). Als het bevoegd gezag de provincie is, wordt de ontvangstbevestiging aan de aanvrager gezonden, cc. naar provincie."
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Inhoudelijk behandeld",
+          "doorlooptijd": "3 weken (bij 8- en 15-weken-",
+          "toelichting": "De aanvraag wordt allereerst beoordeeld op de relevante wetgeving en informatie over de milieu-inrichting of -locatie. Waar nodig wordt in- en/of extern om een beoordeling (toetsing) gevraagd (bijvoorbeeld als er sprake is van BRIKS-onderdelen of van milieu- aspecten die binnen de provincie ondergebracht zijn bij één RUD). Dat kan leiden tot in- en/of externe deelzaken (‘Toetsing uitvoeren’). De status is bereikt met een eenduidig advies over het al dan niet verlenen van de vergunning."
+        },
+        {
+          "volgnummer": 4,
+          "omschrijving": "Ontwerpbesluit genomen",
+          "doorlooptijd": "2 werkdagen",
+          "toelichting": "Op basis van de aanvraag en de resultaten van de voorgaande status wordt het ontwerpbesluit op- en vastgesteld, verzonden en gepubliceerd."
+        },
+        {
+          "volgnummer": 5,
+          "omschrijving": "Zienswijzen beoordeeld",
+          "doorlooptijd": "10 weken. Hiervan maakt deel uit",
+          "toelichting": "Na het verstrijken van de ter- inzage-termijn (op het ontwerpbesluit) wordt vastgesteld of er zienswijzen zijn ontvangen. Zo nee, dan is de status bereikt. Zo ja, dan worden deze behandeld in separate deelzaken per zienswijze. Waar nodig wordt een hoorzitting gehouden. De status is bereikt met een eenduidig oordeel over het al dan niet verlenen van de vergunning."
+        },
+        {
+          "volgnummer": 6,
+          "omschrijving": "Besluit genomen",
+          "doorlooptijd": "2 werkdagen",
+          "toelichting": "Op basis van de aanvraag en de od haaglanden - zaaktypecatalogus v1.0 - 20120210 115 / 155 resultaten van de voorgaande statussen wordt het definitieve besluit op- en vastgesteld."
+        },
+        {
+          "volgnummer": 7,
+          "omschrijving": "Producten geleverd",
+          "doorlooptijd": "2 weken",
+          "toelichting": "Het besluit wordt verzonden en gepubliceerd en het zaakdossier wordt afgesloten en gearchiveerd (indien de provincie het bevoegd gezag is) dan wel ter archivering overgedragen aan het bevoegd gezag (indien dat de gemeente is)."
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Vergunningaanvrager",
+          "omschrijving": "Vergunningaanvrager",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Bevoegd gezag",
+          "omschrijving": "Bevoegd gezag",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Zaakverantwoordelijke",
+          "omschrijving": "Zaakverantwoordelijke",
+          "categorie": "Verantwoordelijke"
+        },
+        {
+          "type": "laar",
+          "omschrijving": "laar",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "Juridisch adviseur",
+          "omschrijving": "Juridisch adviseur",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "Zienswijze-indiener",
+          "omschrijving": "Zienswijze-indiener",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "ondersteuner",
+          "omschrijving": "ondersteuner",
+          "categorie": "Overig"
+        },
+        {
+          "type": "Procesondersteuner",
+          "omschrijving": "Procesondersteuner",
+          "categorie": "Overig"
+        }
+      ],
+      "objecten": [
+        {
+          "type": "Milieu-inrichting of -",
+          "omschrijving": "locatie De milieu-inrichting(en) en/of milieulocatie(s) waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Pand (BAG)",
+          "omschrijving": "Het (de) pand(en) (in de BAG) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Verblijfsobject (BAG)",
+          "omschrijving": "Het (de) verblijfsobject(en) (in de BAG) met bijbehorend adres(sen) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Overig bouwwerk (BGT)",
+          "omschrijving": "Het (de) overige bouwwerk(en) (in de BGT) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Vestiging (NHR)",
+          "omschrijving": "De vestiging(en) (in het NHR) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Locatie",
+          "omschrijving": "De locatie waarop de milieu-activiteiten uitgevoerd worden waarop de"
+        },
+        {
+          "type": "116 / 155",
+          "omschrijving": "zaak betrekking heeft indien deze geen pand, verblijfsobject en overig bouwwerk betreft."
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Beoogd(e) product(en)",
+          "omschrijving": "Specificatie van het (de) product(en) (zie  ‘Kerngegevens’, ‘Producten en"
+        },
+        {
+          "naam": "diensten’) waarop de aanvraag betrekking heeft. De behandeling van de",
+          "omschrijving": "zaak kan op proces-detail-niveau verschillen afhankelijk van het beoogde"
+        },
+        {
+          "naam": "product.",
+          "omschrijving": "Aard product"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Vergunningaanvraag",
+          "richting": "inkomend",
+          "volgnummer": 1,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Ontvangstbevestiging",
+          "richting": "inkomend",
+          "volgnummer": 2,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Opdracht tot behandeling",
+          "richting": "inkomend",
+          "volgnummer": 3,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Brief niet-vergunning-plichtig",
+          "richting": "uitgaand",
+          "volgnummer": 5,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Aanhoudingsbesluit",
+          "richting": "uitgaand",
+          "volgnummer": 6,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Niet-ontvankelijk-besluit]",
+          "richting": "uitgaand",
+          "volgnummer": 7,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Toetsingsuitkomst",
+          "richting": "inkomend",
+          "volgnummer": 8,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Verlengingsbesluit",
+          "richting": "intern",
+          "volgnummer": 9,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Ontwerpbesluit",
+          "richting": "uitgaand",
+          "volgnummer": 10,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Kennisgeving",
+          "richting": "uitgaand",
+          "volgnummer": 11,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Bekendmaking",
+          "richting": "uitgaand",
+          "volgnummer": 12,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Zienswijze",
+          "richting": "inkomend",
+          "volgnummer": 13,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Verslag hoorzitting",
+          "richting": "intern",
+          "volgnummer": 14,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Besluit op aanvraag",
+          "richting": "uitgaand",
+          "volgnummer": 15,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Statusmelding",
+          "richting": "uitgaand",
+          "volgnummer": 16,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Aanvullende informatie",
+          "richting": "inkomend",
+          "volgnummer": 17,
+          "verplicht": false
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Verleend",
+          "omschrijving": "Verleend"
+        },
+        {
+          "type": "Geweigerd",
+          "omschrijving": "Geweigerd"
+        },
+        {
+          "type": "Niet",
+          "omschrijving": "Niet"
+        },
+        {
+          "type": "Niet nodig",
+          "omschrijving": "Niet nodig"
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        }
+      ],
+      "gerelateerde_zaken": [
+        {
+          "zaaktype_id": "Vooroverleg voeren",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "Bezwaar behandelen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "Beroep behandelen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "behandelen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "Toezicht uitvoeren",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "geconstateerde strijdigheid weg te nemen door middel van legalisatie of",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "nemen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "Indien bij het nemen van het handhavingsbesluit blijkt dat er sprake is",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "Zienswijze behandelen",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "Beroep behandelen",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "Toezicht uitvoeren",
+          "relatietype": "Vervolg"
+        }
+      ]
+    },
+    {
+      "id": "ODH014",
+      "omschrijving": "Voorlopige voorziening behandelen",
+      "details": {
+        "categorie": "Omgevingsdienst Haaglanden",
+        "doel": "Het verdedigen bij de Rechtbank of Raad van State van een eerder genomen besluit in afwachting van de behandeling van het bezwaar of beroep tegen dat besluit.",
+        "aanleiding": "Via het bevoegd gezag is van de Rechtbank of Raad van State een verzoek om voorlopige voorziening ontvangen tegen een door de ODH (als gemandateerde) genomen besluit, waartegen de indiener (van het verzoek) bezwaar of beroep aangetekend heeft.",
+        "verantwoordelijke_organisatie": "Hoofd afdeling Toetsing & Vergunningverlening dan wel hoofd Toezicht & Handhaving",
+        "doorlooptijd": "Situatie-afhankelijk (hangt af van de planning van de Rechtbank of Raad van State; veelal spoed)",
+        "servicenorm": "N.v.t.",
+        "toelichting_doorlooptijd": "Een verzoek om een voorlopige voorziening kan alleen ingediend worden als er voorafgaand of tegelijkertijd een bezwaar of beroep is ingesteld tegen het besluit waarop de voorziening gericht is. Als het bezwaar is ingesteld bij het bevoegd gezag of als het beroep is ingesteld bij de Rechtbank, is het verzoek om voorlopige voorziening ingediend bij de voorzieningenrechter van de Rechtbank (sector bestuursrecht) en in bepaalde gevallen bij de Afdeling bestuursrechtspraak van de Raad van State. Als het beroep is ingesteld bij de Afdeling bestuursrechtspraak van de Raad van State, is het verzoek om voorlopige voorziening ingediend bij de Voorzitter van de Afdeling bestuursrechtspraak. Het verzoek om voorlopige voorziening wordt ter verweer doorgestuurd naar het bevoegd gezag. Daar wordt het verzoek geregistreerd. Voor beschikkingen die door de ODH zijn voorbereid of in mandaat genomen, stuurt de gemeente of provincie het verzoek ter verdere afhandeling door naar de ODH. De verdere uitvoering van de procedure ligt in handen van de ODH met dien verstande dat de Rechtbank of Raad van State de beslissing op het verzoek neemt. Als het betreffende verzoek gericht is tegen een door het bevoegd gezag genomen besluit, dan is de behandeling van dat verzoek de verantwoordelijkheid van het bevoegd gezag. Ook als er sprake is van een milieucomponent. Desgevraagd adviseert de ODH haar in dezen (door middel van een zaak van het type ‘Advies verstrekken’).",
+        "begindatum": "2012-02-10T00:00:00"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond",
+          "doorlooptijd": "1 werkdag1)",
+          "toelichting": "Het registreren van de zaak, het bepalen van de behandelend medewerker of het behandelend organisatie-onderdeel en het informeren van het bevoegd gezag over het bereiken van de status."
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Stukken toegezonden",
+          "doorlooptijd": "2 werkdagen1)",
+          "toelichting": "In overleg met de Rechtbank of Raad van State worden relevante stukken opgezocht en verstrekt."
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zitting bijgewoond",
+          "doorlooptijd": "7 werkdagen1)",
+          "toelichting": "De pleitnota wordt opgesteld ter verdediging in de zitting. Vervolgens wordt de zitting van de Rechtbank of de Raad van State bijgewoond. In de zitting wordt het verzoek om voorlopige voorziening behandeld en het pleidooi gehouden."
+        },
+        {
+          "volgnummer": 4,
+          "omschrijving": "Zaak afgerond",
+          "doorlooptijd": "28 werkdagen1)",
+          "toelichting": "De ODH ontvangt de beslissing op het verzoek die door de Rechtbank of Raad van State is genomen. Als het verzoek ongegrond of niet ontvankelijk wordt verklaard, blijft het bestreden besluit van kracht. Als het verzoek gegrond wordt verklaard, is het bestreden besluit geschorst (of is ten aanzien daarvan enige andere voorziening getroffen) totdat het bezwaar of beroep is afgehandeld. De zaak wordt tenslotte afgerond en het zaakdossier afgesloten en gearchiveerd (indien de provincie het bevoegd gezag is) dan wel ter archivering overgedragen aan het bevoegd gezag (indien dat de gemeente is). 1) De genoemde doorlooptijden zijn gemiddelden. Per individuele zaak moet per status de daadwerkelijke doorlooptijd bepaald worden op basis van de planning van de Rechtbank of de Raad van State. od haaglanden - zaaktypecatalogus v1.0 - 20120210 127 / 155"
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Indiener",
+          "omschrijving": "Indiener",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Rechtsinstantie",
+          "omschrijving": "Rechtsinstantie",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Bevoegd gezag",
+          "omschrijving": "Bevoegd gezag",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Zaakverantwoordelijke",
+          "omschrijving": "Zaakverantwoordelijke",
+          "categorie": "Verantwoordelijke"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "Juridisch adviseur",
+          "omschrijving": "Juridisch adviseur",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "ondersteuner",
+          "omschrijving": "ondersteuner",
+          "categorie": "Overig"
+        },
+        {
+          "type": "Procesondersteuner",
+          "omschrijving": "Procesondersteuner",
+          "categorie": "Overig"
+        }
+      ],
+      "objecten": [
+        {
+          "type": "Milieu-inrichting of -",
+          "omschrijving": "locatie De milieu-inrichting(en) en/of milieulocatie(s) waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Pand (BAG)",
+          "omschrijving": "Het (de) pand(en) (in de BAG) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Verblijfsobject (BAG)",
+          "omschrijving": "Het (de) verblijfsobject(en) (in de BAG) met bijbehorend adres(sen) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Overig bouwwerk (BGT)",
+          "omschrijving": "Het (de) overige bouwwerk(en) (in de BGT) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Vestiging (NHR)",
+          "omschrijving": "De vestiging(en) (in het NHR) waarin de milieu-activiteiten uitgevoerd"
+        },
+        {
+          "type": "128 / 155",
+          "omschrijving": "worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Locatie",
+          "omschrijving": "De locatie waarop de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft indien deze geen pand, verblijfsobject en overig bouwwerk betreft."
+        },
+        {
+          "type": "Besluit",
+          "omschrijving": "Het oorspronkelijk door de ODH genomen besluit waarop de voorlopige voorziening gericht is."
+        },
+        {
+          "type": "Door de ‘voorzieningzaak’ te koppelen aan het bestreden besluit, koppelt dat besluit alle in dit kader",
+          "omschrijving": "gerelateerde zaken aan elkaar: naast de ‘voorzieningenzaak’ bijvoorbeeld ook de zaak waarin het besluit genomen is, de ‘bezwaarzaak’ en de ‘beroepzaak’."
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Zittingsdatum",
+          "omschrijving": "De datum van de zitting waarin het verweer gevoerd moet worden"
+        },
+        {
+          "naam": "Beslissing op verzoek",
+          "omschrijving": "De door de Rechtbank of Raad van State genomen beslissing op het"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Relevante stukken",
+          "richting": "uitgaand",
+          "volgnummer": 2,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Adviesrapport",
+          "richting": "intern",
+          "volgnummer": 3,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Pleitnota",
+          "richting": "intern",
+          "volgnummer": 4,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Beslissing op verzoek",
+          "richting": "inkomend",
+          "volgnummer": 5,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Statusmelding",
+          "richting": "uitgaand",
+          "volgnummer": 6,
+          "verplicht": false
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Toegekend",
+          "omschrijving": "Toegekend"
+        },
+        {
+          "type": "Afgewezen",
+          "omschrijving": "Afgewezen"
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        }
+      ],
+      "gerelateerde_zaken": [
+        {
+          "zaaktype_id": "Bezwaar behandelen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "Beroep behandelen",
+          "relatietype": "Gerelateerd"
+        }
+      ]
+    },
+    {
+      "id": "ODH015",
+      "omschrijving": "Vooroverleg voeren",
+      "details": {
+        "categorie": "Omgevingsdienst Haaglanden",
+        "doel": "Bepalen of er een aanvraag (voor vergunning, ontheffing e.d.) of melding wordt ingediend en, indien nodig, adviseren over het opstellen van de aanvraag of melding.",
+        "aanleiding": "Er is een verzoek ontvangen (per post, mail, telefoon, fax e.d.) voor afstemming over het (eventueel) indienen van een aanvraag of melding.",
+        "verantwoordelijke_organisatie": "Teamleider Toetsing & Vergunningen",
+        "doorlooptijd": "Geen wettelijke vereisten",
+        "servicenorm": "Afhankelijk van het type van de beoogde aanvraag: - van 5 dagen, voor het beoordelen of een milieumelding afdoende is m.b.t. een omgevingsvergunning of dat een milieucomponent in een omgevingsvergunning nodig is - tot 2 maanden bij complexe aanvragen m.b.t. een uitgebreide procedure.",
+        "toelichting_doorlooptijd": "Voor een definitieve aanvraag of melding wordt ingediend, kan de behandelend ambtenaar vooroverleg voeren met de aanvrager. Het doel daarvan is dat er een goed te behandelen aanvraag of melding wordt ingediend met een voor de indiener bevredigende uitkomst. Het doel van od haaglanden - zaaktypecatalogus v1.0 - 20120210 133 / 155 het vooroverleg kan ook zijn om te bepalen of er wel een vergunningaanvraag nodig is of dat er met een melding volstaan kan worden. Eventueel worden ook interne of externe specialisten betrokken. Op het vooroverleg volgt meestal een zaak van het type ‘Vergunning- aanvraag regulier behandelen’, ‘Vergunningaanvraag uitgebreid behandelen’ of ‘Melding behandelen’.",
+        "begindatum": "2012-02-10T00:00:00"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond",
+          "doorlooptijd": "2 werkdagen",
+          "toelichting": "Er wordt beoordeeld of het ontvangen verzoek dit zaaktype betreft. Zo ja, dan wordt de zaak aangemaakt met daarbij de ontvangen documenten en wordt de zaakbehandelaar (medewerker of organisatie- onderdeel) bepaald."
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Overleg gevoerd",
+          "doorlooptijd": "5 – 35 werkdagen",
+          "toelichting": "Met de aanvrager van het vooroverleg wordt overleg gevoerd over de problematiek. Eventueel verstrekt de aanvrager aanvullende informatie. Als er sprake is van een concept-aanvraag, wordt deze beoordeeld. Waar nodig worden interne en/of externe specialisten betrokken bij het vooroverleg. Dit kunnen bijvoorbeeld juristen zijn. Van het overleg wordt een verslag gemaakt. Indien van toepassing wordt de beoordeling van de concept-aanvraag op schrift gesteld."
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Verslag opgeleverd",
+          "doorlooptijd": "2 werkdagen",
+          "toelichting": "Het verslag en, indien van toepassing, de beoordeling van de concept- aanvraag, worden aan de aanvrager gezonden. Tot slot wordt het zaakdossier afgesloten en gearchiveerd (indien de provincie het bevoegd gezag is) dan wel ter archivering overgedragen aan het bevoegd gezag (indien dat de gemeente is)."
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Vooroverlegverzoeker",
+          "omschrijving": "Vooroverlegverzoeker",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Bevoegd gezag",
+          "omschrijving": "Bevoegd gezag",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Zaakverantwoordelijke",
+          "omschrijving": "Zaakverantwoordelijke",
+          "categorie": "Verantwoordelijke"
+        },
+        {
+          "type": "Vooroverlegvoerder",
+          "omschrijving": "Vooroverlegvoerder",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "Juridisch adviseur",
+          "omschrijving": "Juridisch adviseur",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "ondersteuner",
+          "omschrijving": "ondersteuner",
+          "categorie": "Overig"
+        },
+        {
+          "type": "Procesondersteuner",
+          "omschrijving": "Procesondersteuner",
+          "categorie": "Overig"
+        }
+      ],
+      "objecten": [
+        {
+          "type": "Milieu-inrichting of -",
+          "omschrijving": "De milieu-inrichting(en) en/of milieulocatie(s) waarop de zaak betrekking"
+        },
+        {
+          "type": "135 / 155",
+          "omschrijving": "locatie heeft."
+        },
+        {
+          "type": "Pand (BAG)",
+          "omschrijving": "Het (de) pand(en) (in de BAG) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Verblijfsobject (BAG)",
+          "omschrijving": "Het (de) verblijfsobject(en) (in de BAG) met bijbehorend adres(sen) waarin het deel van de milieu-inrichting gevestigd is waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Overig bouwwerk (BGT)",
+          "omschrijving": "Het (de) overige bouwwerk(en) (in de BGT) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Vestiging (NHR)",
+          "omschrijving": "De vestiging(en) (in het NHR) waarin de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft."
+        },
+        {
+          "type": "Locatie",
+          "omschrijving": "De locatie waarop de milieu-activiteiten uitgevoerd worden waarop de zaak betrekking heeft indien deze geen pand, verblijfsobject en overig bouwwerk betreft."
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Concept-aanvraag",
+          "richting": "inkomend",
+          "volgnummer": 1,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Verslag vooroverleg",
+          "richting": "uitgaand",
+          "volgnummer": 2,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Beoordeling concept-aanvraag",
+          "richting": "uitgaand",
+          "volgnummer": 3,
+          "verplicht": false
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Verwerkt",
+          "omschrijving": "Verwerkt"
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        }
+      ],
+      "gerelateerde_zaken": [
+        {
+          "zaaktype_id": "regulier behandelen",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "uitgebreid behandelen",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "Melding behandelen",
+          "relatietype": "Vervolg"
+        },
+        {
+          "zaaktype_id": "Toetsing uitvoeren",
+          "relatietype": "Vervolg"
+        }
+      ]
+    },
+    {
+      "id": "ODH016",
+      "omschrijving": "Zienswijze behandelen",
+      "details": {
+        "categorie": "Omgevingsdienst Haaglanden",
+        "doel": "Bepalen of een ingediende zienswijze aanleiding geeft om een voorgenomen beslissing te heroverwegen.",
+        "aanleiding": "Het kenbaar maken van een zienswijze door een derde nadat de ODH daartoe gelegenheid heeft gegeven",
+        "verantwoordelijke_organisatie": "Hoofd afdeling Toetsing & Vergunningverlening dan wel hoofd Toezicht & Handhaving",
+        "doorlooptijd": "Onder ander afhankelijk van de wettelijke termijnen van de bijbehorende hoofdzaak",
+        "servicenorm": "2 a 3 weken",
+        "toelichting_doorlooptijd": "In meerdere zaken kan om zienswijzen gevraagd moeten worden. Er is om twee redenen een separaat zaaktype voor het behandelen van een zienswijze gemaakt. Ten eerste omdat de zienswijzebehandeling ‘getriggerd’ wordt door het ontvangen van een zienswijze. Ten tweede omdat naar aanleiding van de uitnodiging tot het indienen van een zienswijze meer zienswijzen ingediend kunnen worden, die alle correct afgehandeld moeten worden.",
+        "begindatum": "2012-02-10T00:00:00"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond",
+          "doorlooptijd": "2 werkdagen",
+          "toelichting": "De zaak wordt geregistreerd en daarbij wordt de zienswijze vastgelegd. Het eerder (vanuit de hoofdzaak) verzonden document waarop de zienswijze betrekking heeft, wordt aan de zaak gerelateerd. De behandelend medewerker of het behandelend organisatie-onderdeel wordt bepaald. Tot slot wordt een ontvangstbevestiging verzonden."
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Zienswijze beoordeeld",
+          "doorlooptijd": "6 – 11 werkdagen",
+          "toelichting": "Er wordt beoordeeld of de zienswijze (eventueel samen met andere ontvangen zienswijzen) aanleiding geeft om af te wijken van het voorgenomen traject of de voorgenomen beslissing. De status wordt afgehandeld met het opleveren van het advies op de zienswijze(n) inzake de aanleiding tot het verzenden van de zienswijzebrief. Met dit advies kan de hoofdzaak voortgezet worden."
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond",
+          "doorlooptijd": "2 werkdagen",
+          "toelichting": "Het zaakdossier wordt afgesloten en gearchiveerd (indien de provincie het bevoegd gezag is) dan wel ter archivering overgedragen aan het bevoegd gezag (indien dat de gemeente is) ."
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Zienswijze-indiener",
+          "omschrijving": "Zienswijze-indiener",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Zaakverantwoordelijke",
+          "omschrijving": "Zaakverantwoordelijke",
+          "categorie": "Verantwoordelijke"
+        },
+        {
+          "type": "Zienswijzebehandelaar",
+          "omschrijving": "Zienswijzebehandelaar",
+          "categorie": "Uitvoerder"
+        },
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Overig"
+        },
+        {
+          "type": "ondersteuner",
+          "omschrijving": "ondersteuner",
+          "categorie": "Overig"
+        },
+        {
+          "type": "Procesondersteuner",
+          "omschrijving": "Procesondersteuner",
+          "categorie": "Overig"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Zienswijze",
+          "richting": "inkomend",
+          "volgnummer": 1,
+          "verplicht": true
+        },
+        {
+          "informatieobjecttype_id": "Ontvangstbevestiging",
+          "richting": "intern",
+          "volgnummer": 2,
+          "verplicht": false
+        },
+        {
+          "informatieobjecttype_id": "Zienswijze-advies",
+          "richting": "intern",
+          "volgnummer": 4,
+          "verplicht": true
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Verwerkt",
+          "omschrijving": "Verwerkt"
+        },
+        {
+          "type": "Geweigerd",
+          "omschrijving": "Geweigerd"
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        }
+      ],
+      "gerelateerde_zaken": [
+        {
+          "zaaktype_id": "behandelen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "zienswijze kenbaar maken. De zaak van het type ‘Zienswijze behandelen’",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "is dan een deelzaak van de hoofdzaak ‘Vergunningaanvraag behandelen’.",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "nemen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "Op het handhavingsvoornemen kunnen zienswijzen kenbaar gemaakt",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "worden. De zaak van het type ‘Zienswijze behandelen’ is dan een",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "deelzaak van de hoofdzaak ‘Handhavingsbesluit nemen’.",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "behandelen",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "Als de ODH voornemens is het handhavingsverzoek af te wijzen, kan",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "‘Zienswijze behandelen’ is dan een deelzaak van de hoofdzaak",
+          "relatietype": "Gerelateerd"
+        },
+        {
+          "zaaktype_id": "‘Handhavingsverzoek behandelen’.",
+          "relatietype": "Gerelateerd"
+        }
+      ]
+    }
+  ]
+}

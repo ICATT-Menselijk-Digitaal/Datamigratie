@@ -1,0 +1,6209 @@
+{
+  "catalogus_metadata": {
+    "naam": "GEMMA Referentiezaaktypecatalogus",
+    "versie": "1.0",
+    "rsin": "GEMTE821002193"
+  },
+  "zaaktypen": [
+    {
+      "id": "GEMMA001",
+      "omschrijving": "Attenderen",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Nazorg",
+        "doel": "Het proactief berichten van een klant waaruit zorg en aandacht voor hem of haar blijkt.",
+        "aanleiding": "Indicatie Intern of Extern Intern",
+        "verantwoordelijke_organisatie": "Toelichting Is veelal een gevolg van een eerdere levering van een product of dienst.",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "Is veelal een gevolg van een eerdere levering van een product of dienst."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Zijn alle benodigde stukken aanwezig?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "2",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is het concept bericht opgesteld?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 2,
+              "item": "Is er akkoord op het versturen van het bericht?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "3",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Kennisgeving",
+          "richting": "intern",
+          "volgnummer": 1
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Uitgevoerd",
+          "omschrijving": "Uitgevoerd"
+        },
+        {
+          "type": "Het bericht is verstuurd naar de doelgroep.",
+          "omschrijving": "Het bericht is verstuurd naar de doelgroep."
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "Het is niet nodig om het bericht te versturen.",
+          "omschrijving": "Het is niet nodig om het bericht te versturen."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA002",
+      "omschrijving": "Aangifte behandelen",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Verstrekken van producten en diensten",
+        "doel": "Aanleiding Een burger of bedrijf doet altijd aangifte omdat hij/zij hiertoe verplicht is of omdat de gemeente verplicht is om het aan te geven feit vast te leggen.",
+        "aanleiding": "Een burger of bedrijf doet altijd aangifte omdat hij/zij hiertoe verplicht is of omdat de gemeente verplicht is om het aan te geven feit vast te leggen.",
+        "verantwoordelijke_organisatie": "Toelichting Degene die aangifte doet krijgt steeds een bevestiging van de aangifte (bv. een geboorteakte).",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "Degene die aangifte doet krijgt steeds een bevestiging van de aangifte (bv. een geboorteakte)."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Zijn alle benodigde stukken aanwezig?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 2,
+              "item": "Zijn alle indieningsvereisten gevolgd?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "2",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de reactie op de aangifte opgesteld?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "3",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Aangifte",
+          "richting": "inkomend",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Ontvangstbevestiging",
+          "richting": "uitgaand",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Verzoek aanvullende informatie",
+          "richting": "uitgaand",
+          "volgnummer": 3
+        },
+        {
+          "informatieobjecttype_id": "Aanvulling",
+          "richting": "inkomend",
+          "volgnummer": 4
+        },
+        {
+          "informatieobjecttype_id": "Bevestiging registratie",
+          "richting": "uitgaand",
+          "volgnummer": 5
+        },
+        {
+          "informatieobjecttype_id": "Afwijzing aangifte",
+          "richting": "uitgaand",
+          "volgnummer": 6
+        }
+      ]
+    },
+    {
+      "id": "GEMMA003",
+      "omschrijving": "Aanvraag publiek product of dienst afhandelen",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Verstrekken van producten en diensten",
+        "doel": "Het afhandelen van aanvragen voor producten of diensten die min of meer “gereed op de plank” liggen.",
+        "aanleiding": "Indicatie Intern of Extern Extern",
+        "verantwoordelijke_organisatie": "Toelichting Het gaat om producten zoals grofvuil ophalen, stadspas, uittreksel GBA en WOZ-taxatieverslag. Publieke producten worden hooguit nog gepersonifieerd. Er hoeft geen specialist aan te pas te komen om de aanvraag te beoordelen, zoals bij een vergunning of subsidie. Ook vindt er geen toets op de indieningsvereisten plaats. Als je het vraagt, en je voldoet aan de eisen, vindt er een transactie plaats.",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "Het gaat om producten zoals grofvuil ophalen, stadspas, uittreksel GBA en WOZ-taxatieverslag. Publieke producten worden hooguit nog gepersonifieerd. Er hoeft geen specialist aan te pas te komen om de aanvraag te beoordelen, zoals bij een vergunning of subsidie. Ook vindt er geen toets op de indieningsvereisten plaats. Als je het vraagt, en je voldoet aan de eisen, vindt er een transactie plaats."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Afgerekend"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Product opgesteld"
+        },
+        {
+          "volgnummer": 4,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de aanvraag volledig?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 2,
+              "item": "Zijn de indieningsvereisten getoetst?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "2",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is het verzoek tot betaling verstuurd?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "3",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is het product opgesteld?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "4",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam        Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam        Eigenschap-kenmerken"
+        },
+        {
+          "naam": "Prijs",
+          "omschrijving": "Prijs"
+        },
+        {
+          "naam": "Betaald",
+          "omschrijving": "Betaald"
+        },
+        {
+          "naam": "Product goedgekeurd",
+          "omschrijving": "Product goedgekeurd"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Aanvraag",
+          "richting": "inkomend",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Ontvangstbevestiging",
+          "richting": "uitgaand",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Verzoek aanvullende informatie",
+          "richting": "uitgaand",
+          "volgnummer": 3
+        },
+        {
+          "informatieobjecttype_id": "Aanvulling",
+          "richting": "inkomend",
+          "volgnummer": 4
+        },
+        {
+          "informatieobjecttype_id": "Product",
+          "richting": "uitgaand",
+          "volgnummer": 5
+        },
+        {
+          "informatieobjecttype_id": "Besluit",
+          "richting": "intern",
+          "volgnummer": 6
+        },
+        {
+          "informatieobjecttype_id": "Verzoek tot betaling",
+          "richting": "uitgaand",
+          "volgnummer": 7
+        }
+      ]
+    },
+    {
+      "id": "GEMMA004",
+      "omschrijving": "Administreren",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Ondersteunen",
+        "doel": "Systematisch vastleggen beheren en onderhouden van gegevens conform de wettelijke kaders ten einde informatie te genereren waarmee beslissingen genomen kunnen worden, verantwoording kan worden afgelegd of inzicht gegeven wordt over het functioneren.",
+        "aanleiding": "Indicatie Intern of Extern Intern",
+        "verantwoordelijke_organisatie": "Toelichting Omvat de gegevens ten behoeve van bijvoorbeeld inkoop, financiën en P&O, maar ook de basisregistraties waarvoor de gemeente bronhouder is.",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "Omvat de gegevens ten behoeve van bijvoorbeeld inkoop, financiën en P&O, maar ook de basisregistraties waarvoor de gemeente bronhouder is."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Zijn alle benodigde stukken aanwezig?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "3",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Beheerplan",
+          "richting": "inkomend",
+          "volgnummer": 1
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Geleverd",
+          "omschrijving": "Geleverd"
+        },
+        {
+          "type": "Het resultaat is geleverd.",
+          "omschrijving": "Het resultaat is geleverd."
+        },
+        {
+          "type": "Niet geleverd",
+          "omschrijving": "Niet geleverd"
+        },
+        {
+          "type": "Het resultaat is niet geleverd.",
+          "omschrijving": "Het resultaat is niet geleverd."
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "De zaak is niet meer nodig.",
+          "omschrijving": "De zaak is niet meer nodig."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA005",
+      "omschrijving": "Adviseren",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Ondersteunen",
+        "doel": "Aanleiding",
+        "aanleiding": "Indicatie Intern of Extern Intern",
+        "verantwoordelijke_organisatie": "Toelichting Het betreft het formuleren van een vraagstelling, het verzamelen van gegevens, informatie en standpunten en het communiceren van de conclusie. Onderwerpen die aan bod komen zijn bijvoorbeeld juridische zaken, P&O, financiën, kwaliteit organisatie, huisvesting, informatie e.d.",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "Het betreft het formuleren van een vraagstelling, het verzamelen van gegevens, informatie en standpunten en het communiceren van de conclusie. Onderwerpen die aan bod komen zijn bijvoorbeeld juridische zaken, P&O, financiën, kwaliteit organisatie, huisvesting, informatie e.d."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Zijn alle benodigde stukken aanwezig?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 2,
+              "item": "Is het verzoek vastgelegd?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "3",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        },
+        {
+          "naam": "Onderwerp",
+          "omschrijving": "Onderwerp"
+        },
+        {
+          "naam": "Aanleiding",
+          "omschrijving": "Aanleiding"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Verzoek",
+          "richting": "intern",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Adviesrapport",
+          "richting": "intern",
+          "volgnummer": 2
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Geleverd",
+          "omschrijving": "Geleverd"
+        },
+        {
+          "type": "Het resultaat is geleverd.",
+          "omschrijving": "Het resultaat is geleverd."
+        },
+        {
+          "type": "Niet geleverd",
+          "omschrijving": "Niet geleverd"
+        },
+        {
+          "type": "Het resultaat is niet geleverd.",
+          "omschrijving": "Het resultaat is niet geleverd."
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "De zaak is niet meer nodig.",
+          "omschrijving": "De zaak is niet meer nodig."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA006",
+      "omschrijving": "Auditen",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Evalueren",
+        "doel": "Het verkrijgen van bewijsmateriaal en het objectief evalueren daarvan om vast te stellen in welke mate wordt voldaan aan de criteria die de organisatie heeft opgesteld voor de uitvoering van de primaire en ondersteunende processen.",
+        "aanleiding": "Indicatie Intern of Extern",
+        "verantwoordelijke_organisatie": "Toelichting",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Opdracht",
+          "richting": "inkomend",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Initiatiefdocument",
+          "richting": "inkomend",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Advies",
+          "richting": "inkomend",
+          "volgnummer": 3
+        },
+        {
+          "informatieobjecttype_id": "Bewijsstukken",
+          "richting": "intern",
+          "volgnummer": 4
+        },
+        {
+          "informatieobjecttype_id": "Adviesrapport",
+          "richting": "intern",
+          "volgnummer": 5
+        },
+        {
+          "informatieobjecttype_id": "Eindrapport",
+          "richting": "intern",
+          "volgnummer": 6
+        },
+        {
+          "informatieobjecttype_id": "Verklaring",
+          "richting": "intern",
+          "volgnummer": 7
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "De zaak is niet meer nodig.",
+          "omschrijving": "De zaak is niet meer nodig."
+        },
+        {
+          "type": "Afgehandeld",
+          "omschrijving": "Afgehandeld"
+        },
+        {
+          "type": "Registreer het resultaat.",
+          "omschrijving": "Registreer het resultaat."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA007",
+      "omschrijving": "Begroting of programma bijstellen",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Strategie vormen",
+        "doel": "Het bijstellen van de meerjarenbegroting of een programma (inhoud & budget).",
+        "aanleiding": "De evaluatie van voorgaande begrotingen en programma’s.",
+        "verantwoordelijke_organisatie": "Toelichting",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "---------------------------------------------------------------------------------------------------------------"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Evaluatie",
+          "richting": "intern",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Bijgestelde begroting/jaarplan",
+          "richting": "intern",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Besluit",
+          "richting": "intern",
+          "volgnummer": 3
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "De zaak is niet meer nodig.",
+          "omschrijving": "De zaak is niet meer nodig."
+        },
+        {
+          "type": "Afgehandeld",
+          "omschrijving": "Afgehandeld"
+        },
+        {
+          "type": "Registreer het resultaat.",
+          "omschrijving": "Registreer het resultaat."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA008",
+      "omschrijving": "Begroting opstellen",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Programmeren",
+        "doel": "Het opstellen van een plan waarin staat hoeveel geld je denkt te ontvangen en uit te geven voor een vastgelegde periode (1 jaar).",
+        "aanleiding": "Indicatie Intern of Extern",
+        "verantwoordelijke_organisatie": "Toelichting Een begroting is een middel dat de gemeente ertoe machtigt uitgaven te doen en ontvangsten te verrichten.",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "Een begroting is een middel dat de gemeente ertoe machtigt uitgaven te doen en ontvangsten te verrichten."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Zijn alle benodigde stukken aanwezig?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "3",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam          Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam          Eigenschap-kenmerken"
+        },
+        {
+          "naam": "Onderwerp (programma)",
+          "omschrijving": "Onderwerp (programma)"
+        },
+        {
+          "naam": "Periode",
+          "omschrijving": "Periode"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Conceptuitgangspunten",
+          "richting": "intern",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Begroting",
+          "richting": "intern",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Besluit",
+          "richting": "intern",
+          "volgnummer": 3
+        },
+        {
+          "informatieobjecttype_id": "Verantwoording",
+          "richting": "intern",
+          "volgnummer": 4
+        },
+        {
+          "informatieobjecttype_id": "Bestuursrapportage",
+          "richting": "intern",
+          "volgnummer": 5
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Afgehandeld",
+          "omschrijving": "Afgehandeld"
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "De zaak is niet meer nodig.",
+          "omschrijving": "De zaak is niet meer nodig."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA009",
+      "omschrijving": "Bestemmingsplan opstellen",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Ontwikkelen en ruimte",
+        "doel": "Het toewijzen van een bestemming en nadere voorschriften aan (delen van) het gemeentelijk grondgebied.",
+        "aanleiding": "Indicatie Intern of Extern",
+        "verantwoordelijke_organisatie": "Toelichting",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "-----------------------------------------------------------------------------------------------------------------------------------------"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Besluit opgesteld"
+        },
+        {
+          "volgnummer": 4,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is het College akkoord met het plan van aanpak?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 2,
+              "item": "Is het College akkoord met de nota met uitgangspunten?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "2",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is het College akkoord met het advies concept voorontwerp?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 2,
+              "item": "Is het College akkoord met de inspraaknota?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 3,
+              "item": "Is het College akkoord met het voorontwerp?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "3",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zienswijzen verwerkt?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 2,
+              "item": "Is het College akkoord met het advies voor de Raad?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 3,
+              "item": "Is de Raad akkoord met het bestemmingsplan?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 4,
+              "item": "Is het ontwerp van het bestemmingsplan gepubliceerd?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "4",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Initiatief bestemmingsplan",
+          "omschrijving": "Initiatief bestemmingsplan"
+        },
+        {
+          "naam": "Planschade aannemelijk",
+          "omschrijving": "Planschade aannemelijk"
+        },
+        {
+          "naam": "Voorontwerp bestemmingsplan gepubliceerd",
+          "omschrijving": "Voorontwerp bestemmingsplan gepubliceerd"
+        },
+        {
+          "naam": "Ontwerp bestemmingsplan gepubliceerd",
+          "omschrijving": "Ontwerp bestemmingsplan gepubliceerd"
+        },
+        {
+          "naam": "Bestemmingsplan bekend gemaakt",
+          "omschrijving": "Bestemmingsplan bekend gemaakt"
+        },
+        {
+          "naam": "Ja indien het bestemmingsplan is bekend gemaakt",
+          "omschrijving": "Ja indien het bestemmingsplan is bekend gemaakt"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Opdracht",
+          "richting": "inkomend",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Initiatiefdocument",
+          "richting": "inkomend",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Advies",
+          "richting": "intern",
+          "volgnummer": 3
+        },
+        {
+          "informatieobjecttype_id": "Plan van Aanpak",
+          "richting": "intern",
+          "volgnummer": 4
+        },
+        {
+          "informatieobjecttype_id": "Stedenbouwkundige randvoorwaarden",
+          "richting": "intern",
+          "volgnummer": 5
+        },
+        {
+          "informatieobjecttype_id": "Verkavelingsplan",
+          "richting": "inkomend",
+          "volgnummer": 6
+        },
+        {
+          "informatieobjecttype_id": "Nota van uitgangspunten",
+          "richting": "intern",
+          "volgnummer": 7
+        },
+        {
+          "informatieobjecttype_id": "Advies planschadeovereenkomst",
+          "richting": "intern",
+          "volgnummer": 8
+        },
+        {
+          "informatieobjecttype_id": "Concept voorontwerp bestemmingsplan",
+          "richting": "intern",
+          "volgnummer": 9
+        },
+        {
+          "informatieobjecttype_id": "Voorontwerp bestemmingsplan",
+          "richting": "intern",
+          "volgnummer": 10
+        },
+        {
+          "informatieobjecttype_id": "Reactie",
+          "richting": "intern",
+          "volgnummer": 11
+        },
+        {
+          "informatieobjecttype_id": "Inspraaknota",
+          "richting": "intern",
+          "volgnummer": 12
+        },
+        {
+          "informatieobjecttype_id": "Ontwerp bestemmingsplan",
+          "richting": "intern",
+          "volgnummer": 13
+        },
+        {
+          "informatieobjecttype_id": "Concept raadsvoorstel bestemmingsplan",
+          "richting": "intern",
+          "volgnummer": 14
+        },
+        {
+          "informatieobjecttype_id": "Bestemmingsplan",
+          "richting": "intern",
+          "volgnummer": 15
+        },
+        {
+          "informatieobjecttype_id": "Besluit",
+          "richting": "intern",
+          "volgnummer": 16
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Vastgesteld",
+          "omschrijving": "Vastgesteld"
+        },
+        {
+          "type": "Het bestemmingsplan is vastgesteld.",
+          "omschrijving": "Het bestemmingsplan is vastgesteld."
+        },
+        {
+          "type": "Geweigerd",
+          "omschrijving": "Geweigerd"
+        },
+        {
+          "type": "Het bestemmingsplan is niet toegekend.",
+          "omschrijving": "Het bestemmingsplan is niet toegekend."
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "Het bestemmingsplan is ingetrokken.",
+          "omschrijving": "Het bestemmingsplan is ingetrokken."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA010",
+      "omschrijving": "Bestuursakkoord doorvertalen",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Strategie vormen",
+        "doel": "Het doorvertalen van het bestuursakkoord in een meerjaren afspraak.",
+        "aanleiding": "Indicatie Intern of Extern Intern",
+        "verantwoordelijke_organisatie": "Toelichting Hierin wordt afgesproken welke programma’s nodig zijn voor het wenselijk geachte beleid en welke gevolgen deze programma’s hebben voor de gemeentefinanciën.",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "Hierin wordt afgesproken welke programma’s nodig zijn voor het wenselijk geachte beleid en welke gevolgen deze programma’s hebben voor de gemeentefinanciën."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam        Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam        Eigenschap-kenmerken"
+        },
+        {
+          "naam": "Onderwerp",
+          "omschrijving": "Onderwerp"
+        },
+        {
+          "naam": "Organisatie-eenheid",
+          "omschrijving": "Organisatie-eenheid"
+        },
+        {
+          "naam": "Periode",
+          "omschrijving": "Periode"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Bestuursakkoord",
+          "richting": "intern",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Voorjaarsnota",
+          "richting": "intern",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Besluit",
+          "richting": "intern",
+          "volgnummer": 3
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Afgehandeld",
+          "omschrijving": "Afgehandeld"
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "De zaak is niet meer nodig.",
+          "omschrijving": "De zaak is niet meer nodig."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA011",
+      "omschrijving": "Betalen en innen",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Ondersteunen",
+        "doel": "Aanleiding",
+        "aanleiding": "Indicatie Intern of Extern Intern en extern",
+        "verantwoordelijke_organisatie": "Toelichting De incasso en excasso van de geldstromen als gevolg van verkoop, heffing of bijdrage t.b.v. gemeentelijke en publieke voorzieningen van publiekelijke- en privaatrechtelijke aard.",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "De incasso en excasso van de geldstromen als gevolg van verkoop, heffing of bijdrage t.b.v. gemeentelijke en publieke voorzieningen van publiekelijke- en privaatrechtelijke aard."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Zijn alle benodigde stukken aanwezig?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 2,
+              "item": "Is het verzoek vastgelegd?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "3",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        },
+        {
+          "naam": "Onderwerp",
+          "omschrijving": "Onderwerp"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Verzoek",
+          "richting": "intern",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Factuur",
+          "richting": "intern",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Betalingsbewijs",
+          "richting": "intern",
+          "volgnummer": 3
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Geleverd",
+          "omschrijving": "Geleverd"
+        },
+        {
+          "type": "Het resultaat is geleverd.",
+          "omschrijving": "Het resultaat is geleverd."
+        },
+        {
+          "type": "Niet geleverd",
+          "omschrijving": "Niet geleverd"
+        },
+        {
+          "type": "Het resultaat is niet geleverd.",
+          "omschrijving": "Het resultaat is niet geleverd."
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "De zaak is niet meer nodig.",
+          "omschrijving": "De zaak is niet meer nodig."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA012",
+      "omschrijving": "Bezwaar behandelen",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "| Bezwaar en beroep |",
+        "verantwoordelijke_organisatie": "| Proceseigenaar |",
+        "doorlooptijd": "| 84 werkdagen |",
+        "servicenorm": "| |",
+        "toelichting_doorlooptijd": "| Conform de Algemene Wet Bestuursrecht (AWB) heeft een natuurlijk of niet-natuurlijk persoon de mogelijkheid om bezwaar te maken tegen een genomen besluit van de gemeente, bijvoorbeeld het niet verlenen van een vergunning. | +--------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+"
+      },
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam      Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam      Eigenschap-kenmerken"
+        },
+        {
+          "naam": "Uitslag toetsing",
+          "omschrijving": "Uitslag toetsing"
+        },
+        {
+          "naam": "Datum hoorzitting",
+          "omschrijving": "Datum hoorzitting"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Bezwaarschrift",
+          "richting": "inkomend",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Machtiging voor vertegenwoordiging",
+          "richting": "intern",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Ontvangstbevestiging van bewaar",
+          "richting": "uitgaand",
+          "volgnummer": 3
+        },
+        {
+          "informatieobjecttype_id": "Verweerschrift",
+          "richting": "uitgaand",
+          "volgnummer": 4
+        },
+        {
+          "informatieobjecttype_id": "Uitnodiging hoorzitting",
+          "richting": "intern",
+          "volgnummer": 5
+        },
+        {
+          "informatieobjecttype_id": "Pleitnota",
+          "richting": "uitgaand",
+          "volgnummer": 6
+        },
+        {
+          "informatieobjecttype_id": "Verslag hoorzitting",
+          "richting": "intern",
+          "volgnummer": 7
+        },
+        {
+          "informatieobjecttype_id": "Verzoek aanvullende informatie",
+          "richting": "uitgaand",
+          "volgnummer": 8
+        },
+        {
+          "informatieobjecttype_id": "Adviesrapport",
+          "richting": "intern",
+          "volgnummer": 9
+        },
+        {
+          "informatieobjecttype_id": "Advies bezwarencommissie",
+          "richting": "intern",
+          "volgnummer": 10
+        },
+        {
+          "informatieobjecttype_id": "Verdagingsbrief",
+          "richting": "uitgaand",
+          "volgnummer": 11
+        },
+        {
+          "informatieobjecttype_id": "Adviesbesluit op bezwaar",
+          "richting": "intern",
+          "volgnummer": 12
+        },
+        {
+          "informatieobjecttype_id": "Uitspraak op bezwaar",
+          "richting": "uitgaand",
+          "volgnummer": 13
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Het bezwaar van de indiener is gegrond verklaard.",
+          "omschrijving": "Het bezwaar van de indiener is gegrond verklaard."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA013",
+      "omschrijving": "Capaciteits- of afdelingsplan opstellen",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Programmeren",
+        "doel": "Het doorvertalen van de begroting en het jaarplan naar de capaciteitbelasting voor wat betreft personeel en huisvesting.",
+        "aanleiding": "Indicatie Intern of Extern Intern",
+        "verantwoordelijke_organisatie": "Toelichting",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "-----------------------------------------------------------------------------------------------------------------------------------------------------------"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam        Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam        Eigenschap-kenmerken"
+        },
+        {
+          "naam": "Onderwerp",
+          "omschrijving": "Onderwerp"
+        },
+        {
+          "naam": "Organisatie-eenheid",
+          "omschrijving": "Organisatie-eenheid"
+        },
+        {
+          "naam": "Periode",
+          "omschrijving": "Periode"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Opdracht",
+          "richting": "intern",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Initiatiefdocument",
+          "richting": "intern",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Advies",
+          "richting": "intern",
+          "volgnummer": 3
+        },
+        {
+          "informatieobjecttype_id": "Capaciteits/afdelingsplan",
+          "richting": "intern",
+          "volgnummer": 4
+        },
+        {
+          "informatieobjecttype_id": "Besluit",
+          "richting": "intern",
+          "volgnummer": 5
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Afgehandeld",
+          "omschrijving": "Afgehandeld"
+        },
+        {
+          "type": "De zaak is niet meer nodig.",
+          "omschrijving": "De zaak is niet meer nodig."
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        }
+      ]
+    },
+    {
+      "id": "GEMMA014",
+      "omschrijving": "Faciliteren",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Ondersteunen",
+        "doel": "Ondersteunen van de directie, raad en college (waaronder griffie), met het beschikbaar stellen van huisvesting, catering, informatisering en automatisering, beveiliging, vervoer, communicatie.",
+        "aanleiding": "Indicatie Intern of Extern Intern",
+        "verantwoordelijke_organisatie": "Toelichting",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Zijn alle benodigde stukken aanwezig?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 2,
+              "item": "Is het verzoek vastgelegd?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "3",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        },
+        {
+          "naam": "Onderwerp",
+          "omschrijving": "Onderwerp"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Verzoek",
+          "richting": "intern",
+          "volgnummer": 1
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Geleverd",
+          "omschrijving": "Geleverd"
+        },
+        {
+          "type": "Het resultaat is geleverd.",
+          "omschrijving": "Het resultaat is geleverd."
+        },
+        {
+          "type": "Niet geleverd",
+          "omschrijving": "Niet geleverd"
+        },
+        {
+          "type": "Het resultaat is niet geleverd.",
+          "omschrijving": "Het resultaat is niet geleverd."
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "De zaak is niet meer nodig.",
+          "omschrijving": "De zaak is niet meer nodig."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA015",
+      "omschrijving": "Gemeentelijke voorziening uitbaten",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Exploiteren",
+        "doel": "Het openhouden van gemeentelijke voorzieningen als sportvelden, musea en parkeergarages.",
+        "aanleiding": "Indicatie Intern of Extern",
+        "verantwoordelijke_organisatie": "Toelichting",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "---------------------------------------------------------------------------------------------------------------------------"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Zijn alle benodigde stukken aanwezig?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "3",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Plan van aanpak",
+          "richting": "intern",
+          "volgnummer": 1
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Uitgevoerd",
+          "omschrijving": "Uitgevoerd"
+        },
+        {
+          "type": "Registreer het resultaat.",
+          "omschrijving": "Registreer het resultaat."
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "De zaak is niet meer nodig.",
+          "omschrijving": "De zaak is niet meer nodig."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA016",
+      "omschrijving": "Grond aankopen",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Ontwikkelen ruimte",
+        "doel": "Aanleiding",
+        "aanleiding": "Indicatie Intern of Extern",
+        "verantwoordelijke_organisatie": "Toelichting Het door de gemeente aankopen van gronden van derden.",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "Het door de gemeente aankopen van gronden van derden."
+      },
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam       Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam       Eigenschap-kenmerken"
+        },
+        {
+          "naam": "Binnen beleidsplan",
+          "omschrijving": "Binnen beleidsplan"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Situatieschets",
+          "richting": "inkomend",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Voorstel aankoop",
+          "richting": "uitgaand",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Taxatie",
+          "richting": "inkomend",
+          "volgnummer": 3
+        },
+        {
+          "informatieobjecttype_id": "Onteigening",
+          "richting": "intern",
+          "volgnummer": 4
+        },
+        {
+          "informatieobjecttype_id": "Concept koopovereenkomst",
+          "richting": "inkomend",
+          "volgnummer": 5
+        },
+        {
+          "informatieobjecttype_id": "Concept pachtovereenkomst",
+          "richting": "inkomend",
+          "volgnummer": 6
+        },
+        {
+          "informatieobjecttype_id": "Koopovereenkomst",
+          "richting": "uitgaand",
+          "volgnummer": 7
+        },
+        {
+          "informatieobjecttype_id": "Pachtovereenkomst",
+          "richting": "uitgaand",
+          "volgnummer": 8
+        },
+        {
+          "informatieobjecttype_id": "Akte",
+          "richting": "intern",
+          "volgnummer": 9
+        },
+        {
+          "informatieobjecttype_id": "Bodemonderzoek",
+          "richting": "intern",
+          "volgnummer": 10
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "Er wordt afgezien van aankoop.",
+          "omschrijving": "Er wordt afgezien van aankoop."
+        },
+        {
+          "type": "Onteigend",
+          "omschrijving": "Onteigend"
+        },
+        {
+          "type": "Het stuk grond is onteigend.",
+          "omschrijving": "Het stuk grond is onteigend."
+        },
+        {
+          "type": "Verwerkt",
+          "omschrijving": "Verwerkt"
+        },
+        {
+          "type": "De koopovereenkomst is gesloten.",
+          "omschrijving": "De koopovereenkomst is gesloten."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA017",
+      "omschrijving": "Handelsgoed verkopen",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Exploiteren",
+        "doel": "Het verkopen van ingekochte handelsgoederen en quasi handelsgoederen.",
+        "aanleiding": "Indicatie Intern of Extern Extern",
+        "verantwoordelijke_organisatie": "Toelichting Voorbeelden van ingekochte handelsgoederen zijn: ja-nee sticker, compostvat, toeristische of cultuurhistorische producten, strooizout, tweedehands stoeptegels. Voorbeelden van quasi handelsgoederen: entreebewijs museum, abonnement gemeentelijk zwembad.",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "Voorbeelden van ingekochte handelsgoederen zijn: ja-nee sticker, compostvat, toeristische of cultuurhistorische producten, strooizout, tweedehands stoeptegels. Voorbeelden van quasi handelsgoederen: entreebewijs museum, abonnement gemeentelijk zwembad."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Zijn alle benodigde stukken aanwezig?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "3",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        },
+        {
+          "naam": "Prijs",
+          "omschrijving": "Prijs"
+        },
+        {
+          "naam": "Betaald",
+          "omschrijving": "Betaald"
+        },
+        {
+          "naam": "Ja indien betaald is.",
+          "omschrijving": "Ja indien betaald is."
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Verzoek",
+          "richting": "inkomend",
+          "volgnummer": 1
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Geleverd",
+          "omschrijving": "Geleverd"
+        },
+        {
+          "type": "Het gevraagde product is geleverd.",
+          "omschrijving": "Het gevraagde product is geleverd."
+        },
+        {
+          "type": "Geannuleerd",
+          "omschrijving": "Geannuleerd"
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "De aanvraag is ingetrokken.",
+          "omschrijving": "De aanvraag is ingetrokken."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA018",
+      "omschrijving": "Heffen",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Heffen",
+        "doel": "Het vaststellen en opleggen van de aanslag voor gemeentelijke belastingen en heffingen.",
+        "aanleiding": "Indicatie Intern of Extern",
+        "verantwoordelijke_organisatie": "Toelichting Voorbeelden van belastingen of heffingen zijn de OZB, afvalstoffenheffing, precario, rioolrecht of toeristenbelasting.",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "Voorbeelden van belastingen of heffingen zijn de OZB, afvalstoffenheffing, precario, rioolrecht of toeristenbelasting."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Besluit vastgesteld"
+        },
+        {
+          "volgnummer": 4,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Zijn alle benodigde stukken aanwezig?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "2",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de heffing definitief vastgesteld?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "4",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        },
+        {
+          "naam": "Bedrag",
+          "omschrijving": "Bedrag"
+        },
+        {
+          "naam": "Het te heffen bedrag.",
+          "omschrijving": "Het te heffen bedrag."
+        },
+        {
+          "naam": "Aanslag",
+          "omschrijving": "Aanslag"
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Geheven",
+          "omschrijving": "Geheven"
+        },
+        {
+          "type": "De aanslag is opgelegd.",
+          "omschrijving": "De aanslag is opgelegd."
+        },
+        {
+          "type": "Ingetrokken.",
+          "omschrijving": "Ingetrokken."
+        },
+        {
+          "type": "De aanslag is niet nodig.",
+          "omschrijving": "De aanslag is niet nodig."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA019",
+      "omschrijving": "Inkomens- of maatschappelijke ondersteuning verstrekken",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Verstrekken van producten en diensten",
+        "doel": "Aanleiding Een klant komt bij de gemeente met het verzoek om ondersteuning (al dan niet volledig gearticuleerd & gespecificeerd).",
+        "aanleiding": "Een klant komt bij de gemeente met het verzoek om ondersteuning (al dan niet volledig gearticuleerd & gespecificeerd).",
+        "verantwoordelijke_organisatie": "Toelichting Onder het verstrekken van verschillende producten/diensten vallen zowel producten op het gebied van inkomensondersteuning (bv. “uitkeringen”), als maatschappelijke ondersteuning (bv. “WMO”). Zaken voor het verstrekken van deze producten verlopen identiek. Eerst komt een klant bij de gemeente met het verzoek om ondersteuning (al dan niet volledig gearticuleerd & gespecificeerd). Hierna wordt de situatie van de klant bepaald (indiceren), waarna op basis van deze situatiebepaling kan worden bekeken waar de klant recht op heeft. Hierna kan worden overgegaan op het financieel of in natura leveren van de ondersteuning.",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "Onder het verstrekken van verschillende producten/diensten vallen zowel producten op het gebied van inkomensondersteuning (bv. “uitkeringen”), als maatschappelijke ondersteuning (bv. “WMO”). Zaken voor het verstrekken van deze producten verlopen identiek. Eerst komt een klant bij de gemeente met het verzoek om ondersteuning (al dan niet volledig gearticuleerd & gespecificeerd). Hierna wordt de situatie van de klant bepaald (indiceren), waarna op basis van deze situatiebepaling kan worden bekeken waar de klant recht op heeft. Hierna kan worden overgegaan op het financieel of in natura leveren van de ondersteuning."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Besluit vastgesteld"
+        },
+        {
+          "volgnummer": 4,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de aanvraag volledig?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 2,
+              "item": "Is de klantsituatie getoetst?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 3,
+              "item": "Afspraken zijn vastgelegd",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "2",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is het besluit in concept opgesteld?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "3",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is het besluit definitief vastgesteld?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "4",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam          Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam          Eigenschap-kenmerken"
+        },
+        {
+          "naam": "Indicatie nodig",
+          "omschrijving": "Indicatie nodig"
+        },
+        {
+          "naam": "Verstrekken in natura",
+          "omschrijving": "Verstrekken in natura"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Aanvraag",
+          "richting": "inkomend",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Ontvangstbevestiging",
+          "richting": "uitgaand",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Verzoek aanvullende informatie",
+          "richting": "uitgaand",
+          "volgnummer": 3
+        },
+        {
+          "informatieobjecttype_id": "Aanvulling",
+          "richting": "inkomend",
+          "volgnummer": 4
+        },
+        {
+          "informatieobjecttype_id": "Indicatie",
+          "richting": "intern",
+          "volgnummer": 5
+        },
+        {
+          "informatieobjecttype_id": "Concept besluit",
+          "richting": "intern",
+          "volgnummer": 6
+        },
+        {
+          "informatieobjecttype_id": "Besluit",
+          "richting": "intern",
+          "volgnummer": 7
+        }
+      ]
+    },
+    {
+      "id": "GEMMA020",
+      "omschrijving": "Inkopen en contracteren",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Ondersteunen",
+        "doel": "Het verwerven op basis van een contract (geen impulsieve aankopen) van mensen en middelen die nodig zijn voor het uitvoeren van de primaire, ondersteunende en besturende processen.",
+        "aanleiding": "Indicatie Intern of Extern Intern",
+        "verantwoordelijke_organisatie": "Toelichting Contracteren omvat tevens het inhuren van vast en tijdelijk personeel.",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "Contracteren omvat tevens het inhuren van vast en tijdelijk personeel."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Zijn alle benodigde stukken aanwezig?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "3",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        },
+        {
+          "naam": "Onderwerp",
+          "omschrijving": "Onderwerp"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Verzoek",
+          "richting": "inkomend",
+          "volgnummer": 1
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Geleverd",
+          "omschrijving": "Geleverd"
+        },
+        {
+          "type": "Het resultaat is geleverd.",
+          "omschrijving": "Het resultaat is geleverd."
+        },
+        {
+          "type": "Niet geleverd",
+          "omschrijving": "Niet geleverd"
+        },
+        {
+          "type": "Het resultaat is niet geleverd",
+          "omschrijving": "Het resultaat is niet geleverd"
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "De zaak is niet meer nodig.",
+          "omschrijving": "De zaak is niet meer nodig."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA021",
+      "omschrijving": "Jaarplan opstellen",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Programmeren",
+        "doel": "Het opstellen van een in aantallen uitgewerkt plan voor toekomstige activiteiten, ten behoeve van leiding en controle",
+        "aanleiding": "Indicatie Intern of Extern Intern",
+        "verantwoordelijke_organisatie": "Toelichting Het gaat om een concreet plan, een kwantitatieve uitwerking van een actieprogramma dat in een bepaalde periode uitgevoerd moet worden.",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "Het gaat om een concreet plan, een kwantitatieve uitwerking van een actieprogramma dat in een bepaalde periode uitgevoerd moet worden."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam          Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam          Eigenschap-kenmerken"
+        },
+        {
+          "naam": "Onderwerp (programma)",
+          "omschrijving": "Onderwerp (programma)"
+        },
+        {
+          "naam": "Onderwerp",
+          "omschrijving": "Onderwerp"
+        },
+        {
+          "naam": "Periode",
+          "omschrijving": "Periode"
+        },
+        {
+          "naam": "Jaar",
+          "omschrijving": "Jaar"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Opdracht",
+          "richting": "intern",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Initiatiefdocument",
+          "richting": "intern",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Advies",
+          "richting": "intern",
+          "volgnummer": 3
+        },
+        {
+          "informatieobjecttype_id": "Jaarplan",
+          "richting": "intern",
+          "volgnummer": 4
+        },
+        {
+          "informatieobjecttype_id": "Besluit",
+          "richting": "intern",
+          "volgnummer": 5
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Afgehandeld",
+          "omschrijving": "Afgehandeld"
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "De zaak is niet meer nodig.",
+          "omschrijving": "De zaak is niet meer nodig."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA022",
+      "omschrijving": "Klacht behandelen",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Nazorg",
+        "doel": "Het afhandelen van klachten tegen het “gedrag of een houding” van een gemeentelijke ambtenaar.",
+        "aanleiding": "Indicatie Intern of Extern Extern",
+        "verantwoordelijke_organisatie": "Toelichting Het gaat om elke blijk van onvrede over gedrag en/of houding met betrekking tot dienstverlening, tussen een klant en een of meer ambtenaren in functie.",
+        "doorlooptijd": "30",
+        "servicenorm": "30",
+        "toelichting_doorlooptijd": "Het gaat om elke blijk van onvrede over gedrag en/of houding met betrekking tot dienstverlening, tussen een klant en een of meer ambtenaren in functie. Klachten over de openbare ruimte zijn meldingen."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de ontvangstbevestiging verstuurd?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 2,
+              "item": "Is het getoetst op compleetheid?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 3,
+              "item": "Zijn de benodigde stukken voor het registreren van de melding aanwezig?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "2",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de klacht inhoudelijk behandeld?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "3",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam       Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam       Eigenschap-kenmerken"
+        },
+        {
+          "naam": "Hoorzitting houden",
+          "omschrijving": "Hoorzitting houden"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Klacht",
+          "richting": "inkomend",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Kennisgeving",
+          "richting": "uitgaand",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Intrekking",
+          "richting": "inkomend",
+          "volgnummer": 3
+        },
+        {
+          "informatieobjecttype_id": "Ontvangstbevestiging",
+          "richting": "uitgaand",
+          "volgnummer": 4
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "De klacht is toegewezen.",
+          "omschrijving": "De klacht is toegewezen."
+        },
+        {
+          "type": "De klacht is ingetrokken.",
+          "omschrijving": "De klacht is ingetrokken."
+        },
+        {
+          "type": "De klacht is niet in behandeling genomen.",
+          "omschrijving": "De klacht is niet in behandeling genomen."
+        },
+        {
+          "type": "De klacht is afgewezen.",
+          "omschrijving": "De klacht is afgewezen."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA023",
+      "omschrijving": "Melding behandelen",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Nazorg",
+        "doel": "Het proces ‘Meldingen’ heeft als doel het afhandelen van een melding en het resultaat hiervan terugkoppelen naar de burger of het bedrijf.",
+        "aanleiding": "Indicatie Intern of Extern Extern",
+        "verantwoordelijke_organisatie": "Toelichting Bij een melding meldt de klant iets aan de gemeente en verwacht hij dat de gemeente daar iets mee doet. Een melding heeft meestal betrekking op overlast of een gevaarlijke situatie in de openbare ruimte. De klant verwacht dat de gemeente “iets” doet (zwerfvuil opruimen), maar vraagt niet om een specifieke actie. Procesmatig krijgt de klant een bericht van wat er met de melding gedaan is (terugmelding dat het vuil is of wordt opgeruimd,..). Deze terugmelding is niet noodzakelijk. In sommige gevallen kan de burger het resultaat direct zien (een gerepareerde lantaarnpaal).",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "Bij een melding meldt de klant iets aan de gemeente en verwacht hij dat de gemeente daar iets mee doet. Een melding heeft meestal betrekking op overlast of een gevaarlijke situatie in de openbare ruimte. De klant verwacht dat de gemeente “iets” doet (zwerfvuil opruimen), maar vraagt niet om een specifieke actie. Procesmatig krijgt de klant een bericht van wat er met de melding gedaan is (terugmelding dat het vuil is of wordt opgeruimd,..). Deze terugmelding is niet noodzakelijk. In sommige gevallen kan de burger het resultaat direct zien (een gerepareerde lantaarnpaal)."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is er een ontvangstbevestiging verstuurd?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 2,
+              "item": "Zijn de indieningsvereisten getoetst?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 3,
+              "item": "Zijn alle benodigde stukken voor het registreren van de melding aanwezig?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "3",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        },
+        {
+          "naam": "Doorgezet naar",
+          "omschrijving": "Doorgezet naar"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Melding",
+          "richting": "inkomend",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Aangifte",
+          "richting": "inkomend",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Ontvangstbevestiging",
+          "richting": "uitgaand",
+          "volgnummer": 3
+        },
+        {
+          "informatieobjecttype_id": "Verzoek aanvullende informatie",
+          "richting": "uitgaand",
+          "volgnummer": 4
+        },
+        {
+          "informatieobjecttype_id": "Aanvulling",
+          "richting": "inkomend",
+          "volgnummer": 5
+        },
+        {
+          "informatieobjecttype_id": "Bevestiging registratie",
+          "richting": "uitgaand",
+          "volgnummer": 6
+        },
+        {
+          "informatieobjecttype_id": "Afwijzing registratie",
+          "richting": "uitgaand",
+          "volgnummer": 7
+        }
+      ]
+    },
+    {
+      "id": "GEMMA024",
+      "omschrijving": "Monitoren",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Evalueren",
+        "doel": "Het kijken of de prestaties en effecten die door het primaire proces worden geleverd bijdragen aan de strategie.",
+        "aanleiding": "Indicatie Intern of Extern",
+        "verantwoordelijke_organisatie": "Toelichting",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "---------------------------------------------------------------------------------------------------------------------------------------------------"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Opdracht",
+          "richting": "inkomend",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Initiatiefdocument",
+          "richting": "inkomend",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Advies",
+          "richting": "inkomend",
+          "volgnummer": 3
+        },
+        {
+          "informatieobjecttype_id": "Bewijsstukken",
+          "richting": "intern",
+          "volgnummer": 4
+        },
+        {
+          "informatieobjecttype_id": "Adviesrapport",
+          "richting": "intern",
+          "volgnummer": 5
+        },
+        {
+          "informatieobjecttype_id": "Eindrapport",
+          "richting": "intern",
+          "volgnummer": 6
+        },
+        {
+          "informatieobjecttype_id": "Verklaring",
+          "richting": "intern",
+          "volgnummer": 7
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Uitgevoerd",
+          "omschrijving": "Uitgevoerd"
+        },
+        {
+          "type": "Registreer het resultaat",
+          "omschrijving": "Registreer het resultaat"
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "De zaak is niet meer nodig.",
+          "omschrijving": "De zaak is niet meer nodig."
+        },
+        {
+          "type": "Afgehandeld",
+          "omschrijving": "Afgehandeld"
+        }
+      ]
+    },
+    {
+      "id": "GEMMA025",
+      "omschrijving": "Onderhouden",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Beheren en onderhouden ruimte",
+        "doel": "Het planmatig (preventief) onderhouden van de openbare ruimte.",
+        "aanleiding": "Indicatie Intern of Extern",
+        "verantwoordelijke_organisatie": "Toelichting Voorbeelden van het planmatig onderhouden van openbare ruimte zijn het maaien van bermen, het onderhoud van plantsoenen, schilderen van gemeente-eigendommen en gebouwen.",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "Voorbeelden van het planmatig onderhouden van openbare ruimte zijn het maaien van bermen, het onderhoud van plantsoenen, schilderen van gemeente-eigendommen en gebouwen."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Zijn alle benodigde stukken aanwezig?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 2,
+              "item": "Zijn de werkzaamheden gepland?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "3",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Opdracht",
+          "richting": "intern",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Initiatiefdocument",
+          "richting": "intern",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Advies",
+          "richting": "intern",
+          "volgnummer": 3
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Uitgevoerd",
+          "omschrijving": "Uitgevoerd"
+        },
+        {
+          "type": "De reparatie of het onderhoud is uitgevoerd.",
+          "omschrijving": "De reparatie of het onderhoud is uitgevoerd."
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "Niet uitgevoerd",
+          "omschrijving": "Niet uitgevoerd"
+        },
+        {
+          "type": "De reparatie of het onderhoud is niet uitgevoerd.",
+          "omschrijving": "De reparatie of het onderhoud is niet uitgevoerd."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA026",
+      "omschrijving": "Opsporen",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "| Handhaven |",
+        "verantwoordelijke_organisatie": "| |",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "| Voorbeelden van aanleidingen om het proces op te sporen zijn: | | | | | | - het uitvoeren van een programma dat invulling geeft aan een beleidsthema (aanpak van mensen uit een bepaalde risicogroep, aanpak van verloedering in bepaalde gebieden,..); | | | | | | - een risicoanalyse die ertoe leidt dat een onderzoek moet worden uitgevoerd naar naleefgedrag (controle van alle kinderdagverblijven, controleren van een bepaald type afgegeven bouwvergunningen, enz.); | | | | | | - specifieke wet- en regelgeving, die de gemeente verplicht met een zekere regelmaat inspecties uit te voeren op bepaald type objecten. Een trend, die zichtbaar wordt door bestandsvergelijking bijvoorbeeld door het bundelen en combineren van meldingen. | +--------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Besluit opgesteld"
+        },
+        {
+          "volgnummer": 4,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de controle voorbereid?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "2",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Zijn de controle(s) uitgevoerd?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "4",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is er voldaan aan alle voorwaarden uit het besluit?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 2,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam               Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam               Eigenschap-kenmerken"
+        },
+        {
+          "naam": "Afwijking geconstateerd",
+          "omschrijving": "Afwijking geconstateerd"
+        },
+        {
+          "naam": "Ja indien er een afwijking is geconsttateerd.",
+          "omschrijving": "Ja indien er een afwijking is geconsttateerd."
+        },
+        {
+          "naam": "Vooraankondiging verstuurd",
+          "omschrijving": "Vooraankondiging verstuurd"
+        },
+        {
+          "naam": "Ja indien er een vooraankondiging is verstuurd.",
+          "omschrijving": "Ja indien er een vooraankondiging is verstuurd."
+        },
+        {
+          "naam": "Wijze van optreden",
+          "omschrijving": "Wijze van optreden"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Initiatief",
+          "richting": "inkomend",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Controleverslag",
+          "richting": "intern",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Gedoogbesluit",
+          "richting": "intern",
+          "volgnummer": 3
+        },
+        {
+          "informatieobjecttype_id": "Legalisatiebesluit",
+          "richting": "intern",
+          "volgnummer": 4
+        },
+        {
+          "informatieobjecttype_id": "Vooraankondiging",
+          "richting": "uitgaand",
+          "volgnummer": 5
+        },
+        {
+          "informatieobjecttype_id": "Verzoek sanctie op te leggen",
+          "richting": "intern",
+          "volgnummer": 6
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Geen afwijking",
+          "omschrijving": "Geen afwijking"
+        },
+        {
+          "type": "Er is geen afwijking geconstateerd.",
+          "omschrijving": "Er is geen afwijking geconstateerd."
+        },
+        {
+          "type": "Sanctie opleggen",
+          "omschrijving": "Sanctie opleggen"
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "Er zal geen toezicht worden gehouden.",
+          "omschrijving": "Er zal geen toezicht worden gehouden."
+        },
+        {
+          "type": "Gedoogd",
+          "omschrijving": "Gedoogd"
+        },
+        {
+          "type": "De afwijking wordt gedoogd.",
+          "omschrijving": "De afwijking wordt gedoogd."
+        },
+        {
+          "type": "Gelegaliseerd",
+          "omschrijving": "Gelegaliseerd"
+        },
+        {
+          "type": "De afwijking wordt gelegaliseerd.",
+          "omschrijving": "De afwijking wordt gelegaliseerd."
+        },
+        {
+          "type": "Gerapeerd",
+          "omschrijving": "Gerapeerd"
+        },
+        {
+          "type": "De afwijking is gerepareerd.",
+          "omschrijving": "De afwijking is gerepareerd."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA027",
+      "omschrijving": "Organiseren",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Ondersteunen",
+        "doel": "Alloceren van menskracht.",
+        "aanleiding": "Indicatie Intern of Extern Intern",
+        "verantwoordelijke_organisatie": "Toelichting Gespecificeerd betekent dit het toewijzen van taken, verantwoordelijkheden en bevoegdheden, programma- en projectmanagement en het organiseren van evenementen.",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "Gespecificeerd betekent dit het toewijzen van taken, verantwoordelijkheden en bevoegdheden, programma- en projectmanagement en het organiseren van evenementen."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Zijn alle benodigde stukken aanwezig?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 2,
+              "item": "Is het verzoek vastgelegd?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "3",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        },
+        {
+          "naam": "Onderwerp",
+          "omschrijving": "Onderwerp"
+        },
+        {
+          "naam": "Het te organiseren onderwerp",
+          "omschrijving": "Het te organiseren onderwerp"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Plan",
+          "richting": "intern",
+          "volgnummer": 1
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Geleverd",
+          "omschrijving": "Geleverd"
+        },
+        {
+          "type": "Het resultaat is geleverd.",
+          "omschrijving": "Het resultaat is geleverd."
+        },
+        {
+          "type": "Niet geleverd",
+          "omschrijving": "Niet geleverd"
+        },
+        {
+          "type": "Het resultaat is niet geleverd.",
+          "omschrijving": "Het resultaat is niet geleverd."
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "De zaak is niet meer nodig.",
+          "omschrijving": "De zaak is niet meer nodig."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA028",
+      "omschrijving": "Product of dienst ontwikkelen",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Ontwikkelen voorzieningen",
+        "doel": "Het ontwikkelen van een product of dienst die invulling geeft aan lokale beleidsdoelstellingen conform de programma’s en het jaarplan.",
+        "aanleiding": "Indicatie Intern of Extern",
+        "verantwoordelijke_organisatie": "Toelichting Voorbeelden van de producten of diensten zijn “rollatorzwemmen” om de fysieke conditie van ouderen te bevorderen of een “kitesurfvergunning” om het kitesurfen op het strand te reguleren.",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "Voorbeelden van de producten of diensten zijn “rollatorzwemmen” om de fysieke conditie van ouderen te bevorderen of een “kitesurfvergunning” om het kitesurfen op het strand te reguleren."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Besluit opgesteld"
+        },
+        {
+          "volgnummer": 4,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Initiatief",
+          "richting": "inkomend",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Besluit",
+          "richting": "intern",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Concept besluit",
+          "richting": "intern",
+          "volgnummer": 3
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Vastgesteld",
+          "omschrijving": "Vastgesteld"
+        },
+        {
+          "type": "De voorziening is ontwikkeld.",
+          "omschrijving": "De voorziening is ontwikkeld."
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "Het initiatief is ingetrokken.",
+          "omschrijving": "Het initiatief is ingetrokken."
+        },
+        {
+          "type": "Niet nodig",
+          "omschrijving": "Niet nodig"
+        },
+        {
+          "type": "Het initiatief is niet nodig.",
+          "omschrijving": "Het initiatief is niet nodig."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA029",
+      "omschrijving": "Regeling of verordening ontwikkelen",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Ontwikkelen voorzieningen",
+        "doel": "Het vertalen van programma’s en jaarplannen in een concrete regeling of verordening.",
+        "aanleiding": "Indicatie Intern of Extern",
+        "verantwoordelijke_organisatie": "Toelichting Voorbeelden hiervan zijn een subsidieregeling ter stimulatie van arbeidsparticipatie van gehandicapte jongeren en een verordening inzake leerlingenvervoer.",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "Voorbeelden hiervan zijn een subsidieregeling ter stimulatie van arbeidsparticipatie van gehandicapte jongeren en een verordening inzake leerlingenvervoer."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak opgesteld"
+        },
+        {
+          "volgnummer": 4,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is het initiatief ontvangen?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 2,
+              "item": "Zijn alle benodigde stukken voor aanvang aanwezig?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "2",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de regeling of verordening samengesteld?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "3",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is het definitief besluit vastgesteld?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "4",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Initiatief",
+          "richting": "intern",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Besluit",
+          "richting": "intern",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Concept besluit",
+          "richting": "intern",
+          "volgnummer": 3
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Vastgesteld",
+          "omschrijving": "Vastgesteld"
+        },
+        {
+          "type": "De voorziening is ontwikkeld.",
+          "omschrijving": "De voorziening is ontwikkeld."
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "Het initiatief is ingetrokken.",
+          "omschrijving": "Het initiatief is ingetrokken."
+        },
+        {
+          "type": "Niet nodig",
+          "omschrijving": "Niet nodig"
+        },
+        {
+          "type": "Het initiatief is niet nodig.",
+          "omschrijving": "Het initiatief is niet nodig."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA030",
+      "omschrijving": "Repareren",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Beheren en onderhouden ruimte",
+        "doel": "Het reactief repareren of schoonmaken van de openbare ruimte.",
+        "aanleiding": "Indicatie Intern of Extern",
+        "verantwoordelijke_organisatie": "Toelichting Een voorbeeld van het repareren of schoonmaken van de openbare ruimte is het herstellen van een wipkip of het vervangen van bewegwijzering na een aanrijding.",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "Een voorbeeld van het repareren of schoonmaken van de openbare ruimte is het herstellen van een wipkip of het vervangen van bewegwijzering na een aanrijding."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Zijn alle benodigde stukken aanwezig?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 2,
+              "item": "Zijn de werkzaamheden gepland?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "3",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Melding",
+          "richting": "inkomend",
+          "volgnummer": 1
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Uitgevoerd",
+          "omschrijving": "Uitgevoerd"
+        },
+        {
+          "type": "De reparatie of het onderhoud is uitgevoerd.",
+          "omschrijving": "De reparatie of het onderhoud is uitgevoerd."
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "Niet uitgevoerd",
+          "omschrijving": "Niet uitgevoerd"
+        },
+        {
+          "type": "De reparatie of het onderhoud is niet uitgevoerd.",
+          "omschrijving": "De reparatie of het onderhoud is niet uitgevoerd."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA031",
+      "omschrijving": "Ruimte of goed verhuren",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Exploiteren",
+        "doel": "Het verhuren van gronden en ruimten in het bezit van de gemeente.",
+        "aanleiding": "Indicatie Intern of Extern",
+        "verantwoordelijke_organisatie": "Toelichting Voorbeelden van het verhuren van gronden en ruimte zijn sportvelden, vergaderaccommodaties, overig vastgoed en goederen zoals dranghekken.",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "Voorbeelden van het verhuren van gronden en ruimte zijn sportvelden, vergaderaccommodaties, overig vastgoed en goederen zoals dranghekken."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Besluit opgesteld"
+        },
+        {
+          "volgnummer": 4,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Zijn alle benodigde stukken aanwezig?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "4",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Aanvraag",
+          "richting": "inkomend",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Concept verhuurovereenkomst",
+          "richting": "intern",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Verhuurovereenkomst",
+          "richting": "intern",
+          "volgnummer": 3
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Geleverd",
+          "omschrijving": "Geleverd"
+        },
+        {
+          "type": "Het is verhuurd en geleverd",
+          "omschrijving": "Het is verhuurd en geleverd"
+        },
+        {
+          "type": "Afgewezen",
+          "omschrijving": "Afgewezen"
+        },
+        {
+          "type": "De aanvraag is afgewezen.",
+          "omschrijving": "De aanvraag is afgewezen."
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "De aanvraag is ingetrokken.",
+          "omschrijving": "De aanvraag is ingetrokken."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA032",
+      "omschrijving": "Sanctie opleggen",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "| Handhaven |",
+        "verantwoordelijke_organisatie": "| |",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "| | +--------------------------------+--------------------------------------------------------------------------------------------------+"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Besluit opgesteld"
+        },
+        {
+          "volgnummer": 4,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Zijn alle benodigde stukken aanwezig?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "2",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Zijn de adviezen uitgezet?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 2,
+              "item": "Zijn de adviezen ontvangen en verwerkt?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 3,
+              "item": "Is de sanctie voorbereid?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "4",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam      Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam      Eigenschap-kenmerken"
+        },
+        {
+          "naam": "Type sanctie",
+          "omschrijving": "Type sanctie"
+        },
+        {
+          "naam": "WKPB geïnformeerd",
+          "omschrijving": "WKPB geïnformeerd"
+        },
+        {
+          "naam": "Ja indien WKBP is geïnformeerd.",
+          "omschrijving": "Ja indien WKBP is geïnformeerd."
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Ingebrekestelling",
+          "richting": "inkomend",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Offerte",
+          "richting": "intern",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "WKBP notificatie",
+          "richting": "intern",
+          "volgnummer": 3
+        },
+        {
+          "informatieobjecttype_id": "Dwangsom",
+          "richting": "intern",
+          "volgnummer": 4
+        },
+        {
+          "informatieobjecttype_id": "Bestuursdwang",
+          "richting": "intern",
+          "volgnummer": 5
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Dwangsom uitgevoerd",
+          "omschrijving": "Dwangsom uitgevoerd"
+        },
+        {
+          "type": "De sanctie is uitgevoerd.",
+          "omschrijving": "De sanctie is uitgevoerd."
+        },
+        {
+          "type": "Bestuursdwang uitgevoerd",
+          "omschrijving": "Bestuursdwang uitgevoerd"
+        },
+        {
+          "type": "Niet uitgevoerd",
+          "omschrijving": "Niet uitgevoerd"
+        },
+        {
+          "type": "De sanctie is niet uitgevoerd.",
+          "omschrijving": "De sanctie is niet uitgevoerd."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA033",
+      "omschrijving": "Subsidieaanvraag behandelen",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Subsidies",
+        "doel": "Het nemen van een besluit naar aanleiding van een aanvraag voor subsidie, waarin bepaald wordt of de subsidie verleend kan worden.",
+        "aanleiding": "van een aanvraag voor subsidie, waarin bepaald wordt of de subsidie verleend kan worden.",
+        "verantwoordelijke_organisatie": "Proceseigenaar",
+        "doorlooptijd": "| 8 weken |",
+        "servicenorm": "| 5 weken |",
+        "toelichting_doorlooptijd": "Het behandelen van subsidieaanvragen op basis van de regels en procedures van de Algemene Subsidieverordening (ASV). Ten opzichte van de voorgaande versie van het zaaktype zijn de wijzigingen als gevolg van versie 2.1 van de ZTC2 doorgevoerd en zijn de definities van de eigenschappen aangescherpt."
+      },
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam              Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam              Eigenschap-kenmerken"
+        },
+        {
+          "naam": "Gevraagd subsidiebedrag",
+          "omschrijving": "Gevraagd subsidiebedrag"
+        },
+        {
+          "naam": "Het gevraagde subsidiebedrag.",
+          "omschrijving": "Het gevraagde subsidiebedrag."
+        },
+        {
+          "naam": "Eerste subsidieaanvraag",
+          "omschrijving": "Eerste subsidieaanvraag"
+        },
+        {
+          "naam": "Startdatum subsidie",
+          "omschrijving": "Startdatum subsidie"
+        },
+        {
+          "naam": "Einddatum subsidie",
+          "omschrijving": "Einddatum subsidie"
+        },
+        {
+          "naam": "Aansluiting beleidsdoelen",
+          "omschrijving": "Aansluiting beleidsdoelen"
+        },
+        {
+          "naam": "Aantal leden",
+          "omschrijving": "Aantal leden"
+        },
+        {
+          "naam": "Activiteit",
+          "omschrijving": "Activiteit"
+        },
+        {
+          "naam": "Gebruik vrijwilligers",
+          "omschrijving": "Gebruik vrijwilligers"
+        },
+        {
+          "naam": "Aantal vrijwilligers",
+          "omschrijving": "Aantal vrijwilligers"
+        },
+        {
+          "naam": "Uitslag toetsing",
+          "omschrijving": "Uitslag toetsing"
+        },
+        {
+          "naam": "Kosten",
+          "omschrijving": "Kosten"
+        },
+        {
+          "naam": "Totaalkosten",
+          "omschrijving": "Totaalkosten"
+        },
+        {
+          "naam": "Inkomsten",
+          "omschrijving": "Inkomsten"
+        },
+        {
+          "naam": "Soort inkomsten",
+          "omschrijving": "Soort inkomsten"
+        },
+        {
+          "naam": "Bankrekeningnummer",
+          "omschrijving": "Bankrekeningnummer"
+        },
+        {
+          "naam": "Waarheidsverklaring",
+          "omschrijving": "Waarheidsverklaring"
+        },
+        {
+          "naam": "Toegekend subsidiebedrag",
+          "omschrijving": "Toegekend subsidiebedrag"
+        },
+        {
+          "naam": "Subsidiebudget",
+          "omschrijving": "Subsidiebudget"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Subsidieaanvraag",
+          "richting": "inkomend",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Accountantsverklaring",
+          "richting": "inkomend",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Verzekeringspolis",
+          "richting": "inkomend",
+          "volgnummer": 3
+        },
+        {
+          "informatieobjecttype_id": "Activiteitenbegroting",
+          "richting": "inkomend",
+          "volgnummer": 4
+        },
+        {
+          "informatieobjecttype_id": "Jaarrekening",
+          "richting": "inkomend",
+          "volgnummer": 5
+        },
+        {
+          "informatieobjecttype_id": "Jaarverslag",
+          "richting": "inkomend",
+          "volgnummer": 6
+        },
+        {
+          "informatieobjecttype_id": "Uittreksel Handelsregister",
+          "richting": "inkomend",
+          "volgnummer": 7
+        },
+        {
+          "informatieobjecttype_id": "Bankafschrift",
+          "richting": "inkomend",
+          "volgnummer": 8
+        },
+        {
+          "informatieobjecttype_id": "Activiteitenplan",
+          "richting": "inkomend",
+          "volgnummer": 9
+        },
+        {
+          "informatieobjecttype_id": "Ontvangstbevestiging",
+          "richting": "inkomend",
+          "volgnummer": 10
+        },
+        {
+          "informatieobjecttype_id": "Verzoek aanvullende informatie",
+          "richting": "uitgaand",
+          "volgnummer": 11
+        },
+        {
+          "informatieobjecttype_id": "Subsidiebeschikking",
+          "richting": "uitgaand",
+          "volgnummer": 12
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Subsidieaanvraag is verleend door de gemeente.",
+          "omschrijving": "Subsidieaanvraag is verleend door de gemeente."
+        },
+        {
+          "type": "Subsidieaanvraag is geweigerd door de gemeente.",
+          "omschrijving": "Subsidieaanvraag is geweigerd door de gemeente."
+        },
+        {
+          "type": "Subsidieaanvraag is ingetrokken door de aanvrager",
+          "omschrijving": "Subsidieaanvraag is ingetrokken door de aanvrager"
+        }
+      ]
+    },
+    {
+      "id": "GEMMA034",
+      "omschrijving": "Toezicht houden",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Handhaven",
+        "doel": "Het verifieren of handelingen of zaken voldoen aan de daaraan gestelde eisen, het zich daarna vormen van een oordeel daarover en het eventueel naar aanleiding daarvan interveniëren.",
+        "aanleiding": "daarvan interveniëren.",
+        "verantwoordelijke_organisatie": "Toelichting",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Besluit opgesteld"
+        },
+        {
+          "volgnummer": 4,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de controle voorbereid?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "2",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Zijn de controle(s) uitgevoerd?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "4",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is er voldaan aan alle voorwaarden uit het besluit?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 2,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam               Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam               Eigenschap-kenmerken"
+        },
+        {
+          "naam": "Afwijking geconstateerd",
+          "omschrijving": "Afwijking geconstateerd"
+        },
+        {
+          "naam": "Ja indien er een afwijking is geconstateerd.",
+          "omschrijving": "Ja indien er een afwijking is geconstateerd."
+        },
+        {
+          "naam": "Vooraankondiging verstuurd",
+          "omschrijving": "Vooraankondiging verstuurd"
+        },
+        {
+          "naam": "Ja indien er een vooraankondiging is verstuurd.",
+          "omschrijving": "Ja indien er een vooraankondiging is verstuurd."
+        },
+        {
+          "naam": "Wijze van optreden",
+          "omschrijving": "Wijze van optreden"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Plan",
+          "richting": "intern",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Melding",
+          "richting": "inkomend",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Controleverslag",
+          "richting": "intern",
+          "volgnummer": 3
+        },
+        {
+          "informatieobjecttype_id": "Gedoogbesluit",
+          "richting": "intern",
+          "volgnummer": 4
+        },
+        {
+          "informatieobjecttype_id": "Legalisatiebesluit",
+          "richting": "intern",
+          "volgnummer": 5
+        },
+        {
+          "informatieobjecttype_id": "Vooraankondiging",
+          "richting": "uitgaand",
+          "volgnummer": 6
+        },
+        {
+          "informatieobjecttype_id": "Verzoek sanctie op te leggen",
+          "richting": "intern",
+          "volgnummer": 7
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Geen afwijking",
+          "omschrijving": "Geen afwijking"
+        },
+        {
+          "type": "Er is geen afwijking geconstateerd.",
+          "omschrijving": "Er is geen afwijking geconstateerd."
+        },
+        {
+          "type": "Sanctie opleggen",
+          "omschrijving": "Sanctie opleggen"
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "Er zal geen toezicht worden gehouden.",
+          "omschrijving": "Er zal geen toezicht worden gehouden."
+        },
+        {
+          "type": "Gedoogd",
+          "omschrijving": "Gedoogd"
+        },
+        {
+          "type": "De afwijking wordt gedoogd",
+          "omschrijving": "De afwijking wordt gedoogd"
+        },
+        {
+          "type": "Gelegaliseerd",
+          "omschrijving": "Gelegaliseerd"
+        },
+        {
+          "type": "De afwijking wordt gelegaliseerd",
+          "omschrijving": "De afwijking wordt gelegaliseerd"
+        },
+        {
+          "type": "Gerepareerd",
+          "omschrijving": "Gerepareerd"
+        },
+        {
+          "type": "De afwijking is gerepareerd.",
+          "omschrijving": "De afwijking is gerepareerd."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA035",
+      "omschrijving": "Vastgoed verkopen",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Exploiteren",
+        "doel": "Het verkopen van grond en onroerend goed aan derden. Dit kan gebeuren met een bepaald doel (bv. verkavelen), of gewoon om overtollig geworden gronden of gebouwen te gelde te maken.",
+        "aanleiding": "Indicatie Intern of Extern",
+        "verantwoordelijke_organisatie": "Toelichting",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Besluit opgesteld"
+        },
+        {
+          "volgnummer": 4,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Zijn alle benodigde stukken aanwezig?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "4",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Verzoek",
+          "richting": "inkomend",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Concept verkoopovereenkomst",
+          "richting": "intern",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Verkoopovereenkomst",
+          "richting": "intern",
+          "volgnummer": 3
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Geleverd",
+          "omschrijving": "Geleverd"
+        },
+        {
+          "type": "Het is verkocht en geleverd.",
+          "omschrijving": "Het is verkocht en geleverd."
+        },
+        {
+          "type": "Afgewezen",
+          "omschrijving": "Afgewezen"
+        },
+        {
+          "type": "De aanvraag is afgewezen.",
+          "omschrijving": "De aanvraag is afgewezen."
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "De aanvraag is ingetrokken.",
+          "omschrijving": "De aanvraag is ingetrokken."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA036",
+      "omschrijving": "Verantwoorden",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Evalueren",
+        "doel": "Het aan de gemeenschap toelichten van de prestaties en effecten van het gevoerde beleid en de hiervoor ingezette middelen.",
+        "aanleiding": "Indicatie Intern of Extern",
+        "verantwoordelijke_organisatie": "Toelichting",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "-------------------------------------------------------------------------------------------------------------------------------------------------------------"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Opdracht",
+          "richting": "intern",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Initiatiefdocument",
+          "richting": "intern",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Advies",
+          "richting": "intern",
+          "volgnummer": 3
+        },
+        {
+          "informatieobjecttype_id": "Bewijsstukken",
+          "richting": "intern",
+          "volgnummer": 4
+        },
+        {
+          "informatieobjecttype_id": "Adviesrapport",
+          "richting": "intern",
+          "volgnummer": 5
+        },
+        {
+          "informatieobjecttype_id": "Eindrapport",
+          "richting": "intern",
+          "volgnummer": 6
+        },
+        {
+          "informatieobjecttype_id": "Verklaring",
+          "richting": "intern",
+          "volgnummer": 7
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Uitgevoerd",
+          "omschrijving": "Uitgevoerd"
+        },
+        {
+          "type": "Registreer het resultaat",
+          "omschrijving": "Registreer het resultaat"
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "De zaak is niet meer nodig.",
+          "omschrijving": "De zaak is niet meer nodig."
+        },
+        {
+          "type": "Afgehandeld",
+          "omschrijving": "Afgehandeld"
+        }
+      ]
+    },
+    {
+      "id": "GEMMA037",
+      "omschrijving": "Vergunning- of ontheffingaanvraag behandelen",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Verstrekken van producten en diensten",
+        "doel": "Aanleiding Een klant (burger of bedrijf) vraagt een vergunning of ontheffing aan voor een activiteit die te boek staat als vergunning- of ontheffingplichtig.",
+        "aanleiding": "Een klant (burger of bedrijf) vraagt een vergunning of ontheffing aan voor een activiteit die te boek staat als vergunning- of ontheffingplichtig.",
+        "verantwoordelijke_organisatie": "Toelichting Een aanvraag van een vergunning of ontheffing kan zowel op basis van landelijke als lokale wetgeving plaatsvinden. Typisch voor alle vergunningen en ontheffingen is dat de klant een aanvraag indient, dat deze aanvraag door een vakspecialist wordt beoordeeld op de indieningsvereisten en inhoud en dat hierna een beschikking volgt.",
+        "doorlooptijd": "(afhankelijk van soort vergunning en desbetreffende wetgeving)",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "Een aanvraag van een vergunning of ontheffing kan zowel op basis van landelijke als lokale wetgeving plaatsvinden. Typisch voor alle vergunningen en ontheffingen is dat de klant een aanvraag indient, dat deze aanvraag door een vakspecialist wordt beoordeeld op de indieningsvereisten en inhoud en dat hierna een beschikking volgt."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Indieningsvereisten getoetst"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 4,
+          "omschrijving": "Besluit opgesteld"
+        },
+        {
+          "volgnummer": 5,
+          "omschrijving": "Besluit vastgesteld"
+        },
+        {
+          "volgnummer": 6,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de aanvraag volledig?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "2",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Zijn de indieningsvereisten getoetst?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "3",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Zijn alle adviezen ingewonnen?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "4",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is een ontwerp-besluit opgesteld en gepubliceerd?",
+              "verplicht": false
+            },
+            {
+              "volgnummer": 2,
+              "item": "Is het besluit opgesteld?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "5",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Heeft de bevoegde het besluit ondertekend?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "6",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is het besluit gepubliceerd?",
+              "verplicht": false
+            },
+            {
+              "volgnummer": 2,
+              "item": "Is een legesnota opgesteld?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 3,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Aanvullende informatie gevraagd",
+          "omschrijving": "Aanvullende informatie gevraagd"
+        },
+        {
+          "naam": "Aanvraag gepubliceerd",
+          "omschrijving": "Aanvraag gepubliceerd"
+        },
+        {
+          "naam": "Leges",
+          "omschrijving": "Leges"
+        },
+        {
+          "naam": "Alle adviezen ontvangen",
+          "omschrijving": "Alle adviezen ontvangen"
+        },
+        {
+          "naam": "Ter inzage gelegd",
+          "omschrijving": "Ter inzage gelegd"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Aanvraag",
+          "richting": "inkomend",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Ontvangstbevestiging",
+          "richting": "uitgaand",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Verzoek aanvullende informatie",
+          "richting": "uitgaand",
+          "volgnummer": 3
+        },
+        {
+          "informatieobjecttype_id": "Aanvulling",
+          "richting": "inkomend",
+          "volgnummer": 4
+        },
+        {
+          "informatieobjecttype_id": "Bericht in behandeling",
+          "richting": "uitgaand",
+          "volgnummer": 5
+        },
+        {
+          "informatieobjecttype_id": "Legesnota",
+          "richting": "uitgaand",
+          "volgnummer": 6
+        },
+        {
+          "informatieobjecttype_id": "Advies",
+          "richting": "intern",
+          "volgnummer": 7
+        },
+        {
+          "informatieobjecttype_id": "Concept-besluit",
+          "richting": "intern",
+          "volgnummer": 8
+        },
+        {
+          "informatieobjecttype_id": "Aanpassing op aanvraag",
+          "richting": "uitgaand",
+          "volgnummer": 9
+        },
+        {
+          "informatieobjecttype_id": "Zienswijze",
+          "richting": "inkomend",
+          "volgnummer": 10
+        },
+        {
+          "informatieobjecttype_id": "Ontwerp-besluit",
+          "richting": "uitgaand",
+          "volgnummer": 11
+        },
+        {
+          "informatieobjecttype_id": "Beschikking",
+          "richting": "uitgaand",
+          "volgnummer": 12
+        }
+      ]
+    },
+    {
+      "id": "GEMMA038",
+      "omschrijving": "Verzoek behandelen",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Verstrekken van producten en diensten",
+        "doel": "Aanleiding",
+        "aanleiding": "Indicatie Intern of Extern Extern",
+        "verantwoordelijke_organisatie": "Toelichting Het behandelen van een verzoek voor een fysiek product waar de klant meent recht op te hebben. De gemeente beoordeelt dit verzoek en geeft een antwoord. Vaak in de vorm van akkoord/niet akkoord.",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "Het behandelen van een verzoek voor een fysiek product waar de klant meent recht op te hebben. De gemeente beoordeelt dit verzoek en geeft een antwoord. Vaak in de vorm van akkoord/niet akkoord."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Voldoet het aan de eisen voor indiening?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 2,
+              "item": "Zijn de benodigde stukken aanwezig?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "2",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de reactie opgesteld?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "3",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Verzoek",
+          "richting": "inkomend",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Ontvangstbevestiging",
+          "richting": "uitgaand",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Verzoek aanvullende informatie",
+          "richting": "uitgaand",
+          "volgnummer": 3
+        },
+        {
+          "informatieobjecttype_id": "Aanvulling",
+          "richting": "inkomend",
+          "volgnummer": 4
+        },
+        {
+          "informatieobjecttype_id": "Toekenning verzoek",
+          "richting": "uitgaand",
+          "volgnummer": 5
+        },
+        {
+          "informatieobjecttype_id": "Afwijzing verzoek",
+          "richting": "uitgaand",
+          "volgnummer": 6
+        }
+      ]
+    },
+    {
+      "id": "GEMMA039",
+      "omschrijving": "Voorlichten",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Informeren",
+        "doel": "De gemeente publiceert en/of informeert (proactief) het publiek of een specifieke doelgroep.",
+        "aanleiding": "Indicatie Intern of Extern Intern",
+        "verantwoordelijke_organisatie": "Toelichting Het gaat om overheidsinformatie in brede zin, die een bepaalde ingangsdatum heeft: de publicatie geeft aan dat iets is veranderd ten opzichte van een eerdere situatie. Voorbeeld: een wet of regeling is van kracht geworden, de openingstijden van de vuilstort zijn veranderd.",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "Het gaat om overheidsinformatie in brede zin, die een bepaalde ingangsdatum heeft: de publicatie geeft aan dat iets is veranderd ten opzichte van een eerdere situatie. Voorbeeld: een wet of regeling is van kracht geworden, de openingstijden van de vuilstort zijn veranderd."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Bekendmaking",
+          "richting": "uitgaand",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Nieuwsbericht",
+          "richting": "uitgaand",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Kennisgeving",
+          "richting": "uitgaand",
+          "volgnummer": 3
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Uitgevoerd",
+          "omschrijving": "Uitgevoerd"
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "Het verzoek om voorlichting is ingetrokken.",
+          "omschrijving": "Het verzoek om voorlichting is ingetrokken."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA040",
+      "omschrijving": "Vraag beantwoorden",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Informeren",
+        "doel": "Het beantwoorden van vragen om informatie.",
+        "aanleiding": "Een natuurlijk persoon, in welke hoedanigheid dan ook, die het initiatief neemt een vraag te stellen.",
+        "verantwoordelijke_organisatie": "Toelichting De vraag kan zowel gaan over een algemeen onderwerp, een specifieke persoonlijke situatie of een specifieke behoefte van een bedrijf of instelling. De gemeente beantwoordt de vraag en informeert reactief.",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "De vraag kan zowel gaan over een algemeen onderwerp, een specifieke persoonlijke situatie of een specifieke behoefte van een bedrijf of instelling. De gemeente beantwoordt de vraag en informeert reactief."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Zijn alle benodigde stukken aanwezig?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "2",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is het concept antwoord opgesteld?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 2,
+              "item": "Is er akkoord op het versturen van het antwoord?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "3",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Verzoek",
+          "richting": "inkomend",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Antwoord",
+          "richting": "uitgaand",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Verzoek intrekking",
+          "richting": "inkomend",
+          "volgnummer": 3
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Het antwoord is verstuurd naar de klant.",
+          "omschrijving": "Het antwoord is verstuurd naar de klant."
+        },
+        {
+          "type": "De vraag is ingetrokken.",
+          "omschrijving": "De vraag is ingetrokken."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA041",
+      "omschrijving": "(Bouw)grond ontwikkelen en inrichten",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "Ontwikkelen ruimte",
+        "doel": "Het (voorbereiden van) bouwrijp maken van bouwgrond of het inrichten van andere terreinen voor hun bedoelde bestemming.",
+        "aanleiding": "Indicatie Intern of Extern",
+        "verantwoordelijke_organisatie": "Toelichting Een voorbeeld van het ontwikkelen en inrichten van bouwgrond is het inrichten van een stadspark.",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "Een voorbeeld van het ontwikkelen en inrichten van bouwgrond is het inrichten van een stadspark."
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is alle informatie nodig voor initiatie bekend en geregistreerd?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "2",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de uitvoering gestart?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "3",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is het project in beheer genomen?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 2,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Opdracht",
+          "richting": "inkomend",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Initiatiefdocument",
+          "richting": "inkomend",
+          "volgnummer": 2
+        },
+        {
+          "informatieobjecttype_id": "Advies",
+          "richting": "inkomend",
+          "volgnummer": 3
+        },
+        {
+          "informatieobjecttype_id": "Plan van Aanpak",
+          "richting": "intern",
+          "volgnummer": 4
+        },
+        {
+          "informatieobjecttype_id": "Tekening",
+          "richting": "inkomend",
+          "volgnummer": 5
+        },
+        {
+          "informatieobjecttype_id": "Pakket van Eisen",
+          "richting": "intern",
+          "volgnummer": 6
+        },
+        {
+          "informatieobjecttype_id": "Offerte",
+          "richting": "inkomend",
+          "volgnummer": 7
+        },
+        {
+          "informatieobjecttype_id": "Overeenkomst",
+          "richting": "intern",
+          "volgnummer": 8
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "De werkzaamheden zijn niet uitgevoerd.",
+          "omschrijving": "De werkzaamheden zijn niet uitgevoerd."
+        },
+        {
+          "type": "Uitgevoerd",
+          "omschrijving": "Uitgevoerd"
+        },
+        {
+          "type": "De werkzaamheden zijn uitgevoerd.",
+          "omschrijving": "De werkzaamheden zijn uitgevoerd."
+        }
+      ]
+    },
+    {
+      "id": "GEMMA042",
+      "omschrijving": "Documenteren en archiveren",
+      "versiedatum": "2014-12-01T00:00:00",
+      "details": {
+        "categorie": "| Ondersteunen |",
+        "verantwoordelijke_organisatie": "| |",
+        "servicenorm": "Opschorting/aanhouding mogelijk",
+        "toelichting_doorlooptijd": "| | +--------------------------------+---------------------------------------------------------------------------------------------------+"
+      },
+      "statussen": [
+        {
+          "volgnummer": 1,
+          "omschrijving": "Intake afgerond"
+        },
+        {
+          "volgnummer": 2,
+          "omschrijving": "Inhoudelijk behandeld"
+        },
+        {
+          "volgnummer": 3,
+          "omschrijving": "Zaak afgerond"
+        }
+      ],
+      "checklists": [
+        {
+          "status": "1",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Zijn alle benodigde stukken aanwezig?",
+              "verplicht": true
+            },
+            {
+              "volgnummer": 2,
+              "item": "Is het verzoek vastgelegd?",
+              "verplicht": true
+            }
+          ]
+        },
+        {
+          "status": "3",
+          "checklist_items": [
+            {
+              "volgnummer": 1,
+              "item": "Is de zaak gearchiveerd en afgerond?",
+              "verplicht": true
+            }
+          ]
+        }
+      ],
+      "rollen": [
+        {
+          "type": "Adviseur",
+          "omschrijving": "Adviseur",
+          "categorie": "Adviseur"
+        },
+        {
+          "type": "Behandelaar",
+          "omschrijving": "Behandelaar",
+          "categorie": "Behandelaar"
+        },
+        {
+          "type": "Belanghebbende",
+          "omschrijving": "Belanghebbende",
+          "categorie": "Belanghebbende"
+        },
+        {
+          "type": "Beslisser",
+          "omschrijving": "Beslisser",
+          "categorie": "Beslisser"
+        },
+        {
+          "type": "Initiator",
+          "omschrijving": "Initiator",
+          "categorie": "Initiator"
+        },
+        {
+          "type": "Klantcontacter",
+          "omschrijving": "Klantcontacter",
+          "categorie": "Klantcontacter"
+        },
+        {
+          "type": "Zaakcoördinator",
+          "omschrijving": "Zaakcoördinator",
+          "categorie": "Zaakcoördinator"
+        }
+      ],
+      "eigenschappen": [
+        {
+          "naam": "Eigenschapnaam   Eigenschap-kenmerken",
+          "omschrijving": "Eigenschapnaam   Eigenschap-kenmerken"
+        },
+        {
+          "naam": "Verzoek",
+          "omschrijving": "Verzoek"
+        },
+        {
+          "naam": "Het onderwerp waar advies over gevraagd wordt.",
+          "omschrijving": "Het onderwerp waar advies over gevraagd wordt."
+        },
+        {
+          "naam": "Aanleiding",
+          "omschrijving": "Aanleiding"
+        },
+        {
+          "naam": "Aanleiding waarom om advies gevraagd wordt.",
+          "omschrijving": "Aanleiding waarom om advies gevraagd wordt."
+        }
+      ],
+      "informatieobjecten": [
+        {
+          "informatieobjecttype_id": "Verzoek",
+          "richting": "inkomend",
+          "volgnummer": 1
+        },
+        {
+          "informatieobjecttype_id": "Adviesrapport",
+          "richting": "intern",
+          "volgnummer": 2
+        }
+      ],
+      "resultaten": [
+        {
+          "type": "Geleverd",
+          "omschrijving": "Geleverd"
+        },
+        {
+          "type": "Het resultaat is geleverd",
+          "omschrijving": "Het resultaat is geleverd"
+        },
+        {
+          "type": "Niet geleverd",
+          "omschrijving": "Niet geleverd"
+        },
+        {
+          "type": "Het resultaat is niet geleverd",
+          "omschrijving": "Het resultaat is niet geleverd"
+        },
+        {
+          "type": "Ingetrokken",
+          "omschrijving": "Ingetrokken"
+        },
+        {
+          "type": "De zaak is niet meer nodig",
+          "omschrijving": "De zaak is niet meer nodig"
+        }
+      ]
+    }
+  ]
+}

@@ -22,4 +22,9 @@
     <Folder Include="DataGeneration\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Remove="Catalogi\**\data.json" />
+    <EmbeddedResource Include="Catalogi\**\data.json" />
+  </ItemGroup>
+
 </Project>

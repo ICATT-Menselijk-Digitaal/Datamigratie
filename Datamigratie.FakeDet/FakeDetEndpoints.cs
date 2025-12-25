@@ -1,6 +1,8 @@
 ﻿using Bogus;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.Shared.Models;
+using Datamigratie.FakeDet.Catalogi;
+using Datamigratie.FakeDet.Catalogi.Omgevingswet;
 using Datamigratie.FakeDet.DataGeneration;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -8,17 +10,40 @@ namespace Datamigratie.FakeDet
 {
     public static class FakeDetEndpoints
     {
+        private static readonly Task<ZaaktypecatalogusRoot?> s_dataPromise = GetCatalogusData.GetCatalogus("Gemma");
         private static readonly (IReadOnlyList<DetZaaktype> Zaaktypes, IReadOnlyList<DetZaak> Zaken) s_data = GetData();
 
-        public static Ok<PagedResponse<DetZaaktype>> GetAllZaaktypen() => TypedResults.Ok(new PagedResponse<DetZaaktype>
+        public static async Task<Ok<PagedResponse<DetZaaktype>>> GetAllZaaktypen()
         {
-            Results = [.. s_data.Zaaktypes],
-            Count = s_data.Zaken.Count,
-        });
+            var data = await s_dataPromise;
+            var result = new PagedResponse<DetZaaktype>
+            {
+                Count = data?.Zaaktypen.Count ?? 0,
+                Results = data?.Zaaktypen.Select(x=> new DetZaaktype
+                {
+                    FunctioneleIdentificatie = x.Id,
+                    Naam = x.Omschrijving,
+                    Omschrijving = x.Omschrijving,
+                    Actief = false
+                })?.ToList() ?? []
+            };
+            return TypedResults.Ok(result);
+        }
 
-        public static Results<Ok<DetZaaktype>, NotFound> GetZaaktype(string zaaktypeName) => s_data.Zaaktypes.FirstOrDefault(z => z.FunctioneleIdentificatie == zaaktypeName) is DetZaaktype zaaktype
-            ? TypedResults.Ok(zaaktype)
-            : TypedResults.NotFound();
+        public static async Task<Results<Ok<DetZaaktype>, NotFound>> GetZaaktype(string zaaktypeName)
+        {
+            var data = await s_dataPromise;
+            return data?.Zaaktypen.FirstOrDefault(z => z.Id == zaaktypeName) is {}
+                zaaktype
+                ? TypedResults.Ok(new DetZaaktype
+                {
+                    Omschrijving = zaaktype.Omschrijving,
+                    Actief = false,
+                    Naam = zaaktype.Omschrijving,
+                    FunctioneleIdentificatie = zaaktype.Id
+                })
+                : TypedResults.NotFound();
+        }
 
         public static Ok<PagedResponse<DetZaakMinimal>> GetZakenByZaaktype(string zaaktype)
         {
@@ -37,18 +62,18 @@ namespace Datamigratie.FakeDet
 
         public static Results<PushStreamHttpResult, NotFound> DownloadBestand(long id)
         {
-            var document = s_data.Zaken.SelectMany(z => z.Documenten ?? [])
+            var document = s_data.Zaken
+                .SelectMany(z => z.Documenten ?? [])
                 .SelectMany(x => x.DocumentVersies)
-                .Where(d => d.DocumentInhoudID == id && d.Documentgrootte != null)
-                .FirstOrDefault();
+                .FirstOrDefault(d => d.DocumentInhoudID == id && d.Documentgrootte != null);
 
-            return document?.Documentgrootte == null || document.Mimetype == null
+            return document?.Documentgrootte == null || string.IsNullOrWhiteSpace(document.Mimetype)
                 ? TypedResults.NotFound()
                 : TypedResults.Stream(
                     stream => TestFileGenerator.Generate(stream, document.Mimetype, document.Documentgrootte.Value, document.Bestandsnaam),
                     contentType: document.Mimetype);
         }
-
+        
         private static (IReadOnlyList<DetZaaktype> Zaaktypes, IReadOnlyList<DetZaak> Zaken) GetData(int seed = 123, int zaaktypenCount = 100, int zakenCount = 456)
         {
             // Maak 100 zaaktypen (eenmalig, herbruikbaar)
