@@ -1,0 +1,949 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zgw.nl/schemas/zaak/v1.0.0/zaak.json",
+  "title": "ZGW Zaak Schema",
+  "description": "JSON Schema voor zaken conform Zaakgericht Werken (ZGW) standaard, gebaseerd op e-Suite data extractie API v0.15.0",
+  "type": "object",
+  "required": [
+    "metadata",
+    "zaken"
+  ],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "description": "Metadata over de gegenereerde dataset",
+      "required": [
+        "gegenereerd_op",
+        "aantal_zaken",
+        "generator_versie",
+        "schema",
+        "beschrijving"
+      ],
+      "properties": {
+        "gegenereerd_op": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Tijdstip waarop de dataset is gegenereerd"
+        },
+        "aantal_zaken": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Totaal aantal zaken in de dataset"
+        },
+        "generator_versie": {
+          "type": "string",
+          "description": "Versie van de generator"
+        },
+        "schema": {
+          "type": "string",
+          "description": "Bronschema waarop de data is gebaseerd"
+        },
+        "beschrijving": {
+          "type": "string",
+          "description": "Beschrijving van de dataset"
+        }
+      }
+    },
+    "zaken": {
+      "type": "array",
+      "description": "Array van zaak objecten",
+      "items": {
+        "$ref": "#/$defs/Zaak"
+      }
+    }
+  },
+  "$defs": {
+    "Zaak": {
+      "type": "object",
+      "description": "Een zaak in het ZGW-systeem",
+      "required": [
+        "functioneleIdentificatie",
+        "externeIdentificatie",
+        "omschrijving",
+        "zaaktype",
+        "vertrouwelijk",
+        "aangemaaktDoor",
+        "kanaal",
+        "creatieDatumTijd",
+        "streefdatum",
+        "zaakStatus",
+        "intake",
+        "historie",
+        "geautoriseerdVoorMedewerkers",
+        "procesGestart",
+        "heropend",
+        "open",
+        "vernietiging",
+        "notificeerbaar",
+        "gemigreerd"
+      ],
+      "properties": {
+        "functioneleIdentificatie": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "Zaaknummer in e-Suite",
+          "pattern": "^[A-Z]{3}-[0-9]{4}-[0-9]{6}$",
+          "examples": [
+            "GEM-2023-000001",
+            "ODH-2024-001234"
+          ]
+        },
+        "externeIdentificatie": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 40,
+          "description": "Identificatie van zaak voor koppeling met extern systeem",
+          "examples": [
+            "EXT-A1B2C3D4E5F6G7H8"
+          ]
+        },
+        "omschrijving": {
+          "type": "string",
+          "maxLength": 255,
+          "description": "Omschrijving van de zaak"
+        },
+        "redenStart": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Reden voor starten van zaak"
+        },
+        "zaaktype": {
+          "$ref": "#/$defs/ZaaktypeOverzicht"
+        },
+        "vertrouwelijk": {
+          "type": "boolean",
+          "description": "Is zaak vertrouwelijk"
+        },
+        "behandelaar": {
+          "type": "string",
+          "maxLength": 64,
+          "description": "Gebruikersnaam van behandelaar van zaak"
+        },
+        "initiator": {
+          "$ref": "#/$defs/Subject",
+          "description": "Initiator van zaak"
+        },
+        "afdeling": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "Naam van afdeling waaraan zaak is toegekend"
+        },
+        "groep": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "Naam van groep waaraan zaak is toegekend"
+        },
+        "aangemaaktDoor": {
+          "type": "string",
+          "maxLength": 64,
+          "description": "Gebruikersnaam van medewerker die zaak heeft aangemaakt"
+        },
+        "kanaal": {
+          "$ref": "#/$defs/Kanaal"
+        },
+        "creatieDatumTijd": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Tijdstip waarop zaak is aangemaakt"
+        },
+        "wijzigDatumTijd": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Meest recente tijdstip waarop zaak is gewijzigd"
+        },
+        "startdatum": {
+          "type": "string",
+          "format": "date",
+          "description": "Datum waarop behandeling van zaak gestart is"
+        },
+        "streefdatum": {
+          "type": "string",
+          "format": "date",
+          "description": "Streefdatum van zaak"
+        },
+        "fataledatum": {
+          "type": "string",
+          "format": "date",
+          "description": "Fatale datum van zaak"
+        },
+        "einddatum": {
+          "type": "string",
+          "format": "date",
+          "description": "Einddatum van zaak"
+        },
+        "zaakStatus": {
+          "$ref": "#/$defs/Zaakstatus"
+        },
+        "resultaat": {
+          "$ref": "#/$defs/Resultaat"
+        },
+        "intake": {
+          "type": "boolean",
+          "description": "Is zaak een intake"
+        },
+        "archiveerGegevens": {
+          "$ref": "#/$defs/ArchiveerGegevens"
+        },
+        "geolocatie": {
+          "$ref": "#/$defs/Geometry"
+        },
+        "historie": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ZaakHistorie"
+          },
+          "description": "Historie van zaak"
+        },
+        "geautoriseerdVoorMedewerkers": {
+          "type": "boolean",
+          "description": "Betreft dit een zaak met specifieke medewerker autorisatie"
+        },
+        "geautoriseerdeMedewerkers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true,
+          "description": "Gebruikersnamen van geautoriseerde medewerkers"
+        },
+        "notities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ZaakNotitie"
+          },
+          "description": "Notities op zaak"
+        },
+        "procesGestart": {
+          "type": "boolean",
+          "description": "Is voor zaak afhandeling een proces gestart"
+        },
+        "heropend": {
+          "type": "boolean",
+          "description": "Is zaak heropend nadat de zaak was beëindigd"
+        },
+        "open": {
+          "type": "boolean",
+          "description": "Is zaak open (nog niet beëindigd)"
+        },
+        "vernietiging": {
+          "type": "boolean",
+          "description": "Is zaak in vernietiging"
+        },
+        "notificeerbaar": {
+          "type": "boolean",
+          "description": "Kan er over deze zaak genotificeerd worden"
+        },
+        "gemigreerd": {
+          "type": "boolean",
+          "description": "Is zaak gemigreerd"
+        },
+        "betrokkenen": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ZaakBetrokkene"
+          },
+          "description": "Betrokkenen gerelateerd aan zaak"
+        },
+        "bagObjecten": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/BAGObject"
+          },
+          "description": "BAG Objecten gerelateerd aan zaak"
+        },
+        "gekoppeldeZaken": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ZaakZaakKoppeling"
+          },
+          "description": "Zaken gekoppeld aan zaak"
+        },
+        "documenten": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Document"
+          },
+          "description": "Documenten gerelateerd aan zaak"
+        }
+      }
+    },
+    "ZaaktypeOverzicht": {
+      "type": "object",
+      "description": "Overzicht van een zaaktype",
+      "required": [
+        "naam",
+        "actief",
+        "functioneleIdentificatie"
+      ],
+      "properties": {
+        "naam": {
+          "type": "string",
+          "maxLength": 255,
+          "description": "Naam van het zaaktype"
+        },
+        "omschrijving": {
+          "type": "string",
+          "description": "Omschrijving van het zaaktype"
+        },
+        "actief": {
+          "type": "boolean",
+          "description": "Is zaaktype actief"
+        },
+        "functioneleIdentificatie": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "Functionele identificatie van het zaaktype"
+        }
+      }
+    },
+    "Subject": {
+      "type": "object",
+      "description": "Een subject (persoon of bedrijf)",
+      "required": [
+        "subjecttype",
+        "handmatigToegevoegd"
+      ],
+      "properties": {
+        "subjecttype": {
+          "type": "string",
+          "enum": [
+            "persoon",
+            "bedrijf"
+          ],
+          "description": "Type subject"
+        },
+        "handmatigToegevoegd": {
+          "type": "boolean",
+          "description": "Is subject handmatig toegevoegd"
+        },
+        "telefoonnummer": {
+          "type": "string",
+          "maxLength": 20
+        },
+        "emailadres": {
+          "type": "string",
+          "maxLength": 255,
+          "format": "email"
+        },
+        "ontvangenZaakNotificaties": {
+          "type": "boolean"
+        },
+        "toestemmingZaakNotificatiesAlleenDigitaal": {
+          "type": "boolean"
+        },
+        "adressen": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Adres"
+          }
+        },
+        "burgerServiceNummer": {
+          "type": "string",
+          "minLength": 9,
+          "maxLength": 9,
+          "pattern": "^[0-9]{9}$",
+          "description": "BSN (alleen voor persoon)"
+        },
+        "voornamen": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "voorletters": {
+          "type": "string",
+          "maxLength": 20
+        },
+        "geslachtsNaam": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "voorvoegsel": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 10
+        },
+        "geslacht": {
+          "type": "string",
+          "enum": [
+            "M",
+            "V",
+            "O"
+          ]
+        },
+        "aanhefAanschrijving": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "geboortedatum": {
+          "type": "string",
+          "format": "date"
+        },
+        "geboorteplaats": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "geblokkeerd": {
+          "type": "boolean"
+        },
+        "curateleRegister": {
+          "type": "boolean"
+        },
+        "inOnderzoek": {
+          "type": "boolean"
+        },
+        "beperkingVerstrekking": {
+          "type": "boolean"
+        },
+        "afnemerIndicatie": {
+          "type": "boolean"
+        },
+        "burgerlijkeStaat": {
+          "type": "string"
+        },
+        "kvkNummer": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 8,
+          "pattern": "^[0-9]{8}$",
+          "description": "KvK-nummer (alleen voor bedrijf)"
+        },
+        "vestigingsnummer": {
+          "type": "string",
+          "minLength": 12,
+          "maxLength": 12,
+          "pattern": "^[0-9]{12}$"
+        },
+        "bedrijfsnaam": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "vennootschapsnaam": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "statutaireZetel": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "datumVestiging": {
+          "type": "string",
+          "format": "date"
+        },
+        "inSurceance": {
+          "type": "boolean"
+        },
+        "failliet": {
+          "type": "boolean"
+        },
+        "ingangsdatum": {
+          "type": "string",
+          "format": "date"
+        },
+        "vestigingstype": {
+          "type": "string",
+          "enum": [
+            "hoofdvestiging",
+            "nevenvestiging"
+          ]
+        }
+      }
+    },
+    "Adres": {
+      "type": "object",
+      "description": "Een adres",
+      "required": [
+        "type",
+        "buitenlandsAdres",
+        "land"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "correspondentie_adres",
+            "inschrijf_adres_persoon",
+            "verblijf_adres_persoon",
+            "post_adres_bedrijf",
+            "vestigings_adres_bedrijf"
+          ]
+        },
+        "straatnaam": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "huisnummer": {
+          "type": "integer"
+        },
+        "huisletter": {
+          "type": "string",
+          "maxLength": 10
+        },
+        "huisnummertoevoeging": {
+          "type": "string",
+          "maxLength": 10
+        },
+        "postcode": {
+          "type": "string",
+          "maxLength": 6,
+          "pattern": "^[0-9]{4}[A-Z]{2}$"
+        },
+        "plaatsnaam": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "buitenlandsAdres": {
+          "type": "boolean"
+        },
+        "adresbuitenland1": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "adresbuitenland2": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "adresbuitenland3": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "land": {
+          "$ref": "#/$defs/Land"
+        }
+      }
+    },
+    "Land": {
+      "type": "object",
+      "required": [
+        "naam",
+        "actief",
+        "gbaCode"
+      ],
+      "properties": {
+        "naam": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "omschrijving": {
+          "type": "string"
+        },
+        "actief": {
+          "type": "boolean"
+        },
+        "gbaCode": {
+          "type": "string",
+          "maxLength": 10
+        }
+      }
+    },
+    "Kanaal": {
+      "type": "object",
+      "description": "Kanaal waarlangs zaak is binnengekomen",
+      "required": [
+        "naam",
+        "actief"
+      ],
+      "properties": {
+        "naam": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "omschrijving": {
+          "type": "string"
+        },
+        "actief": {
+          "type": "boolean"
+        }
+      }
+    },
+    "Zaakstatus": {
+      "type": "object",
+      "description": "Status van een zaak",
+      "required": [
+        "naam",
+        "actief",
+        "uitwisselingscode",
+        "start",
+        "eind"
+      ],
+      "properties": {
+        "naam": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "omschrijving": {
+          "type": "string"
+        },
+        "actief": {
+          "type": "boolean"
+        },
+        "uitwisselingscode": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "externeNaam": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "start": {
+          "type": "boolean",
+          "description": "Is dit een startstatus"
+        },
+        "eind": {
+          "type": "boolean",
+          "description": "Is dit een eindstatus"
+        }
+      }
+    },
+    "Resultaat": {
+      "type": "object",
+      "description": "Resultaat van een zaak",
+      "required": [
+        "naam",
+        "actief",
+        "uitwisselingscode"
+      ],
+      "properties": {
+        "naam": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "omschrijving": {
+          "type": "string"
+        },
+        "actief": {
+          "type": "boolean"
+        },
+        "uitwisselingscode": {
+          "type": "string",
+          "maxLength": 255
+        }
+      }
+    },
+    "ArchiveerGegevens": {
+      "type": "object",
+      "description": "Archiveergegevens van een zaak",
+      "properties": {
+        "bewaartermijnEinddatum": {
+          "type": "string",
+          "format": "date"
+        },
+        "bewaartermijnWaardering": {
+          "type": "string",
+          "enum": [
+            "bewaren",
+            "vernietigen"
+          ]
+        },
+        "zaaktypeNaam": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "beperkingOpenbaarheid": {
+          "type": "boolean"
+        },
+        "beperkingOpenbaarheidReden": {
+          "type": "string"
+        },
+        "beperkingOpenbaarheidVanaf": {
+          "type": "string",
+          "format": "date"
+        },
+        "beperkingOpenbaarheidTotEnMet": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "Geometry": {
+      "type": "object",
+      "description": "GeoJSON geometrie (RD_NEW srid=28992)",
+      "required": [
+        "type",
+        "coordinates"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "Point",
+            "LineString",
+            "Polygon",
+            "MultiPoint",
+            "MultiLineString",
+            "MultiPolygon"
+          ]
+        },
+        "coordinates": {
+          "description": "Coördinaten in RD_NEW stelsel"
+        }
+      }
+    },
+    "ZaakHistorie": {
+      "type": "object",
+      "description": "Historie-item van een zaak",
+      "required": [
+        "typeWijziging"
+      ],
+      "properties": {
+        "typeWijziging": {
+          "type": "string",
+          "enum": [
+            "overdragen",
+            "overbrengen",
+            "status",
+            "kanaal",
+            "streefdatum",
+            "startdatum",
+            "fataledatum",
+            "vertrouwelijkheid",
+            "zaak_omschrijving",
+            "reden_starten_zaak",
+            "verlenging_bewaartermijn",
+            "reviewtermijn",
+            "overdragen_ssa",
+            "overbrengen_extern",
+            "heropenen_zaak",
+            "nieuw_document",
+            "document_ontkoppeld",
+            "document_verwijderd",
+            "document_unlocked",
+            "aanvrager",
+            "betrokkenen",
+            "zaakresultaat",
+            "ogone_post_sale",
+            "ingangsdatum_besluit",
+            "vervaldatum_besluit",
+            "bewaartermijn",
+            "opschorttermijn",
+            "autorisatie",
+            "organisatie",
+            "proces_herstarten",
+            "betaling_verwerkt",
+            "bag_koppeling",
+            "zaak_koppeling",
+            "contact_koppeling",
+            "externe_taak",
+            "externe_taak_ketenpartner",
+            "locatie",
+            "notitie",
+            "zaaktype",
+            "document_status",
+            "metadataelement",
+            "documenttype"
+          ]
+        },
+        "wijzigingDatum": {
+          "type": "string",
+          "format": "date"
+        },
+        "gewijzigdDoor": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "oudeWaarde": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "nieuweWaarde": {
+          "type": "string"
+        },
+        "toelichting": {
+          "type": "string"
+        }
+      }
+    },
+    "ZaakNotitie": {
+      "type": "object",
+      "description": "Notitie bij een zaak",
+      "required": [
+        "medewerker",
+        "datumTijd"
+      ],
+      "properties": {
+        "medewerker": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "datumTijd": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "notitie": {
+          "type": "string"
+        }
+      }
+    },
+    "ZaakBetrokkene": {
+      "type": "object",
+      "description": "Betrokkene bij een zaak",
+      "required": [
+        "indCorrespondentie",
+        "betrokkene",
+        "typeBetrokkenheid"
+      ],
+      "properties": {
+        "indCorrespondentie": {
+          "type": "boolean",
+          "description": "Moet correspondentie naar betrokkene gestuurd worden"
+        },
+        "startdatum": {
+          "type": "string",
+          "format": "date"
+        },
+        "betrokkene": {
+          "$ref": "#/$defs/Subject"
+        },
+        "typeBetrokkenheid": {
+          "type": "string",
+          "enum": [
+            "belanghebbende",
+            "gemachtigde",
+            "medeaanvrager",
+            "melder",
+            "plaatsvervanger",
+            "overig"
+          ]
+        },
+        "toelichting": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "BAGObject": {
+      "type": "object",
+      "description": "Koppeling naar BAG object",
+      "required": [
+        "bagObjectId"
+      ],
+      "properties": {
+        "bagObjectId": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "Identificatie van BAG object"
+        }
+      }
+    },
+    "ZaakZaakKoppeling": {
+      "type": "object",
+      "description": "Koppeling tussen zaken",
+      "required": [
+        "gekoppeldeZaak",
+        "relatietype",
+        "dossierEigenaar"
+      ],
+      "properties": {
+        "gekoppeldeZaak": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "Zaaknummer van gekoppelde zaak"
+        },
+        "relatietype": {
+          "type": "string",
+          "enum": [
+            "hoofdzaak",
+            "deelzaak",
+            "gerelateerde_zaak",
+            "voorafgaande_zaak",
+            "vervolgzaak"
+          ]
+        },
+        "dossierEigenaar": {
+          "type": "boolean",
+          "description": "Is zaak eigenaar van zaakdossier"
+        }
+      }
+    },
+    "Document": {
+      "type": "object",
+      "description": "Document gekoppeld aan een zaak",
+      "required": [
+        "functioneleIdentificatie"
+      ],
+      "properties": {
+        "functioneleIdentificatie": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "titel": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "beschrijving": {
+          "type": "string"
+        },
+        "registratieDatumTijd": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "documenttype": {
+          "type": "object",
+          "properties": {
+            "naam": {
+              "type": "string",
+              "maxLength": 255
+            },
+            "omschrijving": {
+              "type": "string"
+            },
+            "actief": {
+              "type": "boolean"
+            }
+          }
+        },
+        "bestandsnaam": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "bestandsomvang": {
+          "type": "integer",
+          "description": "Bestandsgrootte in bytes"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "in_bewerking",
+            "ter_vaststelling",
+            "definitief",
+            "gearchiveerd"
+          ]
+        },
+        "vertrouwelijkheidaanduiding": {
+          "type": "string",
+          "enum": [
+            "openbaar",
+            "beperkt_openbaar",
+            "intern",
+            "zaakvertrouwelijk",
+            "vertrouwelijk",
+            "confidentieel",
+            "geheim",
+            "zeer_geheim"
+          ]
+        },
+        "auteur": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "taal": {
+          "type": "string",
+          "maxLength": 3,
+          "description": "ISO 639-2/B taalcode"
+        },
+        "versie": {
+          "type": "string"
+        },
+        "locked": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}
