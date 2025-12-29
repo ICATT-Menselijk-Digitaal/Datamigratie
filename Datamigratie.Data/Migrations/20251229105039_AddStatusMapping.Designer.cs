@@ -147,10 +147,6 @@ namespace Datamigratie.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DetZaaktypeId", "DetStatusNaam")
-                        .IsUnique()
-                        .HasDatabaseName("IX_StatusMapping_DetZaaktypeId_DetStatusNaam_Unique");
-
                     b.ToTable("StatusMappings");
                 });
 

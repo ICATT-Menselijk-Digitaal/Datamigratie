@@ -28,12 +28,6 @@ namespace Datamigratie.Data.Migrations
                 {
                     table.PrimaryKey("PK_StatusMappings", x => x.Id);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_StatusMapping_DetZaaktypeId_DetStatusNaam_Unique",
-                table: "StatusMappings",
-                columns: new[] { "DetZaaktypeId", "DetStatusNaam" },
-                unique: true);
         }
 
         /// <inheritdoc />
