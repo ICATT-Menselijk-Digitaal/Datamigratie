@@ -44,6 +44,16 @@ namespace Datamigratie.Server.Features.Mapping.MapZaaktypen
         {
             await ValidateOzZaaktypeExistsAsync(newOzZaaktypeId);
 
+            // Deleting all status mappings for this zaaktype when OZ zaaktype is changed
+            var statusMappings = await context.StatusMappings
+                .Where(sm => sm.DetZaaktypeId == detZaaktypeId)
+                .ToListAsync();
+
+            if (statusMappings.Any())
+            {
+                context.StatusMappings.RemoveRange(statusMappings);
+            }
+
             var rowsAffected = await context.Mappings
                 .Where(m => m.DetZaaktypeId == detZaaktypeId)
                 .ExecuteUpdateAsync(m => m.SetProperty(x => x.OzZaaktypeId, newOzZaaktypeId));
@@ -52,6 +62,8 @@ namespace Datamigratie.Server.Features.Mapping.MapZaaktypen
             {
                 throw new InvalidOperationException($"Mapping for Det zaaktype ID '{detZaaktypeId}' does not exist.");
             }
+
+            await context.SaveChangesAsync();
         }
 
         private async Task ValidateOzZaaktypeExistsAsync(Guid ozZaaktypeId)

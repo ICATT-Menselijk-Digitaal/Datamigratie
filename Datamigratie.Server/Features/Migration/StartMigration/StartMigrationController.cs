@@ -5,13 +5,20 @@ using Datamigratie.Server.Features.Migration.StartMigration.Queues;
 using Datamigratie.Server.Features.Migration.StartMigration.Queues.Items;
 using Datamigratie.Server.Features.Migration.StartMigration.Services;
 using Datamigratie.Server.Features.Migration.StartMigration.State;
+using Datamigratie.Server.Features.StatusMapping.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Datamigratie.Server.Features.Migration.StartMigration;
 
 [ApiController]
 [Route("api/migration")]
-public class StartMigrationController(IStartMigrationService startMigrationService, MigrationWorkerState workerState, IDetApiClient detApiClient, IMigrationBackgroundTaskQueue backgroundTaskQueue, DatamigratieDbContext context) : ControllerBase
+public class StartMigrationController(
+    IStartMigrationService startMigrationService, 
+    MigrationWorkerState workerState, 
+    IDetApiClient detApiClient, 
+    IMigrationBackgroundTaskQueue backgroundTaskQueue, 
+    DatamigratieDbContext context,
+    IStatusMappingService statusMappingService) : ControllerBase
 {
     [HttpPost("start")]
     public async Task<ActionResult> StartMigration([FromBody] StartMigrationRequest request)
@@ -20,6 +27,13 @@ public class StartMigrationController(IStartMigrationService startMigrationServi
         if (workerState.IsWorking)
         {
             return Conflict(new { message = "A migration is already in progress." });
+        }
+
+        // validating all statuses are mapped before starting migration
+        var allStatusesMapped = await statusMappingService.AreAllStatusesMapped(request.DetZaaktypeId);
+        if (!allStatusesMapped)
+        {
+            return BadRequest(new { message = "Not all DET statuses have been mapped to OZ statuses. Please configure status mappings first." });
         }
 
         await backgroundTaskQueue.QueueMigrationAsync(new MigrationQueueItem {DetZaaktypeId = request.DetZaaktypeId });

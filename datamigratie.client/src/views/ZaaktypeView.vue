@@ -22,10 +22,18 @@
       <dd>{{ detZaaktype?.closedZakenCount }}</dd>
 
       <dt id="mapping">Koppeling OZ zaaktype:</dt>
-      <dd v-if="canStartMigration || isThisMigrationRunning">
+      <dd v-if="!isEditingZaaktypeMapping && mapping.detZaaktypeId" class="mapping-display">
         {{ ozZaaktypes?.find((type) => type.id == mapping.ozZaaktypeId)?.identificatie }}
+        <button 
+          type="button" 
+          class="secondary mapping-edit-button"
+          @click="setEditingZaaktypeMapping(true)"
+          v-if="!isThisMigrationRunning"
+        >
+          Mapping aanpassen
+        </button>
       </dd>
-      <dd v-else>
+      <dd v-else class="mapping-controls">
         <select
           name="ozZaaktypeId"
           aria-labelledby="mapping"
@@ -38,8 +46,64 @@
             {{ identificatie }}
           </option>
         </select>
+        <button type="submit" class="mapping-save-button">Mapping opslaan</button>
       </dd>
     </dl>
+
+    <!-- Status Mapping Section -->
+    <section v-if="showStatusMapping" class="status-mapping">
+      <h2>Status mapping</h2>
+      <p>Koppel de e-Suite statussen aan de Open Zaak statustypes.</p>
+
+      <simple-spinner v-if="!statusMappingData" />
+
+      <div v-else-if="statusMappingData.detStatuses.length === 0">
+        <p>Er zijn geen statussen beschikbaar voor dit zaaktype.</p>
+      </div>
+
+      <div v-else class="status-mapping-grid">
+        <div class="mapping-header">
+          <div>e-Suite Status</div>
+          <div>Open Zaak Statustype</div>
+        </div>
+
+        <div
+          v-for="detStatus in statusMappingData.detStatuses"
+          :key="detStatus.naam"
+          class="mapping-row"
+        >
+          <div class="det-status">
+            <strong>{{ detStatus.naam }}</strong>
+            <span class="status-description">{{ detStatus.omschrijving }}</span>
+          </div>
+
+          <div class="oz-status">
+            <select
+              v-model="statusMappings.find((m) => m.detStatusNaam === detStatus.naam)!.ozStatustypeId"
+              :disabled="!isEditingStatusMapping && statusMappingsComplete || isThisMigrationRunning"
+              required
+            >
+              <option :value="null">Kies een statustype</option>
+              <option
+                v-for="ozStatus in statusMappingData.ozStatustypes"
+                :key="ozStatus.uuid"
+                :value="ozStatus.uuid"
+              >
+                {{ ozStatus.omschrijving }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div v-if="(!statusMappingsComplete || isEditingStatusMapping) && !isThisMigrationRunning" class="mapping-actions">
+          <button type="button" @click="saveStatusMappings">Statusmappings opslaan</button>
+        </div>
+
+        <alert-inline v-if="!statusMappingsComplete && mapping.detZaaktypeId" type="warning">
+          Niet alle statussen zijn gekoppeld. Migratie kan niet worden gestart.
+        </alert-inline>
+      </div>
+    </section>
 
     <menu class="reset">
       <li>
@@ -51,13 +115,9 @@
       </li>
 
       <template v-if="!errors.length && !isThisMigrationRunning">
-        <li v-if="!canStartMigration">
-          <button type="submit">Mapping opslaan</button>
-        </li>
-
-        <li v-else>
-          <button type="button" class="secondary" @click="setEditMode(true)">
-            Mapping aanpassen
+        <li v-if="canStartMigration && statusMappingsComplete">
+          <button type="button" class="secondary" @click="setEditingStatusMapping(true)">
+            Statusmappings aanpassen
           </button>
         </li>
 
@@ -77,6 +137,24 @@
       <p>
         Weet je zeker dat je de migratie van zaken van het e-Suite zaaktype
         <em>{{ detZaaktype?.naam }}</em> wilt starten?
+      </p>
+    </prompt-modal>
+
+    <prompt-modal
+      :dialog="confirmOzZaaktypeChangeDialog"
+      cancel-text="Annuleren"
+      confirm-text="Ja, wijzig zaaktype"
+    >
+      <h2>Open Zaak zaaktype wijzigen</h2>
+
+      <p>
+        <strong>Let op:</strong> Als je het Open Zaak zaaktype wijzigt, worden alle bestaande statusmappings verwijderd.
+      </p>
+      <p>
+        Je moet de statusmappings opnieuw configureren voor het nieuwe zaaktype.
+      </p>
+      <p>
+        Weet je zeker dat je wilt doorgaan?
       </p>
     </prompt-modal>
 
@@ -134,7 +212,9 @@ import {
   MigrationStatus,
   type ZaaktypeMapping,
   type UpdateZaaktypeMapping,
-  type MigrationHistoryItem
+  type MigrationHistoryItem,
+  type StatusMappingsResponse,
+  type StatusMappingItem
 } from "@/services/datamigratieService";
 import { knownErrorMessages } from "@/utils/fetchWrapper";
 import { useMigration } from "@/composables/use-migration-status";
@@ -150,17 +230,29 @@ const ozZaaktypes = ref<OZZaaktype[]>();
 const mapping = ref({ ozZaaktypeId: "" } as ZaaktypeMapping);
 const migrationHistory = ref<MigrationHistoryItem[]>([]);
 
+const statusMappingData = ref<StatusMappingsResponse | null>(null);
+const statusMappings = ref<StatusMappingItem[]>([]);
+const statusMappingsComplete = ref(false);
+const showStatusMapping = computed(() => mapping.value.detZaaktypeId && mapping.value.ozZaaktypeId);
+
 const { migration, fetchMigration } = useMigration();
 
-const isEditMode = ref(false);
-const setEditMode = (value: boolean) => (isEditMode.value = value);
+const isEditingZaaktypeMapping = ref(false);
+const setEditingZaaktypeMapping = (value: boolean) => (isEditingZaaktypeMapping.value = value);
+
+const isEditingStatusMapping = ref(false);
+const setEditingStatusMapping = (value: boolean) => (isEditingStatusMapping.value = value);
+
+const previousOzZaaktypeId = ref<string>("");
 
 const canStartMigration = computed(
   () =>
     mapping.value.detZaaktypeId &&
     mapping.value.ozZaaktypeId &&
     migration.value?.status !== MigrationStatus.inProgress &&
-    !isEditMode.value
+    !isEditingZaaktypeMapping.value &&
+    !isEditingStatusMapping.value &&
+    statusMappingsComplete.value
 );
 
 const isThisMigrationRunning = computed(
@@ -173,6 +265,7 @@ const loading = ref(false);
 const errors = ref<unknown[]>([]);
 
 const confirmDialog = useConfirmDialog();
+const confirmOzZaaktypeChangeDialog = useConfirmDialog();
 
 const formatDateTime = (dateString: string | null): string => {
   if (!dateString) return "-";
@@ -184,6 +277,61 @@ const formatDateTime = (dateString: string | null): string => {
     hour: "2-digit",
     minute: "2-digit"
   });
+};
+
+const fetchStatusMappings = async () => {
+  if (!mapping.value.ozZaaktypeId) {
+    statusMappingData.value = null;
+    statusMappings.value = [];
+    statusMappingsComplete.value = false;
+    return;
+  }
+
+  try {
+    const data = await datamigratieService.getStatusMappings(detZaaktypeId, mapping.value.ozZaaktypeId);
+    statusMappingData.value = data;
+    
+    statusMappings.value = data.detStatuses.map(detStatus => {
+      const existingMapping = data.existingMappings.find(m => m.detStatusNaam === detStatus.naam);
+      return existingMapping || {
+        detStatusNaam: detStatus.naam,
+        ozStatustypeId: null
+      };
+    });
+
+    const validation = await datamigratieService.validateStatusMappings(detZaaktypeId);
+    statusMappingsComplete.value = validation.allStatusesMapped;
+  } catch (err: unknown) {
+    console.error("Error fetching status mappings:", err);
+    statusMappingData.value = null;
+    statusMappings.value = [];
+    statusMappingsComplete.value = false;
+  }
+};
+
+const saveStatusMappings = async () => {
+  loading.value = true;
+
+  try {
+    const mappingsToSave = statusMappings.value.filter(m => m.ozStatustypeId !== null);
+
+    await datamigratieService.saveStatusMappings({
+      detZaaktypeId,
+      mappings: mappingsToSave
+    });
+
+    toast.add({ text: "De statusmappings zijn succesvol opgeslagen." });
+
+    const validation = await datamigratieService.validateStatusMappings(detZaaktypeId);
+    statusMappingsComplete.value = validation.allStatusesMapped;
+
+    // exiting edit mode after successful save
+    setEditingStatusMapping(false);
+  } catch (err: unknown) {
+    toast.add({ text: `Fout bij opslaan van de statusmappings - ${err}`, type: "error" });
+  } finally {
+    loading.value = false;
+  }
 };
 
 const fetchMappingData = async () => {
@@ -230,12 +378,41 @@ const fetchMappingData = async () => {
   } finally {
     loading.value = false;
   }
+
+  if (mapping.value.ozZaaktypeId) {
+    previousOzZaaktypeId.value = mapping.value.ozZaaktypeId;
+  }
+
+  if (mapping.value.ozZaaktypeId) {
+    await fetchStatusMappings();
+  }
 };
 
 const submitMapping = async () => {
+  const hasZaaktypeChanged = mapping.value.ozZaaktypeId !== previousOzZaaktypeId.value;
+
+  const hasStatusMappings = 
+    (statusMappingData.value?.existingMappings?.length || 0) > 0 ||
+    statusMappings.value.some(m => m.ozStatustypeId !== null);
+
+  if (
+    mapping.value.detZaaktypeId &&
+    previousOzZaaktypeId.value &&
+    hasZaaktypeChanged &&
+    hasStatusMappings
+  ) {
+    const result = await confirmOzZaaktypeChangeDialog.reveal();
+    
+    if (result.isCanceled) {
+      // revert to previous
+      mapping.value.ozZaaktypeId = previousOzZaaktypeId.value;
+      return;
+    }
+  }
+
   loading.value = true;
 
-  setEditMode(false);
+  setEditingZaaktypeMapping(false);
 
   try {
     if (!mapping.value.detZaaktypeId) {
@@ -251,7 +428,13 @@ const submitMapping = async () => {
       await datamigratieService.updateMapping(updatedMapping);
     }
 
+    previousOzZaaktypeId.value = mapping.value.ozZaaktypeId;
+
     toast.add({ text: "De mapping is succesvol opgeslagen." });
+
+    if (hasZaaktypeChanged) {
+      await fetchStatusMappings();
+    }
   } catch (err: unknown) {
     toast.add({ text: `Fout bij opslaan van de mapping - ${err}`, type: "error" });
   } finally {
@@ -305,6 +488,35 @@ dl {
 
   dd {
     margin-inline: 0;
+
+    &.mapping-display {
+      display: flex;
+      gap: var(--spacing-default);
+      align-items: center;
+      flex-wrap: wrap;
+
+      .mapping-edit-button {
+        white-space: nowrap;
+        margin-block-end: 0;
+      }
+    }
+
+    &.mapping-controls {
+      display: flex;
+      gap: var(--spacing-default);
+      align-items: center;
+      flex-wrap: wrap;
+
+      select {
+        flex: 1;
+        min-width: 200px;
+      }
+
+      .mapping-save-button {
+        white-space: nowrap;
+        margin-block-end: 0;
+      }
+    }
   }
 
   select {
@@ -320,6 +532,81 @@ dl {
         grid-column: 2;
       }
     }
+  }
+}
+
+.status-mapping {
+  margin-block-end: var(--spacing-large);
+
+  h2 {
+    font-size: 1.5rem;
+    margin-block-end: var(--spacing-small);
+  }
+
+  p {
+    margin-block-end: var(--spacing-default);
+  }
+
+  .status-mapping-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-default);
+  }
+
+  .mapping-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-default);
+    padding: var(--spacing-small);
+    background-color: var(--background-secondary);
+    font-weight: 600;
+    border-radius: 4px;
+
+    @media (max-width: variables.$breakpoint-md) {
+      display: none;
+    }
+  }
+
+  .mapping-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-default);
+    padding: var(--spacing-small);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    align-items: center;
+
+    @media (max-width: variables.$breakpoint-md) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .det-status {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs, 0.25rem);
+
+    strong {
+      font-size: 1rem;
+    }
+
+    .status-description {
+      font-size: 0.875rem;
+      color: var(--text-secondary, #666);
+    }
+  }
+
+  .oz-status {
+    select {
+      width: 100%;
+      margin-block-end: 0;
+    }
+  }
+
+  .mapping-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-block-start: var(--spacing-default);
   }
 }
 
