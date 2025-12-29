@@ -60,7 +60,7 @@ namespace Datamigratie.Server.Features.Mapping.MapZaaktypen
                 }
             }
 
-            var rowsAffected = await context.Mappings
+            await context.Mappings
                 .Where(m => m.DetZaaktypeId == detZaaktypeId)
                 .ExecuteUpdateAsync(m => m.SetProperty(x => x.OzZaaktypeId, newOzZaaktypeId));
 
