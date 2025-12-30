@@ -283,21 +283,13 @@ const navigateToMigrationDetail = (migrationId: number) => {
   });
 };
 
-const fetchMigrationHistory = async () => {
-  try {
-    migrationHistory.value = await datamigratieService.getMigrationHistory(detZaaktypeId);
-  } catch (err: unknown) {
-    console.error("Failed to fetch migration history:", err);
-  }
-};
-
 // Watch for migration status changes and refresh history when migration completes
 watch(
   () => migration.value?.status,
   (newStatus, oldStatus) => {
     // When migration changes from inProgress to none, refresh the history (migration completed)
     if (oldStatus === MigrationStatus.inProgress && newStatus === MigrationStatus.none) {
-      fetchMigrationHistory();
+      fetchMappingData();
     }
   }
 );
