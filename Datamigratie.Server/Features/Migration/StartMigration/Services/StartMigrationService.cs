@@ -28,9 +28,17 @@ public class StartMigrationService(
 
     public async Task PerformMigrationAsync(MigrationQueueItem migrationQueueItem, CancellationToken stoppingToken) 
     {
+        // first create a migration, so we always have a reference in case of a migration fail
+        var migration = await CreateMigrationWithoutRecordsAsync(migrationQueueItem, stoppingToken);
+
+        workerState.MigrationId = migration.Id;
+
         var allZaken = await detApiClient.GetZakenByZaaktype(migrationQueueItem.DetZaaktypeId);
-        
+
         var closedZaken = allZaken.Where(z => !z.Open).ToList();
+
+         // now that we know how many zaken we should migrate, update the record count
+        await UpdateMigrationTotalRecords(migration, closedZaken.Count);
         
         logger.LogInformation(
             "Found {TotalCount} zaken for zaaktype {ZaaktypeId}, {ClosedCount} are closed and will be migrated", 
@@ -39,9 +47,6 @@ public class StartMigrationService(
             closedZaken.Count);
         
         var mapping = await context.Mappings.FirstOrDefaultAsync(m => m.DetZaaktypeId == migrationQueueItem.DetZaaktypeId, stoppingToken);
-        var migration = await CreateMigrationAsync(migrationQueueItem, closedZaken.Count, stoppingToken);
-
-        workerState.MigrationId = migration.Id;
 
         if (mapping == null)
         {
@@ -246,6 +251,13 @@ public class StartMigrationService(
         await context.SaveChangesAsync();
     }
 
+    private async Task UpdateMigrationTotalRecords(Data.Entities.Migration migration, int totalRecords)
+    {
+        migration.TotalRecords = totalRecords;
+        migration.LastUpdated = DateTime.UtcNow;
+        await context.SaveChangesAsync();
+    }
+
     private async Task CompleteMigrationAsync(Data.Entities.Migration migration)
     {
         migration.CompletedAt = DateTime.UtcNow;
@@ -266,5 +278,11 @@ public class StartMigrationService(
         context.Migrations.Add(migration);
         await context.SaveChangesAsync(ct);
         return migration;
+    }
+
+    private async Task<Data.Entities.Migration> CreateMigrationWithoutRecordsAsync(MigrationQueueItem queueItem, CancellationToken ct)
+    {
+        var emptyMigrationZakenCount = 0;
+        return await CreateMigrationAsync(queueItem, emptyMigrationZakenCount, ct);
     }
 }
