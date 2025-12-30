@@ -49,6 +49,38 @@ export type MigrationRecordItem = {
   processedAt: string;
 };
 
+export type DetStatus = {
+  naam: string;
+  omschrijving: string;
+  eind: boolean;
+};
+
+export type OzStatustype = {
+  uuid: string;
+  omschrijving: string;
+  isEindstatus: boolean;
+};
+
+export type StatusMappingItem = {
+  detStatusNaam: string;
+  ozStatustypeId: string | null;
+};
+
+export type StatusMappingsResponse = {
+  detStatuses: DetStatus[];
+  ozStatustypes: OzStatustype[];
+  existingMappings: StatusMappingItem[];
+};
+
+export type SaveStatusMappingsRequest = {
+  detZaaktypeId: string;
+  mappings: StatusMappingItem[];
+};
+
+export type StatusMappingValidationResponse = {
+  allStatusesMapped: boolean;
+};
+
 export const datamigratieService = {
   getMappingByDETZaaktypeId: (detZaaktypeId: string): Promise<ZaaktypeMapping> =>
     get<ZaaktypeMapping>(`/api/mapping/${detZaaktypeId}`),
@@ -61,5 +93,14 @@ export const datamigratieService = {
   getMigrationHistory: (detZaaktypeId: string): Promise<MigrationHistoryItem[]> =>
     get<MigrationHistoryItem[]>(`/api/migration/history/${detZaaktypeId}`),
   getMigrationRecords: (migrationId: number): Promise<MigrationRecordItem[]> =>
-    get<MigrationRecordItem[]>(`/api/migration/${migrationId}/records`)
+    get<MigrationRecordItem[]>(`/api/migration/${migrationId}/records`),
+  getStatusMappings: (
+    detZaaktypeId: string,
+    ozZaaktypeId: string
+  ): Promise<StatusMappingsResponse> =>
+    get<StatusMappingsResponse>(`/api/status-mappings/${detZaaktypeId}?ozZaaktypeId=${ozZaaktypeId}`),
+  saveStatusMappings: (payload: SaveStatusMappingsRequest): Promise<void> =>
+    post(`/api/status-mappings`, payload),
+  validateStatusMappings: (detZaaktypeId: string): Promise<StatusMappingValidationResponse> =>
+    get<StatusMappingValidationResponse>(`/api/status-mappings/${detZaaktypeId}/validation`)
 };

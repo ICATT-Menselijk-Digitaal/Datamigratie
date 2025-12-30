@@ -77,9 +77,35 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
                 .OnDelete(DeleteBehavior.Restrict);
             
         });
+
+        modelBuilder.Entity<StatusMapping>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            
+            entity.Property(e => e.DetZaaktypeId)
+                .IsRequired();
+            
+            entity.Property(e => e.DetStatusNaam)
+                .IsRequired();
+            
+            entity.Property(e => e.OzStatustypeId)
+                .IsRequired();
+            
+            entity.Property(e => e.CreatedAt)
+                .IsRequired();
+            
+            entity.Property(e => e.LastUpdated)
+                .IsRequired();
+
+            // Unique constraint: One DET status per zaaktype can only map to one OZ status
+            entity.HasIndex(e => new { e.DetZaaktypeId, e.DetStatusNaam })
+                .IsUnique()
+                .HasDatabaseName("IX_StatusMapping_DetZaaktypeId_DetStatusNaam_Unique");
+        });
     }
 
     public DbSet<ZaaktypenMapping> Mappings { get; set; }
     public DbSet<Migration> Migrations { get; set; }
     public DbSet<MigrationRecord> MigrationRecords { get; set; }
+    public DbSet<StatusMapping> StatusMappings { get; set; }
 }
