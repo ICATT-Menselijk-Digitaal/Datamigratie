@@ -26,17 +26,14 @@
 import { ref, onMounted, useTemplateRef } from "vue";
 import { datamigratieService, type GlobalConfiguration } from "@/services/datamigratieService";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
+import toast from "@/components/toast/toast";
 
 const loading = ref(true);
-const errorMessage = ref("");
-const successMessage = ref("");
 const rsin = ref("");
 const configuration = ref<GlobalConfiguration>({});
 const rsinInput = useTemplateRef<HTMLInputElement>("rsinInput");
 
 function validateRsin() {
-  successMessage.value = "";
-
   if (!rsinInput.value) {
     return;
   }
@@ -64,7 +61,6 @@ function validateRsin() {
 
 async function loadConfiguration() {
   loading.value = true;
-  errorMessage.value = "";
 
   try {
     configuration.value = await datamigratieService.getGlobalConfiguration();
@@ -73,20 +69,13 @@ async function loadConfiguration() {
       validateRsin();
     }
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      errorMessage.value = error.message;
-    } else {
-      errorMessage.value = "Er is een fout opgetreden bij het opslaan van de configuratie.";
-    }
-    console.error(error);
+    toast.add({ text: `Fout bij laden van de configuratie - ${error}`, type: "error" });
   } finally {
     loading.value = false;
   }
 }
 
 async function saveConfiguration() {
-  errorMessage.value = "";
-  successMessage.value = "";
   loading.value = true;
 
   try {
@@ -94,14 +83,9 @@ async function saveConfiguration() {
       rsin: rsin.value || undefined
     });
     configuration.value = updated;
-    successMessage.value = "Configuratie succesvol opgeslagen.";
+    toast.add({ text: "Configuratie succesvol opgeslagen." });
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      errorMessage.value = error.message;
-    } else {
-      errorMessage.value = "Er is een fout opgetreden bij het opslaan van de configuratie.";
-    }
-    console.error(error);
+    toast.add({ text: `Fout bij opslaan van de mapping - ${error}`, type: "error" });
   } finally {
     loading.value = false;
   }
