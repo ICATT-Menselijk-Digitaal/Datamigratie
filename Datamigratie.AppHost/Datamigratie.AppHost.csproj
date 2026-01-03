@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Datamigratie.FakeDet\Datamigratie.FakeDet.csproj" />
     <ProjectReference Include="..\Datamigratie.MigrationService\Datamigratie.MigrationService.csproj" />
     <ProjectReference Include="..\Datamigratie.Server\Datamigratie.Server.csproj" />
   </ItemGroup>
