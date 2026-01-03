@@ -6,15 +6,18 @@ using Datamigratie.Common.Services.Det.Models;
 namespace Datamigratie.FakeDet;
 public class ZaakDatabase
 {
-    public static async IAsyncEnumerable<DetZaakMinimal> GetZakenByZaaktype(string zaaktype)
+    public static async IAsyncEnumerable<DetZaakMinimal> GetZakenByZaaktype(string zaaktype, int page)
     {
+        const int pageSize = 20;
+        var skip = (page - 1) * pageSize;
+        
         var encoded = Uri.EscapeDataString(zaaktype);
         var path = Path.Combine(Environment.CurrentDirectory, "Zaken", encoded + ".zip");
         if (!File.Exists(path)) yield break;
         await using var stream = File.OpenRead(path);
         await using var zip = await ZipArchive.CreateAsync(stream, ZipArchiveMode.Read, false, Encoding.UTF8);
         
-        foreach (var entry in zip.Entries)
+        foreach (var entry in zip.Entries.Skip(skip).Take(pageSize))
         {
             await using var openedEntry = await entry.OpenAsync();
             var json = await JsonSerializer.DeserializeAsync<DetZaakMinimal>(openedEntry, JsonSerializerOptions.Web);

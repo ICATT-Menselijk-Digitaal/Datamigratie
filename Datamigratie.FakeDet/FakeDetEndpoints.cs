@@ -1,4 +1,5 @@
-﻿using Bogus;
+﻿using System.ComponentModel.DataAnnotations;
+using Bogus;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.Shared.Models;
 using Datamigratie.FakeDet.Catalogi;
@@ -53,17 +54,19 @@ namespace Datamigratie.FakeDet
                 : TypedResults.NotFound();
         }
 
-        public static async Task<Ok<PagedResponse<DetZaakMinimal>>> GetZakenByZaaktype(string zaaktype)
+        public static async Task<Ok<PagedResponse<DetZaakMinimal>>> GetZakenByZaaktype(string zaaktype, [Range(1, int.MaxValue)] int page = 1)
         {
-            var results = new List<DetZaakMinimal>(1000);
-            await foreach (var item in ZaakDatabase.GetZakenByZaaktype(zaaktype))
+            var results = new List<DetZaakMinimal>();
+            await foreach (var item in ZaakDatabase.GetZakenByZaaktype(zaaktype, page))
             {
                 results.Add(item);
             }
             return TypedResults.Ok(new PagedResponse<DetZaakMinimal>
             {
                 Results = results,
-                Count = results.Count,
+                Count = 1000,
+                PreviousPage = page > 2,
+                NextPage = page < 50
             });
         }
 
