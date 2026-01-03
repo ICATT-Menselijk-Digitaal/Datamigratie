@@ -1,7 +1,8 @@
-﻿using Datamigratie.Server.Features.Mapping.MapZaaktypen.Models;
+﻿using Datamigratie.Server.Features.Mapping.ZaaktypeMapping.MapZaaktypen.Models;
+using Datamigratie.Server.Features.Mapping.ZaaktypeMapping.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Datamigratie.Server.Features.Mapping.MapZaaktypen
+namespace Datamigratie.Server.Features.Mapping.ZaaktypeMapping.MapZaaktypen
 {
     [ApiController]
     [Route("api/mapping/")]

@@ -88,3 +88,18 @@ When a field value exceeds its maximum allowed length, the following truncation 
 - Input: `"Hello world"`, Max length: `5`
 - Output: `"He..."` (length = 5)
 
+
+
+## Database migration aanmaken
+
+.NET CLI:
+
+```bash
+dotnet ef migrations add MyMigration --project Datamigratie.Data --startup-project Datamigratie.Server
+```
+
+Visual Studio Package Manager Console:
+
+```powershell
+Add-Migration MyMigration -Project Datamigratie.Data -StartupProject Datamigratie.Server
+```

@@ -1,43 +1,51 @@
-﻿using Datamigratie.Common.Config;
+﻿using System.Diagnostics.CodeAnalysis;
+using Datamigratie.Common.Config;
 using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
+using Datamigratie.Server.Features.MigrateZaak.Models;
 using Datamigratie.Server.Features.MigrateZaak.Pdf;
 using Microsoft.Extensions.Options;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Datamigratie.Server.Features.MigrateZaak
 {
     public interface IMigrateZaakService
     {
-        public Task<MigrateZaakResult> MigrateZaak(DetZaak detZaak, Guid ozZaaktypeId, CancellationToken token = default);
+        public Task<MigrateZaakResult> MigrateZaak(DetZaak detZaak, MigrateZaakMappingModel mapping, CancellationToken token = default);
     }
 
     public class MigrateZaakService(
-        IOpenZaakApiClient openZaakApiClient, 
-        IDetApiClient detClient, 
+        IOpenZaakApiClient openZaakApiClient,
+        IDetApiClient detClient,
         IOptions<OpenZaakApiOptions> options,
-        IZaakgegevensPdfGenerator pdfGenerator) : IMigrateZaakService
+        IZaakgegevensPdfGenerator pdfGenerator ) : IMigrateZaakService
     {
         private readonly OpenZaakApiOptions _openZaakApiOptions = options.Value;
         private readonly IOpenZaakApiClient _openZaakApiClient = openZaakApiClient;
 
-        public async Task<MigrateZaakResult> MigrateZaak(DetZaak detZaak, Guid ozZaaktypeId, CancellationToken token = default)
+        public async Task<MigrateZaakResult> MigrateZaak(DetZaak detZaak, MigrateZaakMappingModel mapping, CancellationToken token = default)
         {
 
             try
             {
-                var createZaakRequest = CreateOzZaakCreationRequest(detZaak, ozZaaktypeId);
+                // Get RSIN from global configuration
+                var rsin = mapping.Rsin;
+                if (string.IsNullOrWhiteSpace(rsin))
+                {
+                    throw new InvalidOperationException("RSIN is niet geconfigureerd. Configureer een geldig RSIN voordat u een migratie start.");
+                }
+
+                var createZaakRequest = CreateOzZaakCreationRequest(detZaak, mapping.OpenZaaktypeId, rsin);
 
                 var createdZaak = await _openZaakApiClient.CreateZaak(createZaakRequest);
                 var informatieObjectTypen = await _openZaakApiClient.GetInformatieobjecttypenUrlsForZaaktype(createdZaak.Zaaktype);
                 var firstInformatieObjectType = informatieObjectTypen.First();
 
-                await UploadZaakgegevensPdfAsync(detZaak, createdZaak, firstInformatieObjectType, token);
+                await UploadZaakgegevensPdfAsync(detZaak, createdZaak, firstInformatieObjectType, rsin, token);
 
                 // Migrate all documents with their versions
-                await MigrateDocumentsAsync(detZaak, createdZaak, firstInformatieObjectType, token);
+                await MigrateDocumentsAsync(detZaak, createdZaak, firstInformatieObjectType, rsin, token);
 
                 return MigrateZaakResult.Success(createdZaak.Identificatie, "De zaak is aangemaakt in het doelsysteem");
             }
@@ -63,7 +71,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
             }
         }
 
-        private static OzDocument MapToOzDocument(DetDocument item, DetDocumentVersie versie, Uri informatieObjectType)
+        private static OzDocument MapToOzDocument(DetDocument item, DetDocumentVersie versie, Uri informatieObjectType, string rsin)
         {
             // Apply data transformations
             const int MaxTitelLength = 200; // 197 + "..."
@@ -83,7 +91,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
             return new OzDocument
             {
                 Bestandsnaam = versie.Bestandsnaam,
-                Bronorganisatie = "999990639", // moet een valide rsin zijn,
+                Bronorganisatie = rsin,
                 Formaat = versie.Mimetype,
                 Identificatie = item.Kenmerk,
                 Informatieobjecttype = informatieObjectType,
@@ -114,7 +122,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
             await _openZaakApiClient.KoppelDocument(zaak, savedDocument, token);
         }
 
-        private async Task UploadZaakgegevensPdfAsync(DetZaak detZaak, OzZaak createdZaak, Uri informatieObjectType, CancellationToken token)
+        private async Task UploadZaakgegevensPdfAsync(DetZaak detZaak, OzZaak createdZaak, Uri informatieObjectType, string rsin, CancellationToken token)
         {
             var pdfBytes = pdfGenerator.GenerateZaakgegevensPdf(detZaak);
             var fileName = $"zaakgegevens_{detZaak.FunctioneleIdentificatie}.pdf";
@@ -122,7 +130,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
             var ozDocument = new OzDocument
             {
                 Bestandsnaam = fileName,
-                Bronorganisatie = "999990639",
+                Bronorganisatie = rsin,
                 Formaat = "application/pdf",
                 Identificatie = $"zaakgegevens-{detZaak.FunctioneleIdentificatie}",
                 Informatieobjecttype = informatieObjectType,
@@ -154,7 +162,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
         /// Migrates all documents with their versions in the correct order.
         /// First version is created, next versions update the same document (OpenZaak auto-increments version).
         /// </summary>
-        private async Task MigrateDocumentsAsync(DetZaak detZaak, OzZaak createdZaak, Uri informatieObjectType, CancellationToken token)
+        private async Task MigrateDocumentsAsync(DetZaak detZaak, OzZaak createdZaak, Uri informatieObjectType, string rsin, CancellationToken token)
         {
             foreach (var document in detZaak?.Documenten ?? [])
             {
@@ -169,7 +177,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
                     
                     try
                     {
-                        var ozDocument = MapToOzDocument(document, detVersie, informatieObjectType);
+                        var ozDocument = MapToOzDocument(document, detVersie, informatieObjectType, rsin);
                         
                         if (isFirstVersion)
                         {
@@ -222,7 +230,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
                             
                             await detClient.GetDocumentInhoudAsync(
                                 detVersie.DocumentInhoudID,
-                                async (stream, ct) => await openZaakApiClient.UploadBestand(refreshedDocument, stream, ct),
+                                async (stream, ct) => await _openZaakApiClient.UploadBestand(refreshedDocument, stream, ct),
                                 token);
                             
                             await _openZaakApiClient.UnlockDocument(mainDocument.Id, lockToken, token);
@@ -244,7 +252,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
             }
         }
 
-        private CreateOzZaakRequest CreateOzZaakCreationRequest(DetZaak detZaak, Guid ozZaaktypeId)
+        private CreateOzZaakRequest CreateOzZaakCreationRequest(DetZaak detZaak, Guid ozZaaktypeId, string rsin)
         {
             // First apply data transformation to follow OpenZaak constraints
             var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
@@ -261,10 +269,10 @@ namespace Datamigratie.Server.Features.MigrateZaak
             var createRequest = new CreateOzZaakRequest
             {
                 Identificatie = detZaak.FunctioneleIdentificatie,
-                Bronorganisatie = "999990639", // moet een valide rsin zijn
+                Bronorganisatie = rsin, // moet een valide rsin zijn
                 Omschrijving = omschrijving,
                 Zaaktype = url,
-                VerantwoordelijkeOrganisatie = "999990639",  // moet een valide rsin zijn
+                VerantwoordelijkeOrganisatie = rsin,  // moet een valide rsin zijn
                 Startdatum = startDatum,
 
                 //verplichte velden, ookal zeggen de specs van niet
