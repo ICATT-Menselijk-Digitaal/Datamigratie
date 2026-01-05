@@ -1,4 +1,4 @@
-﻿namespace Datamigratie.Server.Features.Mapping.GlobalMapping;
+namespace Datamigratie.Server.Features.Mapping.GlobalMapping.Models;
 
 public class GlobalConfigurationResponseModel
 {

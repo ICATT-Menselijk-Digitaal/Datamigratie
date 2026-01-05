@@ -26,26 +26,18 @@ namespace Datamigratie.Server.Features.MigrateZaak
 
         public async Task<MigrateZaakResult> MigrateZaak(DetZaak detZaak, MigrateZaakMappingModel mapping, CancellationToken token = default)
         {
-
             try
             {
-                // Get RSIN from global configuration
-                var rsin = mapping.Rsin;
-                if (string.IsNullOrWhiteSpace(rsin))
-                {
-                    throw new InvalidOperationException("RSIN is niet geconfigureerd. Configureer een geldig RSIN voordat u een migratie start.");
-                }
-
-                var createZaakRequest = CreateOzZaakCreationRequest(detZaak, mapping.OpenZaaktypeId, rsin);
+                var createZaakRequest = CreateOzZaakCreationRequest(detZaak, mapping.OpenZaaktypeId, mapping.Rsin);
 
                 var createdZaak = await _openZaakApiClient.CreateZaak(createZaakRequest);
                 var informatieObjectTypen = await _openZaakApiClient.GetInformatieobjecttypenUrlsForZaaktype(createdZaak.Zaaktype);
                 var firstInformatieObjectType = informatieObjectTypen.First();
 
-                await UploadZaakgegevensPdfAsync(detZaak, createdZaak, firstInformatieObjectType, rsin, token);
+                await UploadZaakgegevensPdfAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, token);
 
                 // Migrate all documents with their versions
-                await MigrateDocumentsAsync(detZaak, createdZaak, firstInformatieObjectType, rsin, token);
+                await MigrateDocumentsAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, token);
 
                 return MigrateZaakResult.Success(createdZaak.Identificatie, "De zaak is aangemaakt in het doelsysteem");
             }
