@@ -71,7 +71,7 @@ export const datamigratieService = {
     get<MigrationHistoryItem[]>(`/api/migration/history/${detZaaktypeId}`),
   getMigrationRecords: (migrationId: number): Promise<MigrationRecordItem[]> =>
     get<MigrationRecordItem[]>(`/api/migration/${migrationId}/records`),
-  getGlobalConfiguration: (): Promise<GlobalConfiguration> => get<GlobalConfiguration>(`/api/globalconfiguration`),
+  getGlobalConfiguration: (): Promise<GlobalConfiguration> => get<GlobalConfiguration>(`/api/globalmapping`),
   updateGlobalConfiguration: (payload: UpdateGlobalConfiguration): Promise<GlobalConfiguration> =>
-    put<GlobalConfiguration>(`/api/globalconfiguration`, payload)
+    put<GlobalConfiguration>(`/api/globalmapping`, payload)
 };
