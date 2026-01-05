@@ -22,7 +22,7 @@ public class Migration
     [MaxLength(1000)]
     public string? ErrorMessage { get; set; }
     
-    public int TotalRecords { get; set; }
+    public int? TotalRecords { get; set; }
     
     public int ProcessedRecords { get; set; }
     
