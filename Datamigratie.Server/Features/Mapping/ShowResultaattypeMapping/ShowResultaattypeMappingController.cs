@@ -7,14 +7,14 @@ namespace Datamigratie.Server.Features.Mapping.ShowResultaattypeMapping
     [Route("api/mapping/resultaattype/")]
     public class ShowResultaattypeMappingController(IShowResultaattypeMappingService showResultaattypeMappingService) : ControllerBase
     {
-        [HttpGet("{detZaaktypeId}/{detResultaattypeId}")]
-        public async Task<ActionResult<ResultaattypeMappingResponse>> GetResultaattypeMapping(string detZaaktypeId, string detResultaattypeId)
+        [HttpGet("{detZaaktypeId}")]
+        public async Task<ActionResult<ResultaattypeMappingResponse>> GetResultaattypeMapping(string detZaaktypeId)
         {
-            var mapping = await showResultaattypeMappingService.GetResultaattypeMapping(detZaaktypeId, detResultaattypeId);
+            var mapping = await showResultaattypeMappingService.GetResultaattypeMapping(detZaaktypeId);
 
             if (mapping == null)
             {
-                return NotFound($"No mapping found for DET Resultaattype ID: {detResultaattypeId} in Zaaktype: {detZaaktypeId}");
+                return NotFound($"No mapping found for DET Zaaktype: {detZaaktypeId}");
             }
 
             return Ok(mapping);

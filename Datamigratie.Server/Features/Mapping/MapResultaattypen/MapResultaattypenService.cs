@@ -1,4 +1,3 @@
-using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Data;
 using Datamigratie.Data.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -7,19 +6,18 @@ namespace Datamigratie.Server.Features.Mapping.MapResultaattypen
 {
     public interface IMapResultaattypenService
     {
-        Task CreateResultaattypeMapping(string detZaaktypeId, string detResultaattypeId, Guid ozZaaktypeId, Guid ozResultaattypeId);
+        Task CreateResultaattypeMapping(string detZaaktypeId, Guid ozZaaktypeId, Guid ozResultaattypeId);
 
-        Task UpdateResultaattypeMapping(string detZaaktypeId, string detResultaattypeId, Guid ozZaaktypeId, Guid updatedOzResultaattypeId);
+        Task UpdateResultaattypeMapping(string detZaaktypeId, Guid ozZaaktypeId, Guid updatedOzResultaattypeId);
     }
 
     public class MapResultaattypenService(DatamigratieDbContext context) : IMapResultaattypenService
     {
-        public async Task CreateResultaattypeMapping(string detZaaktypeId, string detResultaattypeId, Guid ozZaaktypeId, Guid ozResultaattypeId)
+        public async Task CreateResultaattypeMapping(string detZaaktypeId, Guid ozZaaktypeId, Guid ozResultaattypeId)
         {
             var mapping = new ResultaattypeMapping
             {
                 DetZaaktypeId = detZaaktypeId,
-                DetResultaattypeId = detResultaattypeId,
                 OzZaaktypeId = ozZaaktypeId,
                 OzResultaattypeId = ozResultaattypeId
             };
@@ -28,17 +26,17 @@ namespace Datamigratie.Server.Features.Mapping.MapResultaattypen
             await context.SaveChangesAsync();
         }
 
-        public async Task UpdateResultaattypeMapping(string detZaaktypeId, string detResultaattypeId, Guid ozZaaktypeId, Guid updatedOzResultaattypeId)
+        public async Task UpdateResultaattypeMapping(string detZaaktypeId, Guid ozZaaktypeId, Guid updatedOzResultaattypeId)
         {
             var rowsAffected = await context.ResultaattypeMappings
-                .Where(m => m.DetZaaktypeId == detZaaktypeId && m.DetResultaattypeId == detResultaattypeId)
+                .Where(m => m.DetZaaktypeId == detZaaktypeId)
                 .ExecuteUpdateAsync(m => m
                     .SetProperty(x => x.OzZaaktypeId, ozZaaktypeId)
                     .SetProperty(x => x.OzResultaattypeId, updatedOzResultaattypeId));
 
             if (rowsAffected == 0)
             {
-                throw new InvalidOperationException($"Mapping for DET Resultaattype '{detResultaattypeId}' in zaaktype '{detZaaktypeId}' does not exist.");
+                throw new InvalidOperationException($"Mapping for DET zaaktype '{detZaaktypeId}' does not exist.");
             }
         }
     }

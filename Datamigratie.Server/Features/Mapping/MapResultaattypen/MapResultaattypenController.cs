@@ -10,8 +10,8 @@ namespace Datamigratie.Server.Features.Mapping.MapResultaattypen
     [Route("api/mapping/resultaattype/")]
     public class MapResultaattypenController(IMapResultaattypenService mapResultaattypenService, IShowZaaktypenService showZaaktypenService, IDetApiClient detApiClient, IShowResultaattypeMappingService showResultaattypeMappingService) : ControllerBase
     {
-        [HttpPost("{detZaaktypeId}/{detResultaattypeId}")]
-        public async Task<ActionResult> PostMapResultaattype(string detZaaktypeId, string detResultaattypeId, [FromBody] ResultaattypeMappingRequest mapping)
+        [HttpPost("{detZaaktypeId}")]
+        public async Task<ActionResult> PostMapResultaattype(string detZaaktypeId, [FromBody] ResultaattypeMappingRequest mapping)
         {
             var detZaaktype = detApiClient.GetZaaktype(detZaaktypeId);
 
@@ -27,23 +27,22 @@ namespace Datamigratie.Server.Features.Mapping.MapResultaattypen
                 return NotFound($"OZ Zaaktype with id {mapping.OzZaaktypeId} not found");
             }
 
-            var resultaattypeMapping = showResultaattypeMappingService.GetResultaattypeMapping(detZaaktypeId, detResultaattypeId);
+            var resultaattypeMapping = showResultaattypeMappingService.GetResultaattypeMapping(detZaaktypeId);
 
             if (resultaattypeMapping != null)
             {
-                return BadRequest($"ResultaattypeMapping with DET zaaktype id {detZaaktypeId} and DET resultaattype id {detResultaattypeId} already exists");
+                return BadRequest($"ResultaattypeMapping with DET zaaktype id {detZaaktypeId} already exists");
             }
 
             await mapResultaattypenService.CreateResultaattypeMapping(
                 detZaaktypeId,
-                detResultaattypeId,
                 mapping.OzZaaktypeId,
                 mapping.OzResultaattypeId);
             return Ok();
         }
 
-        [HttpPut("{detZaaktypeId}/{detResultaattypeId}")]
-        public async Task<ActionResult> PutMapResultaattype(string detZaaktypeId, string detResultaattypeId, [FromBody] ResultaattypeMappingRequest mapping)
+        [HttpPut("{detZaaktypeId}")]
+        public async Task<ActionResult> PutMapResultaattype(string detZaaktypeId, [FromBody] ResultaattypeMappingRequest mapping)
         {
             var detZaaktype = detApiClient.GetZaaktype(detZaaktypeId);
 
@@ -61,7 +60,6 @@ namespace Datamigratie.Server.Features.Mapping.MapResultaattypen
 
             await mapResultaattypenService.UpdateResultaattypeMapping(
                 detZaaktypeId,
-                detResultaattypeId,
                 mapping.OzZaaktypeId,
                 mapping.OzResultaattypeId);
             return Ok();
