@@ -9,7 +9,6 @@ namespace Datamigratie.Server.Features.Mapping.GlobalMapping;
 
 [ApiController]
 [Route("api/globalmapping")]
-//[Authorize]
 public class UpsertGlobalMappingController(
     DatamigratieDbContext dbContext,
     ILogger<UpsertGlobalMappingController> logger) : ControllerBase

@@ -8,7 +8,6 @@ namespace Datamigratie.Server.Features.Mapping.GlobalMapping;
 
 [ApiController]
 [Route("api/globalmapping")]
-//[Authorize]
 public class GetGlobalMappingOverviewController(
     DatamigratieDbContext dbContext,
     ILogger<GetGlobalMappingOverviewController> logger) : ControllerBase
