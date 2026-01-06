@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import ZaaktypesView from "@/views/ZaaktypesView.vue";
 import ZaaktypeView from "@/views/ZaaktypeView.vue";
 import MigrationDetailView from "@/views/MigrationDetailView.vue";
+import GlobalConfigurationView from "@/views/GlobalConfigurationView.vue";
 import UnauthorizedView from "@/views/UnauthorizedView.vue";
 import LoginView from "@/views/LoginView.vue";
 
@@ -32,6 +33,14 @@ const router = createRouter({
       props: true,
       meta: {
         title: "Migratie details"
+      }
+    },
+    {
+      path: "/configuration",
+      name: "globalConfiguration",
+      component: GlobalConfigurationView,
+      meta: {
+        title: "Globale configuratie"
       }
     },
     {
