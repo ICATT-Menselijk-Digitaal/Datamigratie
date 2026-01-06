@@ -1,5 +1,9 @@
 ﻿using Datamigratie.Server.Features.Migration.StartMigration.Queues;
 using Datamigratie.Server.Features.Migration.StartMigration.State;
+using Datamigratie.Data;
+using Microsoft.EntityFrameworkCore;
+using Datamigratie.Server.Helpers;
+using Datamigratie.Server.Features.Migration.StartMigration.Models;
 
 namespace Datamigratie.Server.Features.Migration.StartMigration.Services
 {
@@ -22,26 +26,40 @@ namespace Datamigratie.Server.Features.Migration.StartMigration.Services
          
         private async Task BackgroundProcessing(CancellationToken stoppingToken)
         {
-
-
             while (!stoppingToken.IsCancellationRequested)
             {
-                var workItem =
-                    await TaskQueue.DequeueMigrationAsync(stoppingToken);
+                var workItem = await TaskQueue.DequeueMigrationAsync(stoppingToken);
 
-                    using var scope = scopeFactory.CreateScope();
-                    // fetch the scoped service manually through the service provider
-                    // scoped services cannot be injected directly into the constructor because of the nature of the background service
-                    // see: https://learn.microsoft.com/en-us/dotnet/core/extensions/scoped-service
-                    var migrationService = scope.ServiceProvider.GetRequiredService<IStartMigrationService>();
+                using var scope = scopeFactory.CreateScope();
+                // fetch the scoped service manually through the service provider
+                // scoped services cannot be injected directly into the constructor because of the nature of the background service
+                // see: https://learn.microsoft.com/en-us/dotnet/core/extensions/scoped-service
+                var migrationService = scope.ServiceProvider.GetRequiredService<IStartMigrationService>();
+                var dbContext = scope.ServiceProvider.GetRequiredService<DatamigratieDbContext>();
+                var loggerForValidator = scope.ServiceProvider.GetRequiredService<ILogger<StartMigrationBackgroundService>>();
 
                 try
                 {
+                    // Get and validate GlobalMapping before starting migration
+                    var globalmapping = await GetAndValidateGlobalMappingAsync(dbContext, loggerForValidator, stoppingToken);
+
+                    workItem.GlobalMapping = globalmapping;
+
                     // set worker state for other threads to read from
                     workerState.DetZaaktypeId = workItem.DetZaaktypeId;
                     workerState.IsWorking = true; 
 
                     await migrationService.PerformMigrationAsync(workItem, stoppingToken);
+                }
+                catch (InvalidOperationException)
+                {
+                    // Global configuration not found - stop processing
+                    return;
+                }
+                catch (ArgumentException)
+                {
+                    // Invalid RSIN - stop processing
+                    return;
                 }
                 catch (Exception ex)
                 {
@@ -68,6 +86,36 @@ namespace Datamigratie.Server.Features.Migration.StartMigration.Services
                     workerState.MigrationId = null;
                 }
             }
+        }
+
+        private async Task<GlobalMapping> GetAndValidateGlobalMappingAsync(
+            DatamigratieDbContext dbContext, 
+            ILogger<StartMigrationBackgroundService> logger, 
+            CancellationToken stoppingToken)
+        {
+            GlobalMapping globalmapping;
+            try
+            {
+                globalmapping = await dbContext.GlobalConfigurations
+                    .Select(x => new GlobalMapping { Rsin = x.Rsin })
+                    .SingleAsync(cancellationToken: stoppingToken);
+
+                RsinValidator.ValidateRsin(globalmapping.Rsin, logger);
+            }
+            catch (InvalidOperationException)
+            {
+                logger.LogError("Migration cannot start: No global configuration found. Please configure a valid RSIN in the global configuration page.");
+                workerState.IsWorking = false;
+                throw;
+            }
+            catch (ArgumentException ex)
+            {
+                logger.LogError("Migration cannot start: Invalid RSIN - {Message}. Please configure a valid RSIN in the global configuration page.", ex.Message);
+                workerState.IsWorking = false;
+                throw;
+            }
+
+            return globalmapping;
         }
 
         public override async Task StopAsync(CancellationToken stoppingToken)
