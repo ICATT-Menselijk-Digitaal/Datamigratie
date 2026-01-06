@@ -1,4 +1,4 @@
-using Datamigratie.Data;
+﻿using Datamigratie.Data;
 using Datamigratie.Server.Features.Mapping.GlobalMapping.Models;
 using Datamigratie.Server.Helpers;
 using Microsoft.AspNetCore.Authorization;
@@ -20,7 +20,10 @@ public class UpsertGlobalMappingController(
         try
         {
             // Validate RSIN if provided
-            RsinValidator.ValidateRsin(request.Rsin, logger);
+            if (!string.IsNullOrWhiteSpace(request.Rsin))
+            {
+                RsinValidator.ValidateRsin(request.Rsin, logger);
+            }
 
             var config = await dbContext.GlobalConfigurations.FirstOrDefaultAsync();
 
