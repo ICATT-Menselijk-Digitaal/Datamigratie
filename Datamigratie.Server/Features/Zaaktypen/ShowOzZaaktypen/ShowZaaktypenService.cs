@@ -5,13 +5,13 @@ using Datamigratie.Server.Features.Zaaktypen.ShowOzZaaktypen.Models;
 namespace Datamigratie.Server.Features.Zaaktypen.ShowOzZaaktypen
 {
 
-    public interface IShowZaaktypenService
+    public interface IShowOzZaaktypenService
     {
         Task<IEnumerable<OzZaaktype>> GetAllZaakTypen();
         Task<EnrichedOzZaaktype?> GetEnrichedZaaktype(Guid zaaktypeId);
     }
 
-    public class ShowZaaktypenService(IOpenZaakApiClient openZaakApiClient) : IShowZaaktypenService
+    public class ShowOzZaaktypenService(IOpenZaakApiClient openZaakApiClient) : IShowOzZaaktypenService
     {
         public async Task<IEnumerable<OzZaaktype>> GetAllZaakTypen()
         {

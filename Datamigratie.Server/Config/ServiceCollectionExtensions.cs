@@ -29,7 +29,7 @@ namespace Datamigratie.Server.Config
             services.AddScoped<IShowResultaattypeMappingService, ShowResultaattypeMappingService>();
             services.AddScoped<IMigrateZaakService, MigrateZaakService>();
             services.AddScoped<IZaakgegevensPdfGenerator, ZaakgegevensPdfGenerator>();
-            services.AddScoped<IShowZaaktypenService, ShowZaaktypenService>();
+            services.AddScoped<IShowOzZaaktypenService, ShowOzZaaktypenService>();
 
             services.AddScoped<IStartMigrationService, StartMigrationService>();
             services.AddScoped<IGetMigrationHistoryService, GetMigrationHistoryService>();

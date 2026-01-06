@@ -8,7 +8,7 @@ namespace Datamigratie.Server.Features.Mapping.MapResultaattypen
 {
     [ApiController]
     [Route("api/mapping/resultaattype/")]
-    public class MapResultaattypenController(IMapResultaattypenService mapResultaattypenService, IShowZaaktypenService showZaaktypenService, IDetApiClient detApiClient, IShowResultaattypeMappingService showResultaattypeMappingService) : ControllerBase
+    public class MapResultaattypenController(IMapResultaattypenService mapResultaattypenService, IShowOzZaaktypenService showZaaktypenService, IDetApiClient detApiClient, IShowResultaattypeMappingService showResultaattypeMappingService) : ControllerBase
     {
         [HttpPost("{detZaaktypeId}")]
         public async Task<ActionResult> PostMapResultaattype(string detZaaktypeId, [FromBody] ResultaattypeMappingRequest mapping)

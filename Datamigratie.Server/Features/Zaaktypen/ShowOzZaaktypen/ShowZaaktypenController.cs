@@ -6,7 +6,7 @@ namespace Datamigratie.Server.Features.Zaaktypen.ShowOzZaaktypen
 {
     [ApiController]
     [Route("api/oz/zaaktypen")]
-    public class ShowZaaktypenController(IShowZaaktypenService showZaaktypenService) : ControllerBase
+    public class ShowZaaktypenController(IShowOzZaaktypenService showZaaktypenService) : ControllerBase
     {
 
         [HttpGet]
