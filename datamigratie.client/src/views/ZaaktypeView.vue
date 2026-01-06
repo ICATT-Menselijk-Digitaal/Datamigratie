@@ -107,7 +107,7 @@
             <td>{{ item.status }}</td>
             <td>{{ formatDateTime(item.startedAt ?? null) }}</td>
             <td>{{ formatDateTime(item.completedAt ?? null) }}</td>
-            <td>{{ item.totalRecords }}</td>
+            <td>{{ item.totalRecords ?? "-" }}</td>
             <td>{{ item.processedRecords }}</td>
             <td>{{ item.successfulRecords }}</td>
             <td>{{ item.failedRecords }}</td>
@@ -120,7 +120,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useConfirmDialog } from "@vueuse/core";
 import AlertInline from "@/components/AlertInline.vue";
@@ -271,6 +271,17 @@ const navigateToMigrationDetail = (migrationId: number) => {
     query: search.value ? { search: search.value } : undefined
   });
 };
+
+// Watch for migration status changes and refresh history when migration completes
+watch(
+  () => migration.value?.status,
+  (newStatus, oldStatus) => {
+    // When migration changes from inProgress to none, refresh the history (migration completed)
+    if (oldStatus === MigrationStatus.inProgress && newStatus === MigrationStatus.none) {
+      fetchMappingData();
+    }
+  }
+);
 
 onMounted(() => fetchMappingData());
 </script>

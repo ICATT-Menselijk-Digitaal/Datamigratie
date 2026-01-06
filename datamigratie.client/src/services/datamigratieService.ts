@@ -32,7 +32,7 @@ export type MigrationHistoryItem = {
   startedAt?: string;
   completedAt?: string;
   errorMessage?: string;
-  totalRecords: number;
+  totalRecords?: number;
   processedRecords: number;
   successfulRecords: number;
   failedRecords: number;
