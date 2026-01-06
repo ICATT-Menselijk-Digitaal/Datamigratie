@@ -1,4 +1,4 @@
-namespace Datamigratie.Server.Features.Mapping.GlobalMapping;
+namespace Datamigratie.Server.Helpers;
 
 using System.Diagnostics.CodeAnalysis;
 

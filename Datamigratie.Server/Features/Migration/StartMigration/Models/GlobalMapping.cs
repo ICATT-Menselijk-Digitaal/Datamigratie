@@ -2,6 +2,6 @@
 {
     public class GlobalMapping
     {
-        public string? Rsin { get; set; }
+        public required string Rsin { get; set; }
     }
 }

@@ -2,7 +2,7 @@
 using Datamigratie.Server.Features.Migration.StartMigration.State;
 using Datamigratie.Data;
 using Microsoft.EntityFrameworkCore;
-using Datamigratie.Server.Features.Mapping.GlobalMapping;
+using Datamigratie.Server.Helpers;
 using Datamigratie.Server.Features.Migration.StartMigration.Models;
 
 namespace Datamigratie.Server.Features.Migration.StartMigration.Services
@@ -90,7 +90,7 @@ namespace Datamigratie.Server.Features.Migration.StartMigration.Services
 
         private async Task<GlobalMapping> GetAndValidateGlobalMappingAsync(
             DatamigratieDbContext dbContext, 
-            ILogger<StartMigrationBackgroundService> validatorLogger, 
+            ILogger<StartMigrationBackgroundService> logger, 
             CancellationToken stoppingToken)
         {
             GlobalMapping globalmapping;
@@ -100,7 +100,7 @@ namespace Datamigratie.Server.Features.Migration.StartMigration.Services
                     .Select(x => new GlobalMapping { Rsin = x.Rsin })
                     .SingleAsync(cancellationToken: stoppingToken);
 
-                RsinValidator.ValidateRsin(globalmapping.Rsin, validatorLogger);
+                RsinValidator.ValidateRsin(globalmapping.Rsin, logger);
             }
             catch (InvalidOperationException)
             {
