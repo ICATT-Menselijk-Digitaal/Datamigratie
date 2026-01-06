@@ -28,8 +28,12 @@ public class StartMigrationService(
 
     public async Task PerformMigrationAsync(MigrationQueueItem migrationQueueItem, CancellationToken stoppingToken) 
     {
+        var migration = await CreateMigrationAsync(migrationQueueItem, stoppingToken);
+
+        workerState.MigrationId = migration.Id;
+
         var allZaken = await detApiClient.GetZakenByZaaktype(migrationQueueItem.DetZaaktypeId);
-        
+
         var closedZaken = allZaken.Where(z => !z.Open).ToList();
         
         logger.LogInformation(
@@ -37,11 +41,10 @@ public class StartMigrationService(
             allZaken.Count, 
             migrationQueueItem.DetZaaktypeId, 
             closedZaken.Count);
-        
-        var mapping = await context.Mappings.FirstOrDefaultAsync(m => m.DetZaaktypeId == migrationQueueItem.DetZaaktypeId, stoppingToken);
-        var migration = await CreateMigrationAsync(migrationQueueItem, closedZaken.Count, stoppingToken);
 
-        workerState.MigrationId = migration.Id;
+        await UpdateMigrationTotalRecordsAsync(migration, closedZaken.Count, stoppingToken);
+
+        var mapping = await context.Mappings.FirstOrDefaultAsync(m => m.DetZaaktypeId == migrationQueueItem.DetZaaktypeId, stoppingToken);
 
         if (mapping == null)
         {
@@ -77,8 +80,10 @@ public class StartMigrationService(
         logger.LogInformation("Migration {Id}: {Processed}/{Total} processed ({Percent:F1}%)",
             migration.Id,
             migration.ProcessedRecords,
-            migration.TotalRecords,
-            (double)migration.ProcessedRecords / migration.TotalRecords * 100);
+            migration.TotalRecords ?? 0,
+            migration.TotalRecords.HasValue && migration.TotalRecords.Value > 0
+                ? (double)migration.ProcessedRecords / migration.TotalRecords.Value * 100
+                : 0.0);
     }
 
     private async Task MigrateSingleZaakAsync(Data.Entities.Migration migration, DetZaakMinimal zaakMinimal, Guid openZaaktypeId, CancellationToken ct)
@@ -252,15 +257,21 @@ public class StartMigrationService(
         await UpdateMigrationStatusAsync(migration, MigrationStatus.Completed);
     }
 
-    private async Task<Data.Entities.Migration> CreateMigrationAsync(MigrationQueueItem queueItem, int totalZaken, CancellationToken ct)
+    private async Task UpdateMigrationTotalRecordsAsync(Data.Entities.Migration migration, int totalRecords, CancellationToken stoppingToken)
+    {
+        migration.TotalRecords = totalRecords;
+        migration.LastUpdated = DateTime.UtcNow;
+        await context.SaveChangesAsync(stoppingToken);
+    }
+
+    private async Task<Data.Entities.Migration> CreateMigrationAsync(MigrationQueueItem queueItem, CancellationToken ct)
     {
         var migration = new Data.Entities.Migration
         {
             DetZaaktypeId = queueItem.DetZaaktypeId,
             Status = MigrationStatus.InProgress,
             CreatedAt = DateTime.UtcNow,
-            StartedAt = DateTime.UtcNow,
-            TotalRecords = totalZaken
+            StartedAt = DateTime.UtcNow
         };
 
         context.Migrations.Add(migration);
