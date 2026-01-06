@@ -11,7 +11,7 @@ namespace Datamigratie.Server.Features.Migration.StartMigration;
 
 [ApiController]
 [Route("api/migration")]
-public class StartMigrationController(IStartMigrationService startMigrationService, MigrationWorkerState workerState, IDetApiClient detApiClient, IMigrationBackgroundTaskQueue backgroundTaskQueue, DatamigratieDbContext context) : ControllerBase
+public class StartMigrationController(MigrationWorkerState workerState, IMigrationBackgroundTaskQueue backgroundTaskQueue) : ControllerBase
 {
     [HttpPost("start")]
     public async Task<ActionResult> StartMigration([FromBody] StartMigrationRequest request)

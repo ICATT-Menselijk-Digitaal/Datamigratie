@@ -40,6 +40,8 @@ namespace Datamigratie.Server.Features.Migration.StartMigration.Services
 
                 try
                 {
+                    logger.LogInformation(
+                        "Start Migration Service is starting migration for DET Zaaktype Id {DetZaaktypeId}.", workItem.DetZaaktypeId);
                     // Get and validate GlobalMapping before starting migration
                     var globalmapping = await GetAndValidateGlobalMappingAsync(dbContext, loggerForValidator, stoppingToken);
 
@@ -50,16 +52,6 @@ namespace Datamigratie.Server.Features.Migration.StartMigration.Services
                     workerState.IsWorking = true; 
 
                     await migrationService.PerformMigrationAsync(workItem, stoppingToken);
-                }
-                catch (InvalidOperationException)
-                {
-                    // Global configuration not found - stop processing
-                    return;
-                }
-                catch (ArgumentException)
-                {
-                    // Invalid RSIN - stop processing
-                    return;
                 }
                 catch (Exception ex)
                 {
@@ -105,13 +97,11 @@ namespace Datamigratie.Server.Features.Migration.StartMigration.Services
             catch (InvalidOperationException)
             {
                 logger.LogError("Migration cannot start: No global configuration found. Please configure a valid RSIN in the global configuration page.");
-                workerState.IsWorking = false;
                 throw;
             }
             catch (ArgumentException ex)
             {
                 logger.LogError("Migration cannot start: Invalid RSIN - {Message}. Please configure a valid RSIN in the global configuration page.", ex.Message);
-                workerState.IsWorking = false;
                 throw;
             }
 
