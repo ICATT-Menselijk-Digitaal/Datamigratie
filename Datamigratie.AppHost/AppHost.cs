@@ -7,10 +7,9 @@ var postgres = builder.AddPostgres("postgres")
     .WithHostPort(63214)
     .WithPgAdmin(x => x.WithHostPort(63215).WithLifetime(ContainerLifetime.Persistent))
     .WithLifetime(ContainerLifetime.Persistent)
-    .WithImage("postgis/postgis")
-    ;
+    .WithImage("postgis/postgis");
 
-var redis = builder.AddRedis("redis").WithRedisInsight();
+var redis = builder.AddRedis("redis");
 
 var postgresdb = postgres.AddDatabase("Datamigratie");
 var ozaakdb = postgres.AddDatabase("OpenZaakDb", "open_zaak");
@@ -23,13 +22,12 @@ var migrations = builder
 builder.AddProject<Projects.Datamigratie_FakeDet>("datamigratie-fakedet");
 
 var openzaak = builder.AddOpenZaak("openzaak")
-    .WithDatabase(ozaakdb)
+    .WithReference(ozaakdb)
     .WithReference(redis)
-    .WithRedis(redis)
     .WaitFor(ozaakdb)
     .WaitFor(redis);
 
-var proxy = openzaak.AddProxy("OpenZaakProxy");
+var proxy = openzaak.AddNginxProxy("OpenZaakProxy");
 
 builder.AddProject<Projects.Datamigratie_Server>("datamigratie-server")
     .WithReference(postgresdb)
