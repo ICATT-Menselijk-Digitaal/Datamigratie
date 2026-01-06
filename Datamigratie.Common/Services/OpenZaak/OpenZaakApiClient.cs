@@ -96,6 +96,7 @@ namespace Datamigratie.Common.Services.OpenZaak
             var query = $"zaaktype={Uri.EscapeDataString(zaaktype.Url)}";
 
             var pagedResultaattypen = await GetAllPagedData<OzResultaattype>(endpoint, query);
+
             return pagedResultaattypen.Results;
         }
 

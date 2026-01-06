@@ -12,6 +12,7 @@ using Datamigratie.Server.Features.Migration.StartMigration.Queues;
 using Datamigratie.Server.Features.Migration.StartMigration.State;
 using Datamigratie.Server.Features.Migration.GetMigrationHistory.Services;
 using Datamigratie.Server.Features.Migration.GetMigrationRecords.Services;
+using Datamigratie.Server.Features.Zaaktypen.ShowOzZaaktypen;
 
 namespace Datamigratie.Server.Config
 {
@@ -28,6 +29,7 @@ namespace Datamigratie.Server.Config
             services.AddScoped<IShowResultaattypeMappingService, ShowResultaattypeMappingService>();
             services.AddScoped<IMigrateZaakService, MigrateZaakService>();
             services.AddScoped<IZaakgegevensPdfGenerator, ZaakgegevensPdfGenerator>();
+            services.AddScoped<IShowZaaktypenService, ShowZaaktypenService>();
 
             services.AddScoped<IStartMigrationService, StartMigrationService>();
             services.AddScoped<IGetMigrationHistoryService, GetMigrationHistoryService>();

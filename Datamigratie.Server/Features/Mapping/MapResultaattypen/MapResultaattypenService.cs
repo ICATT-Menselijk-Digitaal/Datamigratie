@@ -1,3 +1,4 @@
+using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Data;
 using Datamigratie.Data.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -15,14 +16,6 @@ namespace Datamigratie.Server.Features.Mapping.MapResultaattypen
     {
         public async Task CreateResultaattypeMapping(string detZaaktypeId, string detResultaattypeId, Guid ozZaaktypeId, Guid ozResultaattypeId)
         {
-            var existingMapping = await context.ResultaattypeMappings
-                .AnyAsync(m => m.DetZaaktypeId == detZaaktypeId && m.DetResultaattypeId == detResultaattypeId);
-
-            if (existingMapping)
-            {
-                throw new InvalidOperationException($"Mapping for DET Resultaattype '{detResultaattypeId}' in zaaktype '{detZaaktypeId}' already exists, update instead");
-            }
-
             var mapping = new ResultaattypeMapping
             {
                 DetZaaktypeId = detZaaktypeId,
