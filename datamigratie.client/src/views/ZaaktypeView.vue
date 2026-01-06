@@ -107,7 +107,7 @@
             <td>{{ item.status }}</td>
             <td>{{ formatDateTime(item.startedAt ?? null) }}</td>
             <td>{{ formatDateTime(item.completedAt ?? null) }}</td>
-            <td>{{ item.totalRecords }}</td>
+            <td>{{ item.totalRecords ?? "-" }}</td>
             <td>{{ item.processedRecords }}</td>
             <td>{{ item.successfulRecords }}</td>
             <td>{{ item.failedRecords }}</td>
