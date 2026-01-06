@@ -10,7 +10,14 @@ export type UpdateZaaktypeMapping = {
   updatedOzZaaktypeId: string;
 };
 
-export type ResultaattypeMapping = {
+export type ResultaattypeMappingRequest = {
+  ozZaaktypeId: string;
+  ozResultaattypeId: string;
+};
+
+export type ResultaattypeMappingResponse = {
+  detZaaktypeId: string;
+  detResultaattypeId: string;
   ozZaaktypeId: string;
   ozResultaattypeId: string;
 };
@@ -61,14 +68,12 @@ export const datamigratieService = {
     post<ZaaktypeMapping>(`/api/mapping/${payload.detZaaktypeId}`, payload),
   updateMapping: (payload: UpdateZaaktypeMapping): Promise<ZaaktypeMapping> =>
     put<ZaaktypeMapping>(`/api/mapping/${payload.detZaaktypeId}`, payload),
-  getResultaattypeMapping: (detZaaktypeId: string): Promise<ResultaattypeMapping> =>
-    get<ResultaattypeMapping>(`/api/mapping/resultaattype/${detZaaktypeId}`),
-  getAllResultaattypeMappingsForZaaktype: (detZaaktypeId: string): Promise<ResultaattypeMapping[]> =>
-    get<ResultaattypeMapping[]>(`/api/mapping/resultaattype/${detZaaktypeId}`),
-  createResultaattypeMapping: (detZaaktypeId: string, payload: ResultaattypeMapping): Promise<void> =>
-    post(`/api/mapping/resultaattype/${detZaaktypeId}`, payload),
-  updateResultaattypeMapping: (detZaaktypeId: string, payload: ResultaattypeMapping): Promise<void> =>
-    put(`/api/mapping/resultaattype/${detZaaktypeId}`, payload),
+  getAllResultaattypeMappings: (detZaaktypeId: string): Promise<ResultaattypeMappingResponse[]> =>
+    get<ResultaattypeMappingResponse[]>(`/api/mapping/resultaattype/${detZaaktypeId}/all`),
+  createResultaattypeMapping: (detZaaktypeId: string, detResultaattypeId: string, payload: ResultaattypeMappingRequest): Promise<void> =>
+    post(`/api/mapping/resultaattype/${detZaaktypeId}/${detResultaattypeId}`, payload),
+  updateResultaattypeMapping: (detZaaktypeId: string, detResultaattypeId: string, payload: ResultaattypeMappingRequest): Promise<void> =>
+    put(`/api/mapping/resultaattype/${detZaaktypeId}/${detResultaattypeId}`, payload),
   startMigration: (payload: StartMigration): Promise<void> => post(`/api/migration/start`, payload),
   getMigration: (): Promise<Migration> => get(`/api/migration`),
   getMigrationHistory: (detZaaktypeId: string): Promise<MigrationHistoryItem[]> =>

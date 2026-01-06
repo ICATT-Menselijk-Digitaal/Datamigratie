@@ -10,14 +10,14 @@ namespace Datamigratie.Server.Features.Mapping.MapResultaattypen
     [Route("api/mapping/resultaattype/")]
     public class MapResultaattypenController(IMapResultaattypenService mapResultaattypenService, IShowOzZaaktypenService showZaaktypenService, IDetApiClient detApiClient, IShowResultaattypeMappingService showResultaattypeMappingService) : ControllerBase
     {
-        [HttpPost("{detZaaktypeId}")]
-        public async Task<ActionResult> PostMapResultaattype(string detZaaktypeId, [FromBody] ResultaattypeMappingRequest mapping)
+        [HttpPost("{detZaaktypeId}/{detResultaattypeId}")]
+        public async Task<ActionResult> PostMapResultaattype(string detZaaktypeId, string detResultaattypeId, [FromBody] ResultaattypeMappingRequest mapping)
         {
             var detZaaktype = detApiClient.GetZaaktype(detZaaktypeId);
 
             if (detZaaktype == null)
             {
-                return NotFound($"DET Zaaktype with id {detZaaktypeId} not found"); 
+                return NotFound($"DET Zaaktype with id {detZaaktypeId} not found");
             }
 
             var enrichedOzZaaktype = showZaaktypenService.GetEnrichedZaaktype(mapping.OzZaaktypeId);
@@ -27,28 +27,22 @@ namespace Datamigratie.Server.Features.Mapping.MapResultaattypen
                 return NotFound($"OZ Zaaktype with id {mapping.OzZaaktypeId} not found");
             }
 
-            var resultaattypeMapping = showResultaattypeMappingService.GetResultaattypeMapping(detZaaktypeId);
-
-            if (resultaattypeMapping != null)
-            {
-                return BadRequest($"ResultaattypeMapping with DET zaaktype id {detZaaktypeId} already exists");
-            }
-
             await mapResultaattypenService.CreateResultaattypeMapping(
                 detZaaktypeId,
+                detResultaattypeId,
                 mapping.OzZaaktypeId,
                 mapping.OzResultaattypeId);
             return Ok();
         }
 
-        [HttpPut("{detZaaktypeId}")]
-        public async Task<ActionResult> PutMapResultaattype(string detZaaktypeId, [FromBody] ResultaattypeMappingRequest mapping)
+        [HttpPut("{detZaaktypeId}/{detResultaattypeId}")]
+        public async Task<ActionResult> PutMapResultaattype(string detZaaktypeId, string detResultaattypeId, [FromBody] ResultaattypeMappingRequest mapping)
         {
             var detZaaktype = detApiClient.GetZaaktype(detZaaktypeId);
 
             if (detZaaktype == null)
             {
-                return NotFound($"DET Zaaktype with id {detZaaktypeId} not found"); 
+                return NotFound($"DET Zaaktype with id {detZaaktypeId} not found");
             }
 
             var enrichedOzZaaktype = showZaaktypenService.GetEnrichedZaaktype(mapping.OzZaaktypeId);
@@ -60,6 +54,7 @@ namespace Datamigratie.Server.Features.Mapping.MapResultaattypen
 
             await mapResultaattypenService.UpdateResultaattypeMapping(
                 detZaaktypeId,
+                detResultaattypeId,
                 mapping.OzZaaktypeId,
                 mapping.OzResultaattypeId);
             return Ok();

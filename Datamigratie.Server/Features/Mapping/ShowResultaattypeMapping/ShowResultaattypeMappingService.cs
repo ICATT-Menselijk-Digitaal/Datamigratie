@@ -25,6 +25,7 @@ namespace Datamigratie.Server.Features.Mapping.ShowResultaattypeMapping
             var resultaattypeMapping = new ResultaattypeMappingResponse
             {
                 DetZaaktypeId = resultaattypeMappingEntity.DetZaaktypeId,
+                DetResultaattypeId = resultaattypeMappingEntity.DetResultaattypeId,
                 OzZaaktypeId = resultaattypeMappingEntity.OzZaaktypeId,
                 OzResultaattypeId = resultaattypeMappingEntity.OzResultaattypeId
             };
@@ -41,6 +42,7 @@ namespace Datamigratie.Server.Features.Mapping.ShowResultaattypeMapping
             return [.. resultaattypeMappingEntities.Select(entity => new ResultaattypeMappingResponse
             {
                 DetZaaktypeId = entity.DetZaaktypeId,
+                DetResultaattypeId = entity.DetResultaattypeId,
                 OzZaaktypeId = entity.OzZaaktypeId,
                 OzResultaattypeId = entity.OzResultaattypeId
             })];
