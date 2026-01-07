@@ -34,10 +34,14 @@ const rsinInput = useTemplateRef<HTMLInputElement>("rsinInput");
 
 function validateRsin() {
 
+  if (!rsinInput.value ) {
+    return;
+  }
+
   // Clear any previous custom validation message
   rsinInput.value.setCustomValidity("");
 
-  if (!rsinInput.value || !rsin.value) {
+  if (!rsin.value) {
     //empty is allowed
     return;
   }
