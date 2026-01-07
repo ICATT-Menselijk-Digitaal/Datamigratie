@@ -1,4 +1,4 @@
-using Datamigratie.Common.Services.Det;
+﻿using Datamigratie.Common.Services.Det;
 using Datamigratie.Server.Features.Mapping.Models;
 using Datamigratie.Server.Features.Mapping.ShowResultaattypeMapping;
 using Datamigratie.Server.Features.Zaaktypen.ShowOzZaaktypen;
@@ -8,7 +8,7 @@ namespace Datamigratie.Server.Features.Mapping.MapResultaattypen
 {
     [ApiController]
     [Route("api/mapping/resultaattype/")]
-    public class MapResultaattypenController(IMapResultaattypenService mapResultaattypenService, IShowOzZaaktypenService showZaaktypenService, IDetApiClient detApiClient, IShowResultaattypeMappingService showResultaattypeMappingService) : ControllerBase
+    public class MapResultaattypenController(IMapResultaattypenService mapResultaattypenService, IShowOzZaaktypenService showZaaktypenService, IDetApiClient detApiClient) : ControllerBase
     {
         [HttpPost("{detZaaktypeId}/{detResultaattypeId}")]
         public async Task<ActionResult> PostMapResultaattype(string detZaaktypeId, string detResultaattypeId, [FromBody] ResultaattypeMappingRequest mapping)
@@ -26,7 +26,6 @@ namespace Datamigratie.Server.Features.Mapping.MapResultaattypen
             {
                 return NotFound($"OZ Zaaktype with id {mapping.OzZaaktypeId} not found");
             }
-
             await mapResultaattypenService.CreateResultaattypeMapping(
                 detZaaktypeId,
                 detResultaattypeId,
