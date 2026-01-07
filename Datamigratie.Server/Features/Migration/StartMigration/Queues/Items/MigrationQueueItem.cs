@@ -5,9 +5,9 @@
         public required string DetZaaktypeId { get; set; }
         
         /// <summary>
-        /// GlobalMapping is set by StartMigrationBackgroundService after validation.
-        /// It is guaranteed to be non-null when PerformMigrationAsync is called.
+        /// GlobalMapping is validated and set by StartMigrationController before queuing.
+        /// It is guaranteed to be non-null and valid when PerformMigrationAsync is called.
         /// </summary>
-        public Models.GlobalMapping? GlobalMapping { get; set; }
+        public required Models.GlobalMapping GlobalMapping { get; set; }
     }
 }

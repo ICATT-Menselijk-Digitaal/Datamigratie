@@ -1,9 +1,5 @@
 ﻿using Datamigratie.Server.Features.Migration.StartMigration.Queues;
 using Datamigratie.Server.Features.Migration.StartMigration.State;
-using Datamigratie.Data;
-using Microsoft.EntityFrameworkCore;
-using Datamigratie.Server.Helpers;
-using Datamigratie.Server.Features.Migration.StartMigration.Models;
 
 namespace Datamigratie.Server.Features.Migration.StartMigration.Services
 {
@@ -11,15 +7,17 @@ namespace Datamigratie.Server.Features.Migration.StartMigration.Services
     /// Code based on:
     /// https://learn.microsoft.com/en-us/aspnet/core/fundamentals/host/hosted-services?view=aspnetcore-9.0&tabs=visual-studio
     /// </summary>
-    public class StartMigrationBackgroundService(IServiceScopeFactory scopeFactory, IMigrationBackgroundTaskQueue taskQueue,
-        ILogger<StartMigrationBackgroundService> logger, MigrationWorkerState workerState) : BackgroundService
+    public class StartMigrationBackgroundService(
+        IServiceScopeFactory scopeFactory, 
+        IMigrationBackgroundTaskQueue taskQueue,
+        ILogger<StartMigrationBackgroundService> logger, 
+        MigrationWorkerState workerState) : BackgroundService
     {
         public IMigrationBackgroundTaskQueue TaskQueue { get; } = taskQueue;
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            logger.LogInformation(
-                $"Start Migration Service is running.");
+            logger.LogInformation("Start Migration Service is running.");
 
             await BackgroundProcessing(stoppingToken);
         }
@@ -35,17 +33,11 @@ namespace Datamigratie.Server.Features.Migration.StartMigration.Services
                 // scoped services cannot be injected directly into the constructor because of the nature of the background service
                 // see: https://learn.microsoft.com/en-us/dotnet/core/extensions/scoped-service
                 var migrationService = scope.ServiceProvider.GetRequiredService<IStartMigrationService>();
-                var dbContext = scope.ServiceProvider.GetRequiredService<DatamigratieDbContext>();
-                var loggerForValidator = scope.ServiceProvider.GetRequiredService<ILogger<StartMigrationBackgroundService>>();
 
                 try
                 {
                     logger.LogInformation(
                         "Start Migration Service is starting migration for DET Zaaktype Id {DetZaaktypeId}.", workItem.DetZaaktypeId);
-                    // Get and validate GlobalMapping before starting migration
-                    var globalmapping = await GetAndValidateGlobalMappingAsync(dbContext, loggerForValidator, stoppingToken);
-
-                    workItem.GlobalMapping = globalmapping;
 
                     // set worker state for other threads to read from
                     workerState.DetZaaktypeId = workItem.DetZaaktypeId;
@@ -78,34 +70,6 @@ namespace Datamigratie.Server.Features.Migration.StartMigration.Services
                     workerState.MigrationId = null;
                 }
             }
-        }
-
-        private async Task<GlobalMapping> GetAndValidateGlobalMappingAsync(
-            DatamigratieDbContext dbContext, 
-            ILogger<StartMigrationBackgroundService> logger, 
-            CancellationToken stoppingToken)
-        {
-            GlobalMapping globalmapping;
-            try
-            {
-                globalmapping = await dbContext.GlobalConfigurations
-                    .Select(x => new GlobalMapping { Rsin = x.Rsin })
-                    .SingleAsync(cancellationToken: stoppingToken);
-
-                RsinValidator.ValidateRsin(globalmapping.Rsin, logger);
-            }
-            catch (InvalidOperationException)
-            {
-                logger.LogError("Migration cannot start: No global configuration found. Please configure a valid RSIN in the global configuration page.");
-                throw;
-            }
-            catch (ArgumentException ex)
-            {
-                logger.LogError("Migration cannot start: Invalid RSIN - {Message}. Please configure a valid RSIN in the global configuration page.", ex.Message);
-                throw;
-            }
-
-            return globalmapping;
         }
 
         public override async Task StopAsync(CancellationToken stoppingToken)

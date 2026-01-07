@@ -5,13 +5,19 @@ using Datamigratie.Server.Features.Migration.StartMigration.Queues;
 using Datamigratie.Server.Features.Migration.StartMigration.Queues.Items;
 using Datamigratie.Server.Features.Migration.StartMigration.Services;
 using Datamigratie.Server.Features.Migration.StartMigration.State;
+using Datamigratie.Server.Helpers;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Datamigratie.Server.Features.Migration.StartMigration;
 
 [ApiController]
 [Route("api/migration")]
-public class StartMigrationController(MigrationWorkerState workerState, IMigrationBackgroundTaskQueue backgroundTaskQueue) : ControllerBase
+public class StartMigrationController(
+    MigrationWorkerState workerState, 
+    IMigrationBackgroundTaskQueue backgroundTaskQueue,
+    DatamigratieDbContext dbContext,
+    ILogger<StartMigrationController> logger) : ControllerBase
 {
     [HttpPost("start")]
     public async Task<ActionResult> StartMigration([FromBody] StartMigrationRequest request)
@@ -19,11 +25,29 @@ public class StartMigrationController(MigrationWorkerState workerState, IMigrati
         // perform some validation so the frontend gets quick feedback if something is wrong
         if (workerState.IsWorking)
         {
-            return Conflict(new { message = "A migration is already in progress." });
+            return Conflict(new { message = "Er loopt al een migratie." });
         }
 
-        await backgroundTaskQueue.QueueMigrationAsync(new MigrationQueueItem {DetZaaktypeId = request.DetZaaktypeId });
-        return Ok();
+        try
+        {
+            var globalMapping = await GetAndValidateGlobalMappingAsync();
+            
+            await backgroundTaskQueue.QueueMigrationAsync(new MigrationQueueItem 
+            { 
+                DetZaaktypeId = request.DetZaaktypeId,
+                GlobalMapping = globalMapping
+            });
+            
+            return Ok();
+        }
+        catch (InvalidOperationException)
+        {
+            return BadRequest(new { message = "Migratie kan niet starten: Er is geen globale configuratie gevonden. Configureer een geldig RSIN in de globale configuratie pagina." });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = $"Migratie kan niet starten: Ongeldig RSIN - {ex.Message}" });
+        }
     }
 
     [HttpGet]
@@ -44,5 +68,16 @@ public class StartMigrationController(MigrationWorkerState workerState, IMigrati
             Status = ServiceMigrationStatus.InProgress,
             DetZaaktypeId = workerState.DetZaaktypeId,
         };
+    }
+
+    private async Task<GlobalMapping> GetAndValidateGlobalMappingAsync()
+    {
+        var globalMapping = await dbContext.GlobalConfigurations
+            .Select(x => new GlobalMapping { Rsin = x.Rsin! })
+            .SingleAsync();
+
+        RsinValidator.ValidateRsin(globalMapping.Rsin, logger);
+
+        return globalMapping;
     }
 }

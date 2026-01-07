@@ -1,7 +1,5 @@
 namespace Datamigratie.Server.Helpers;
 
-using System.Diagnostics.CodeAnalysis;
-
 /// <summary>
 /// Validates RSIN (Rechtspersonen Samenwerkingsverbanden Informatienummer) numbers
 /// </summary>
@@ -17,36 +15,23 @@ public static class RsinValidator
     {
         if (string.IsNullOrWhiteSpace(rsin))
         {
-            LogAndThrow(logger, "RSIN mag niet leeg zijn.", rsin);
+            throw new ArgumentException("RSIN mag niet leeg zijn.", nameof(rsin));
         }
 
         if (rsin.Length != 9)
         {
-            LogAndThrow(logger, "RSIN moet precies 9 cijfers bevatten.", rsin);
+            throw new ArgumentException("RSIN moet precies 9 cijfers bevatten.", nameof(rsin));
         }
 
         if (!rsin.All(char.IsDigit))
         {
-            LogAndThrow(logger, "RSIN mag alleen cijfers bevatten.", rsin);
+            throw new ArgumentException("RSIN mag alleen cijfers bevatten.", nameof(rsin));
         }
 
         if (!PassesElevenTest(rsin))
         {
-            LogAndThrow(logger, "RSIN is niet geldig volgens de 11-proef.", rsin);
+            throw new ArgumentException("RSIN is niet geldig volgens de 11-proef.", nameof(rsin));
         }
-    }
-
-    [DoesNotReturn]
-    private static void LogAndThrow(ILogger logger, string message, string? rsin)
-    {
-        var safeRsin = rsin;
-        if (!string.IsNullOrEmpty(safeRsin))
-        {
-            // Remove line breaks to prevent log forging from user input
-            safeRsin = safeRsin.Replace("\r", string.Empty).Replace("\n", string.Empty);
-        }
-        logger.LogWarning("RSIN validation failed for {Rsin}: {Message}", safeRsin, message);
-        throw new ArgumentException(message, nameof(rsin));
     }
 
     /// <summary>
