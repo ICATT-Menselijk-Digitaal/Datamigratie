@@ -39,7 +39,13 @@ public static class RsinValidator
     [DoesNotReturn]
     private static void LogAndThrow(ILogger logger, string message, string? rsin)
     {
-        logger.LogWarning("RSIN validation failed for {Rsin}: {Message}", rsin, message);
+        var safeRsin = rsin;
+        if (!string.IsNullOrEmpty(safeRsin))
+        {
+            // Remove line breaks to prevent log forging from user input
+            safeRsin = safeRsin.Replace("\r", string.Empty).Replace("\n", string.Empty);
+        }
+        logger.LogWarning("RSIN validation failed for {Rsin}: {Message}", safeRsin, message);
         throw new ArgumentException(message, nameof(rsin));
     }
 
