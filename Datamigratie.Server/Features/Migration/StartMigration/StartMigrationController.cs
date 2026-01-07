@@ -27,27 +27,23 @@ public class StartMigrationController(
         {
             return Conflict(new { message = "Er loopt al een migratie." });
         }
-
         try
         {
             var globalMapping = await GetAndValidateGlobalMappingAsync();
-            
-            await backgroundTaskQueue.QueueMigrationAsync(new MigrationQueueItem 
-            { 
+
+            await backgroundTaskQueue.QueueMigrationAsync(new MigrationQueueItem
+            {
                 DetZaaktypeId = request.DetZaaktypeId,
                 GlobalMapping = globalMapping
             });
-            
-            return Ok();
         }
-        catch (InvalidOperationException)
+        catch (Exception e)
         {
-            return BadRequest(new { message = "Migratie kan niet starten: Er is geen globale configuratie gevonden. Configureer een geldig RSIN in de globale configuratie pagina." });
+            return Conflict(new { message = e.Message });
         }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { message = $"Migratie kan niet starten: Ongeldig RSIN - {ex.Message}" });
-        }
+        
+        return Ok();
+        
     }
 
     [HttpGet]
@@ -74,7 +70,7 @@ public class StartMigrationController(
     {
         var globalMapping = await dbContext.GlobalConfigurations
             .Select(x => new GlobalMapping { Rsin = x.Rsin! })
-            .SingleAsync();
+            .FirstOrDefaultAsync() ?? throw new InvalidOperationException("Geen globale configuratie gevonden.");
 
         RsinValidator.ValidateRsin(globalMapping.Rsin, logger);
 

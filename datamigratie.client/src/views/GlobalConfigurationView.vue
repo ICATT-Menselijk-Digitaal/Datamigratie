@@ -10,7 +10,6 @@
       v-model="rsin"
       maxlength="9"
       pattern="[0-9]{9}"
-      required
       @input="validateRsin"
     />
 
@@ -34,13 +33,17 @@ const configuration = ref<GlobalConfiguration>({});
 const rsinInput = useTemplateRef<HTMLInputElement>("rsinInput");
 
 function validateRsin() {
-  if (!rsinInput.value) {
+
+  // Clear any previous custom validation message
+  rsinInput.value.setCustomValidity("");
+
+  if (!rsinInput.value || !rsin.value) {
+    //empty is allowed
     return;
   }
-
-  // Clear any previous custom validation message if input is not complete
-  if (!rsin.value || rsin.value.length !== 9) {
-    rsinInput.value.setCustomValidity("");
+ 
+  if (rsin.value && rsin.value.length !== 9) {
+    rsinInput.value.setCustomValidity("De RSIN moet uit 9 cijfers bestaan.");
     return;
   }
 

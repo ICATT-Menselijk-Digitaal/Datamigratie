@@ -1,4 +1,4 @@
-namespace Datamigratie.Server.Helpers;
+﻿namespace Datamigratie.Server.Helpers;
 
 /// <summary>
 /// Validates RSIN (Rechtspersonen Samenwerkingsverbanden Informatienummer) numbers
@@ -15,22 +15,22 @@ public static class RsinValidator
     {
         if (string.IsNullOrWhiteSpace(rsin))
         {
-            throw new ArgumentException("RSIN mag niet leeg zijn.", nameof(rsin));
+            throw new ArgumentException("RSIN mag niet leeg zijn.");
         }
 
         if (rsin.Length != 9)
         {
-            throw new ArgumentException("RSIN moet precies 9 cijfers bevatten.", nameof(rsin));
+            throw new ArgumentException("RSIN moet precies 9 cijfers bevatten.");
         }
 
         if (!rsin.All(char.IsDigit))
         {
-            throw new ArgumentException("RSIN mag alleen cijfers bevatten.", nameof(rsin));
+            throw new ArgumentException("RSIN mag alleen cijfers bevatten.");
         }
 
         if (!PassesElevenTest(rsin))
         {
-            throw new ArgumentException("RSIN is niet geldig volgens de 11-proef.", nameof(rsin));
+            throw new ArgumentException("RSIN is niet geldig volgens de 11-proef.");
         }
     }
 
