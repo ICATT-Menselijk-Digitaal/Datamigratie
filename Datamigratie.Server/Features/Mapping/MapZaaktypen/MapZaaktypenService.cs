@@ -44,6 +44,11 @@ namespace Datamigratie.Server.Features.Mapping.MapZaaktypen
         {
             await ValidateOzZaaktypeExistsAsync(newOzZaaktypeId);
 
+            // Delete all existing resultaattype mappings for this zaaktype
+            await context.ResultaattypeMappings
+                .Where(m => m.DetZaaktypeId == detZaaktypeId)
+                .ExecuteDeleteAsync();
+
             var rowsAffected = await context.Mappings
                 .Where(m => m.DetZaaktypeId == detZaaktypeId)
                 .ExecuteUpdateAsync(m => m.SetProperty(x => x.OzZaaktypeId, newOzZaaktypeId));

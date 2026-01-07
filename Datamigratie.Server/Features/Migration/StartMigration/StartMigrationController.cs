@@ -6,6 +6,7 @@ using Datamigratie.Server.Features.Migration.StartMigration.Queues.Items;
 using Datamigratie.Server.Features.Migration.StartMigration.Services;
 using Datamigratie.Server.Features.Migration.StartMigration.State;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Datamigratie.Server.Features.Migration.StartMigration;
 
@@ -20,6 +21,35 @@ public class StartMigrationController(IStartMigrationService startMigrationServi
         if (workerState.IsWorking)
         {
             return Conflict(new { message = "A migration is already in progress." });
+        }
+
+        // Validate that all DET resultaattypen have been mapped
+        var detZaaktype = await detApiClient.GetZaaktype(request.DetZaaktypeId);
+        if (detZaaktype == null)
+        {
+            return NotFound(new { message = $"DET Zaaktype with id {request.DetZaaktypeId} not found." });
+        }
+
+        if (detZaaktype.Resultaten != null && detZaaktype.Resultaten.Count > 0)
+        {
+            var existingMappings = await context.ResultaattypeMappings
+                .Where(m => m.DetZaaktypeId == request.DetZaaktypeId)
+                .Select(m => m.DetResultaattypeId)
+                .ToListAsync();
+
+            var unmappedResultaten = detZaaktype.Resultaten
+                .Where(r => !existingMappings.Contains(r.Resultaat.Naam))
+                .Select(r => r.Resultaat.Naam)
+                .ToList();
+
+            if (unmappedResultaten.Count > 0)
+            {
+                return BadRequest(new
+                {
+                    message = "Not all DET resultaattypen have been mapped to OZ resultaattypen.",
+                    unmappedResultaten = unmappedResultaten
+                });
+            }
         }
 
         await backgroundTaskQueue.QueueMigrationAsync(new MigrationQueueItem {DetZaaktypeId = request.DetZaaktypeId });
