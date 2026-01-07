@@ -56,11 +56,11 @@ namespace Datamigratie.Server.Features.Mapping.MapZaaktypen
                 await context.ResultaattypeMappings
                     .Where(m => m.DetZaaktypeId == detZaaktypeId)
                     .ExecuteDeleteAsync();
-            }
 
-            await context.Mappings
-                .Where(m => m.DetZaaktypeId == detZaaktypeId)
-                .ExecuteUpdateAsync(m => m.SetProperty(x => x.OzZaaktypeId, newOzZaaktypeId));
+                // Update the mapping
+                mapping.OzZaaktypeId = newOzZaaktypeId;
+                await context.SaveChangesAsync();
+            }
         }
 
         private async Task ValidateOzZaaktypeExistsAsync(Guid ozZaaktypeId)
