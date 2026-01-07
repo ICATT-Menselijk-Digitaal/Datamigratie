@@ -138,6 +138,7 @@ import {
 } from "@/services/datamigratieService";
 import { knownErrorMessages } from "@/utils/fetchWrapper";
 import { useMigration } from "@/composables/use-migration-status";
+import { formatDateTime } from "@/utils/dateTimeHelpers";
 
 const { detZaaktypeId } = defineProps<{ detZaaktypeId: string }>();
 
@@ -173,18 +174,6 @@ const loading = ref(false);
 const errors = ref<unknown[]>([]);
 
 const confirmDialog = useConfirmDialog();
-
-const formatDateTime = (dateString: string | null): string => {
-  if (!dateString) return "-";
-  const date = new Date(dateString);
-  return date.toLocaleString("nl-NL", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-};
 
 const fetchMappingData = async () => {
   loading.value = true;
