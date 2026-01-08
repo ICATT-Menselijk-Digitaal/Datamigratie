@@ -1,6 +1,5 @@
 ﻿using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
-using Datamigratie.Server.Features.Zaaktypen.ShowZaaktype.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Datamigratie.Server.Features.Zaaktypen.ShowZaaktype
