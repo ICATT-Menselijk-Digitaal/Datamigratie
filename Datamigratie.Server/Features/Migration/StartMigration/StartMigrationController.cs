@@ -5,6 +5,7 @@ using Datamigratie.Server.Features.Migration.StartMigration.Queues;
 using Datamigratie.Server.Features.Migration.StartMigration.Queues.Items;
 using Datamigratie.Server.Features.Migration.StartMigration.Services;
 using Datamigratie.Server.Features.Migration.StartMigration.State;
+using Datamigratie.Server.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +13,11 @@ namespace Datamigratie.Server.Features.Migration.StartMigration;
 
 [ApiController]
 [Route("api/migration")]
-public class StartMigrationController(IStartMigrationService startMigrationService, MigrationWorkerState workerState, IDetApiClient detApiClient, IMigrationBackgroundTaskQueue backgroundTaskQueue, DatamigratieDbContext context) : ControllerBase
+public class StartMigrationController(
+    MigrationWorkerState workerState, 
+    IMigrationBackgroundTaskQueue backgroundTaskQueue,
+    DatamigratieDbContext dbContext,
+    ILogger<StartMigrationController> logger) : ControllerBase
 {
     [HttpPost("start")]
     public async Task<ActionResult> StartMigration([FromBody] StartMigrationRequest request)
@@ -20,7 +25,17 @@ public class StartMigrationController(IStartMigrationService startMigrationServi
         // perform some validation so the frontend gets quick feedback if something is wrong
         if (workerState.IsWorking)
         {
-            return Conflict(new { message = "A migration is already in progress." });
+            return Conflict(new { message = "Er loopt al een migratie." });
+        }
+        try
+        {
+            var globalMapping = await GetAndValidateGlobalMappingAsync();
+
+            await backgroundTaskQueue.QueueMigrationAsync(new MigrationQueueItem
+            {
+                DetZaaktypeId = request.DetZaaktypeId,
+                GlobalMapping = globalMapping
+            });
         }
 
         // Validate that all DET resultaattypen have been mapped
@@ -52,8 +67,12 @@ public class StartMigrationController(IStartMigrationService startMigrationServi
             }
         }
 
-        await backgroundTaskQueue.QueueMigrationAsync(new MigrationQueueItem {DetZaaktypeId = request.DetZaaktypeId });
+        catch (Exception e)
+        {
+            return Conflict(new { message = e.Message });
+        }
         return Ok();
+        
     }
 
     [HttpGet]
@@ -74,5 +93,16 @@ public class StartMigrationController(IStartMigrationService startMigrationServi
             Status = ServiceMigrationStatus.InProgress,
             DetZaaktypeId = workerState.DetZaaktypeId,
         };
+    }
+
+    private async Task<GlobalMapping> GetAndValidateGlobalMappingAsync()
+    {
+        var globalMapping = await dbContext.GlobalConfigurations
+            .Select(x => new GlobalMapping { Rsin = x.Rsin! })
+            .FirstOrDefaultAsync() ?? throw new InvalidOperationException("Geen globale configuratie gevonden.");
+
+        RsinValidator.ValidateRsin(globalMapping.Rsin, logger);
+
+        return globalMapping;
     }
 }

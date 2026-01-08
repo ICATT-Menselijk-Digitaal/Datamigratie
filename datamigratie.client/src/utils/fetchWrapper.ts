@@ -49,6 +49,15 @@ export async function fetchWrapper<T = unknown>(
     throw new Error(knownErrorMessages.notFound);
   }
 
+  if (response.status === 400) {
+    const contentType = response.headers.get("content-type");
+    const errorMessage =  contentType?.includes("application/json")
+      ? ((await response.json()))
+      : ((await response.text()));
+    throw new Error(errorMessage);
+  }
+
+
   let errorMessage = `Request failed with status ${response.status}`;
 
   try {

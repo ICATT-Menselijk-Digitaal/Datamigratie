@@ -44,7 +44,7 @@ export type MigrationHistoryItem = {
   startedAt?: string;
   completedAt?: string;
   errorMessage?: string;
-  totalRecords: number;
+  totalRecords?: number;
   processedRecords: number;
   successfulRecords: number;
   failedRecords: number;
@@ -59,6 +59,15 @@ export type MigrationRecordItem = {
   errorDetails?: string;
   statusCode?: number;
   processedAt: string;
+};
+
+export type GlobalConfiguration = {
+  rsin?: string;
+  updatedAt?: string;
+};
+
+export type UpdateGlobalConfiguration = {
+  rsin?: string;
 };
 
 export const datamigratieService = {
@@ -79,5 +88,8 @@ export const datamigratieService = {
   getMigrationHistory: (detZaaktypeId: string): Promise<MigrationHistoryItem[]> =>
     get<MigrationHistoryItem[]>(`/api/migration/history/${detZaaktypeId}`),
   getMigrationRecords: (migrationId: number): Promise<MigrationRecordItem[]> =>
-    get<MigrationRecordItem[]>(`/api/migration/${migrationId}/records`)
+    get<MigrationRecordItem[]>(`/api/migration/${migrationId}/records`),
+  getGlobalConfiguration: (): Promise<GlobalConfiguration> => get<GlobalConfiguration>(`/api/globalmapping`),
+  updateGlobalConfiguration: (payload: UpdateGlobalConfiguration): Promise<GlobalConfiguration> =>
+    put<GlobalConfiguration>(`/api/globalmapping`, payload)
 };

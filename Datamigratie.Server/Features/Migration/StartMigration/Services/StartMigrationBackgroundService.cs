@@ -7,36 +7,38 @@ namespace Datamigratie.Server.Features.Migration.StartMigration.Services
     /// Code based on:
     /// https://learn.microsoft.com/en-us/aspnet/core/fundamentals/host/hosted-services?view=aspnetcore-9.0&tabs=visual-studio
     /// </summary>
-    public class StartMigrationBackgroundService(IServiceScopeFactory scopeFactory, IMigrationBackgroundTaskQueue taskQueue,
-        ILogger<StartMigrationBackgroundService> logger, MigrationWorkerState workerState) : BackgroundService
+    public class StartMigrationBackgroundService(
+        IServiceScopeFactory scopeFactory, 
+        IMigrationBackgroundTaskQueue taskQueue,
+        ILogger<StartMigrationBackgroundService> logger, 
+        MigrationWorkerState workerState) : BackgroundService
     {
         public IMigrationBackgroundTaskQueue TaskQueue { get; } = taskQueue;
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            logger.LogInformation(
-                $"Start Migration Service is running.");
+            logger.LogInformation("Start Migration Service is running.");
 
             await BackgroundProcessing(stoppingToken);
         }
          
         private async Task BackgroundProcessing(CancellationToken stoppingToken)
         {
-
-
             while (!stoppingToken.IsCancellationRequested)
             {
-                var workItem =
-                    await TaskQueue.DequeueMigrationAsync(stoppingToken);
+                var workItem = await TaskQueue.DequeueMigrationAsync(stoppingToken);
 
-                    using var scope = scopeFactory.CreateScope();
-                    // fetch the scoped service manually through the service provider
-                    // scoped services cannot be injected directly into the constructor because of the nature of the background service
-                    // see: https://learn.microsoft.com/en-us/dotnet/core/extensions/scoped-service
-                    var migrationService = scope.ServiceProvider.GetRequiredService<IStartMigrationService>();
+                using var scope = scopeFactory.CreateScope();
+                // fetch the scoped service manually through the service provider
+                // scoped services cannot be injected directly into the constructor because of the nature of the background service
+                // see: https://learn.microsoft.com/en-us/dotnet/core/extensions/scoped-service
+                var migrationService = scope.ServiceProvider.GetRequiredService<IStartMigrationService>();
 
                 try
                 {
+                    logger.LogInformation(
+                        "Start Migration Service is starting migration for DET Zaaktype Id {DetZaaktypeId}.", workItem.DetZaaktypeId);
+
                     // set worker state for other threads to read from
                     workerState.DetZaaktypeId = workItem.DetZaaktypeId;
                     workerState.IsWorking = true; 
