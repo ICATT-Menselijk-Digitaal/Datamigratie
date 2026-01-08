@@ -4,9 +4,9 @@ namespace Datamigratie.Common.Services.Det.Models
     {
         public bool Actief { get; set; }
         public required string Naam { get; set; }
-        public required string Omschrijving { get; set; }
+        public string? Omschrijving { get; set; }
         public bool Eind { get; set; }
-        public required string ExterneNaam { get; set; }
+        public string? ExterneNaam { get; set; }
         public bool Start { get; set; }
         public required string Uitwisselingscode { get; set; }
     }
