@@ -1,11 +1,8 @@
-﻿using Datamigratie.Common.Services.Det;
-using Datamigratie.Data;
-using Datamigratie.Server.Features.Migration.StartMigration.Models;
+﻿using Datamigratie.Server.Features.Migration.StartMigration.Models;
 using Datamigratie.Server.Features.Migration.StartMigration.Queues;
 using Datamigratie.Server.Features.Migration.StartMigration.Queues.Items;
-using Datamigratie.Server.Features.Migration.StartMigration.Services;
 using Datamigratie.Server.Features.Migration.StartMigration.State;
-using Datamigratie.Server.Features.StatusMapping.Services;
+using Datamigratie.Server.Features.Mapping.StatusMapping.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Datamigratie.Server.Features.Migration.StartMigration;
@@ -13,11 +10,8 @@ namespace Datamigratie.Server.Features.Migration.StartMigration;
 [ApiController]
 [Route("api/migration")]
 public class StartMigrationController(
-    IStartMigrationService startMigrationService, 
     MigrationWorkerState workerState, 
-    IDetApiClient detApiClient, 
     IMigrationBackgroundTaskQueue backgroundTaskQueue, 
-    DatamigratieDbContext context,
     IStatusMappingService statusMappingService) : ControllerBase
 {
     [HttpPost("start")]

@@ -67,9 +67,7 @@ export type StatusMappingItem = {
 };
 
 export type StatusMappingsResponse = {
-  detStatuses: DetStatus[];
-  ozStatustypes: OzStatustype[];
-  existingMappings: StatusMappingItem[];
+  mappings: StatusMappingItem[];
 };
 
 export type SaveStatusMappingsRequest = {
@@ -94,13 +92,8 @@ export const datamigratieService = {
     get<MigrationHistoryItem[]>(`/api/migration/history/${detZaaktypeId}`),
   getMigrationRecords: (migrationId: number): Promise<MigrationRecordItem[]> =>
     get<MigrationRecordItem[]>(`/api/migration/${migrationId}/records`),
-  getStatusMappings: (
-    detZaaktypeId: string,
-    ozZaaktypeId: string
-  ): Promise<StatusMappingsResponse> =>
-    get<StatusMappingsResponse>(`/api/status-mappings/${detZaaktypeId}?ozZaaktypeId=${ozZaaktypeId}`),
+  getStatusMappings: (detZaaktypeId: string): Promise<StatusMappingsResponse> =>
+    get<StatusMappingsResponse>(`/api/mappings/${detZaaktypeId}/statuses`),
   saveStatusMappings: (payload: SaveStatusMappingsRequest): Promise<void> =>
-    post(`/api/status-mappings`, payload),
-  validateStatusMappings: (detZaaktypeId: string): Promise<StatusMappingValidationResponse> =>
-    get<StatusMappingValidationResponse>(`/api/status-mappings/${detZaaktypeId}/validation`)
+    post(`/api/mappings/${payload.detZaaktypeId}/statuses`, payload)
 };

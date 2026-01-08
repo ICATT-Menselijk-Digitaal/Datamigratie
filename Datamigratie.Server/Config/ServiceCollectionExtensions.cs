@@ -10,7 +10,7 @@ using Datamigratie.Server.Features.Migration.StartMigration.Queues;
 using Datamigratie.Server.Features.Migration.StartMigration.State;
 using Datamigratie.Server.Features.Migration.GetMigrationHistory.Services;
 using Datamigratie.Server.Features.Migration.GetMigrationRecords.Services;
-using Datamigratie.Server.Features.StatusMapping.Services;
+using Datamigratie.Server.Features.Mapping.StatusMapping.Services;
 
 namespace Datamigratie.Server.Config
 {
