@@ -1,5 +1,7 @@
 ﻿
 using Datamigratie.Common.Extensions;
+using Datamigratie.Server.Features.Mapping.MapResultaattypen;
+using Datamigratie.Server.Features.Mapping.ShowResultaattypeMapping;
 using Datamigratie.Server.Features.MigrateZaak;
 using Datamigratie.Server.Features.MigrateZaak.Pdf;
 using Datamigratie.Server.Features.Migration.StartMigration.Services;
@@ -9,6 +11,7 @@ using Datamigratie.Server.Features.Migration.GetMigrationHistory.Services;
 using Datamigratie.Server.Features.Migration.GetMigrationRecords.Services;
 using Datamigratie.Server.Features.Mapping.ZaaktypeMapping.ShowZaaktypenMapping;
 using Datamigratie.Server.Features.Mapping.ZaaktypeMapping.MapZaaktypen;
+using Datamigratie.Server.Features.Zaaktypen.ShowOzZaaktypen;
 
 namespace Datamigratie.Server.Config
 {
@@ -21,8 +24,11 @@ namespace Datamigratie.Server.Config
             services.AddDatamigrationApiClients(configuration);
             services.AddScoped<IMapZaaktypenService, MapZaaktypenService>();
             services.AddScoped<IShowZaaktypenMappingService, ShowZaaktypenMappingService>();
+            services.AddScoped<IMapResultaattypenService, MapResultaattypenService>();
+            services.AddScoped<IShowResultaattypeMappingService, ShowResultaattypeMappingService>();
             services.AddScoped<IMigrateZaakService, MigrateZaakService>();
             services.AddScoped<IZaakgegevensPdfGenerator, ZaakgegevensPdfGenerator>();
+            services.AddScoped<IShowOzZaaktypenService, ShowOzZaaktypenService>();
 
             services.AddScoped<IStartMigrationService, StartMigrationService>();
             services.AddScoped<IGetMigrationHistoryService, GetMigrationHistoryService>();

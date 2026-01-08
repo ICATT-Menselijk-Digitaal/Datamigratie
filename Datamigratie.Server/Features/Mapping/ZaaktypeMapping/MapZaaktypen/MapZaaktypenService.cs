@@ -44,13 +44,22 @@ namespace Datamigratie.Server.Features.Mapping.ZaaktypeMapping.MapZaaktypen
         {
             await ValidateOzZaaktypeExistsAsync(newOzZaaktypeId);
 
-            var rowsAffected = await context.Mappings
-                .Where(m => m.DetZaaktypeId == detZaaktypeId)
-                .ExecuteUpdateAsync(m => m.SetProperty(x => x.OzZaaktypeId, newOzZaaktypeId));
+            var mapping = await context.Mappings.Where(m => m.DetZaaktypeId == detZaaktypeId).FirstOrDefaultAsync();
 
-            if (rowsAffected == 0)
+            if (mapping == null)
             {
                 throw new InvalidOperationException($"Mapping for Det zaaktype ID '{detZaaktypeId}' does not exist.");
+            }
+
+            if (mapping.OzZaaktypeId != newOzZaaktypeId) {
+                // Delete all existing resultaattype mappings for this zaaktype
+                await context.ResultaattypeMappings
+                    .Where(m => m.DetZaaktypeId == detZaaktypeId)
+                    .ExecuteDeleteAsync();
+
+                // Update the mapping
+                mapping.OzZaaktypeId = newOzZaaktypeId;
+                await context.SaveChangesAsync();
             }
         }
 
