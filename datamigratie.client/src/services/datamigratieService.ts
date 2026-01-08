@@ -49,6 +49,15 @@ export type MigrationRecordItem = {
   processedAt: string;
 };
 
+export type GlobalConfiguration = {
+  rsin?: string;
+  updatedAt?: string;
+};
+
+export type UpdateGlobalConfiguration = {
+  rsin?: string;
+};
+
 export type DetStatus = {
   naam: string;
   omschrijving: string;
@@ -92,6 +101,9 @@ export const datamigratieService = {
     get<MigrationHistoryItem[]>(`/api/migration/history/${detZaaktypeId}`),
   getMigrationRecords: (migrationId: number): Promise<MigrationRecordItem[]> =>
     get<MigrationRecordItem[]>(`/api/migration/${migrationId}/records`),
+  getGlobalConfiguration: (): Promise<GlobalConfiguration> => get<GlobalConfiguration>(`/api/globalmapping`),
+  updateGlobalConfiguration: (payload: UpdateGlobalConfiguration): Promise<GlobalConfiguration> =>
+    put<GlobalConfiguration>(`/api/globalmapping`, payload),
   getStatusMappings: (detZaaktypeId: string): Promise<StatusMappingsResponse> =>
     get<StatusMappingsResponse>(`/api/mappings/${detZaaktypeId}/statuses`),
   saveStatusMappings: (payload: SaveStatusMappingsRequest): Promise<void> =>

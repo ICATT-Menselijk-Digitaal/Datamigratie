@@ -2,8 +2,10 @@
 using Datamigratie.Server.Features.Migration.StartMigration.Queues;
 using Datamigratie.Server.Features.Migration.StartMigration.Queues.Items;
 using Datamigratie.Server.Features.Migration.StartMigration.State;
+using Datamigratie.Server.Helpers;
 using Datamigratie.Server.Features.Mapping.StatusMapping.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Datamigratie.Server.Features.Migration.StartMigration;
 
@@ -11,8 +13,10 @@ namespace Datamigratie.Server.Features.Migration.StartMigration;
 [Route("api/migration")]
 public class StartMigrationController(
     MigrationWorkerState workerState, 
-    IMigrationBackgroundTaskQueue backgroundTaskQueue, 
-    IStatusMappingService statusMappingService) : ControllerBase
+    IMigrationBackgroundTaskQueue backgroundTaskQueue,
+    DatamigratieDbContext dbContext,
+    IStatusMappingService statusMappingService,
+    ILogger<StartMigrationController> logger) : ControllerBase
 {
     [HttpPost("start")]
     public async Task<ActionResult> StartMigration([FromBody] StartMigrationRequest request)
@@ -20,18 +24,32 @@ public class StartMigrationController(
         // perform some validation so the frontend gets quick feedback if something is wrong
         if (workerState.IsWorking)
         {
-            return Conflict(new { message = "A migration is already in progress." });
+            return Conflict(new { message = "Er loopt al een migratie." });
         }
-
-        // validating all statuses are mapped before starting migration
-        var allStatusesMapped = await statusMappingService.AreAllStatusesMapped(request.DetZaaktypeId);
-        if (!allStatusesMapped)
+        try
         {
-            return BadRequest(new { message = "Not all DET statuses have been mapped to OZ statuses. Please configure status mappings first." });
-        }
+            // validating all statuses are mapped before starting migration
+            var allStatusesMapped = await statusMappingService.AreAllStatusesMapped(request.DetZaaktypeId);
+            if (!allStatusesMapped)
+            {
+                return BadRequest(new { message = "Not all DET statuses have been mapped to OZ statuses. Please configure status mappings first." });
+            }
+            
+            var globalMapping = await GetAndValidateGlobalMappingAsync();
 
-        await backgroundTaskQueue.QueueMigrationAsync(new MigrationQueueItem {DetZaaktypeId = request.DetZaaktypeId });
+            await backgroundTaskQueue.QueueMigrationAsync(new MigrationQueueItem
+            {
+                DetZaaktypeId = request.DetZaaktypeId,
+                GlobalMapping = globalMapping
+            });
+        }
+        catch (Exception e)
+        {
+            return Conflict(new { message = e.Message });
+        }
+        
         return Ok();
+        
     }
 
     [HttpGet]
@@ -52,5 +70,16 @@ public class StartMigrationController(
             Status = ServiceMigrationStatus.InProgress,
             DetZaaktypeId = workerState.DetZaaktypeId,
         };
+    }
+
+    private async Task<GlobalMapping> GetAndValidateGlobalMappingAsync()
+    {
+        var globalMapping = await dbContext.GlobalConfigurations
+            .Select(x => new GlobalMapping { Rsin = x.Rsin! })
+            .FirstOrDefaultAsync() ?? throw new InvalidOperationException("Geen globale configuratie gevonden.");
+
+        RsinValidator.ValidateRsin(globalMapping.Rsin, logger);
+
+        return globalMapping;
     }
 }

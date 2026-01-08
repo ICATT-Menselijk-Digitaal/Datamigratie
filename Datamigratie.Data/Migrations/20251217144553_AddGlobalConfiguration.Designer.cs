@@ -3,6 +3,7 @@ using System;
 using Datamigratie.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Datamigratie.Data.Migrations
 {
     [DbContext(typeof(DatamigratieDbContext))]
-    partial class DatamigratieDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251217144553_AddGlobalConfiguration")]
+    partial class AddGlobalConfiguration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -83,7 +86,7 @@ namespace Datamigratie.Data.Migrations
                     b.Property<int>("SuccessfulRecords")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("TotalRecords")
+                    b.Property<int>("TotalRecords")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -135,40 +138,6 @@ namespace Datamigratie.Data.Migrations
                     b.HasIndex("MigrationId");
 
                     b.ToTable("MigrationRecords");
-                });
-
-            modelBuilder.Entity("Datamigratie.Data.Entities.StatusMapping", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("DetStatusNaam")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("DetZaaktypeId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("LastUpdated")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("OzStatustypeId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DetZaaktypeId", "DetStatusNaam")
-                        .IsUnique()
-                        .HasDatabaseName("IX_StatusMapping_DetZaaktypeId_DetStatusNaam_Unique");
-
-                    b.ToTable("StatusMappings");
                 });
 
             modelBuilder.Entity("Datamigratie.Data.Entities.ZaaktypenMapping", b =>

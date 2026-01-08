@@ -3,6 +3,12 @@
     <h1>Datamigratie</h1>
     <nav>
       <ul class="reset">
+        <li>
+          <router-link to="/">Zaaktypes</router-link>
+        </li>
+        <li>
+          <router-link to="/configuration">Configuratie</router-link>
+        </li>
         <li class="user-name">
           {{ user.name }}
         </li>
