@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Datamigratie.FakeDet.Catalogi.Models;
 
 namespace Datamigratie.FakeDet.Catalogi;
 

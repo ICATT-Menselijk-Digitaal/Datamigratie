@@ -9,7 +9,6 @@ public static class AddOpenZaakExtensions
         var resourceBuilder = builder
             .AddResource(resource)
             .WithHttpEndpoint(targetPort: 8000);
-
         var endpoint = resourceBuilder.GetEndpoint("http");
 
         return resourceBuilder
@@ -30,7 +29,8 @@ public static class AddOpenZaakExtensions
             .WithEnvironment("DJANGO_SUPERUSER_PASSWORD", "admin")
             .WithEnvironment("OPENZAAK_SUPERUSER_EMAIL", "admin@localhost")
             .WithEnvironment("DISABLE_2FA", "true")
-            .WithEnvironment("ENVIRONMENT", "dev");
+            .WithEnvironment("ENVIRONMENT", "dev")
+            .WithEnvironment("NOTIFICATIONS_DISABLED", "True");
     }
 
     public static IResourceBuilder<OpenZaakResource> WithReference(this IResourceBuilder<OpenZaakResource> builder, IResourceBuilder<PostgresDatabaseResource> database)
@@ -57,7 +57,7 @@ public static class AddOpenZaakExtensions
         var endpoint = redis.Resource.GetEndpoint("secondary");
         var hostAndPort = endpoint.Property(EndpointProperty.HostAndPort);
         var password = redis.Resource.PasswordParameter;
-        
+
         var cacheUrl = password is null
             ? ReferenceExpression.Create($"{hostAndPort}/0")
             : ReferenceExpression.Create($":{password}@{hostAndPort}/0");
@@ -79,9 +79,64 @@ public static class AddOpenZaakExtensions
 
         var endpoint = nginx.GetEndpoint("http");
 
-        openzaak.WithEnvironment("CSRF_TRUSTED_ORIGINS", () => $"http://localhost:{endpoint.Port}");
+        openzaak
+            .WithEnvironment("CSRF_TRUSTED_ORIGINS", () => $"http://localhost:{endpoint.Port}")
+            .WithEnvironment("OPENZAAK_DOMAIN", () => $"localhost:{endpoint.Port}")
+            .WithEnvironment("OPENZAAK_REWRITE_HOST", "True");
 
         return nginx;
+    }
+
+    public static IResourceBuilder<PostgresServerResource> AddInitScript(this IResourceBuilder<OpenZaakResource> openzaak, IResourceBuilder<PostgresDatabaseResource> builder, string name, string path)
+    {
+        const string TargetScript = "/init-script/init.sql";
+
+        var runner = builder.ApplicationBuilder.AddPostgres(name)
+            .WithBindMount(path, TargetScript)
+            .WithEnvironment("PGPASSWORD", builder.Resource.Parent.PasswordParameter)
+            .WithEnvironment("PGDATABASE", builder.Resource.DatabaseName)
+            .WithEnvironment("PGHOST", builder.Resource.Parent.Host)
+            .WithArgs("psql", "-f", TargetScript)
+            .WaitFor(builder)
+            .WaitFor(openzaak)
+            .WithParentRelationship(openzaak);
+
+        if(builder.Resource.Parent.UserNameParameter is {} user)
+        {
+            runner.WithEnvironment("PGUSER", user);
+        }
+        else
+        {
+            runner.WithEnvironment("PGUSER", "postgres");
+        }
+
+        return runner;
+    }
+
+    public static IResourceBuilder<OpenZaakResource> WithInitialSettings(this IResourceBuilder<OpenZaakResource> openzaak, string name, string path)
+    {
+        const string TargetFile = "/app/setup_configuration/data.yaml";
+
+        var runner = openzaak
+            .ApplicationBuilder
+            .AddOpenZaak(name)
+            .WithBindMount(path, TargetFile)
+            .WithEnvironment(async ctx =>
+            {
+                if(openzaak.Resource.TryGetEnvironmentVariables(out var variables))
+                {
+                    foreach (var item in variables)
+                    {
+                        await item.Callback(ctx);
+                    }
+                }
+            })
+            .WithEnvironment("RUN_SETUP_CONFIG", "True")
+            .WithArgs("/setup_configuration.sh")
+            .WithParentRelationship(openzaak)
+            .WaitFor(openzaak);
+        
+        return openzaak;
     }
 }
 

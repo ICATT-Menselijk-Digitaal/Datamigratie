@@ -11,27 +11,32 @@ var postgres = builder.AddPostgres("postgres")
 
 var redis = builder.AddRedis("redis");
 
-var postgresdb = postgres.AddDatabase("Datamigratie");
-var ozaakdb = postgres.AddDatabase("OpenZaakDb", "open_zaak");
+var dmtDb = postgres.AddDatabase("Datamigratie");
+
+var ozaakdb = postgres.AddDatabase("openzaakdb", "open_zaak");
+
 
 var migrations = builder
     .AddProject<Projects.Datamigratie_MigrationService>("migrations")
-    .WithReference(postgresdb)
-    .WaitFor(postgresdb);
+    .WithReference(dmtDb)
+    .WaitFor(dmtDb);
 
 builder.AddProject<Projects.Datamigratie_FakeDet>("datamigratie-fakedet");
 
 var openzaak = builder.AddOpenZaak("openzaak")
     .WithReference(ozaakdb)
     .WithReference(redis)
+    .WithInitialSettings("ConfigInladen", Path.Combine("openzaak", "config.yaml"))
     .WaitFor(ozaakdb)
     .WaitFor(redis);
+
+openzaak.AddInitScript(ozaakdb, "CatalogiInladen", Path.Combine("openzaak", "data__dump.sql"));
 
 var proxy = openzaak.AddNginxProxy("OpenZaakProxy");
 
 builder.AddProject<Projects.Datamigratie_Server>("datamigratie-server")
-    .WithReference(postgresdb)
-    .WaitFor(postgresdb)
+    .WithReference(dmtDb)
+    .WaitFor(dmtDb)
     .WaitForCompletion(migrations);
 
 builder.Build().Run();

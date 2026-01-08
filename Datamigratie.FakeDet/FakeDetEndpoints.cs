@@ -19,7 +19,7 @@ namespace Datamigratie.FakeDet
             {
                 foreach (var type in catalogus.Zaaktypen)
                 {
-                    zaaktypes[type.FunctioneleIdentificatie] = type.ToDetZaaktype();
+                    zaaktypes[type.Identificatie] = type.ToDetZaaktype();
                 }
             }
 
