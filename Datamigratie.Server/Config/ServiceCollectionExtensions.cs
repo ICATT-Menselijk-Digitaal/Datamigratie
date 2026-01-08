@@ -9,6 +9,7 @@ using Datamigratie.Server.Features.Migration.GetMigrationHistory.Services;
 using Datamigratie.Server.Features.Migration.GetMigrationRecords.Services;
 using Datamigratie.Server.Features.Mapping.ZaaktypeMapping.ShowZaaktypenMapping;
 using Datamigratie.Server.Features.Mapping.ZaaktypeMapping.MapZaaktypen;
+using Datamigratie.Server.Features.Mapping.StatusMapping.Services;
 
 namespace Datamigratie.Server.Config
 {
@@ -27,6 +28,7 @@ namespace Datamigratie.Server.Config
             services.AddScoped<IStartMigrationService, StartMigrationService>();
             services.AddScoped<IGetMigrationHistoryService, GetMigrationHistoryService>();
             services.AddScoped<IGetMigrationRecordsService, GetMigrationRecordsService>();
+            services.AddScoped<IStatusMappingService, StatusMappingService>();
 
             services.AddHostedService<StartMigrationBackgroundService>();
             services.AddSingleton<IMigrationBackgroundTaskQueue>(ctx =>

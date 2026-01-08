@@ -12,9 +12,9 @@ namespace Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo
         [HttpGet("{zaaktypeId}")]
         public async Task<ActionResult<EnrichedDetZaaktype>> GetZaaktype(string zaaktypeId)
         {
-            var detZaaktype = await detApiClient.GetZaaktype(zaaktypeId);
+            var detZaaktypeDetail = await detApiClient.GetZaaktypeDetail(zaaktypeId);
 
-            if (detZaaktype == null)
+            if (detZaaktypeDetail == null)
             {
                 return NotFound();
             }
@@ -25,11 +25,12 @@ namespace Datamigratie.Server.Features.Zaaktypen.ShowDetZaaktypeInfo
 
             var enrichedDetZaaktype = new EnrichedDetZaaktype
             {
-                Naam = detZaaktype.Naam,
-                Omschrijving = detZaaktype.Omschrijving,
-                Actief = detZaaktype.Actief,
-                FunctioneleIdentificatie = detZaaktype.FunctioneleIdentificatie,
+                Naam = detZaaktypeDetail.Naam,
+                Omschrijving = detZaaktypeDetail.Omschrijving,
+                Actief = detZaaktypeDetail.Actief,
+                FunctioneleIdentificatie = detZaaktypeDetail.FunctioneleIdentificatie,
                 ClosedZakenCount = closedDetZaken,
+                Statuses = detZaaktypeDetail.Statussen
             };
 
             return enrichedDetZaaktype;

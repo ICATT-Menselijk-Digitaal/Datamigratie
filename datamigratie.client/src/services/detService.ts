@@ -1,11 +1,19 @@
 import { get } from "@/utils/fetchWrapper";
 
+export type DetStatus = {
+  naam: string;
+  omschrijving: string;
+  actief: boolean;
+  eind: boolean;
+};
+
 export type DETZaaktype = {
   actief: boolean;
   naam: string;
   omschrijving: string;
   functioneleIdentificatie: string;
   closedZakenCount?: number;
+  statuses?: DetStatus[];
 };
 
 export const detService = {

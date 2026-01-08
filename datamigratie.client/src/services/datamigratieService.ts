@@ -58,6 +58,36 @@ export type UpdateGlobalConfiguration = {
   rsin?: string;
 };
 
+export type DetStatus = {
+  naam: string;
+  omschrijving: string;
+  eind: boolean;
+};
+
+export type OzStatustype = {
+  uuid: string;
+  omschrijving: string;
+  isEindstatus: boolean;
+};
+
+export type StatusMappingItem = {
+  detStatusNaam: string;
+  ozStatustypeId: string | null;
+};
+
+export type StatusMappingsResponse = {
+  mappings: StatusMappingItem[];
+};
+
+export type SaveStatusMappingsRequest = {
+  detZaaktypeId: string;
+  mappings: StatusMappingItem[];
+};
+
+export type StatusMappingValidationResponse = {
+  allStatusesMapped: boolean;
+};
+
 export const datamigratieService = {
   getMappingByDETZaaktypeId: (detZaaktypeId: string): Promise<ZaaktypeMapping> =>
     get<ZaaktypeMapping>(`/api/mapping/${detZaaktypeId}`),
@@ -73,5 +103,9 @@ export const datamigratieService = {
     get<MigrationRecordItem[]>(`/api/migration/${migrationId}/records`),
   getGlobalConfiguration: (): Promise<GlobalConfiguration> => get<GlobalConfiguration>(`/api/globalmapping`),
   updateGlobalConfiguration: (payload: UpdateGlobalConfiguration): Promise<GlobalConfiguration> =>
-    put<GlobalConfiguration>(`/api/globalmapping`, payload)
+    put<GlobalConfiguration>(`/api/globalmapping`, payload),
+  getStatusMappings: (detZaaktypeId: string): Promise<StatusMappingsResponse> =>
+    get<StatusMappingsResponse>(`/api/mappings/${detZaaktypeId}/statuses`),
+  saveStatusMappings: (payload: SaveStatusMappingsRequest): Promise<void> =>
+    post(`/api/mappings/${payload.detZaaktypeId}/statuses`, payload)
 };
