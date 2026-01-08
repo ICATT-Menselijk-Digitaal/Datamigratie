@@ -80,6 +80,53 @@
       </p>
     </prompt-modal>
 
+    <prompt-modal
+      :dialog="changeZaaktypeDialog"
+      cancel-text="Annuleren"
+      confirm-text="Ja, wijzig zaaktype"
+    >
+      <h2>OpenZaak zaaktype wijzigen</h2>
+
+      <p>
+        <strong>Let op:</strong> Als je het OpenZaak zaaktype wijzigt, worden alle bestaande
+        resultaattype mappings verwijderd. Je moet deze opnieuw instellen voor het nieuwe zaaktype.
+      </p>
+
+      <p>
+        Weet je zeker dat je het zaaktype wilt wijzigen?
+      </p>
+    </prompt-modal>
+
+    <!-- Resultaattype Mapping Section -->
+    <section v-if="mapping.detZaaktypeId && detZaaktype?.resultaten && selectedOzZaaktype?.resultaattypen">
+      <h2>Resultaattype Mapping</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>e-Suite Resultaat</th>
+            <th>OpenZaak Resultaattype</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="detResultaattype in sortedDetResultaten" :key="detResultaattype.resultaat.naam">
+            <td>{{ detResultaattype.resultaat.naam }}</td>
+            <td>
+              <select v-model="resultaattypeMappings[detResultaattype.resultaat.naam]" :disabled="isEditMode">
+                <option
+                  v-for="ozResultaattype in selectedOzZaaktype.resultaattypen"
+                  :key="ozResultaattype.id"
+                  :value="ozResultaattype.id"
+                >
+                  {{ ozResultaattype.omschrijving }}
+                </option>
+              </select>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <button type="button" @click="saveResultaattypeMappings" :disabled="isEditMode">Resultaattype mappings opslaan</button>
+    </section>
+
     <section v-if="!errors.length && migrationHistory.length > 0" class="migration-history">
       <h2>Migratie geschiedenis</h2>
       <p>Hieronder ziet u een overzicht van alle voltooide migraties voor dit zaaktype.</p>
@@ -120,7 +167,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useConfirmDialog } from "@vueuse/core";
 import AlertInline from "@/components/AlertInline.vue";
@@ -134,7 +181,8 @@ import {
   MigrationStatus,
   type ZaaktypeMapping,
   type UpdateZaaktypeMapping,
-  type MigrationHistoryItem
+  type MigrationHistoryItem,
+  type ResultaattypeMappingRequest
 } from "@/services/datamigratieService";
 import { knownErrorMessages } from "@/utils/fetchWrapper";
 import { useMigration } from "@/composables/use-migration-status";
@@ -147,13 +195,22 @@ const search = computed(() => String(route.query.search || "").trim());
 
 const detZaaktype = ref<DETZaaktype>();
 const ozZaaktypes = ref<OZZaaktype[]>();
+const selectedOzZaaktype = ref<OZZaaktype>();
 const mapping = ref({ ozZaaktypeId: "" } as ZaaktypeMapping);
 const migrationHistory = ref<MigrationHistoryItem[]>([]);
+const resultaattypeMappings = ref<Record<string, string>>({});
 
 const { migration, fetchMigration } = useMigration();
 
 const isEditMode = ref(false);
 const setEditMode = (value: boolean) => (isEditMode.value = value);
+
+const sortedDetResultaten = computed(() => {
+  if (!detZaaktype.value?.resultaten) return [];
+  return [...detZaaktype.value.resultaten].sort((a, b) =>
+    a.resultaat.naam.localeCompare(b.resultaat.naam)
+  );
+});
 
 const canStartMigration = computed(
   () =>
@@ -173,6 +230,8 @@ const loading = ref(false);
 const errors = ref<unknown[]>([]);
 
 const confirmDialog = useConfirmDialog();
+const changeZaaktypeDialog = useConfirmDialog();
+const previousOzZaaktypeId = ref<string>("");
 
 const formatDateTime = (dateString: string | null): string => {
   if (!dateString) return "-";
@@ -233,6 +292,27 @@ const fetchMappingData = async () => {
 };
 
 const submitMapping = async () => {
+  // Check if OZ zaaktype is changing and there are filled resultaattype mappings
+  if (mapping.value.detZaaktypeId &&
+      previousOzZaaktypeId.value &&
+      previousOzZaaktypeId.value !== mapping.value.ozZaaktypeId) {
+    const hasFilledMappings = Object.values(resultaattypeMappings.value).some(value => value !== "");
+
+    if (hasFilledMappings) {
+      // Show confirmation dialog
+      const result = await changeZaaktypeDialog.reveal();
+
+      if (result.isCanceled) {
+        // Revert the change
+        mapping.value.ozZaaktypeId = previousOzZaaktypeId.value;
+        return;
+      }
+
+      // Clear resultaattype mappings since they will be deleted on backend
+      resultaattypeMappings.value = {};
+    }
+  }
+
   loading.value = true;
 
   setEditMode(false);
@@ -250,6 +330,15 @@ const submitMapping = async () => {
 
       await datamigratieService.updateMapping(updatedMapping);
     }
+
+    // Update the previous value after successful save
+    if (mapping.value.ozZaaktypeId) {
+      previousOzZaaktypeId.value = mapping.value.ozZaaktypeId;
+    }
+
+    // After saving, fetch the new OZ zaaktype details and reload mappings
+    await fetchSelectedOzZaaktype();
+    await loadExistingResultaattypeMappings();
 
     toast.add({ text: "De mapping is succesvol opgeslagen." });
   } catch (err: unknown) {
@@ -282,6 +371,94 @@ const navigateToMigrationDetail = (migrationId: number) => {
     query: search.value ? { search: search.value } : undefined
   });
 };
+
+const fetchSelectedOzZaaktype = async () => {
+  if (!mapping.value.ozZaaktypeId) {
+    selectedOzZaaktype.value = undefined;
+    return;
+  }
+
+  try {
+    selectedOzZaaktype.value = await ozService.getZaaktypeById(mapping.value.ozZaaktypeId);
+  } catch (error: unknown) {
+    toast.add({ text: `Fout bij ophalen OZ Zaaktype: ${error}`, type: "error" });
+  }
+};
+
+const loadExistingResultaattypeMappings = async () => {
+  if (!mapping.value.detZaaktypeId) return;
+
+  try {
+    const existingMappings = await datamigratieService.getAllResultaattypeMappings(detZaaktypeId);
+    if (existingMappings && existingMappings.length > 0) {
+      existingMappings.forEach((mapping) => {
+        resultaattypeMappings.value[mapping.detResultaattypeId] = mapping.ozResultaattypeId;
+      });
+    }
+  } catch {
+    // No existing mappings found
+  }
+};
+
+const saveResultaattypeMappings = async () => {
+  if (!mapping.value.ozZaaktypeId) {
+    toast.add({ text: "Eerst een OpenZaak zaaktype selecteren", type: "error" });
+    return;
+  }
+
+  try {
+    // First, fetch existing mappings to know which ones to update vs create
+    const existingMappings = await datamigratieService.getAllResultaattypeMappings(detZaaktypeId);
+    const existingDetResultaattypeIds = new Set(existingMappings.map(m => m.detResultaattypeId));
+
+    for (const [detResultaatNaam, ozResultaattypeId] of Object.entries(resultaattypeMappings.value)) {
+      if (!ozResultaattypeId) continue;
+
+      const payload: ResultaattypeMappingRequest = {
+        ozZaaktypeId: mapping.value.ozZaaktypeId,
+        ozResultaattypeId: ozResultaattypeId
+      };
+
+      if (existingDetResultaattypeIds.has(detResultaatNaam)) {
+        await datamigratieService.updateResultaattypeMapping(detZaaktypeId, detResultaatNaam, payload);
+      } else {
+        await datamigratieService.createResultaattypeMapping(detZaaktypeId, detResultaatNaam, payload);
+      }
+    }
+
+    toast.add({ text: "Resultaattype mappings succesvol opgeslagen" });
+  } catch (error: unknown) {
+    toast.add({ text: `Fout bij opslaan: ${error}`, type: "error" });
+  }
+};
+
+watch(
+  () => mapping.value.ozZaaktypeId,
+  () => {
+    // Only process if not in edit mode
+    // In edit mode, changes shouldn't trigger any actions until saved
+    if (isEditMode.value) {
+      return;
+    }
+
+    // Fetch the new OZ zaaktype details
+    fetchSelectedOzZaaktype();
+  }
+);
+
+watch(
+  () => mapping.value.detZaaktypeId,
+  () => {
+    if (mapping.value.detZaaktypeId) {
+      fetchSelectedOzZaaktype();
+      loadExistingResultaattypeMappings();
+      // Store the initial OZ zaaktype ID
+      if (mapping.value.ozZaaktypeId) {
+        previousOzZaaktypeId.value = mapping.value.ozZaaktypeId;
+      }
+    }
+  }
+);
 
 onMounted(() => fetchMappingData());
 </script>
