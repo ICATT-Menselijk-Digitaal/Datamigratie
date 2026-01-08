@@ -1,4 +1,5 @@
 ﻿using Datamigratie.Common.Services.OpenZaak;
+using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Server.Features.Zaaktypen.ShowZaaktype.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,25 +10,16 @@ namespace Datamigratie.Server.Features.Zaaktypen.ShowZaaktype
     public class ShowZaaktypeController(IOpenZaakApiClient openZaakApiClient) : ControllerBase
     {
         [HttpGet("{zaaktypeId}")]
-        public async Task<ActionResult<EnrichedOzZaaktype>> GetEnrichedZaaktype(Guid zaaktypeId)
+        public async Task<ActionResult<OzZaaktypeDetails>> GetZaaktype(Guid zaaktypeId)
         {
-            var ozZaaktype = await openZaakApiClient.GetZaaktype(zaaktypeId);
-
-            if (ozZaaktype == null)
+            return new OzZaaktypeDetails
             {
-                return NotFound($"OZ Zaaktype is not found with id {zaaktypeId}");
-            }
-
-            var ozResultaattypen = await openZaakApiClient.GetResultaattypenForZaaktype(zaaktypeId);
-
-            var enrichedOzZaaktype = new EnrichedOzZaaktype
-            {
-                Url = ozZaaktype.Url,
-                Identificatie = ozZaaktype.Identificatie,
-                Resultaattypen = ozResultaattypen,
+                Resultaattypen = await openZaakApiClient.GetResultaattypenForZaaktype(zaaktypeId),
             };
-
-            return enrichedOzZaaktype == null ? NotFound() : enrichedOzZaaktype;
         }
+    }
+    public class OzZaaktypeDetails
+    {
+        public required List<OzResultaattype> Resultaattypen { get; set; }
     }
 }
