@@ -59,7 +59,7 @@ public class StartMigrationController(
 
                 if (unmappedResultaten.Count > 0)
                 {
-                    return BadRequest(new
+                    return Conflict(new
                     {
                         message = "Not all DET resultaattypen have been mapped to OZ resultaattypen.",
                         unmappedResultaten
