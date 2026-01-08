@@ -21,7 +21,7 @@ var migrations = builder
     .WithReference(dmtDb)
     .WaitFor(dmtDb);
 
-builder.AddProject<Projects.Datamigratie_FakeDet>("datamigratie-fakedet");
+var det = builder.AddProject<Projects.Datamigratie_FakeDet>("datamigratie-fakedet");
 
 var openzaak = builder.AddOpenZaak("openzaak")
     .WithReference(ozaakdb)
@@ -35,8 +35,15 @@ openzaak.AddInitScript(ozaakdb, "CatalogiInladen", Path.Combine("openzaak", "dat
 var proxy = openzaak.AddNginxProxy("OpenZaakProxy");
 
 builder.AddProject<Projects.Datamigratie_Server>("datamigratie-server")
+    .WithEnvironment("OpenZaakApi__BaseUrl", openzaak.GetEndpoint("http"))
+    .WithEnvironment("OpenZaakApi__ApiKey", "super-secret-with-a-lot-of-characters")
+    .WithEnvironment("OpenZaakApi__ApiUser", "user-id")
+    .WithEnvironment("DetApi__BaseUrl", det.GetEndpoint("http"))
+    .WithEnvironment("DetApi__ApiKey", "super-secret")
     .WithReference(dmtDb)
     .WaitFor(dmtDb)
+    .WaitFor(openzaak)
+    .WaitFor(det)
     .WaitForCompletion(migrations);
 
 builder.Build().Run();
