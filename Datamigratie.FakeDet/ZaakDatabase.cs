@@ -4,15 +4,17 @@ using System.Text.Json;
 using Datamigratie.Common.Services.Det.Models;
 
 namespace Datamigratie.FakeDet;
-public class ZaakDatabase
+public class ZaakDatabase(IConfiguration configuration)
 {
-    public static async IAsyncEnumerable<DetZaakMinimal> GetZakenByZaaktype(string zaaktype, int page)
+    private readonly string _outputPath = configuration["ZAKEN_PATH"] is  {} p && !string.IsNullOrWhiteSpace(p) ? p : Path.GetFullPath("output");
+
+    public async IAsyncEnumerable<DetZaakMinimal> GetZakenByZaaktype(string zaaktype, int page)
     {
         const int pageSize = 20;
         var skip = (page - 1) * pageSize;
         
         var encoded = Uri.EscapeDataString(zaaktype);
-        var path = Path.Combine(Environment.CurrentDirectory, "Zaken", encoded + ".zip");
+        var path = Path.Combine(_outputPath, encoded + ".zip");
         if (!File.Exists(path)) yield break;
         await using var stream = File.OpenRead(path);
         await using var zip = await ZipArchive.CreateAsync(stream, ZipArchiveMode.Read, false, Encoding.UTF8);
@@ -25,7 +27,7 @@ public class ZaakDatabase
         }
     }
 
-    public static async Task<DetZaak?> GetZaak(string functioneleIdentificatie)
+    public async Task<DetZaak?> GetZaak(string functioneleIdentificatie)
     {
         var encoded = Uri.EscapeDataString(functioneleIdentificatie);
         var files = GetAllZipFiles();
@@ -47,9 +49,9 @@ public class ZaakDatabase
         return await JsonSerializer.DeserializeAsync<DetZaak>(openedEntry, JsonSerializerOptions.Web);
     }
 
-    public static async Task<IReadOnlyDictionary<long, string>> GetDocumentDictionary()
+    public async Task<IReadOnlyDictionary<long, string>> GetDocumentDictionary()
     {
-        var path = Path.Combine(Environment.CurrentDirectory, "Zaken", "document-inhoud-registry.zip");
+        var path = Path.Combine(_outputPath, "document-inhoud-registry.zip");
         await using var stream = File.OpenRead(path);
         await using var zip = await ZipArchive.CreateAsync(stream, ZipArchiveMode.Read, false, Encoding.UTF8);
         var entry = zip.Entries[0];
@@ -58,10 +60,9 @@ public class ZaakDatabase
         return result ?? new();
     }
 
-    private static IEnumerable<string> GetAllZipFiles()
+    private IEnumerable<string> GetAllZipFiles()
     {
-        var path = Path.Combine(Environment.CurrentDirectory, "Zaken");
-        var files = Directory.GetFiles(path, "*.zip");
+        var files = Directory.GetFiles(_outputPath, "*.zip");
         return files.Where(x => !x.EndsWith("document-inhoud-registry.zip", StringComparison.OrdinalIgnoreCase));
     }
 }
