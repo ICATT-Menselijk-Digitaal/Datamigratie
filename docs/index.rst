@@ -14,3 +14,4 @@ De Datamigratie Tool (DMT) stelt gemeenten in staat om zaken te migreren vanuit 
    installation/index
    manual/index
    configuration/index
+   changelog/changelog.md
