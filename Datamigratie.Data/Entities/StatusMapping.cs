@@ -8,15 +8,13 @@ public class StatusMapping
     public int Id { get; set; }
     
     [Required]
-    public required string DetZaaktypeId { get; set; }
+    public required Guid ZaaktypenMappingId { get; set; }
+    
+    public ZaaktypenMapping ZaaktypenMapping { get; set; } = null!;
     
     [Required]
     public required string DetStatusNaam { get; set; }
     
     [Required]
     public required Guid OzStatustypeId { get; set; }
-    
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    
-    public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
 }

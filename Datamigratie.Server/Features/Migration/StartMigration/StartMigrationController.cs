@@ -3,7 +3,7 @@ using Datamigratie.Server.Features.Migration.StartMigration.Queues;
 using Datamigratie.Server.Features.Migration.StartMigration.Queues.Items;
 using Datamigratie.Server.Features.Migration.StartMigration.State;
 using Datamigratie.Server.Helpers;
-using Datamigratie.Server.Features.Mapping.StatusMapping.Services;
+using Datamigratie.Server.Features.Mapping.StatusMapping.ValidateStatusMappings.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Datamigratie.Data;
@@ -16,7 +16,7 @@ public class StartMigrationController(
     MigrationWorkerState workerState, 
     IMigrationBackgroundTaskQueue backgroundTaskQueue,
     DatamigratieDbContext dbContext,
-    IStatusMappingService statusMappingService,
+    IValidateStatusMappingsService validateStatusMappingsService,
     ILogger<StartMigrationController> logger) : ControllerBase
 {
     [HttpPost("start")]
@@ -30,7 +30,7 @@ public class StartMigrationController(
         try
         {
             // validating all statuses are mapped before starting migration
-            var allStatusesMapped = await statusMappingService.AreAllStatusesMapped(request.DetZaaktypeId);
+            var allStatusesMapped = await validateStatusMappingsService.AreAllStatusesMapped(request.DetZaaktypeId);
             if (!allStatusesMapped)
             {
                 return BadRequest(new { message = "Not all DET statuses have been mapped to OZ statuses. Please configure status mappings first." });

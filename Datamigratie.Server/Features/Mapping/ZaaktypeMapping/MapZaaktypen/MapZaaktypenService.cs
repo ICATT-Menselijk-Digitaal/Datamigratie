@@ -51,19 +51,17 @@ namespace Datamigratie.Server.Features.Mapping.ZaaktypeMapping.MapZaaktypen
             if (currentMapping.OzZaaktypeId != newOzZaaktypeId)
             {
                 var statusMappings = await context.StatusMappings
-                    .Where(sm => sm.DetZaaktypeId == detZaaktypeId)
+                    .Where(sm => sm.ZaaktypenMappingId == currentMapping.Id)
                     .ToListAsync();
 
                 if (statusMappings.Count != 0)
                 {
                     context.StatusMappings.RemoveRange(statusMappings);
+                    await context.SaveChangesAsync();
                 }
             }
 
-            await context.Mappings
-                .Where(m => m.DetZaaktypeId == detZaaktypeId)
-                .ExecuteUpdateAsync(m => m.SetProperty(x => x.OzZaaktypeId, newOzZaaktypeId));
-
+            currentMapping.OzZaaktypeId = newOzZaaktypeId;
             await context.SaveChangesAsync();
         }
 

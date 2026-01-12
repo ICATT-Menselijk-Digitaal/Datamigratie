@@ -50,7 +50,6 @@
       </dd>
     </dl>
 
-    <!-- Status Mapping Section -->
     <status-mapping-section
       :det-zaaktype="detZaaktype"
       :oz-zaaktype="ozZaaktype"
