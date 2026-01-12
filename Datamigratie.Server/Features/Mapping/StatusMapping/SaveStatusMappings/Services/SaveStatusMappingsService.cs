@@ -6,30 +6,22 @@ namespace Datamigratie.Server.Features.Mapping.StatusMapping.SaveStatusMappings.
 
 public interface ISaveStatusMappingsService
 {
-    Task SaveStatusMappings(SaveStatusMappingsRequest request);
+    Task SaveStatusMappings(Guid zaaktypenMappingId, SaveStatusMappingsRequest request);
 }
 
 public class SaveStatusMappingsService(DatamigratieDbContext context) : ISaveStatusMappingsService
 {
-    public async Task SaveStatusMappings(SaveStatusMappingsRequest request)
+    public async Task SaveStatusMappings(Guid zaaktypenMappingId, SaveStatusMappingsRequest request)
     {
-        var zaaktypenMapping = await context.Mappings
-            .FirstOrDefaultAsync(m => m.DetZaaktypeId == request.DetZaaktypeId);
-
-        if (zaaktypenMapping == null)
-        {
-            throw new InvalidOperationException($"No zaaktypen mapping found for DetZaaktypeId: {request.DetZaaktypeId}");
-        }
-
         var existingMappings = await context.StatusMappings
-            .Where(sm => sm.ZaaktypenMappingId == zaaktypenMapping.Id)
+            .Where(sm => sm.ZaaktypenMappingId == zaaktypenMappingId)
             .ToListAsync();
         
         context.StatusMappings.RemoveRange(existingMappings);
 
         var newMappings = request.Mappings.Select(m => new Data.Entities.StatusMapping
         {
-            ZaaktypenMappingId = zaaktypenMapping.Id,
+            ZaaktypenMappingId = zaaktypenMappingId,
             DetStatusNaam = m.DetStatusNaam,
             OzStatustypeId = m.OzStatustypeId
         });

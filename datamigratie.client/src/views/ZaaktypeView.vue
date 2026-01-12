@@ -240,7 +240,7 @@ const fetchStatusMappings = async () => {
     ozZaaktype.value = await ozService.getZaaktypeById(mapping.value.ozZaaktypeId);
     
     // Fetch existing mappings
-    const mappingsData = await datamigratieService.getStatusMappings(detZaaktypeId);
+    const mappingsData = await datamigratieService.getStatusMappings(mapping.value.id);
     
     // Build complete mapping list from DET statuses
     const activeDetStatuses = detZaaktype.value?.statuses?.filter(s => s.actief) || [];
@@ -273,8 +273,7 @@ const saveStatusMappings = async () => {
     
     console.log('mappingsToSave:', JSON.stringify(mappingsToSave, null, 2));
 
-    await datamigratieService.saveStatusMappings({
-      detZaaktypeId,
+    await datamigratieService.saveStatusMappings(mapping.value.id, {
       mappings: mappingsToSave
     });
 

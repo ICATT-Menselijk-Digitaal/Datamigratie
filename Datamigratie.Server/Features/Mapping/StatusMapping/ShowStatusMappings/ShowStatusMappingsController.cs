@@ -5,14 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace Datamigratie.Server.Features.Mapping.StatusMapping.ShowStatusMappings;
 
 [ApiController]
-[Route("api/mappings/{detZaaktypeId}/statuses")]
+[Route("api/mappings/{zaaktypenMappingId:guid}/statuses")]
 public class ShowStatusMappingsController(IShowStatusMappingsService showStatusMappingsService) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<StatusMappingsResponse>> GetStatusMappings(
-        [FromRoute] string detZaaktypeId)
+        [FromRoute] Guid zaaktypenMappingId)
     {
-        var result = await showStatusMappingsService.GetStatusMappings(detZaaktypeId);
+        var result = await showStatusMappingsService.GetStatusMappings(zaaktypenMappingId);
         return Ok(result);
     }
 }

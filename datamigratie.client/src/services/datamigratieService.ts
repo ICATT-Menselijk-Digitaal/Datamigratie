@@ -1,6 +1,7 @@
 import { get, post, put } from "@/utils/fetchWrapper";
 
 export type ZaaktypeMapping = {
+  id: string;
   detZaaktypeId: string;
   ozZaaktypeId: string;
 };
@@ -80,7 +81,6 @@ export type StatusMappingsResponse = {
 };
 
 export type SaveStatusMappingsRequest = {
-  detZaaktypeId: string;
   mappings: StatusMappingItem[];
 };
 
@@ -104,8 +104,8 @@ export const datamigratieService = {
   getGlobalConfiguration: (): Promise<GlobalConfiguration> => get<GlobalConfiguration>(`/api/globalmapping`),
   updateGlobalConfiguration: (payload: UpdateGlobalConfiguration): Promise<GlobalConfiguration> =>
     put<GlobalConfiguration>(`/api/globalmapping`, payload),
-  getStatusMappings: (detZaaktypeId: string): Promise<StatusMappingsResponse> =>
-    get<StatusMappingsResponse>(`/api/mappings/${detZaaktypeId}/statuses`),
-  saveStatusMappings: (payload: SaveStatusMappingsRequest): Promise<void> =>
-    post(`/api/mappings/${payload.detZaaktypeId}/statuses`, payload)
+  getStatusMappings: (zaaktypenMappingId: string): Promise<StatusMappingsResponse> =>
+    get<StatusMappingsResponse>(`/api/mappings/${zaaktypenMappingId}/statuses`),
+  saveStatusMappings: (zaaktypenMappingId: string, payload: SaveStatusMappingsRequest): Promise<void> =>
+    post(`/api/mappings/${zaaktypenMappingId}/statuses`, payload)
 };
