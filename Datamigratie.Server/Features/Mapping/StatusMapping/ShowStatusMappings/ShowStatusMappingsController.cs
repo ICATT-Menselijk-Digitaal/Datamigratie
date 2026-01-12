@@ -9,7 +9,7 @@ namespace Datamigratie.Server.Features.Mapping.StatusMapping.ShowStatusMappings;
 public class ShowStatusMappingsController(IShowStatusMappingsService showStatusMappingsService) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<StatusMappingsResponse>> GetStatusMappings(
+    public async Task<ActionResult<List<StatusMappingsResponse>>> GetStatusMappings(
         [FromRoute] Guid zaaktypenMappingId)
     {
         var result = await showStatusMappingsService.GetStatusMappings(zaaktypenMappingId);

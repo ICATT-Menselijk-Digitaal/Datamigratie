@@ -77,7 +77,8 @@ export type StatusMappingItem = {
 };
 
 export type StatusMappingsResponse = {
-  mappings: StatusMappingItem[];
+  detStatusNaam: string;
+  ozStatustypeId: string;
 };
 
 export type SaveStatusMappingsRequest = {
@@ -104,8 +105,8 @@ export const datamigratieService = {
   getGlobalConfiguration: (): Promise<GlobalConfiguration> => get<GlobalConfiguration>(`/api/globalmapping`),
   updateGlobalConfiguration: (payload: UpdateGlobalConfiguration): Promise<GlobalConfiguration> =>
     put<GlobalConfiguration>(`/api/globalmapping`, payload),
-  getStatusMappings: (zaaktypenMappingId: string): Promise<StatusMappingsResponse> =>
-    get<StatusMappingsResponse>(`/api/mappings/${zaaktypenMappingId}/statuses`),
+  getStatusMappings: (zaaktypenMappingId: string): Promise<StatusMappingsResponse[]> =>
+    get<StatusMappingsResponse[]>(`/api/mappings/${zaaktypenMappingId}/statuses`),
   saveStatusMappings: (zaaktypenMappingId: string, payload: SaveStatusMappingsRequest): Promise<void> =>
     post(`/api/mappings/${zaaktypenMappingId}/statuses`, payload)
 };

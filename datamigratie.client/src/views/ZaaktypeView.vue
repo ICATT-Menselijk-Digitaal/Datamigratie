@@ -245,7 +245,7 @@ const fetchStatusMappings = async () => {
     // Build complete mapping list from DET statuses
     const activeDetStatuses = detZaaktype.value?.statuses?.filter(s => s.actief) || [];
     statusMappings.value = activeDetStatuses.map(detStatus => {
-      const existingMapping = mappingsData.mappings.find(m => m.detStatusNaam === detStatus.naam);
+      const existingMapping = mappingsData.find(m => m.detStatusNaam === detStatus.naam);
       return existingMapping || {
         detStatusNaam: detStatus.naam,
         ozStatustypeId: null
