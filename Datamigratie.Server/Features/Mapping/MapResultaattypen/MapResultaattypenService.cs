@@ -6,20 +6,29 @@ namespace Datamigratie.Server.Features.Mapping.MapResultaattypen
 {
     public interface IMapResultaattypenService
     {
-        Task CreateResultaattypeMapping(string detZaaktypeId, string detResultaattypeId, Guid ozZaaktypeId, Guid ozResultaattypeId);
+        Task CreateResultaattypeMapping(string detZaaktypeId, string detResultaattypeId, Guid ozResultaattypeId);
 
-        Task UpdateResultaattypeMapping(string detZaaktypeId, string detResultaattypeId, Guid ozZaaktypeId, Guid updatedOzResultaattypeId);
+        Task UpdateResultaattypeMapping(string detZaaktypeId, string detResultaattypeId, Guid updatedOzResultaattypeId);
     }
 
     public class MapResultaattypenService(DatamigratieDbContext context) : IMapResultaattypenService
     {
-        public async Task CreateResultaattypeMapping(string detZaaktypeId, string detResultaattypeId, Guid ozZaaktypeId, Guid ozResultaattypeId)
+        public async Task CreateResultaattypeMapping(string detZaaktypeId, string detResultaattypeId, Guid ozResultaattypeId)
         {
+            // Look up the ZaaktypenMapping based on DetZaaktypeId
+            var zaaktypenMapping = await context.Mappings
+                .Where(m => m.DetZaaktypeId == detZaaktypeId)
+                .FirstOrDefaultAsync();
+
+            if (zaaktypenMapping == null)
+            {
+                throw new InvalidOperationException($"No ZaaktypenMapping found for DET Zaaktype '{detZaaktypeId}'. Please create a zaaktype mapping first.");
+            }
+
             var mapping = new ResultaattypeMapping
             {
-                DetZaaktypeId = detZaaktypeId,
+                ZaaktypenMappingId = zaaktypenMapping.Id,
                 DetResultaattypeId = detResultaattypeId,
-                OzZaaktypeId = ozZaaktypeId,
                 OzResultaattypeId = ozResultaattypeId
             };
 
@@ -27,12 +36,21 @@ namespace Datamigratie.Server.Features.Mapping.MapResultaattypen
             await context.SaveChangesAsync();
         }
 
-        public async Task UpdateResultaattypeMapping(string detZaaktypeId, string detResultaattypeId, Guid ozZaaktypeId, Guid updatedOzResultaattypeId)
+        public async Task UpdateResultaattypeMapping(string detZaaktypeId, string detResultaattypeId, Guid updatedOzResultaattypeId)
         {
+            // Look up the ZaaktypenMapping based on DetZaaktypeId
+            var zaaktypenMapping = await context.Mappings
+                .Where(m => m.DetZaaktypeId == detZaaktypeId)
+                .FirstOrDefaultAsync();
+
+            if (zaaktypenMapping == null)
+            {
+                throw new InvalidOperationException($"No ZaaktypenMapping found for DET Zaaktype '{detZaaktypeId}'.");
+            }
+
             var rowsAffected = await context.ResultaattypeMappings
-                .Where(m => m.DetZaaktypeId == detZaaktypeId && m.DetResultaattypeId == detResultaattypeId)
+                .Where(m => m.ZaaktypenMappingId == zaaktypenMapping.Id && m.DetResultaattypeId == detResultaattypeId)
                 .ExecuteUpdateAsync(m => m
-                    .SetProperty(x => x.OzZaaktypeId, ozZaaktypeId)
                     .SetProperty(x => x.OzResultaattypeId, updatedOzResultaattypeId));
 
             if (rowsAffected == 0)

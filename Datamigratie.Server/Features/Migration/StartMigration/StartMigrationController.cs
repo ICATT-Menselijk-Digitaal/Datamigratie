@@ -48,7 +48,8 @@ public class StartMigrationController(
             if (detZaaktype.Resultaten != null && detZaaktype.Resultaten.Count > 0)
             {
                 var existingMappings = await dbContext.ResultaattypeMappings
-                    .Where(m => m.DetZaaktypeId == request.DetZaaktypeId)
+                    .Include(m => m.ZaaktypenMapping)
+                    .Where(m => m.ZaaktypenMapping.DetZaaktypeId == request.DetZaaktypeId)
                     .Select(m => m.DetResultaattypeId)
                     .ToListAsync();
 

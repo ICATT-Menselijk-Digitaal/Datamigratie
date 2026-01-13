@@ -53,8 +53,10 @@ namespace Datamigratie.Server.Features.Mapping.ZaaktypeMapping.MapZaaktypen
 
             if (mapping.OzZaaktypeId != newOzZaaktypeId) {
                 // Delete all existing resultaattype mappings for this zaaktype
+                // Note: These will be automatically deleted when the zaaktypen mapping is deleted
+                // due to the cascade delete relationship
                 await context.ResultaattypeMappings
-                    .Where(m => m.DetZaaktypeId == detZaaktypeId)
+                    .Where(m => m.ZaaktypenMappingId == mapping.Id)
                     .ExecuteDeleteAsync();
 
                 // Update the mapping

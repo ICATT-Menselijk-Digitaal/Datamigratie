@@ -14,14 +14,13 @@ namespace Datamigratie.Server.Features.Mapping.ShowResultaattypeMapping
         public async Task<List<ResultaattypeMappingResponse>> GetAllResultaattypeMappingsForZaaktype(string detZaaktypeId)
         {
             var resultaattypeMappingEntities = await context.ResultaattypeMappings
-                .Where(m => m.DetZaaktypeId == detZaaktypeId)
+                .Include(m => m.ZaaktypenMapping)
+                .Where(m => m.ZaaktypenMapping.DetZaaktypeId == detZaaktypeId)
                 .ToListAsync();
 
             return [.. resultaattypeMappingEntities.Select(entity => new ResultaattypeMappingResponse
             {
-                DetZaaktypeId = entity.DetZaaktypeId,
                 DetResultaattypeId = entity.DetResultaattypeId,
-                OzZaaktypeId = entity.OzZaaktypeId,
                 OzResultaattypeId = entity.OzResultaattypeId
             })];
         }
