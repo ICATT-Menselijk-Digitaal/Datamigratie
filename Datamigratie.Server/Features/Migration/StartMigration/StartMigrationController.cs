@@ -3,7 +3,8 @@ using Datamigratie.Server.Features.Migration.StartMigration.Queues;
 using Datamigratie.Server.Features.Migration.StartMigration.Queues.Items;
 using Datamigratie.Server.Features.Migration.StartMigration.State;
 using Datamigratie.Server.Helpers;
-using Datamigratie.Server.Features.Mapping.StatusMapping.ValidateStatusMappings.Services;
+using Datamigratie.Server.Features.Mapping.StatusMapping.ValidateMappings.Services;
+using Datamigratie.Server.Features.Mapping.Resultaattypen.ValidateMappings.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Datamigratie.Data;
@@ -17,7 +18,8 @@ public class StartMigrationController(
     MigrationWorkerState workerState,
     IMigrationBackgroundTaskQueue backgroundTaskQueue,
     DatamigratieDbContext dbContext,
-    IValidateMappingsService validateStatusMappingsService,
+    IValidateStatusMappingsService validateStatusMappingsService,
+    IValidateResultaattypeMappingsService validateResultaattypeMappingsService,
     IDetApiClient detApiClient,
     ILogger<StartMigrationController> logger) : ControllerBase
 {
@@ -45,7 +47,7 @@ public class StartMigrationController(
                 return BadRequest(new { message = "Not all DET statuses have been mapped to OZ statuses. Please configure status mappings first." });
             }
 
-            var allResultaattypenMapped = await validateStatusMappingsService.AreAllResultaattypenMapped(detZaaktype);
+            var allResultaattypenMapped = await validateResultaattypeMappingsService.AreAllResultaattypenMapped(detZaaktype);
             if (!allResultaattypenMapped)
             {
                 return BadRequest(new { message = "Not all DET Resultaattypen have been mapped to OZ resultaattypen. Please configure resultaattypen mappings first." });

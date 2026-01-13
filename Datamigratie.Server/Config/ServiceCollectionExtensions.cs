@@ -14,7 +14,8 @@ using Datamigratie.Server.Features.Mapping.ZaaktypeMapping.MapZaaktypen;
 using Datamigratie.Server.Features.Zaaktypen.ShowOzZaaktypen;
 using Datamigratie.Server.Features.Mapping.StatusMapping.ShowStatusMappings.Services;
 using Datamigratie.Server.Features.Mapping.StatusMapping.SaveStatusMappings.Services;
-using Datamigratie.Server.Features.Mapping.StatusMapping.ValidateStatusMappings.Services;
+using Datamigratie.Server.Features.Mapping.StatusMapping.ValidateMappings.Services;
+using Datamigratie.Server.Features.Mapping.Resultaattypen.ValidateMappings.Services;
 
 namespace Datamigratie.Server.Config
 {
@@ -37,7 +38,8 @@ namespace Datamigratie.Server.Config
             services.AddScoped<IGetMigrationRecordsService, GetMigrationRecordsService>();
             services.AddScoped<IShowStatusMappingsService, ShowStatusMappingsService>();
             services.AddScoped<ISaveStatusMappingsService, SaveStatusMappingsService>();
-            services.AddScoped<IValidateMappingsService, ValidateMappingsService>();
+            services.AddScoped<IValidateStatusMappingsService, ValidateStatusMappingsService>();
+            services.AddScoped<IValidateResultaattypeMappingsService, ValidateResultaattypeMappingsService>();
 
             services.AddHostedService<StartMigrationBackgroundService>();
             services.AddSingleton<IMigrationBackgroundTaskQueue>(ctx =>
