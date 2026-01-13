@@ -44,14 +44,25 @@ namespace Datamigratie.Server.Features.Mapping.ZaaktypeMapping.MapZaaktypen
         {
             await ValidateOzZaaktypeExistsAsync(newOzZaaktypeId);
 
-            var rowsAffected = await context.Mappings
-                .Where(m => m.DetZaaktypeId == detZaaktypeId)
-                .ExecuteUpdateAsync(m => m.SetProperty(x => x.OzZaaktypeId, newOzZaaktypeId));
+            var currentMapping = await context.Mappings
+                .FirstOrDefaultAsync(m => m.DetZaaktypeId == detZaaktypeId) ?? throw new InvalidOperationException($"Mapping for Det zaaktype ID '{detZaaktypeId}' does not exist.");
 
-            if (rowsAffected == 0)
+            // delete status mappings if the OZ zaaktype is being changed
+            if (currentMapping.OzZaaktypeId != newOzZaaktypeId)
             {
-                throw new InvalidOperationException($"Mapping for Det zaaktype ID '{detZaaktypeId}' does not exist.");
+                var statusMappings = await context.StatusMappings
+                    .Where(sm => sm.ZaaktypenMappingId == currentMapping.Id)
+                    .ToListAsync();
+
+                if (statusMappings.Count != 0)
+                {
+                    context.StatusMappings.RemoveRange(statusMappings);
+                    await context.SaveChangesAsync();
+                }
             }
+
+            currentMapping.OzZaaktypeId = newOzZaaktypeId;
+            await context.SaveChangesAsync();
         }
 
         private async Task ValidateOzZaaktypeExistsAsync(Guid ozZaaktypeId)

@@ -3,6 +3,7 @@ using System;
 using Datamigratie.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Datamigratie.Data.Migrations
 {
     [DbContext(typeof(DatamigratieDbContext))]
-    partial class DatamigratieDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251229105039_AddStatusMapping")]
+    partial class AddStatusMapping
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,26 +24,6 @@ namespace Datamigratie.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("Datamigratie.Data.Entities.GlobalConfiguration", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Rsin")
-                        .HasMaxLength(9)
-                        .HasColumnType("character varying(9)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("GlobalConfigurations");
-                });
 
             modelBuilder.Entity("Datamigratie.Data.Entities.Migration", b =>
                 {
@@ -83,7 +66,7 @@ namespace Datamigratie.Data.Migrations
                     b.Property<int>("SuccessfulRecords")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("TotalRecords")
+                    b.Property<int>("TotalRecords")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -145,21 +128,24 @@ namespace Datamigratie.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("DetStatusNaam")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("DetZaaktypeId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("OzStatustypeId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("ZaaktypenMappingId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("ZaaktypenMappingId", "DetStatusNaam")
-                        .IsUnique()
-                        .HasDatabaseName("IX_StatusMapping_ZaaktypenMappingId_DetStatusNaam_Unique");
 
                     b.ToTable("StatusMappings");
                 });
@@ -195,17 +181,6 @@ namespace Datamigratie.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Migration");
-                });
-
-            modelBuilder.Entity("Datamigratie.Data.Entities.StatusMapping", b =>
-                {
-                    b.HasOne("Datamigratie.Data.Entities.ZaaktypenMapping", "ZaaktypenMapping")
-                        .WithMany()
-                        .HasForeignKey("ZaaktypenMappingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ZaaktypenMapping");
                 });
 #pragma warning restore 612, 618
         }
