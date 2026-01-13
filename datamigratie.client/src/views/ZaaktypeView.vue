@@ -22,10 +22,18 @@
       <dd>{{ detZaaktype?.closedZakenCount }}</dd>
 
       <dt id="mapping">Koppeling OZ zaaktype:</dt>
-      <dd v-if="canStartMigration || isThisMigrationRunning">
+      <dd v-if="!isEditingZaaktypeMapping && mapping.detZaaktypeId" class="mapping-display">
         {{ ozZaaktypes?.find((type) => type.id == mapping.ozZaaktypeId)?.identificatie }}
+        <button 
+          type="button" 
+          class="secondary mapping-edit-button"
+          @click="setEditingZaaktypeMapping(true)"
+          v-if="!isThisMigrationRunning"
+        >
+          Mapping aanpassen
+        </button>
       </dd>
-      <dd v-else>
+      <dd v-else class="mapping-controls">
         <select
           name="ozZaaktypeId"
           aria-labelledby="mapping"
@@ -38,8 +46,23 @@
             {{ identificatie }}
           </option>
         </select>
+        <button type="submit" class="mapping-save-button">Mapping opslaan</button>
       </dd>
     </dl>
+
+    <status-mapping-section
+      :det-zaaktype="detZaaktype"
+      :oz-zaaktype="ozZaaktype"
+      :status-mappings="statusMappings"
+      :all-mapped="statusMappingsComplete"
+      :is-editing="isEditingStatusMapping"
+      :disabled="isThisMigrationRunning"
+      :loading="!ozZaaktype"
+      :show-warning="!!mapping.detZaaktypeId"
+      :show-mapping="showStatusMapping"
+      @update:status-mappings="statusMappings = $event"
+      @save="saveStatusMappings"
+    />
 
     <menu class="reset">
       <li>
@@ -51,13 +74,9 @@
       </li>
 
       <template v-if="!errors.length && !isThisMigrationRunning">
-        <li v-if="!canStartMigration">
-          <button type="submit">Mapping opslaan</button>
-        </li>
-
-        <li v-else>
-          <button type="button" class="secondary" @click="setEditMode(true)">
-            Mapping aanpassen
+        <li v-if="canStartMigration && statusMappingsComplete">
+          <button type="button" class="secondary" @click="setEditingStatusMapping(true)">
+            Statusmappings aanpassen
           </button>
         </li>
 
@@ -79,6 +98,12 @@
         <em>{{ detZaaktype?.naam }}</em> wilt starten?
       </p>
     </prompt-modal>
+
+    <zaaktype-change-confirmation-modal
+      :dialog="confirmOzZaaktypeChangeDialog"
+      warning-text="Als je het Open Zaak zaaktype wijzigt, worden alle bestaande statusmappings verwijderd."
+      description-text="Je moet de statusmappings opnieuw configureren voor het nieuwe zaaktype."
+    />
 
     <section v-if="!errors.length && migrationHistory.length > 0" class="migration-history">
       <h2>Migratie geschiedenis</h2>
@@ -126,6 +151,8 @@ import { useConfirmDialog } from "@vueuse/core";
 import AlertInline from "@/components/AlertInline.vue";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
 import PromptModal from "@/components/PromptModal.vue";
+import StatusMappingSection from "@/components/StatusMappingSection.vue";
+import ZaaktypeChangeConfirmationModal from "@/components/ZaaktypeChangeConfirmationModal.vue";
 import toast from "@/components/toast/toast";
 import { detService, type DETZaaktype } from "@/services/detService";
 import { ozService, type OZZaaktype } from "@/services/ozService";
@@ -134,11 +161,11 @@ import {
   MigrationStatus,
   type ZaaktypeMapping,
   type UpdateZaaktypeMapping,
-  type MigrationHistoryItem
+  type MigrationHistoryItem,
+  type StatusMappingItem
 } from "@/services/datamigratieService";
 import { knownErrorMessages } from "@/utils/fetchWrapper";
 import { useMigration } from "@/composables/use-migration-status";
-import { formatDateTime } from "@/utils/dateTimeHelpers";
 
 const { detZaaktypeId } = defineProps<{ detZaaktypeId: string }>();
 
@@ -147,21 +174,33 @@ const router = useRouter();
 const search = computed(() => String(route.query.search || "").trim());
 
 const detZaaktype = ref<DETZaaktype>();
+const ozZaaktype = ref<OZZaaktype>();
 const ozZaaktypes = ref<OZZaaktype[]>();
 const mapping = ref({ ozZaaktypeId: "" } as ZaaktypeMapping);
 const migrationHistory = ref<MigrationHistoryItem[]>([]);
 
+const statusMappings = ref<StatusMappingItem[]>([]);
+const statusMappingsComplete = ref(false);
+const showStatusMapping = computed(() => !!(mapping.value.detZaaktypeId && mapping.value.ozZaaktypeId));
+
 const { migration, fetchMigration } = useMigration();
 
-const isEditMode = ref(false);
-const setEditMode = (value: boolean) => (isEditMode.value = value);
+const isEditingZaaktypeMapping = ref(false);
+const setEditingZaaktypeMapping = (value: boolean) => (isEditingZaaktypeMapping.value = value);
+
+const isEditingStatusMapping = ref(false);
+const setEditingStatusMapping = (value: boolean) => (isEditingStatusMapping.value = value);
+
+const previousOzZaaktypeId = ref<string>("");
 
 const canStartMigration = computed(
   () =>
     mapping.value.detZaaktypeId &&
     mapping.value.ozZaaktypeId &&
     migration.value?.status !== MigrationStatus.inProgress &&
-    !isEditMode.value
+    !isEditingZaaktypeMapping.value &&
+    !isEditingStatusMapping.value &&
+    statusMappingsComplete.value
 );
 
 const isThisMigrationRunning = computed(
@@ -174,6 +213,84 @@ const loading = ref(false);
 const errors = ref<unknown[]>([]);
 
 const confirmDialog = useConfirmDialog();
+const confirmOzZaaktypeChangeDialog = useConfirmDialog();
+
+const formatDateTime = (dateString: string | null): string => {
+  if (!dateString) return "-";
+  const date = new Date(dateString);
+  return date.toLocaleString("nl-NL", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+};
+
+const fetchStatusMappings = async () => {
+  if (!mapping.value.ozZaaktypeId) {
+    ozZaaktype.value = undefined;
+    statusMappings.value = [];
+    statusMappingsComplete.value = false;
+    return;
+  }
+
+  try {
+    // Fetch OZ zaaktype with statustypes
+    ozZaaktype.value = await ozService.getZaaktypeById(mapping.value.ozZaaktypeId);
+    
+    // Fetch existing mappings
+    const mappingsData = await datamigratieService.getStatusMappings(mapping.value.id);
+    
+    // Build complete mapping list from DET statuses
+    const activeDetStatuses = detZaaktype.value?.statuses?.filter(s => s.actief) || [];
+    statusMappings.value = activeDetStatuses.map(detStatus => {
+      const existingMapping = mappingsData.find(m => m.detStatusNaam === detStatus.naam);
+      return existingMapping || {
+        detStatusNaam: detStatus.naam,
+        ozStatustypeId: null
+      };
+    });
+
+    // Check if all statuses are mapped
+    statusMappingsComplete.value = statusMappings.value.length > 0 && 
+      statusMappings.value.every(m => m.ozStatustypeId !== null);
+  } catch (err: unknown) {
+    console.error("Error fetching status mappings:", err);
+    ozZaaktype.value = undefined;
+    statusMappings.value = [];
+    statusMappingsComplete.value = false;
+  }
+};
+
+const saveStatusMappings = async () => {
+  loading.value = true;
+
+  try {
+    console.log('statusMappings.value:', JSON.stringify(statusMappings.value, null, 2));
+    
+    const mappingsToSave = statusMappings.value.filter(m => m.ozStatustypeId !== null);
+    
+    console.log('mappingsToSave:', JSON.stringify(mappingsToSave, null, 2));
+
+    await datamigratieService.saveStatusMappings(mapping.value.id, {
+      mappings: mappingsToSave
+    });
+
+    toast.add({ text: "De statusmappings zijn succesvol opgeslagen." });
+
+    // Recalculate completion status
+    statusMappingsComplete.value = statusMappings.value.length > 0 && 
+      statusMappings.value.every(m => m.ozStatustypeId !== null);
+
+    // exiting edit mode after successful save
+    setEditingStatusMapping(false);
+  } catch (err: unknown) {
+    toast.add({ text: `Fout bij opslaan van de statusmappings - ${err}`, type: "error" });
+  } finally {
+    loading.value = false;
+  }
+};
 
 const fetchMappingData = async () => {
   loading.value = true;
@@ -219,12 +336,40 @@ const fetchMappingData = async () => {
   } finally {
     loading.value = false;
   }
+
+  if (mapping.value.ozZaaktypeId) {
+    previousOzZaaktypeId.value = mapping.value.ozZaaktypeId;
+  }
+
+  if (mapping.value.ozZaaktypeId) {
+    await fetchStatusMappings();
+  }
 };
 
 const submitMapping = async () => {
+  const hasZaaktypeChanged = mapping.value.ozZaaktypeId !== previousOzZaaktypeId.value;
+
+  const hasStatusMappings = 
+    statusMappings.value.some(m => m.ozStatustypeId !== null);
+
+  if (
+    mapping.value.detZaaktypeId &&
+    previousOzZaaktypeId.value &&
+    hasZaaktypeChanged &&
+    hasStatusMappings
+  ) {
+    const result = await confirmOzZaaktypeChangeDialog.reveal();
+    
+    if (result.isCanceled) {
+      // revert to previous
+      mapping.value.ozZaaktypeId = previousOzZaaktypeId.value;
+      return;
+    }
+  }
+
   loading.value = true;
 
-  setEditMode(false);
+  setEditingZaaktypeMapping(false);
 
   try {
     if (!mapping.value.detZaaktypeId) {
@@ -240,7 +385,13 @@ const submitMapping = async () => {
       await datamigratieService.updateMapping(updatedMapping);
     }
 
+    previousOzZaaktypeId.value = mapping.value.ozZaaktypeId;
+
     toast.add({ text: "De mapping is succesvol opgeslagen." });
+
+    if (hasZaaktypeChanged) {
+      await fetchStatusMappings();
+    }
   } catch (err: unknown) {
     toast.add({ text: `Fout bij opslaan van de mapping - ${err}`, type: "error" });
   } finally {
@@ -305,6 +456,35 @@ dl {
 
   dd {
     margin-inline: 0;
+
+    &.mapping-display {
+      display: flex;
+      gap: var(--spacing-default);
+      align-items: center;
+      flex-wrap: wrap;
+
+      .mapping-edit-button {
+        white-space: nowrap;
+        margin-block-end: 0;
+      }
+    }
+
+    &.mapping-controls {
+      display: flex;
+      gap: var(--spacing-default);
+      align-items: center;
+      flex-wrap: wrap;
+
+      select {
+        flex: 1;
+        min-width: 200px;
+      }
+
+      .mapping-save-button {
+        white-space: nowrap;
+        margin-block-end: 0;
+      }
+    }
   }
 
   select {
@@ -320,6 +500,19 @@ dl {
         grid-column: 2;
       }
     }
+  }
+}
+
+.status-mapping {
+  margin-block-end: var(--spacing-large);
+
+  h2 {
+    font-size: 1.5rem;
+    margin-block-end: var(--spacing-small);
+  }
+
+  p {
+    margin-block-end: var(--spacing-default);
   }
 }
 

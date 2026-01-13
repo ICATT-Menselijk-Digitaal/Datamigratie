@@ -149,7 +149,9 @@ jobs:
       - name: push helm chart to oci
         if: ${{ fromJson(env.SHOULD_RELEASE) }}
         working-directory: charts
+        env:
+          CHART_URL_LOWERCASE: $(echo ${{ env.CHART_URL }} |  tr '[:upper:]' '[:lower:]')
         run: |
           helm package ./${{env.CHART_NAME}}
           echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ${{ env.CHART_URL }} --username ${{ github.actor }} --password-stdin
-          helm push ${{env.CHART_NAME}}-${{ env.VERSION }}.tgz oci://${{ env.CHART_URL }}
+          helm push ${{env.CHART_NAME}}-${{ env.VERSION }}.tgz oci://${{ env.CHART_URL_LOWERCASE }}

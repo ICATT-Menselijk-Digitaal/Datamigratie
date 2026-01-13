@@ -23,6 +23,7 @@ namespace Datamigratie.Server.Features.Mapping.ZaaktypeMapping.ShowZaaktypenMapp
 
             var zaaktypenMapping = new ZaaktypenMapping
             {
+                Id = zaaktypenMappingEntity.Id,
                 DetZaaktypeId = zaaktypenMappingEntity.DetZaaktypeId,
                 OzZaaktypeId = zaaktypenMappingEntity.OzZaaktypeId
             };

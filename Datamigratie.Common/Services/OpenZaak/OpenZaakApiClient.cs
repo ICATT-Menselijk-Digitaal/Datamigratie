@@ -16,6 +16,8 @@ namespace Datamigratie.Common.Services.OpenZaak
 
         Task<List<OzResultaattype>> GetResultaattypenForZaaktype(Guid zaaktypeId);
 
+        Task<List<OzStatustype>> GetStatustypesForZaaktype(Uri zaaktypeUri);
+
         Task<OzZaak> CreateZaak(CreateOzZaakRequest request);
 
         Task<OzZaak?> GetZaakByIdentificatie(string zaakNummer);
@@ -74,6 +76,17 @@ namespace Datamigratie.Common.Services.OpenZaak
 
             return await response.Content.ReadFromJsonAsync<OzZaaktype>()
                 ?? throw new SerializationException("Unexpected null response");
+        }
+
+        /// <summary>
+        /// Gets all statustypes for a specific zaaktype.
+        /// </summary>
+        /// <returns>A list of statustypes for the zaaktype</returns>
+        public async Task<List<OzStatustype>> GetStatustypesForZaaktype(Uri zaaktypeUri)
+        {
+            var endpoint = $"catalogi/api/v1/statustypen?zaaktype={Uri.EscapeDataString(zaaktypeUri.ToString())}";
+            var pagedStatustypes = await GetAllPagedData<OzStatustype>(endpoint);
+            return pagedStatustypes.Results;
         }
 
         /// <summary>

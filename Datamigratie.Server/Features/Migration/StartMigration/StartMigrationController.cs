@@ -1,13 +1,12 @@
-﻿using Datamigratie.Common.Services.Det;
-using Datamigratie.Data;
-using Datamigratie.Server.Features.Migration.StartMigration.Models;
+﻿using Datamigratie.Server.Features.Migration.StartMigration.Models;
 using Datamigratie.Server.Features.Migration.StartMigration.Queues;
 using Datamigratie.Server.Features.Migration.StartMigration.Queues.Items;
-using Datamigratie.Server.Features.Migration.StartMigration.Services;
 using Datamigratie.Server.Features.Migration.StartMigration.State;
 using Datamigratie.Server.Helpers;
+using Datamigratie.Server.Features.Mapping.StatusMapping.ValidateStatusMappings.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Datamigratie.Data;
 
 namespace Datamigratie.Server.Features.Migration.StartMigration;
 
@@ -17,6 +16,7 @@ public class StartMigrationController(
     MigrationWorkerState workerState, 
     IMigrationBackgroundTaskQueue backgroundTaskQueue,
     DatamigratieDbContext dbContext,
+    IValidateStatusMappingsService validateStatusMappingsService,
     ILogger<StartMigrationController> logger,
     IDetApiClient detApiClient) : ControllerBase
 {
@@ -30,6 +30,13 @@ public class StartMigrationController(
         }
         try
         {
+            // validating all statuses are mapped before starting migration
+            var allStatusesMapped = await validateStatusMappingsService.AreAllStatusesMapped(request.DetZaaktypeId);
+            if (!allStatusesMapped)
+            {
+                return BadRequest(new { message = "Not all DET statuses have been mapped to OZ statuses. Please configure status mappings first." });
+            }
+            
             var globalMapping = await GetAndValidateGlobalMappingAsync();
 
             await backgroundTaskQueue.QueueMigrationAsync(new MigrationQueueItem

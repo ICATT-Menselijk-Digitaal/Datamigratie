@@ -44,25 +44,25 @@ namespace Datamigratie.Server.Features.Mapping.ZaaktypeMapping.MapZaaktypen
         {
             await ValidateOzZaaktypeExistsAsync(newOzZaaktypeId);
 
-            var mapping = await context.Mappings.Where(m => m.DetZaaktypeId == detZaaktypeId).FirstOrDefaultAsync();
+            var currentMapping = await context.Mappings
+                .FirstOrDefaultAsync(m => m.DetZaaktypeId == detZaaktypeId) ?? throw new InvalidOperationException($"Mapping for Det zaaktype ID '{detZaaktypeId}' does not exist.");
 
-            if (mapping == null)
+            // delete status mappings if the OZ zaaktype is being changed
+            if (currentMapping.OzZaaktypeId != newOzZaaktypeId)
             {
-                throw new InvalidOperationException($"Mapping for Det zaaktype ID '{detZaaktypeId}' does not exist.");
+                var statusMappings = await context.StatusMappings
+                    .Where(sm => sm.ZaaktypenMappingId == currentMapping.Id)
+                    .ToListAsync();
+
+                if (statusMappings.Count != 0)
+                {
+                    context.StatusMappings.RemoveRange(statusMappings);
+                    await context.SaveChangesAsync();
+                }
             }
 
-            if (mapping.OzZaaktypeId != newOzZaaktypeId) {
-                // Delete all existing resultaattype mappings for this zaaktype
-                // Note: These will be automatically deleted when the zaaktypen mapping is deleted
-                // due to the cascade delete relationship
-                await context.ResultaattypeMappings
-                    .Where(m => m.ZaaktypenMappingId == mapping.Id)
-                    .ExecuteDeleteAsync();
-
-                // Update the mapping
-                mapping.OzZaaktypeId = newOzZaaktypeId;
-                await context.SaveChangesAsync();
-            }
+            currentMapping.OzZaaktypeId = newOzZaaktypeId;
+            await context.SaveChangesAsync();
         }
 
         private async Task ValidateOzZaaktypeExistsAsync(Guid ozZaaktypeId)

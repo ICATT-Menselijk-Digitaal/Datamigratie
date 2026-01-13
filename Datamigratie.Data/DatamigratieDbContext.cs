@@ -114,6 +114,14 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
             entity.Property(e => e.UpdatedAt)
                 .IsRequired();
         });
+
+        modelBuilder.Entity<StatusMapping>(entity =>
+        {
+            // Unique constraint: One DET status per zaaktype can only map to one OZ status
+            entity.HasIndex(e => new { e.ZaaktypenMappingId, e.DetStatusNaam })
+                .IsUnique()
+                .HasDatabaseName("IX_StatusMapping_ZaaktypenMappingId_DetStatusNaam_Unique");
+        });
     }
 
     public DbSet<ZaaktypenMapping> Mappings { get; set; }
@@ -121,4 +129,5 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
     public DbSet<Migration> Migrations { get; set; }
     public DbSet<MigrationRecord> MigrationRecords { get; set; }
     public DbSet<GlobalConfiguration> GlobalConfigurations { get; set; }
+    public DbSet<StatusMapping> StatusMappings { get; set; }
 }

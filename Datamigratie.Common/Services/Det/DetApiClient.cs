@@ -16,6 +16,8 @@ namespace Datamigratie.Common.Services.Det
 
         Task<DetZaaktype?> GetZaaktype(string zaaktypeName);
 
+        Task<DetZaaktypeDetail?> GetZaaktypeDetail(string zaaktypeName);
+
         Task GetDocumentInhoudAsync(long id, Func<Stream, CancellationToken, Task> handleInhoud, CancellationToken token);
     }
 
@@ -66,6 +68,39 @@ namespace Datamigratie.Common.Services.Det
             catch (HttpRequestException ex)
             {
                 _logger.LogError(ex, "An error occurred while getting zaaktype '{ZaaktypeName}' from endpoint {Endpoint}", SanitizeForLogging(id), SanitizeForLogging(endpoint));
+                throw;
+            }
+
+        }
+
+        /// <summary>
+        /// Gets a specific zaaktype with full details including statuses by its name.
+        /// Endpoint: /zaaktypen/{name}
+        /// </summary>
+        /// <returns>A DetZaaktypeDetail object with statuses, or null if not found</returns>
+        public async Task<DetZaaktypeDetail?> GetZaaktypeDetail(string id)
+        {
+            _logger.LogInformation("Fetching zaaktype detail with statuses for name: {ZaaktypeName}", SanitizeForLogging(id));
+
+            var endpoint = $"zaaktypen/{id}";
+            try
+            {
+                var response = await _httpClient.GetAsync(endpoint);
+
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    return null;
+                }
+
+                response.EnsureSuccessStatusCode();
+
+                return await response.Content.ReadFromJsonAsync<DetZaaktypeDetail>()
+                    ?? throw new SerializationException("Unexpected null response");
+
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting zaaktype detail '{ZaaktypeName}' from endpoint {Endpoint}", SanitizeForLogging(id), SanitizeForLogging(endpoint));
                 throw;
             }
 
