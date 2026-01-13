@@ -11,18 +11,6 @@ export type UpdateZaaktypeMapping = {
   updatedOzZaaktypeId: string;
 };
 
-export type ResultaattypeMappingRequest = {
-  ozZaaktypeId: string;
-  ozResultaattypeId: string;
-};
-
-export type ResultaattypeMappingResponse = {
-  detZaaktypeId: string;
-  detResultaattypeId: string;
-  ozZaaktypeId: string;
-  ozResultaattypeId: string;
-};
-
 export const MigrationStatus = Object.freeze({
   none: "None",
   inProgress: "InProgress"
@@ -101,6 +89,20 @@ export type StatusMappingValidationResponse = {
   allStatusesMapped: boolean;
 };
 
+export type ResultaattypeMappingItem = {
+  detResultaattypeNaam: string;
+  ozResultaattypeId: string | null;
+};
+
+export type SaveResultaattypeMappingsRequest = {
+  mappings: ResultaattypeMappingItem[];
+};
+
+export type ResultaattypeMappingResponse = {
+  detResultaattypeNaam: string;
+  ozResultaattypeId: string;
+};
+
 export const datamigratieService = {
   getMappingByDETZaaktypeId: (detZaaktypeId: string): Promise<ZaaktypeMapping> =>
     get<ZaaktypeMapping>(`/api/mapping/${detZaaktypeId}`),
@@ -108,12 +110,6 @@ export const datamigratieService = {
     post<ZaaktypeMapping>(`/api/mapping/${payload.detZaaktypeId}`, payload),
   updateMapping: (payload: UpdateZaaktypeMapping): Promise<ZaaktypeMapping> =>
     put<ZaaktypeMapping>(`/api/mapping/${payload.detZaaktypeId}`, payload),
-  getAllResultaattypeMappings: (detZaaktypeId: string): Promise<ResultaattypeMappingResponse[]> =>
-    get<ResultaattypeMappingResponse[]>(`/api/mapping/resultaattype/${detZaaktypeId}/all`),
-  createResultaattypeMapping: (detZaaktypeId: string, detResultaattypeId: string, payload: ResultaattypeMappingRequest): Promise<void> =>
-    post(`/api/mapping/resultaattype/${detZaaktypeId}/${detResultaattypeId}`, payload),
-  updateResultaattypeMapping: (detZaaktypeId: string, detResultaattypeId: string, payload: ResultaattypeMappingRequest): Promise<void> =>
-    put(`/api/mapping/resultaattype/${detZaaktypeId}/${detResultaattypeId}`, payload),
   startMigration: (payload: StartMigration): Promise<void> => post(`/api/migration/start`, payload),
   getMigration: (): Promise<Migration> => get(`/api/migration`),
   getMigrationHistory: (detZaaktypeId: string): Promise<MigrationHistoryItem[]> =>
@@ -126,5 +122,9 @@ export const datamigratieService = {
   getStatusMappings: (zaaktypenMappingId: string): Promise<StatusMappingsResponse[]> =>
     get<StatusMappingsResponse[]>(`/api/mappings/${zaaktypenMappingId}/statuses`),
   saveStatusMappings: (zaaktypenMappingId: string, payload: SaveStatusMappingsRequest): Promise<void> =>
-    post(`/api/mappings/${zaaktypenMappingId}/statuses`, payload)
+    post(`/api/mappings/${zaaktypenMappingId}/statuses`, payload),
+  getResultaattypeMappings: (zaaktypenMappingId: string): Promise<ResultaattypeMappingResponse[]> =>
+    get<ResultaattypeMappingResponse[]>(`/api/mapping/${zaaktypenMappingId}/resultaattypen`),
+  saveResultaattypeMappings: (zaaktypenMappingId: string, payload: SaveResultaattypeMappingsRequest): Promise<void> =>
+    post(`/api/mapping/${zaaktypenMappingId}/resultaattypen`, payload)
 };

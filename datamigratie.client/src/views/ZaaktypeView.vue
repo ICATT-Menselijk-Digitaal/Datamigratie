@@ -180,6 +180,8 @@ const mapping = ref({ ozZaaktypeId: "" } as ZaaktypeMapping);
 const migrationHistory = ref<MigrationHistoryItem[]>([]);
 
 const statusMappings = ref<StatusMappingItem[]>([]);
+const resultaattypeMappings = ref<StatusMappingItem[]>([]);
+
 const statusMappingsComplete = ref(false);
 const showStatusMapping = computed(() => !!(mapping.value.detZaaktypeId && mapping.value.ozZaaktypeId));
 
