@@ -85,11 +85,11 @@ public class StartMigrationController(
     }
 
     [HttpGet]
-    public async Task<ActionResult<MigrationStatusResponse>> GetMigration()
+    public Task<ActionResult<MigrationStatusResponse>> GetMigration()
     {
         if (!workerState.IsWorking)
         {
-            return Ok(new MigrationStatusResponse() { Status = ServiceMigrationStatus.None });
+            return Task.FromResult<ActionResult<MigrationStatusResponse>>(Ok(new MigrationStatusResponse() { Status = ServiceMigrationStatus.None }));
         }
 
         if (workerState.DetZaaktypeId == null)
@@ -97,11 +97,11 @@ public class StartMigrationController(
             throw new InvalidDataException("Worker is running a migration without a DetZaaktypeId.");
         }
 
-        return new MigrationStatusResponse()
+        return Task.FromResult<ActionResult<MigrationStatusResponse>>(new MigrationStatusResponse()
         {
             Status = ServiceMigrationStatus.InProgress,
             DetZaaktypeId = workerState.DetZaaktypeId,
-        };
+        });
     }
 
     private async Task<GlobalMapping> GetAndValidateGlobalMappingAsync()
