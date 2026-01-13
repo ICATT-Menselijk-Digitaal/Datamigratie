@@ -1,6 +1,4 @@
-﻿using Datamigratie.Common.Services.Det;
-using Datamigratie.Common.Services.OpenZaak;
-using Datamigratie.Server.Features.Mapping.Models;
+﻿using Datamigratie.Server.Features.Mapping.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Datamigratie.Server.Features.Mapping.MapResultaattypen

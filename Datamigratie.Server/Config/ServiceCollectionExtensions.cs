@@ -37,7 +37,7 @@ namespace Datamigratie.Server.Config
             services.AddScoped<IGetMigrationRecordsService, GetMigrationRecordsService>();
             services.AddScoped<IShowStatusMappingsService, ShowStatusMappingsService>();
             services.AddScoped<ISaveStatusMappingsService, SaveStatusMappingsService>();
-            services.AddScoped<IValidateStatusMappingsService, ValidateStatusMappingsService>();
+            services.AddScoped<IValidateMappingsService, ValidateMappingsService>();
 
             services.AddHostedService<StartMigrationBackgroundService>();
             services.AddSingleton<IMigrationBackgroundTaskQueue>(ctx =>
