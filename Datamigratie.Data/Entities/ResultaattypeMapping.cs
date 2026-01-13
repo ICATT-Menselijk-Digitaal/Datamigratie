@@ -4,7 +4,7 @@ namespace Datamigratie.Data.Entities
     {
         public Guid Id { get; set; }
         public required Guid ZaaktypenMappingId { get; set; }
-        public required string DetResultaattypeId { get; set; }
+        public required string DetResultaattypeNaam { get; set; }
         public required Guid OzResultaattypeId { get; set; }
 
         // Navigation property
