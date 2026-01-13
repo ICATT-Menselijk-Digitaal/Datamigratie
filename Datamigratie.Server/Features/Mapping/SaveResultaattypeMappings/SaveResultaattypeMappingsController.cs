@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Datamigratie.Server.Features.Mapping.MapResultaattypen
 {
     [ApiController]
-    [Route("api/mapping/resultaattype/")]
+    [Route("api/mappings/{zaaktypenMappingId:guid}/resultaattypen")]
     public class SaveResultaattypenMappingsController(ISaveResultaattypenMappingsService saveResultaattypenMappingsService) : ControllerBase
     {
 
