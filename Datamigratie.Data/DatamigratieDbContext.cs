@@ -30,28 +30,9 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
 
         modelBuilder.Entity<ResultaattypeMapping>(entity =>
         {
-            entity.HasKey(m => m.Id);
-
-            // Required fields (non-nullable)
-            entity.Property(m => m.ZaaktypenMappingId)
-                .IsRequired();
-
-            entity.Property(m => m.DetResultaattypeNaam)
-                .IsRequired();
-
-            entity.Property(m => m.OzResultaattypeId)
-                .IsRequired();
-
-            // Foreign key relationship
-            entity.HasOne(m => m.ZaaktypenMapping)
-                .WithMany()
-                .HasForeignKey(m => m.ZaaktypenMappingId)
-                .OnDelete(DeleteBehavior.Cascade);
-
             // Unique constraint: One DET Resultaattype (per zaaktype) can only map to one OZ Resultaattype
             entity.HasIndex(m => new { m.ZaaktypenMappingId, m.DetResultaattypeNaam })
-                .IsUnique()
-                .HasDatabaseName("IX_ResultaattypeMapping_ZaaktypenMappingId_DetResultaattypeNaam_Unique");
+                .IsUnique();
         });
 
         modelBuilder.Entity<Migration>(entity =>
