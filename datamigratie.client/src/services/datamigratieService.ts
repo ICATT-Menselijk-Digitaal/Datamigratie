@@ -6,6 +6,11 @@ export type ZaaktypeMapping = {
   ozZaaktypeId: string;
 };
 
+export type CreateZaaktypeMapping = {
+  detZaaktypeId: string;
+  ozZaaktypeId: string;
+};
+
 export type UpdateZaaktypeMapping = {
   detZaaktypeId: string;
   updatedOzZaaktypeId: string;
@@ -104,16 +109,10 @@ export type StatusMappingValidationResponse = {
 export const datamigratieService = {
   getMappingByDETZaaktypeId: (detZaaktypeId: string): Promise<ZaaktypeMapping> =>
     get<ZaaktypeMapping>(`/api/mapping/${detZaaktypeId}`),
-  createMapping: (payload: ZaaktypeMapping): Promise<ZaaktypeMapping> =>
-    post<ZaaktypeMapping>(`/api/mapping/${payload.detZaaktypeId}`, payload),
-  updateMapping: (payload: UpdateZaaktypeMapping): Promise<ZaaktypeMapping> =>
-    put<ZaaktypeMapping>(`/api/mapping/${payload.detZaaktypeId}`, payload),
-  getAllResultaattypeMappings: (detZaaktypeId: string): Promise<ResultaattypeMappingResponse[]> =>
-    get<ResultaattypeMappingResponse[]>(`/api/mapping/resultaattype/${detZaaktypeId}/all`),
-  createResultaattypeMapping: (detZaaktypeId: string, detResultaattypeId: string, payload: ResultaattypeMappingRequest): Promise<void> =>
-    post(`/api/mapping/resultaattype/${detZaaktypeId}/${detResultaattypeId}`, payload),
-  updateResultaattypeMapping: (detZaaktypeId: string, detResultaattypeId: string, payload: ResultaattypeMappingRequest): Promise<void> =>
-    put(`/api/mapping/resultaattype/${detZaaktypeId}/${detResultaattypeId}`, payload),
+  createMapping: (payload: CreateZaaktypeMapping): Promise<void> =>
+    post(`/api/mapping/${payload.detZaaktypeId}`, { ozZaaktypeId: payload.ozZaaktypeId }),
+  updateMapping: (payload: UpdateZaaktypeMapping): Promise<void> =>
+    put(`/api/mapping/${payload.detZaaktypeId}`, { updatedOzZaaktypeId: payload.updatedOzZaaktypeId }),
   startMigration: (payload: StartMigration): Promise<void> => post(`/api/migration/start`, payload),
   getMigration: (): Promise<Migration> => get(`/api/migration`),
   getMigrationHistory: (detZaaktypeId: string): Promise<MigrationHistoryItem[]> =>
