@@ -1,26 +1,25 @@
 using Datamigratie.Data;
-using Datamigratie.Server.Features.Mapping.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Datamigratie.Server.Features.Mapping.ShowResultaattypeMapping
 {
     public interface IShowResultaattypeMappingService
     {
-        Task<List<ResultaattypeMappingResponse>> GetAllResultaattypeMappingsForZaaktype(string detZaaktypeId);
+        Task<List<ResultaattypeMappingResponse>> GetResultaattypenMappings(Guid zaaktypenMappingId);
     }
 
     public class ShowResultaattypeMappingService(DatamigratieDbContext context) : IShowResultaattypeMappingService
     {
-        public async Task<List<ResultaattypeMappingResponse>> GetAllResultaattypeMappingsForZaaktype(string detZaaktypeId)
+        public async Task<List<ResultaattypeMappingResponse>> GetResultaattypenMappings(Guid zaaktypenMappingId)
         {
             var resultaattypeMappingEntities = await context.ResultaattypeMappings
                 .Include(m => m.ZaaktypenMapping)
-                .Where(m => m.ZaaktypenMapping.DetZaaktypeId == detZaaktypeId)
+                .Where(m => m.ZaaktypenMapping.Id == zaaktypenMappingId)
                 .ToListAsync();
 
             return [.. resultaattypeMappingEntities.Select(entity => new ResultaattypeMappingResponse
             {
-                DetResultaattypeId = entity.DetResultaattypeId,
+                DetResultaattypeNaam = entity.DetResultaattypeNaam,
                 OzResultaattypeId = entity.OzResultaattypeId
             })];
         }

@@ -58,7 +58,7 @@ public class StartMigrationController(
                 var existingMappings = await dbContext.ResultaattypeMappings
                     .Include(m => m.ZaaktypenMapping)
                     .Where(m => m.ZaaktypenMapping.DetZaaktypeId == request.DetZaaktypeId)
-                    .Select(m => m.DetResultaattypeId)
+                    .Select(m => m.DetResultaattypeNaam)
                     .ToListAsync();
 
                 var unmappedResultaten = detZaaktype.Resultaten

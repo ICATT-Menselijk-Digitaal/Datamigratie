@@ -27,7 +27,7 @@ namespace Datamigratie.Server.Config
             services.AddDatamigrationApiClients(configuration);
             services.AddScoped<IMapZaaktypenService, MapZaaktypenService>();
             services.AddScoped<IShowZaaktypenMappingService, ShowZaaktypenMappingService>();
-            services.AddScoped<IMapResultaattypenService, MapResultaattypenService>();
+            services.AddScoped<ISaveResultaattypenMappingsService, SaveResultaattypenMappingsService>();
             services.AddScoped<IShowResultaattypeMappingService, ShowResultaattypeMappingService>();
             services.AddScoped<IMigrateZaakService, MigrateZaakService>();
             services.AddScoped<IZaakgegevensPdfGenerator, ZaakgegevensPdfGenerator>();

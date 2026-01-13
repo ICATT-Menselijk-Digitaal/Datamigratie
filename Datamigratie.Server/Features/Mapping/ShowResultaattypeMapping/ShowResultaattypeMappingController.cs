@@ -1,16 +1,15 @@
-using Datamigratie.Server.Features.Mapping.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Datamigratie.Server.Features.Mapping.ShowResultaattypeMapping
 {
     [ApiController]
-    [Route("api/mapping/resultaattype/")]
+    [Route("api/mappings/{zaaktypenMappingId:guid}/resultaattypen")]
     public class ShowResultaattypeMappingController(IShowResultaattypeMappingService showResultaattypeMappingService) : ControllerBase
     {
-        [HttpGet("{detZaaktypeId}/all")]
-        public async Task<ActionResult<List<ResultaattypeMappingResponse>>> GetAllResultaattypeMappingsForZaaktype(string detZaaktypeId)
+        [HttpGet]
+        public async Task<ActionResult<List<ResultaattypeMappingResponse>>> GetResultaattypenMappings([FromRoute] Guid zaaktypenMappingId)
         {
-            var mappings = await showResultaattypeMappingService.GetAllResultaattypeMappingsForZaaktype(detZaaktypeId);
+            var mappings = await showResultaattypeMappingService.GetResultaattypenMappings(zaaktypenMappingId);
             return Ok(mappings);
         }
     }
