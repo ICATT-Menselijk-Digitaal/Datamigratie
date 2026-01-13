@@ -10,7 +10,7 @@ namespace Datamigratie.Server.Features.Mapping.ZaaktypeMapping.MapZaaktypen
     {
 
         [HttpPost("{detZaaktypeId}")]
-        public async Task<ActionResult> PostMapZaaktypen(string detZaaktypeId, [FromBody] ZaaktypenMapping mapping)
+        public async Task<ActionResult> PostMapZaaktypen(string detZaaktypeId, [FromBody] CreateZaaktypenMapping mapping)
         {
             await mapZaaktypenService.CreateZaaktypenMapping(detZaaktypeId, mapping.OzZaaktypeId);
             return Ok();

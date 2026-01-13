@@ -160,6 +160,7 @@ import {
   datamigratieService,
   MigrationStatus,
   type ZaaktypeMapping,
+  type CreateZaaktypeMapping,
   type UpdateZaaktypeMapping,
   type MigrationHistoryItem,
   type StatusMappingItem
@@ -239,8 +240,11 @@ const fetchStatusMappings = async () => {
     // Fetch OZ zaaktype with statustypes
     ozZaaktype.value = await ozService.getZaaktypeById(mapping.value.ozZaaktypeId);
     
-    // Fetch existing mappings
-    const mappingsData = await datamigratieService.getStatusMappings(mapping.value.id);
+    // Fetch existing mappings -> if mapping has been already saved
+    let mappingsData: StatusMappingItem[] = [];
+    if (mapping.value.id) {
+      mappingsData = await datamigratieService.getStatusMappings(mapping.value.id);
+    }
     
     // Build complete mapping list from DET statuses
     const activeDetStatuses = detZaaktype.value?.statuses?.filter(s => s.actief) || [];
@@ -375,7 +379,16 @@ const submitMapping = async () => {
     if (!mapping.value.detZaaktypeId) {
       mapping.value = { ...mapping.value, detZaaktypeId };
 
-      await datamigratieService.createMapping(mapping.value);
+      const createMapping: CreateZaaktypeMapping = {
+        detZaaktypeId: mapping.value.detZaaktypeId,
+        ozZaaktypeId: mapping.value.ozZaaktypeId
+      };
+
+      await datamigratieService.createMapping(createMapping);
+      
+      // getting ID of the created mapping
+      const createdMapping = await datamigratieService.getMappingByDETZaaktypeId(detZaaktypeId);
+      mapping.value = createdMapping;
     } else {
       const updatedMapping: UpdateZaaktypeMapping = {
         detZaaktypeId: mapping.value.detZaaktypeId,
