@@ -19,12 +19,14 @@ namespace Datamigratie.Server.Features.Zaaktypen.ShowOzZaaktypeInfo
             }
 
             var ozStatustypes = await openZaakApiClient.GetStatustypesForZaaktype(new Uri(ozZaaktype.Url));
+            var ozResultaattypes = await openZaakApiClient.GetResultaattypenForZaaktype(new Uri(ozZaaktype.Url));
 
             var enrichedOzZaaktype = new EnrichedOzZaaktype
             {
                 Url = ozZaaktype.Url,
                 Identificatie = ozZaaktype.Identificatie,
-                Statustypes = ozStatustypes.OrderBy(st => st.Volgnummer).ToList()
+                Statustypes = ozStatustypes.OrderBy(st => st.Volgnummer).ToList(),
+                Resultaattypes = ozResultaattypes
             };
 
             return enrichedOzZaaktype;

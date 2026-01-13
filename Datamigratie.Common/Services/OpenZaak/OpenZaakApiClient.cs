@@ -14,7 +14,7 @@ namespace Datamigratie.Common.Services.OpenZaak
 
         Task<OzZaaktype?> GetZaaktype(Guid zaaktypeId);
 
-        Task<List<OzResultaattype>> GetResultaattypenForZaaktype(Guid zaaktypeId);
+        Task<List<OzResultaattype>> GetResultaattypenForZaaktype(Uri zaaktypeUri);
 
         Task<List<OzStatustype>> GetStatustypesForZaaktype(Uri zaaktypeUri);
 
@@ -91,26 +91,13 @@ namespace Datamigratie.Common.Services.OpenZaak
 
         /// <summary>
         /// Gets all resultaattypen for a specific zaaktype.
-        /// Endpoint: /catalogi/api/v1/resultaattypen?zaaktype={zaaktypeUrl}
         /// </summary>
-        /// <param name="zaaktypeId">The ID of the zaaktype</param>
-        /// <returns>A list of OzResultaattype objects</returns>
-        public async Task<List<OzResultaattype>> GetResultaattypenForZaaktype(Guid zaaktypeId)
+        /// <returns>A list of resultaattypen for the zaaktype</returns>
+        public async Task<List<OzResultaattype>> GetResultaattypenForZaaktype(Uri zaaktypeUri)
         {
-            // First get the zaaktype to get its URL
-            var zaaktype = await GetZaaktype(zaaktypeId);
-
-            if (zaaktype == null)
-            {
-                return [];
-            }
-
-            var endpoint = "catalogi/api/v1/resultaattypen";
-            var query = $"zaaktype={Uri.EscapeDataString(zaaktype.Url)}";
-
-            var pagedResultaattypen = await GetAllPagedData<OzResultaattype>(endpoint, query);
-
-            return pagedResultaattypen.Results;
+            var endpoint = $"catalogi/api/v1/resultaattypen?zaaktype={Uri.EscapeDataString(zaaktypeUri.ToString())}";
+            var pagedStatustypes = await GetAllPagedData<OzResultaattype>(endpoint);
+            return pagedStatustypes.Results;
         }
 
         public async Task<OzZaak?> GetZaakByIdentificatie(string zaakNummer)
