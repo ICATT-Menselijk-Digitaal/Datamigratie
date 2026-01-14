@@ -13,7 +13,6 @@ namespace Datamigratie.FakeDet
         public static async Task<Ok<PagedResponse<ZaaktypeOverzicht>>> GetAllZaaktypen([Range(1, int.MaxValue)] int page = 1)
         {
             const int PageSize = 100;
-            var skip = (page - 1) * PageSize;
 
             var zaaktypen = new OrderedDictionary<string, ZaaktypeOverzicht>();
 
@@ -25,12 +24,14 @@ namespace Datamigratie.FakeDet
                 }
             }
 
+            var chunks = zaaktypen.Values.Chunk(PageSize).ToList();
+
             var result = new PagedResponse<ZaaktypeOverzicht>
             {
                 Count = zaaktypen.Count,
-                Results = zaaktypen.Values.ToList(),
-                // PreviousPage = page > 2,
-                // NextPage = page < zaaktypen.Count / PageSize
+                Results = chunks.ElementAtOrDefault(page - 1)?.ToList() ?? [],
+                PreviousPage = page > 1,
+                NextPage = chunks.Count > page
             };
 
             return TypedResults.Ok(result);
