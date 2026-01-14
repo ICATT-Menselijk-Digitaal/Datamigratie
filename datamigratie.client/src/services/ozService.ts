@@ -7,10 +7,19 @@ export type OzStatustype = {
   isEindstatus: boolean;
 };
 
+export type OzResultaattype = {
+  uuid: string;
+  omschrijving: string;
+  volgnummer: number;
+  isEindstatus: boolean;
+};
+
 export type OZZaaktype = {
   id: string;
   identificatie: string;
   statustypes?: OzStatustype[];
+  resultaattypen?: OzResultaattype[];
+
 };
 
 export const ozService = {
