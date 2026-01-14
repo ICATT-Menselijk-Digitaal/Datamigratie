@@ -16,6 +16,7 @@ export type OzResultaattype = {
 export type OZZaaktype = {
   id: string;
   identificatie: string;
+  omschrijving: string;
   statustypes?: OzStatustype[];
   resultaattypen?: OzResultaattype[];
 

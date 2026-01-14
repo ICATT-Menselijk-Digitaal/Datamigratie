@@ -26,7 +26,8 @@ namespace Datamigratie.Server.Features.Zaaktypen.ShowOzZaaktypeInfo
                 Url = ozZaaktype.Url,
                 Identificatie = ozZaaktype.Identificatie,
                 Statustypes = ozStatustypes.OrderBy(st => st.Volgnummer).ToList(),
-                Resultaattypen = ozResultaattypes
+                Resultaattypen = ozResultaattypes,
+                Omschrijving = ozZaaktype.Omschrijving
             };
 
             return enrichedOzZaaktype;

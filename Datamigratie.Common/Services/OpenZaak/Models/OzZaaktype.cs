@@ -24,5 +24,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
         public required string Identificatie { get; set; }
 
         public Guid Id { get; private set; } = Guid.Empty;
+
+        public required string Omschrijving { get; set; }
     }
 }
