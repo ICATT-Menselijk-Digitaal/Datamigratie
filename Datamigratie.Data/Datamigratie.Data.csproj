@@ -11,7 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.4.2" />
+        <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.1.0" />
         <PackageReference Include="EFCore.NamingConventions" Version="8.0.3" />
         <PackageReference Include="JsonSchema.Net.Generation" Version="5.1.1" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.18">

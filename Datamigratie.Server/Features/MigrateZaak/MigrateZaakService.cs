@@ -32,12 +32,15 @@ namespace Datamigratie.Server.Features.MigrateZaak
 
                 var createdZaak = await _openZaakApiClient.CreateZaak(createZaakRequest);
                 var informatieObjectTypen = await _openZaakApiClient.GetInformatieobjecttypenUrlsForZaaktype(createdZaak.Zaaktype);
-                var firstInformatieObjectType = informatieObjectTypen.First();
+                var firstInformatieObjectType = informatieObjectTypen.FirstOrDefault();
 
-                await UploadZaakgegevensPdfAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, token);
+                if(firstInformatieObjectType is {})
+                {
+                    await UploadZaakgegevensPdfAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, token);
 
-                // Migrate all documents with their versions
-                await MigrateDocumentsAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, token);
+                    // Migrate all documents with their versions
+                    await MigrateDocumentsAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, token);
+                }
 
                 return MigrateZaakResult.Success(createdZaak.Identificatie, "De zaak is aangemaakt in het doelsysteem");
             }
