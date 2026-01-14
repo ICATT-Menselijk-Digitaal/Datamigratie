@@ -137,31 +137,6 @@ namespace Datamigratie.Data.Migrations
                     b.ToTable("MigrationRecords");
                 });
 
-            modelBuilder.Entity("Datamigratie.Data.Entities.ResultaattypeMapping", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("DetResultaattypeNaam")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("OzResultaattypeId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ZaaktypenMappingId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ZaaktypenMappingId", "DetResultaattypeNaam")
-                        .IsUnique()
-                        .HasDatabaseName("IX_ResultaattypeMapping_ZaaktypenMappingId_DetResultaattypeNaam_Unique");
-
-                    b.ToTable("ResultaattypeMappings");
-                });
-
             modelBuilder.Entity("Datamigratie.Data.Entities.StatusMapping", b =>
                 {
                     b.Property<int>("Id")
@@ -220,17 +195,6 @@ namespace Datamigratie.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Migration");
-                });
-
-            modelBuilder.Entity("Datamigratie.Data.Entities.ResultaattypeMapping", b =>
-                {
-                    b.HasOne("Datamigratie.Data.Entities.ZaaktypenMapping", "ZaaktypenMapping")
-                        .WithMany()
-                        .HasForeignKey("ZaaktypenMappingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ZaaktypenMapping");
                 });
 
             modelBuilder.Entity("Datamigratie.Data.Entities.StatusMapping", b =>
