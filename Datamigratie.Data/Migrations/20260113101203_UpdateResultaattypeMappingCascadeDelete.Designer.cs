@@ -3,6 +3,7 @@ using System;
 using Datamigratie.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Datamigratie.Data.Migrations
 {
     [DbContext(typeof(DatamigratieDbContext))]
-    partial class DatamigratieDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260113101203_UpdateResultaattypeMappingCascadeDelete")]
+    partial class UpdateResultaattypeMappingCascadeDelete
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -143,7 +146,7 @@ namespace Datamigratie.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("DetResultaattypeNaam")
+                    b.Property<string>("DetResultaattypeId")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -155,38 +158,11 @@ namespace Datamigratie.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ZaaktypenMappingId", "DetResultaattypeNaam")
+                    b.HasIndex("ZaaktypenMappingId", "DetResultaattypeId")
                         .IsUnique()
-                        .HasDatabaseName("IX_ResultaattypeMapping_ZaaktypenMappingId_DetResultaattypeNaam_Unique");
+                        .HasDatabaseName("IX_ResultaattypeMapping_ZaaktypenMappingId_DetResultaattypeId_Unique");
 
                     b.ToTable("ResultaattypeMappings");
-                });
-
-            modelBuilder.Entity("Datamigratie.Data.Entities.StatusMapping", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("DetStatusNaam")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("OzStatustypeId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ZaaktypenMappingId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ZaaktypenMappingId", "DetStatusNaam")
-                        .IsUnique()
-                        .HasDatabaseName("IX_StatusMapping_ZaaktypenMappingId_DetStatusNaam_Unique");
-
-                    b.ToTable("StatusMappings");
                 });
 
             modelBuilder.Entity("Datamigratie.Data.Entities.ZaaktypenMapping", b =>
@@ -223,17 +199,6 @@ namespace Datamigratie.Data.Migrations
                 });
 
             modelBuilder.Entity("Datamigratie.Data.Entities.ResultaattypeMapping", b =>
-                {
-                    b.HasOne("Datamigratie.Data.Entities.ZaaktypenMapping", "ZaaktypenMapping")
-                        .WithMany()
-                        .HasForeignKey("ZaaktypenMappingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ZaaktypenMapping");
-                });
-
-            modelBuilder.Entity("Datamigratie.Data.Entities.StatusMapping", b =>
                 {
                     b.HasOne("Datamigratie.Data.Entities.ZaaktypenMapping", "ZaaktypenMapping")
                         .WithMany()

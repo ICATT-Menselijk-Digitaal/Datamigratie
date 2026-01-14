@@ -1,25 +1,19 @@
-using Datamigratie.Common.Services.Det;
+﻿using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace Datamigratie.Server.Features.Mapping.StatusMapping.ValidateStatusMappings.Services;
+namespace Datamigratie.Server.Features.Mapping.StatusMapping.ValidateMappings.Services;
 
 public interface IValidateStatusMappingsService
 {
-    Task<bool> AreAllStatusesMapped(string detZaaktypeId);
+    Task<bool> AreAllStatusesMapped(DetZaaktypeDetail detZaaktype);
 }
 
 public class ValidateStatusMappingsService(
-    DatamigratieDbContext context,
-    IDetApiClient detApiClient) : IValidateStatusMappingsService
+    DatamigratieDbContext context) : IValidateStatusMappingsService
 {
-    public async Task<bool> AreAllStatusesMapped(string detZaaktypeId)
+    public async Task<bool> AreAllStatusesMapped(DetZaaktypeDetail detZaaktype)
     {
-        var detZaaktype = await detApiClient.GetZaaktypeDetail(detZaaktypeId);
-        
-        if (detZaaktype == null)
-            return false;
-
         var activeDetStatuses = detZaaktype.Statussen
             .Where(s => s.Actief)
             .Select(s => s.Naam)
@@ -29,7 +23,7 @@ public class ValidateStatusMappingsService(
             return true;
 
         var zaaktypenMapping = await context.Mappings
-            .FirstOrDefaultAsync(m => m.DetZaaktypeId == detZaaktypeId);
+            .FirstOrDefaultAsync(m => m.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie);
 
         if (zaaktypenMapping == null)
             return false;

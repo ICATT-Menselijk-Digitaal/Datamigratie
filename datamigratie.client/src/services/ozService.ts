@@ -7,10 +7,18 @@ export type OzStatustype = {
   isEindstatus: boolean;
 };
 
+export type OzResultaattype = {
+  id: string;
+  omschrijving: string;
+  url: string;
+};
+
 export type OZZaaktype = {
   id: string;
   identificatie: string;
   statustypes?: OzStatustype[];
+  resultaattypen?: OzResultaattype[];
+
 };
 
 export const ozService = {

@@ -94,6 +94,20 @@ export type StatusMappingValidationResponse = {
   allStatusesMapped: boolean;
 };
 
+export type ResultaattypeMappingItem = {
+  detResultaattypeNaam: string;
+  ozResultaattypeId: string | null;
+};
+
+export type SaveResultaattypeMappingsRequest = {
+  mappings: ResultaattypeMappingItem[];
+};
+
+export type ResultaattypeMappingResponse = {
+  detResultaattypeNaam: string;
+  ozResultaattypeId: string;
+};
+
 export const datamigratieService = {
   getMappingByDETZaaktypeId: (detZaaktypeId: string): Promise<ZaaktypeMapping> =>
     get<ZaaktypeMapping>(`/api/mapping/${detZaaktypeId}`),
@@ -113,5 +127,9 @@ export const datamigratieService = {
   getStatusMappings: (zaaktypenMappingId: string): Promise<StatusMappingsResponse[]> =>
     get<StatusMappingsResponse[]>(`/api/mappings/${zaaktypenMappingId}/statuses`),
   saveStatusMappings: (zaaktypenMappingId: string, payload: SaveStatusMappingsRequest): Promise<void> =>
-    post(`/api/mappings/${zaaktypenMappingId}/statuses`, payload)
+    post(`/api/mappings/${zaaktypenMappingId}/statuses`, payload),
+  getResultaattypeMappings: (zaaktypenMappingId: string): Promise<ResultaattypeMappingResponse[]> =>
+    get<ResultaattypeMappingResponse[]>(`/api/mappings/${zaaktypenMappingId}/resultaattypen`),
+  saveResultaattypeMappings: (zaaktypenMappingId: string, payload: SaveResultaattypeMappingsRequest): Promise<void> =>
+    post(`/api/mappings/${zaaktypenMappingId}/resultaattypen`, payload)
 };

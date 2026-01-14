@@ -14,6 +14,8 @@ namespace Datamigratie.Common.Services.OpenZaak
 
         Task<OzZaaktype?> GetZaaktype(Guid zaaktypeId);
 
+        Task<List<OzResultaattype>> GetResultaattypenForZaaktype(Uri zaaktypeUri);
+
         Task<List<OzStatustype>> GetStatustypesForZaaktype(Uri zaaktypeUri);
 
         Task<OzZaak> CreateZaak(CreateOzZaakRequest request);
@@ -84,6 +86,17 @@ namespace Datamigratie.Common.Services.OpenZaak
         {
             var endpoint = $"catalogi/api/v1/statustypen?zaaktype={Uri.EscapeDataString(zaaktypeUri.ToString())}";
             var pagedStatustypes = await GetAllPagedData<OzStatustype>(endpoint);
+            return pagedStatustypes.Results;
+        }
+
+        /// <summary>
+        /// Gets all resultaattypen for a specific zaaktype.
+        /// </summary>
+        /// <returns>A list of resultaattypen for the zaaktype</returns>
+        public async Task<List<OzResultaattype>> GetResultaattypenForZaaktype(Uri zaaktypeUri)
+        {
+            var endpoint = $"catalogi/api/v1/resultaattypen?zaaktype={Uri.EscapeDataString(zaaktypeUri.ToString())}";
+            var pagedStatustypes = await GetAllPagedData<OzResultaattype>(endpoint);
             return pagedStatustypes.Results;
         }
 
