@@ -256,8 +256,10 @@ const canStartMigration = computed(
     mapping.value.ozZaaktypeId &&
     migration.value?.status !== MigrationStatus.inProgress &&
     !isEditingZaaktypeMapping.value &&
-    canEditStatusMappings &&
-    canEditResultaattypeMappings
+    !isEditingStatusMapping.value &&
+    statusMappingsComplete.value &&
+    !isEditingResultaattypeMapping.value &&
+    resultaattypeMappingsComplete.value
 );
 
 const isThisMigrationRunning = computed(
