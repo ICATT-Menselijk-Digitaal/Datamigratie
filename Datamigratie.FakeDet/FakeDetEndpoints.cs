@@ -1,0 +1,88 @@
+﻿using System.ComponentModel.DataAnnotations;
+using Datamigratie.Common.Services.Det.Models;
+using Datamigratie.Common.Services.Shared.Models;
+using Datamigratie.FakeDet.Catalogi;
+using Datamigratie.FakeDet.DataGeneration;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Datamigratie.FakeDet
+{
+    public static class FakeDetEndpoints
+    {
+        public static async Task<Ok<PagedResponse<ZaaktypeOverzicht>>> GetAllZaaktypen([Range(1, int.MaxValue)] int page = 1)
+        {
+            const int PageSize = 100;
+            var skip = (page - 1) * PageSize;
+
+            var zaaktypen = new OrderedDictionary<string, ZaaktypeOverzicht>();
+
+            await foreach (var catalogus in CatalogusDatabase.GetCatalogi())
+            {
+                foreach (var type in catalogus.Zaaktypen)
+                {
+                    zaaktypen[type.Identificatie] = type.ToDetZaaktype();
+                }
+            }
+
+            var result = new PagedResponse<ZaaktypeOverzicht>
+            {
+                Count = zaaktypen.Count,
+                Results = zaaktypen.Values.ToList(),
+                // PreviousPage = page > 2,
+                // NextPage = page < zaaktypen.Count / PageSize
+            };
+
+            return TypedResults.Ok(result);
+        }
+
+        public static async Task<Results<Ok<Zaaktype>, NotFound>> GetZaaktype(string zaaktypeName)
+        {
+            await foreach (var catalogus in CatalogusDatabase.GetCatalogi())
+            {
+                foreach (var type in catalogus.Zaaktypen)
+                {
+                    if (type.Identificatie == zaaktypeName)
+                    {
+                        return TypedResults.Ok(type.ToDetZaaktype());
+                    }
+                }
+            }
+            return TypedResults.NotFound();
+        }
+
+        public static async Task<Ok<PagedResponse<DetZaakMinimal>>> GetZakenByZaaktype([FromServices] ZaakDatabase zaakDatabase, string zaaktype, [Range(1, int.MaxValue)] int page = 1)
+        {
+            var results = new List<DetZaakMinimal>();
+            var count = await zaakDatabase.GetZakenCountByZaaktype(zaaktype);
+            await foreach (var item in zaakDatabase.GetZakenByZaaktype(zaaktype, page))
+            {
+                results.Add(item);
+            }
+            return TypedResults.Ok(new PagedResponse<DetZaakMinimal>
+            {
+                Results = results,
+                Count = count,
+                PreviousPage = page > 2,
+                NextPage = page < count / ZaakDatabase.PageSize
+            });
+        }
+
+        public static async Task<Results<Ok<DetZaak>, NotFound>> GetZaak([FromServices] ZaakDatabase zaakDatabase, string zaaknummer) => (await zaakDatabase.GetZaak(zaaknummer)) is DetZaak zaak
+            ? TypedResults.Ok(zaak)
+            : TypedResults.NotFound();
+
+        public static async Task<Results<PushStreamHttpResult, NotFound>> DownloadBestand([FromServices] ZaakDatabase zaakDatabase, long id)
+        {
+            var dict = await zaakDatabase.GetDocumentDictionary();
+            if (!dict.TryGetValue(id, out var functioneleIedntentificatie)) return TypedResults.NotFound();
+            var zaak = await zaakDatabase.GetZaak(functioneleIedntentificatie);
+            var versie = zaak?.Documenten?.SelectMany(d => d.DocumentVersies).FirstOrDefault(v => v.DocumentInhoudID == id);
+            return versie is { Documentgrootte: > 0 }
+                ? TypedResults.Stream(
+                    stream => TestFileGenerator.Generate(stream, versie.Mimetype, versie.Documentgrootte.Value, versie.Bestandsnaam),
+                    contentType: versie.Mimetype)
+                : TypedResults.NotFound();
+        }
+    }
+}
