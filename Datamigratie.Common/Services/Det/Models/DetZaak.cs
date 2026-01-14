@@ -35,6 +35,7 @@ namespace Datamigratie.Common.Services.Det.Models
         public DateTimeOffset WijzigDatumTijd { get; set; }
         public DetZaaktype? Zaaktype { get; set; }
         public List<DetDocument>? Documenten { get; set; }
+        public DetResultaat? Resultaat { get; set; }
     }
 
     public class DetDocument

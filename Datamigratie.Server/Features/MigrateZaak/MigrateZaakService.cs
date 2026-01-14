@@ -4,8 +4,10 @@ using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
+using Datamigratie.Data;
 using Datamigratie.Server.Features.MigrateZaak.Models;
 using Datamigratie.Server.Features.MigrateZaak.Pdf;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace Datamigratie.Server.Features.MigrateZaak
@@ -19,10 +21,12 @@ namespace Datamigratie.Server.Features.MigrateZaak
         IOpenZaakApiClient openZaakApiClient,
         IDetApiClient detClient,
         IOptions<OpenZaakApiOptions> options,
-        IZaakgegevensPdfGenerator pdfGenerator ) : IMigrateZaakService
+        IZaakgegevensPdfGenerator pdfGenerator,
+        DatamigratieDbContext dbContext ) : IMigrateZaakService
     {
         private readonly OpenZaakApiOptions _openZaakApiOptions = options.Value;
         private readonly IOpenZaakApiClient _openZaakApiClient = openZaakApiClient;
+        private readonly DatamigratieDbContext _dbContext = dbContext;
 
         public async Task<MigrateZaakResult> MigrateZaak(DetZaak detZaak, MigrateZaakMappingModel mapping, CancellationToken token = default)
         {
@@ -38,6 +42,9 @@ namespace Datamigratie.Server.Features.MigrateZaak
 
                 // Migrate all documents with their versions
                 await MigrateDocumentsAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, token);
+
+                // Migrate the Resultaat if it exists
+                await MigrateResultaatAsync(detZaak, createdZaak, mapping, token);
 
                 return MigrateZaakResult.Success(createdZaak.Identificatie, "De zaak is aangemaakt in het doelsysteem");
             }
@@ -242,6 +249,45 @@ namespace Datamigratie.Server.Features.MigrateZaak
                     }
                 }
             }
+        }
+
+        private async Task MigrateResultaatAsync(DetZaak detZaak, OzZaak createdZaak, MigrateZaakMappingModel mapping, CancellationToken token)
+        {
+            // If there's no resultaattype, skip this step
+            if (detZaak.Resultaat == null)
+            {
+                return;
+            }
+
+            // Fetch the resultaattype mapping from the database
+            var resultaattypeMapping = await _dbContext.ResultaattypeMappings
+                .Where(m => 
+                m.DetZaaktypeId == mapping.DetZaaktypeId 
+                && m.DetResultaattypeId == detZaak.Resultaat.Naam
+                && m.OzZaaktypeId == mapping.OpenZaaktypeId
+                )
+                .FirstOrDefaultAsync(token);
+
+            if (resultaattypeMapping == null)
+            {
+                throw new InvalidOperationException(
+                    $"No resultaattype mapping found for DET zaaktype '{mapping.DetZaaktypeId}' " +
+                    $"and DET resultaattype '{detZaak.Resultaat.Naam}'. " +
+                    $"Please configure the mapping before migrating.");
+            }
+
+            // Build the OZ Resultaattype URL
+            var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
+            var ozResultaattypeUrl = $"{openZaakBaseUrl}catalogi/api/v1/resultaattypen/{resultaattypeMapping.OzResultaattypeId}";
+
+            // Create the resultaat in OpenZaak
+            var createResultaatRequest = new CreateOzResultaatRequest
+            {
+                Zaak = createdZaak.Url,
+                Resultaattype = ozResultaattypeUrl,
+            };
+
+            await _openZaakApiClient.CreateResultaat(createResultaatRequest);
         }
 
         private CreateOzZaakRequest CreateOzZaakCreationRequest(DetZaak detZaak, Guid ozZaaktypeId, string rsin)

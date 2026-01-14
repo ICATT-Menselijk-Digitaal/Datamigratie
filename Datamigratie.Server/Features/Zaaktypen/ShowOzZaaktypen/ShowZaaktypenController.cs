@@ -13,6 +13,6 @@ namespace Datamigratie.Server.Features.Zaaktypen.ShowOzZaaktypen
         public async Task<IEnumerable<OzZaaktype>> GetAllZaakTypen()
         {
             return await openZaakApiClient.GetAllZaakTypen();
-        }
+        } 
     }
 }

@@ -18,6 +18,8 @@ namespace Datamigratie.Common.Services.OpenZaak
 
         Task<List<OzStatustype>> GetStatustypesForZaaktype(Uri zaaktypeUri);
 
+        Task<OzResultaat> CreateResultaat(CreateOzResultaatRequest request);
+
         Task<OzZaak> CreateZaak(CreateOzZaakRequest request);
 
         Task<OzZaak?> GetZaakByIdentificatie(string zaakNummer);
@@ -98,6 +100,22 @@ namespace Datamigratie.Common.Services.OpenZaak
             var endpoint = $"catalogi/api/v1/resultaattypen?zaaktype={Uri.EscapeDataString(zaaktypeUri.ToString())}";
             var pagedStatustypes = await GetAllPagedData<OzResultaattype>(endpoint);
             return pagedStatustypes.Results;
+        }
+
+        /// <summary>
+        /// Creates a new resultaat for a zaak in OpenZaak
+        /// </summary>
+        /// <param name="request">The resultaat creation request</param>
+        /// <returns>The created resultaat</returns>
+        /// <exception cref="HttpRequestException">Thrown when OpenZaak returns validation errors or other HTTP errors</exception>
+        public async Task<OzResultaat> CreateResultaat(CreateOzResultaatRequest request)
+        {
+            var endpoint = "zaken/api/v1/resultaten";
+
+            using var response = await _httpClient.PostAsJsonAsync(endpoint, request);
+            await response.HandleOpenZaakErrorsAsync();
+            return await response.Content.ReadFromJsonAsync<OzResultaat>()
+                ?? throw new SerializationException("Unexpected null response");
         }
 
         public async Task<OzZaak?> GetZaakByIdentificatie(string zaakNummer)

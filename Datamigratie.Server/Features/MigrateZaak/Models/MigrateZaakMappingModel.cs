@@ -5,5 +5,6 @@ namespace Datamigratie.Server.Features.MigrateZaak.Models
     {
         public required string Rsin { get; set; }
         public Guid OpenZaaktypeId { get; internal set; }
+        public required string DetZaaktypeId { get; set; }
     }
 }

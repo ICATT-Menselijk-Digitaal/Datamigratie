@@ -92,7 +92,7 @@ public class StartMigrationService(
         try
         {
             var fullZaak = await FetchZaakFromDetAsync(zaakMinimal.FunctioneleIdentificatie);
-            var result = await migrateZaakService.MigrateZaak(fullZaak, new MigrateZaakMappingModel {  OpenZaaktypeId = openZaaktypeId,  Rsin = globalMapping.Rsin  }, ct);
+            var result = await migrateZaakService.MigrateZaak(fullZaak, new MigrateZaakMappingModel {  OpenZaaktypeId = openZaaktypeId,  Rsin = globalMapping.Rsin, DetZaaktypeId = migration.DetZaaktypeId  }, ct);
             
             record = CreateMigrationRecord(migration, zaakMinimal.FunctioneleIdentificatie, result);
         }
