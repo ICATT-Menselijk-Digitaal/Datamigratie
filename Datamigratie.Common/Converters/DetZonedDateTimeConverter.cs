@@ -30,7 +30,7 @@ namespace Datamigratie.Common.Converters
 
         public override void Write(Utf8JsonWriter writer, DateTimeOffset value, JsonSerializerOptions options)
         {
-            throw new Exception("Serialization of DET zoned date time is not implemented");
+            writer.WriteStringValue(value);
         }
     }
 }

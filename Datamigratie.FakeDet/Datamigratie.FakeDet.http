@@ -1,0 +1,6 @@
+@Datamigratie.FakeDet_HostAddress = http://localhost:5263
+
+GET {{Datamigratie.FakeDet_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

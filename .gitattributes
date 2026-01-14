@@ -71,3 +71,5 @@
 ###############################################################################
 *.pfx binary
 
+Datamigratie.FakeDet/Catalogi/*.json filter=lfs diff=lfs merge=lfs -text
+Datamigratie.AppHost/openzaak/*.sql filter=lfs diff=lfs merge=lfs -text

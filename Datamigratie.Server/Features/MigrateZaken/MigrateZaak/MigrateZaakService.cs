@@ -41,7 +41,9 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 // Create status for the zaak based on status mapping
                 await MigrateStatusAsync(detZaak, createdZaak, mapping, token);
 
-                await UploadZaakgegevensPdfAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, token);
+                if(firstInformatieObjectType is {})
+                {
+                    await UploadZaakgegevensPdfAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, token);
 
                 // Migrate all documents with their versions
                 await MigrateDocumentsAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, mapping.DocumentstatusMappings, mapping.DocumentPropertyMappings, token);
