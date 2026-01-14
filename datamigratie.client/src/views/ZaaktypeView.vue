@@ -26,7 +26,7 @@
 
       <dt id="mapping">Koppeling OZ zaaktype:</dt>
       <dd v-if="!isEditingZaaktypeMapping && mapping.detZaaktypeId" class="mapping-display">
-        {{ selectedOzZaaktypeDisplay }}
+        {{ ozZaaktypes?.find((type) => type.id == mapping.ozZaaktypeId)?.identificatie }}
         <button
           type="button"
           class="secondary mapping-edit-button"
@@ -214,11 +214,6 @@ const statusMappings = ref<StatusMappingItem[]>([]);
 const statusMappingsComplete = ref(false);
 
 const showDetailMapping = computed(() => !!(mapping.value.detZaaktypeId && mapping.value.ozZaaktypeId));
-
-const selectedOzZaaktypeDisplay = computed(() => {
-  const zaaktype = ozZaaktypes.value?.find((type) => type.id == mapping.value.ozZaaktypeId);
-  return zaaktype ? `${zaaktype.identificatie} – ${zaaktype.omschrijving}` : '';
-});
 
 const resultaattypeMappings = ref<ResultaattypeMappingItem[]>([]);
 
