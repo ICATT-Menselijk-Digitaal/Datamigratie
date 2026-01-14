@@ -7,11 +7,14 @@ export type DetStatus = {
   eind: boolean;
 };
 
-export type DetResultaattypen = {
+export type DetResultaat = {
   naam: string;
-  omschrijving: string;
   actief: boolean;
-  eind: boolean;
+  omschrijving?: string;
+};
+
+export type DetResultaattypen = {
+   resultaat: DetResultaat;
 };
 
 export type DETZaaktype = {
@@ -21,7 +24,7 @@ export type DETZaaktype = {
   functioneleIdentificatie: string;
   closedZakenCount?: number;
   statuses?: DetStatus[];
-  resultaattypen?: DetResultaattypen[];
+  resultaten?: DetResultaattypen[];
 };
 
 export const detService = {

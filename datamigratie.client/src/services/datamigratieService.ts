@@ -129,7 +129,7 @@ export const datamigratieService = {
   saveStatusMappings: (zaaktypenMappingId: string, payload: SaveStatusMappingsRequest): Promise<void> =>
     post(`/api/mappings/${zaaktypenMappingId}/statuses`, payload),
   getResultaattypeMappings: (zaaktypenMappingId: string): Promise<ResultaattypeMappingResponse[]> =>
-    get<ResultaattypeMappingResponse[]>(`/api/mapping/${zaaktypenMappingId}/resultaattypen`),
+    get<ResultaattypeMappingResponse[]>(`/api/mappings/${zaaktypenMappingId}/resultaattypen`),
   saveResultaattypeMappings: (zaaktypenMappingId: string, payload: SaveResultaattypeMappingsRequest): Promise<void> =>
-    post(`/api/mapping/${zaaktypenMappingId}/resultaattypen`, payload)
+    post(`/api/mappings/${zaaktypenMappingId}/resultaattypen`, payload)
 };

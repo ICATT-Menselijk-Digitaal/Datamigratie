@@ -1,4 +1,4 @@
-using Datamigratie.Common.Helpers;
+﻿using Datamigratie.Common.Helpers;
 
 namespace Datamigratie.Common.Services.OpenZaak.Models
 {

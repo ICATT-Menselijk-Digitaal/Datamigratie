@@ -6,6 +6,6 @@
         public required string Naam { get; set; }
         public required string Omschrijving { get; set; }
         public required string FunctioneleIdentificatie { get; set; }
-        public List<DetResultaattype>? Resultaten { get; set; }
+        public List<DetResultaattype> Resultaten { get; set; } = [];
     }
 }

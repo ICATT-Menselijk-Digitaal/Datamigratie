@@ -8,10 +8,9 @@ export type OzStatustype = {
 };
 
 export type OzResultaattype = {
-  uuid: string;
+  id: string;
   omschrijving: string;
-  volgnummer: number;
-  isEindstatus: boolean;
+  url: string;
 };
 
 export type OZZaaktype = {

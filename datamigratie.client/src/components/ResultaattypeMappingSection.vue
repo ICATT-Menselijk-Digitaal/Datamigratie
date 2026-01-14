@@ -53,20 +53,20 @@ const emit = defineEmits<{
 
 // Computed properties for MappingGrid component
 const sourceResultaattypeItems = computed<MappingItem[]>(() => {
-  if (!props.detZaaktype?.resultaattypen) return [];
-  return props.detZaaktype.resultaattypen
-    .filter(resultaattype => resultaattype.actief)
+  if (!props.detZaaktype?.resultaten) return [];
+  return props.detZaaktype.resultaten
+    .filter(resultaattype => resultaattype.resultaat.actief)
     .map(resultaattype => ({
-      id: resultaattype.naam,
-      name: resultaattype.naam,
-      description: resultaattype.omschrijving
+      id: resultaattype.resultaat.naam,
+      name: resultaattype.resultaat.naam,
+      description: resultaattype.resultaat.omschrijving
     }));
 });
 
 const targetResultaattypeItems = computed<MappingItem[]>(() => {
   if (!props.ozZaaktype?.resultaattypen) return [];
   return props.ozZaaktype.resultaattypen.map(resultaattype => ({
-    id: resultaattype.uuid,
+    id: resultaattype.id,
     name: resultaattype.omschrijving,
     description: undefined
   }));
@@ -81,8 +81,8 @@ const mappingsModel = computed<Mapping[]>({
   },
   set: (newMappings: Mapping[]) => {
     const updated = newMappings.map(m => ({
-      detStatusNaam: m.sourceId,
-      ozStatustypeId: m.targetId
+      detResultaattypeNaam: m.sourceId,
+      ozResultaattypeId: m.targetId
     }));
     emit("update:resultaattypeMappings", updated);
   }

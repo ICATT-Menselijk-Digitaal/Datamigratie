@@ -64,6 +64,36 @@
       @save="saveStatusMappings"
     />
 
+    <menu class="reset edit-menu">
+      <li v-if="canEditStatusMappings">
+        <button type="button" class="secondary" @click="setEditingStatusMapping(true)">
+          Statusmappings aanpassen
+        </button>
+      </li>
+    </menu>
+
+    <resultaattype-mapping-section
+      :det-zaaktype="detZaaktype"
+      :oz-zaaktype="ozZaaktype"
+      :resultaattype-mappings="resultaattypeMappings"
+      :all-mapped="resultaattypeMappingsComplete"
+      :is-editing="isEditingResultaattypeMapping"
+      :disabled="isThisMigrationRunning"
+      :loading="!ozZaaktype"
+      :show-warning="!!mapping.detZaaktypeId"
+      :show-mapping="showDetailMapping"
+      @update:resultaattype-mappings="resultaattypeMappings = $event"
+      @save="saveResultaattypeMappings"
+    />
+
+    <menu class="reset edit-menu">
+      <li v-if="canEditResultaattypeMappings">
+        <button type="button" class="secondary" @click="setEditingResultaattypeMapping(true)">
+          Resultaattypemappings aanpassen
+        </button>
+      </li>
+    </menu>
+
     <menu class="reset">
       <li>
         <router-link
@@ -74,12 +104,6 @@
       </li>
 
       <template v-if="!errors.length && !isThisMigrationRunning">
-        <li v-if="canStartMigration && statusMappingsComplete">
-          <button type="button" class="secondary" @click="setEditingStatusMapping(true)">
-            Statusmappings aanpassen
-          </button>
-        </li>
-
         <li v-if="canStartMigration">
           <button type="button" @click="startMigration">Start migratie</button>
         </li>
@@ -168,6 +192,7 @@ import {
 } from "@/services/datamigratieService";
 import { knownErrorMessages } from "@/utils/fetchWrapper";
 import { useMigration } from "@/composables/use-migration-status";
+import ResultaattypeMappingSection from "@/components/ResultaattypeMappingSection.vue";
 
 const { detZaaktypeId } = defineProps<{ detZaaktypeId: string }>();
 
@@ -199,10 +224,31 @@ const setEditingZaaktypeMapping = (value: boolean) => (isEditingZaaktypeMapping.
 const isEditingStatusMapping = ref(false);
 const setEditingStatusMapping = (value: boolean) => (isEditingStatusMapping.value = value);
 
-const setEditingResultaattypeMapping = (value: boolean) => (isEditingStatusMapping.value = value);
+const isEditingResultaattypeMapping = ref(false);
+const setEditingResultaattypeMapping = (value: boolean) => (isEditingResultaattypeMapping.value = value);
 
 
 const previousOzZaaktypeId = ref<string>("");
+
+const canEditStatusMappings = computed(
+  () =>
+    !isThisMigrationRunning.value &&
+    mapping.value.detZaaktypeId &&
+    mapping.value.ozZaaktypeId &&
+    !isEditingZaaktypeMapping.value &&
+    !isEditingStatusMapping.value &&
+    statusMappingsComplete.value
+);
+
+const canEditResultaattypeMappings = computed(
+  () =>
+    !isThisMigrationRunning.value &&
+    mapping.value.detZaaktypeId &&
+    mapping.value.ozZaaktypeId &&
+    !isEditingZaaktypeMapping.value &&
+    !isEditingResultaattypeMapping.value &&
+    resultaattypeMappingsComplete.value
+);
 
 const canStartMigration = computed(
   () =>
@@ -210,8 +256,8 @@ const canStartMigration = computed(
     mapping.value.ozZaaktypeId &&
     migration.value?.status !== MigrationStatus.inProgress &&
     !isEditingZaaktypeMapping.value &&
-    !isEditingStatusMapping.value &&
-    statusMappingsComplete.value
+    canEditStatusMappings &&
+    canEditResultaattypeMappings
 );
 
 const isThisMigrationRunning = computed(
@@ -298,11 +344,11 @@ const fetchResultaattypenMappings = async () => {
     }
     
     // Build complete mapping list from DET resultaattypen
-    const activeDetResultaattypen = detZaaktype.value?.resultaattypen?.filter(s => s.actief) || [];
+    const activeDetResultaattypen = detZaaktype.value?.resultaten?.filter(s => s.resultaat.actief) || [];
     resultaattypeMappings.value = activeDetResultaattypen.map(detResultaattypen => {
-      const existingMapping = mappingsData.find(m => m.detResultaattypeNaam === detResultaattypen.naam);
+      const existingMapping = mappingsData.find(m => m.detResultaattypeNaam === detResultaattypen.resultaat.naam);
       return existingMapping || {
-        detResultaattypeNaam: detResultaattypen.naam,
+        detResultaattypeNaam: detResultaattypen.resultaat.naam,
         ozResultaattypeId: null
       };
     });
@@ -436,8 +482,8 @@ const submitMapping = async () => {
     mapping.value.detZaaktypeId &&
     previousOzZaaktypeId.value &&
     hasZaaktypeChanged &&
-    hasStatusMappings &&
-    hasResultaattypeMappings
+    (hasStatusMappings ||
+    hasResultaattypeMappings)
   ) {
     const result = await confirmOzZaaktypeChangeDialog.reveal();
     
@@ -481,6 +527,7 @@ const submitMapping = async () => {
 
     if (hasZaaktypeChanged) {
       await fetchStatusMappings();
+      await fetchResultaattypenMappings();
     }
   } catch (err: unknown) {
     toast.add({ text: `Fout bij opslaan van de mapping - ${err}`, type: "error" });
@@ -622,6 +669,15 @@ menu {
 
       li:first-of-type {
         margin-inline-end: auto;
+      }
+    }
+  }
+
+  &.edit-menu {
+    @media (min-width: variables.$breakpoint-md) {
+      li:only-of-type {
+        margin-inline-start: auto;
+        margin-inline-end: 0;
       }
     }
   }
