@@ -16,6 +16,18 @@ export type UpdateZaaktypeMapping = {
   updatedOzZaaktypeId: string;
 };
 
+export type ResultaattypeMappingRequest = {
+  ozZaaktypeId: string;
+  ozResultaattypeId: string;
+};
+
+export type ResultaattypeMappingResponse = {
+  detZaaktypeId: string;
+  detResultaattypeId: string;
+  ozZaaktypeId: string;
+  ozResultaattypeId: string;
+};
+
 export const MigrationStatus = Object.freeze({
   none: "None",
   inProgress: "InProgress"
