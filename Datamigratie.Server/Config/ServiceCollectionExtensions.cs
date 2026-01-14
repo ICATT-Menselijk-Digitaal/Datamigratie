@@ -1,7 +1,5 @@
 ﻿
 using Datamigratie.Common.Extensions;
-using Datamigratie.Server.Features.Mapping.MapResultaattypen;
-using Datamigratie.Server.Features.Mapping.ShowResultaattypeMapping;
 using Datamigratie.Server.Features.MigrateZaak;
 using Datamigratie.Server.Features.MigrateZaak.Pdf;
 using Datamigratie.Server.Features.Migration.StartMigration.Services;
@@ -11,11 +9,9 @@ using Datamigratie.Server.Features.Migration.GetMigrationHistory.Services;
 using Datamigratie.Server.Features.Migration.GetMigrationRecords.Services;
 using Datamigratie.Server.Features.Mapping.ZaaktypeMapping.ShowZaaktypenMapping;
 using Datamigratie.Server.Features.Mapping.ZaaktypeMapping.MapZaaktypen;
-using Datamigratie.Server.Features.Zaaktypen.ShowOzZaaktypen;
 using Datamigratie.Server.Features.Mapping.StatusMapping.ShowStatusMappings.Services;
 using Datamigratie.Server.Features.Mapping.StatusMapping.SaveStatusMappings.Services;
-using Datamigratie.Server.Features.Mapping.StatusMapping.ValidateMappings.Services;
-using Datamigratie.Server.Features.Mapping.Resultaattypen.ValidateMappings.Services;
+using Datamigratie.Server.Features.Mapping.StatusMapping.ValidateStatusMappings.Services;
 
 namespace Datamigratie.Server.Config
 {
@@ -28,8 +24,6 @@ namespace Datamigratie.Server.Config
             services.AddDatamigrationApiClients(configuration);
             services.AddScoped<IMapZaaktypenService, MapZaaktypenService>();
             services.AddScoped<IShowZaaktypenMappingService, ShowZaaktypenMappingService>();
-            services.AddScoped<ISaveResultaattypenMappingsService, SaveResultaattypenMappingsService>();
-            services.AddScoped<IShowResultaattypeMappingService, ShowResultaattypeMappingService>();
             services.AddScoped<IMigrateZaakService, MigrateZaakService>();
             services.AddScoped<IZaakgegevensPdfGenerator, ZaakgegevensPdfGenerator>();
 
@@ -39,7 +33,6 @@ namespace Datamigratie.Server.Config
             services.AddScoped<IShowStatusMappingsService, ShowStatusMappingsService>();
             services.AddScoped<ISaveStatusMappingsService, SaveStatusMappingsService>();
             services.AddScoped<IValidateStatusMappingsService, ValidateStatusMappingsService>();
-            services.AddScoped<IValidateResultaattypeMappingsService, ValidateResultaattypeMappingsService>();
 
             services.AddHostedService<StartMigrationBackgroundService>();
             services.AddSingleton<IMigrationBackgroundTaskQueue>(ctx =>
