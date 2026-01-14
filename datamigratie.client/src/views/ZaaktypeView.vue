@@ -15,6 +15,9 @@
       <dt>Omschrijving:</dt>
       <dd>{{ detZaaktype.omschrijving }}</dd>
 
+      <dt>Functionele identificatie:</dt>
+      <dd>{{ detZaaktype.functioneleIdentificatie }}</dd>
+
       <dt>Actief:</dt>
       <dd>{{ detZaaktype.actief ? "Ja" : "Nee" }}</dd>
 
@@ -24,8 +27,8 @@
       <dt id="mapping">Koppeling OZ zaaktype:</dt>
       <dd v-if="!isEditingZaaktypeMapping && mapping.detZaaktypeId" class="mapping-display">
         {{ ozZaaktypes?.find((type) => type.id == mapping.ozZaaktypeId)?.identificatie }}
-        <button 
-          type="button" 
+        <button
+          type="button"
           class="secondary mapping-edit-button"
           @click="setEditingZaaktypeMapping(true)"
           v-if="!isThisMigrationRunning"
@@ -42,8 +45,8 @@
         >
           <option v-if="!mapping.ozZaaktypeId" value="">Kies Open Zaak zaaktype</option>
 
-          <option v-for="{ id, identificatie } in ozZaaktypes" :value="id" :key="id">
-            {{ identificatie }}
+          <option v-for="{ id, identificatie, omschrijving } in ozZaaktypes" :value="id" :key="id">
+            {{ identificatie }} – {{ omschrijving }}
           </option>
         </select>
         <button type="submit" class="mapping-save-button">Mapping opslaan</button>
@@ -617,6 +620,14 @@ dl {
       select {
         flex: 1;
         min-width: 200px;
+        max-width: 100%;
+
+        option {
+          white-space: normal;
+          overflow-wrap: break-word;
+          word-wrap: break-word;
+          padding: var(--spacing-small);
+        }
       }
 
       .mapping-save-button {
