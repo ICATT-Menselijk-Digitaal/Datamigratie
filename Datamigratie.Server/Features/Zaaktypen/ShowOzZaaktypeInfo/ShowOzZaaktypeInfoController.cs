@@ -1,4 +1,4 @@
-using Datamigratie.Common.Services.OpenZaak;
+﻿using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Server.Features.Zaaktypen.ShowOzZaaktypeInfo.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,7 +26,7 @@ namespace Datamigratie.Server.Features.Zaaktypen.ShowOzZaaktypeInfo
                 Url = ozZaaktype.Url,
                 Identificatie = ozZaaktype.Identificatie,
                 Statustypes = ozStatustypes.OrderBy(st => st.Volgnummer).ToList(),
-                Resultaattypes = ozResultaattypes
+                Resultaattypen = ozResultaattypes
             };
 
             return enrichedOzZaaktype;

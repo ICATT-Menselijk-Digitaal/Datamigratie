@@ -59,6 +59,16 @@ namespace Datamigratie.Server.Features.Mapping.ZaaktypeMapping.MapZaaktypen
                     context.StatusMappings.RemoveRange(statusMappings);
                     await context.SaveChangesAsync();
                 }
+
+                var resultaattypeMappings = await context.ResultaattypeMappings
+                   .Where(sm => sm.ZaaktypenMappingId == currentMapping.Id)
+                   .ToListAsync();
+
+                if (resultaattypeMappings.Count != 0)
+                {
+                    context.ResultaattypeMappings.RemoveRange(resultaattypeMappings);
+                    await context.SaveChangesAsync();
+                }
             }
 
             currentMapping.OzZaaktypeId = newOzZaaktypeId;
