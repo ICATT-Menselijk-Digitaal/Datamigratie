@@ -65,8 +65,8 @@ public class StartMigrationService(
             migration.Id, migration.DetZaaktypeId, openZaaktypeId, zaken.Count);
 
         // Load resultaat and status mappings for this zaaktype
-        var resultaatMappings = await LoadResultaatMappingsAsync(zaaktypenMappingId, openZaaktypeId, ct);
-        var statusMappings = await LoadStatusMappingsAsync(zaaktypenMappingId, openZaaktypeId, ct);
+        var resultaatMappings = await LoadResultaatMappingsAsync(zaaktypenMappingId, ct);
+        var statusMappings = await LoadStatusMappingsAsync(zaaktypenMappingId, ct);
 
         foreach (var zaak in zaken)
         {
