@@ -1,5 +1,6 @@
 ﻿using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
+using Datamigratie.Common.Config;
 using Datamigratie.Data;
 using Datamigratie.Data.Entities;
 using Datamigratie.Server.Features.Migration.StartMigration.Queues.Items;
@@ -8,6 +9,7 @@ using Datamigratie.Server.Features.MigrateZaak;
 using Microsoft.EntityFrameworkCore;
 using Datamigratie.Server.Features.Migration.StartMigration.Models;
 using Datamigratie.Server.Features.MigrateZaak.Models;
+using Microsoft.Extensions.Options;
 
 namespace Datamigratie.Server.Features.Migration.StartMigration.Services;
 
@@ -22,9 +24,11 @@ public class StartMigrationService(
     IDetApiClient detApiClient,
     ILogger<StartMigrationService> logger,
     IMigrateZaakService migrateZaakService,
-    MigrationWorkerState workerState) : IStartMigrationService
+    MigrationWorkerState workerState,
+    IOptions<OpenZaakApiOptions> openZaakOptions) : IStartMigrationService
 {
     private const int MaxErrorMessageLength = 1000;
+    private readonly OpenZaakApiOptions _openZaakApiOptions = openZaakOptions.Value;
 
     public async Task PerformMigrationAsync(MigrationQueueItem migrationQueueItem, CancellationToken stoppingToken)
     {
@@ -52,13 +56,17 @@ public class StartMigrationService(
             return;
         }
 
-        await ExecuteMigration(migration, closedZaken, zaakTypeMapping.OzZaaktypeId, migrationQueueItem.GlobalMapping!, stoppingToken);
+        await ExecuteMigration(migration, closedZaken, zaakTypeMapping.Id, zaakTypeMapping.OzZaaktypeId, migrationQueueItem.GlobalMapping!, stoppingToken);
         await CompleteMigrationAsync(migration);
     }
-    private async Task ExecuteMigration(Data.Entities.Migration migration, List<DetZaakMinimal> zaken, Guid openZaaktypeId, GlobalMapping globalMapping, CancellationToken ct)
+    private async Task ExecuteMigration(Data.Entities.Migration migration, List<DetZaakMinimal> zaken, Guid zaaktypenMappingId, Guid openZaaktypeId, GlobalMapping globalMapping, CancellationToken ct)
     {
         logger.LogInformation("Starting migration {Id} for DET ZaaktypeId {DetZaaktypeId} to OZ ZaaktypeId {OpenZaaktypeId} with zaken count {Count} to migrate", 
             migration.Id, migration.DetZaaktypeId, openZaaktypeId, zaken.Count);
+
+        // Load resultaat and status mappings for this zaaktype
+        var resultaatMappings = await LoadResultaatMappingsAsync(zaaktypenMappingId, ct);
+        var statusMappings = await LoadStatusMappingsAsync(zaaktypenMappingId, ct);
 
         foreach (var zaak in zaken)
         {
@@ -68,7 +76,7 @@ public class StartMigrationService(
                 return;
             }
 
-            await MigrateSingleZaakAsync(migration, zaak, openZaaktypeId, globalMapping, ct);
+            await MigrateSingleZaakAsync(migration, zaak, openZaaktypeId, globalMapping, resultaatMappings, statusMappings, ct);
             await ReportProgressAsync(migration, ct);
         }
     }
@@ -86,13 +94,24 @@ public class StartMigrationService(
                 : 0.0);
     }
 
-    private async Task MigrateSingleZaakAsync(Data.Entities.Migration migration, DetZaakMinimal zaakMinimal, Guid openZaaktypeId, GlobalMapping globalMapping, CancellationToken ct)
+    private async Task MigrateSingleZaakAsync(Data.Entities.Migration migration, DetZaakMinimal zaakMinimal, Guid openZaaktypeId, GlobalMapping globalMapping, Dictionary<string, Uri> resultaatMappings, Dictionary<string, Uri> statusMappings, CancellationToken ct)
     {
         MigrationRecord record;
         try
         {
             var fullZaak = await FetchZaakFromDetAsync(zaakMinimal.FunctioneleIdentificatie);
-            var result = await migrateZaakService.MigrateZaak(fullZaak, new MigrateZaakMappingModel {  OpenZaaktypeId = openZaaktypeId,  Rsin = globalMapping.Rsin  }, ct);
+            
+            // Look up the specific resultaat and status mappings for this zaak
+            var resultaattypeUri = GetResultaattypeUriForZaak(fullZaak, resultaatMappings);
+            var statustypeUri = GetStatustypeUriForZaak(fullZaak, statusMappings);
+            
+            var result = await migrateZaakService.MigrateZaak(fullZaak, new MigrateZaakMappingModel 
+            {  
+                OpenZaaktypeId = openZaaktypeId,  
+                Rsin = globalMapping.Rsin,
+                ResultaattypeUri = resultaattypeUri,
+                StatustypeUri = statustypeUri
+            }, ct);
             
             record = CreateMigrationRecord(migration, zaakMinimal.FunctioneleIdentificatie, result);
         }
@@ -121,6 +140,44 @@ public class StartMigrationService(
         context.MigrationRecords.Add(record);
         migration.ProcessedRecords++;
         migration.LastUpdated = DateTime.UtcNow;
+    }
+
+    private Uri? GetResultaattypeUriForZaak(DetZaak zaak, Dictionary<string, Uri> resultaatMappings)
+    {
+        if (zaak.Resultaat == null || string.IsNullOrEmpty(zaak.Resultaat.Naam))
+        {
+            logger.LogWarning("Zaak {Zaaknummer} has no resultaat (Resultaat is null or Naam is empty). Resultaat will not be migrated.",
+                zaak.FunctioneleIdentificatie);
+            return null;
+        }
+
+        if (resultaatMappings.TryGetValue(zaak.Resultaat.Naam, out var resultaattypeUri))
+        {
+            return resultaattypeUri;
+        }
+
+        logger.LogWarning("No resultaat mapping found for zaak {Zaaknummer} with resultaat '{DetResultaat}'. Available mappings: {AvailableMappings}. Resultaat will not be migrated.",
+            zaak.FunctioneleIdentificatie, zaak.Resultaat.Naam, string.Join(", ", resultaatMappings.Keys));
+        return null;
+    }
+
+    private Uri? GetStatustypeUriForZaak(DetZaak zaak, Dictionary<string, Uri> statusMappings)
+    {
+        if (zaak.ZaakStatus == null || string.IsNullOrEmpty(zaak.ZaakStatus.Naam))
+        {
+            logger.LogWarning("Zaak {Zaaknummer} has no status (ZaakStatus is null or Naam is empty). Status will not be migrated.",
+                zaak.FunctioneleIdentificatie);
+            return null;
+        }
+
+        if (statusMappings.TryGetValue(zaak.ZaakStatus.Naam, out var statustypeUri))
+        {
+            return statustypeUri;
+        }
+
+        logger.LogWarning("No status mapping found for zaak {Zaaknummer} with status '{DetStatus}'. Available mappings: {AvailableMappings}. Status will not be migrated.",
+            zaak.FunctioneleIdentificatie, zaak.ZaakStatus.Naam, string.Join(", ", statusMappings.Keys));
+        return null;
     }
 
     private async Task<DetZaak> FetchZaakFromDetAsync(string zaaknummer)
@@ -251,5 +308,45 @@ public class StartMigrationService(
         context.Migrations.Add(migration);
         await context.SaveChangesAsync(ct);
         return migration;
+    }
+
+    private async Task<Dictionary<string, Uri>> LoadStatusMappingsAsync(Guid zaaktypenMappingId, CancellationToken ct)
+    {
+        var mappings = await context.StatusMappings
+            .Where(sm => sm.ZaaktypenMappingId == zaaktypenMappingId)
+            .ToListAsync(ct);
+
+        logger.LogInformation("Loaded {Count} status mappings for zaaktypenMapping {ZaaktypenMappingId}", mappings.Count, zaaktypenMappingId);
+
+        var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
+        var dictionary = new Dictionary<string, Uri>();
+
+        foreach (var mapping in mappings)
+        {
+            var statustypeUrl = new Uri($"{openZaakBaseUrl}catalogi/api/v1/statustypen/{mapping.OzStatustypeId}");
+            dictionary[mapping.DetStatusNaam] = statustypeUrl;
+        }
+
+        return dictionary;
+    }
+
+    private async Task<Dictionary<string, Uri>> LoadResultaatMappingsAsync(Guid zaaktypenMappingId, CancellationToken ct)
+    {
+        var mappings = await context.ResultaattypeMappings
+            .Where(rm => rm.ZaaktypenMappingId == zaaktypenMappingId)
+            .ToListAsync(ct);
+
+        logger.LogInformation("Loaded {Count} resultaat mappings for zaaktypenMapping {ZaaktypenMappingId}", mappings.Count, zaaktypenMappingId);
+
+        var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
+        var dictionary = new Dictionary<string, Uri>();
+
+        foreach (var mapping in mappings)
+        {
+            var resultaattypeUrl = new Uri($"{openZaakBaseUrl}catalogi/api/v1/resultaattypen/{mapping.OzResultaattypeId}");
+            dictionary[mapping.DetResultaattypeNaam] = resultaattypeUrl;
+        }
+
+        return dictionary;
     }
 }

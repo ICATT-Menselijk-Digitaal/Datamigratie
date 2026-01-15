@@ -20,6 +20,10 @@ namespace Datamigratie.Common.Services.OpenZaak
 
         Task<OzZaak> CreateZaak(CreateOzZaakRequest request);
 
+        Task<OzResultaat> CreateResultaat(CreateOzResultaatRequest request);
+
+        Task<OzStatus> CreateStatus(CreateOzStatusRequest request);
+
         Task<OzZaak?> GetZaakByIdentificatie(string zaakNummer);
 
         Task<List<Uri>> GetInformatieobjecttypenUrlsForZaaktype(Uri zaaktypeUri);
@@ -130,6 +134,40 @@ namespace Datamigratie.Common.Services.OpenZaak
             await response.HandleOpenZaakErrorsAsync();
             return await response.Content.ReadFromJsonAsync<OzZaak>()!
                 ?? throw new SerializationException("Unexpected null response"); ;
+        }
+
+        /// <summary>
+        /// Creates a new resultaat for a zaak in OpenZaak
+        /// </summary>
+        /// <param name="request">The resultaat creation request</param>
+        /// <returns>The created resultaat</returns>
+        /// <exception cref="HttpRequestException">Thrown when OpenZaak returns validation errors or other HTTP errors</exception>
+        public async Task<OzResultaat> CreateResultaat(CreateOzResultaatRequest request)
+        {
+            var endpoint = "zaken/api/v1/resultaten";
+
+            using var response = await _httpClient.PostAsJsonAsync(endpoint, request);
+            await response.HandleOpenZaakErrorsAsync();
+            return await response.Content.ReadFromJsonAsync<OzResultaat>()
+                ?? throw new SerializationException("Unexpected null response");
+        }
+
+        /// <summary>
+        /// Creates a status for a zaak in OpenZaak.
+        /// </summary>
+        /// <param name="request">The status creation request</param>
+        /// <returns>The created status</returns>
+        /// <exception cref="HttpRequestException">Thrown when OpenZaak returns validation errors or other HTTP errors</exception>
+        public async Task<OzStatus> CreateStatus(CreateOzStatusRequest request)
+        {
+            var endpoint = "zaken/api/v1/statussen";
+
+            using var content = JsonContent.Create(request);
+
+            using var response = await _httpClient.PostAsync(endpoint, content);
+            await response.HandleOpenZaakErrorsAsync();
+            return await response.Content.ReadFromJsonAsync<OzStatus>()
+                ?? throw new SerializationException("Unexpected null response");
         }
 
         public async Task<OzDocument> CreateDocument(OzDocument document)

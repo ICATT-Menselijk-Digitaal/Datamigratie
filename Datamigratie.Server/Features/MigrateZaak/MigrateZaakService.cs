@@ -19,7 +19,7 @@ namespace Datamigratie.Server.Features.MigrateZaak
         IOpenZaakApiClient openZaakApiClient,
         IDetApiClient detClient,
         IOptions<OpenZaakApiOptions> options,
-        IZaakgegevensPdfGenerator pdfGenerator ) : IMigrateZaakService
+        IZaakgegevensPdfGenerator pdfGenerator) : IMigrateZaakService
     {
         private readonly OpenZaakApiOptions _openZaakApiOptions = options.Value;
         private readonly IOpenZaakApiClient _openZaakApiClient = openZaakApiClient;
@@ -31,8 +31,15 @@ namespace Datamigratie.Server.Features.MigrateZaak
                 var createZaakRequest = CreateOzZaakCreationRequest(detZaak, mapping.OpenZaaktypeId, mapping.Rsin);
 
                 var createdZaak = await _openZaakApiClient.CreateZaak(createZaakRequest);
+
                 var informatieObjectTypen = await _openZaakApiClient.GetInformatieobjecttypenUrlsForZaaktype(createdZaak.Zaaktype);
                 var firstInformatieObjectType = informatieObjectTypen.First();
+
+                // Create resultaat for the zaak based on resultaat mapping (must be run before status)
+                await MigrateResultaatAsync(detZaak, createdZaak, mapping, token);
+
+                // Create status for the zaak based on status mapping
+                await MigrateStatusAsync(detZaak, createdZaak, mapping, token);
 
                 await UploadZaakgegevensPdfAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, token);
 
@@ -148,6 +155,49 @@ namespace Datamigratie.Server.Features.MigrateZaak
                     await _openZaakApiClient.UploadBestand(savedDoc, pdfStream, ct);
                 },
                 token);
+        }
+
+        private async Task MigrateResultaatAsync(DetZaak detZaak, OzZaak createdZaak, MigrateZaakMappingModel mapping, CancellationToken token)
+        {
+            if (mapping.ResultaattypeUri == null)
+            {
+                return;
+            }
+
+            // Create the resultaat in OpenZaak
+            var createResultaatRequest = new CreateOzResultaatRequest
+            {
+                Zaak = createdZaak.Url,
+                Resultaattype = mapping.ResultaattypeUri,
+                Toelichting = "Resultaat gemigreerd vanuit e-Suite"
+            };
+
+            await _openZaakApiClient.CreateResultaat(createResultaatRequest);
+        }
+
+        private async Task MigrateStatusAsync(DetZaak detZaak, OzZaak createdZaak, MigrateZaakMappingModel mapping, CancellationToken token)
+        {
+            if (mapping.StatustypeUri == null)
+            {
+                return;
+            }
+
+            if (!detZaak.Einddatum.HasValue)
+            {
+                throw new InvalidOperationException(
+                    $"Zaak {detZaak.FunctioneleIdentificatie} has no einddatum. Cannot determine datumStatusGezet.");
+            }
+
+            var datumStatusGezet = detZaak.Einddatum.Value.ToDateTime(TimeOnly.MinValue);
+            var createStatusRequest = new CreateOzStatusRequest
+            {
+                Zaak = createdZaak.Url,
+                Statustype = mapping.StatustypeUri,
+                DatumStatusGezet = datumStatusGezet,
+                Statustoelichting = $"Status gemigreerd vanuit e-Suite"
+            };
+
+            await _openZaakApiClient.CreateStatus(createStatusRequest);
         }
 
         /// <summary>
