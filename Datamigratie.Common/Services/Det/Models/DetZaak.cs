@@ -23,6 +23,8 @@ namespace Datamigratie.Common.Services.Det.Models
         public DateOnly? Fataledatum { get; set; }
         public bool GeautoriseerdVoorMedewerkers { get; set; }
         public bool Heropend { get; set; }
+        public DetResultaat? Resultaat { get; set; }
+        public DetStatus? ZaakStatus { get; set; }
         public bool Intake { get; set; }
         public bool Notificeerbaar { get; set; }
         public required string Omschrijving { get; set; }
