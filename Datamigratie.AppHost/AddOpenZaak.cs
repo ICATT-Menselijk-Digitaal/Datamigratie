@@ -16,6 +16,11 @@ public static class AddOpenZaakExtensions
             .WithImageRegistry("docker.io")
             .WithHttpHealthCheck("/admin")
             .WithOtlpExporter()
+            .WithCertificateTrustConfiguration(ctx =>
+            {
+                ctx.EnvironmentVariables["EXTRA_VERIFY_CERTS"] = ctx.CertificateBundlePath;
+                return Task.CompletedTask;
+            })
             .WithEnvironment("DJANGO_SETTINGS_MODULE", "openzaak.conf.docker")
             .WithEnvironment("SECRET_KEY", "7(h1r2hk)8z9+05edulo_3qzymwbo&c24=)qz7+_@3&2sp=u%i")
             .WithEnvironment("IS_HTTPS", "no")
