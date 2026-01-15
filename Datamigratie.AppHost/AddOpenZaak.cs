@@ -19,8 +19,6 @@ public static class AddOpenZaakExtensions
             .WithCertificateTrustConfiguration(ctx =>
             {
                 ctx.EnvironmentVariables["EXTRA_VERIFY_CERTS"] = ctx.CertificateBundlePath;
-                ctx.EnvironmentVariables["REQUESTS_CA_BUNDLE"] = ctx.CertificateBundlePath;
-                ctx.EnvironmentVariables["CURL_CA_BUNDLE"] = ctx.CertificateBundlePath;
                 ctx.EnvironmentVariables["OTEL_EXPORTER_OTLP_CERTIFICATE"] = ctx.CertificateBundlePath;
                 return Task.CompletedTask;
             })
