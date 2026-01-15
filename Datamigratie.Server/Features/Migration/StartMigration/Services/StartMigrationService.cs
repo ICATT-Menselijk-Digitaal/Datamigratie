@@ -310,7 +310,7 @@ public class StartMigrationService(
         return migration;
     }
 
-    private async Task<Dictionary<string, Uri>> LoadStatusMappingsAsync(Guid zaaktypenMappingId, Guid ozZaaktypeId, CancellationToken ct)
+    private async Task<Dictionary<string, Uri>> LoadStatusMappingsAsync(Guid zaaktypenMappingId, CancellationToken ct)
     {
         var mappings = await context.StatusMappings
             .Where(sm => sm.ZaaktypenMappingId == zaaktypenMappingId)
@@ -330,7 +330,7 @@ public class StartMigrationService(
         return dictionary;
     }
 
-    private async Task<Dictionary<string, Uri>> LoadResultaatMappingsAsync(Guid zaaktypenMappingId, Guid ozZaaktypeId, CancellationToken ct)
+    private async Task<Dictionary<string, Uri>> LoadResultaatMappingsAsync(Guid zaaktypenMappingId, CancellationToken ct)
     {
         var mappings = await context.ResultaattypeMappings
             .Where(rm => rm.ZaaktypenMappingId == zaaktypenMappingId)
