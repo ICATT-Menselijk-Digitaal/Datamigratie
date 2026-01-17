@@ -1,21 +1,20 @@
 ﻿
 using Datamigratie.Common.Extensions;
-using Datamigratie.Server.Features.Mapping.MapResultaattypen;
-using Datamigratie.Server.Features.Mapping.ShowResultaattypeMapping;
-using Datamigratie.Server.Features.MigrateZaak;
-using Datamigratie.Server.Features.MigrateZaak.Pdf;
-using Datamigratie.Server.Features.Migration.StartMigration.Services;
-using Datamigratie.Server.Features.Migration.StartMigration.Queues;
-using Datamigratie.Server.Features.Migration.StartMigration.State;
-using Datamigratie.Server.Features.Migration.GetMigrationHistory.Services;
-using Datamigratie.Server.Features.Migration.GetMigrationRecords.Services;
-using Datamigratie.Server.Features.Mapping.ZaaktypeMapping.ShowZaaktypenMapping;
-using Datamigratie.Server.Features.Mapping.ZaaktypeMapping.MapZaaktypen;
-using Datamigratie.Server.Features.Zaaktypen.ShowOzZaaktypen;
-using Datamigratie.Server.Features.Mapping.StatusMapping.ShowStatusMappings.Services;
-using Datamigratie.Server.Features.Mapping.StatusMapping.SaveStatusMappings.Services;
-using Datamigratie.Server.Features.Mapping.StatusMapping.ValidateMappings.Services;
-using Datamigratie.Server.Features.Mapping.Resultaattypen.ValidateMappings.Services;
+using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.MapZaaktypen.SaveDetToOzZaaktypeMapping;
+using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.MapZaaktypen.ShowDetToOzZaaktypeMapping;
+using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.Resultaattypen.SaveResultaattypeMappings;
+using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.Resultaattypen.ShowResultaattypeMapping;
+using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.Resultaattypen.ValidateMappings.Services;
+using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.StatusMapping.SaveStatusMappings.Services;
+using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.StatusMapping.ShowStatusMappings.Services;
+using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.StatusMapping.ValidateMappings.Services;
+using Datamigratie.Server.Features.Migrate.ManageMigrations.MigrationHistory.GetZaaktypeMigrationHistory.Services;
+using Datamigratie.Server.Features.Migrate.ManageMigrations.MigrationHistory.GetZakenMigrationHistory.Services;
+using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues;
+using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Services;
+using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.State;
+using Datamigratie.Server.Features.Migrate.MigrateZaak;
+using Datamigratie.Server.Features.Migrate.MigrateZaak.Pdf;
 
 namespace Datamigratie.Server.Config
 {

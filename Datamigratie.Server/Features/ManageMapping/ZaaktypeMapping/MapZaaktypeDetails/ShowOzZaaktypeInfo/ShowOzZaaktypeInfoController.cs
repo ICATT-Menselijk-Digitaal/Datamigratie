@@ -1,0 +1,36 @@
+﻿using Datamigratie.Common.Services.OpenZaak;
+using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.ShowOzZaaktypeInfo.Models;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.ShowOzZaaktypeInfo
+{
+    [ApiController]
+    [Route("api/oz/zaaktypen")]
+    public class ShowOzZaaktypeInfoController(IOpenZaakApiClient openZaakApiClient) : ControllerBase
+    {
+        [HttpGet("{zaaktypeUuid}")]
+        public async Task<ActionResult<EnrichedOzZaaktype>> GetZaaktype(Guid zaaktypeUuid)
+        {
+            var ozZaaktype = await openZaakApiClient.GetZaaktype(zaaktypeUuid);
+
+            if (ozZaaktype == null)
+            {
+                return NotFound();
+            }
+
+            var ozStatustypes = await openZaakApiClient.GetStatustypesForZaaktype(new Uri(ozZaaktype.Url));
+            var ozResultaattypes = await openZaakApiClient.GetResultaattypenForZaaktype(new Uri(ozZaaktype.Url));
+
+            var enrichedOzZaaktype = new EnrichedOzZaaktype
+            {
+                Url = ozZaaktype.Url,
+                Identificatie = ozZaaktype.Identificatie,
+                Statustypes = ozStatustypes.OrderBy(st => st.Volgnummer).ToList(),
+                Resultaattypen = ozResultaattypes,
+                Omschrijving = ozZaaktype.Omschrijving
+            };
+
+            return enrichedOzZaaktype;
+        }
+    }
+}
