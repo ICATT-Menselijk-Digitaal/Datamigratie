@@ -4,7 +4,6 @@ using System.Runtime.Serialization;
 using System.Text.Json.Nodes;
 using Datamigratie.Common.Helpers;
 using Datamigratie.Common.Services.OpenZaak.Models;
-using Datamigratie.Common.Services.Shared;
 
 namespace Datamigratie.Common.Services.OpenZaak
 {
@@ -43,7 +42,7 @@ namespace Datamigratie.Common.Services.OpenZaak
         Task UploadBestand(OzDocument document, Stream content, CancellationToken token);
     }
 
-    public class OpenZaakClient : PagedApiClient, IOpenZaakApiClient
+    public class OpenZaakClient : OzPagedApiClient, IOpenZaakApiClient
     {
         private const int DefaultStartingPage = 1;
 
