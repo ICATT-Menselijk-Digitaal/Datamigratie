@@ -56,17 +56,17 @@ public class StartMigrationService(
             return;
         }
 
-        await ExecuteMigration(migration, closedZaken, zaakTypeMapping.Id, zaakTypeMapping.OzZaaktypeId, migrationQueueItem.GlobalMapping!, stoppingToken);
+        await ExecuteMigration(migration, closedZaken, zaakTypeMapping.Id, zaakTypeMapping.OzZaaktypeId, migrationQueueItem.GlobalMapping!, migrationQueueItem.StatusMappings, migrationQueueItem.ResultaatMappings, stoppingToken);
         await CompleteMigrationAsync(migration);
     }
-    private async Task ExecuteMigration(Migration migration, List<DetZaakMinimal> zaken, Guid zaaktypenMappingId, Guid openZaaktypeId, GlobalMapping globalMapping, CancellationToken ct)
+    private async Task ExecuteMigration(Data.Entities.Migration migration, List<DetZaakMinimal> zaken, Guid zaaktypenMappingId, Guid openZaaktypeId, GlobalMapping globalMapping, Dictionary<string, Guid> statusMappings, Dictionary<string, Guid> resultaatMappings, CancellationToken ct)
     {
         logger.LogInformation("Starting migration {Id} for DET ZaaktypeId {DetZaaktypeId} to OZ ZaaktypeId {OpenZaaktypeId} with zaken count {Count} to migrate", 
             migration.Id, migration.DetZaaktypeId, openZaaktypeId, zaken.Count);
 
-        // Load resultaat and status mappings for this zaaktype
-        var resultaatMappings = await LoadResultaatMappingsAsync(zaaktypenMappingId, ct);
-        var statusMappings = await LoadStatusMappingsAsync(zaaktypenMappingId, ct);
+        // Convert Guid mappings to URI dictionaries
+        var resultaatUriMappings = ConvertResultaatMappingsToUris(resultaatMappings);
+        var statusUriMappings = ConvertStatusMappingsToUris(statusMappings);
 
         foreach (var zaak in zaken)
         {
@@ -76,7 +76,7 @@ public class StartMigrationService(
                 return;
             }
 
-            await MigrateSingleZaakAsync(migration, zaak, openZaaktypeId, globalMapping, resultaatMappings, statusMappings, ct);
+            await MigrateSingleZaakAsync(migration, zaak, openZaaktypeId, globalMapping, resultaatUriMappings, statusUriMappings, ct);
             await ReportProgressAsync(migration, ct);
         }
     }
@@ -310,43 +310,39 @@ public class StartMigrationService(
         return migration;
     }
 
-    private async Task<Dictionary<string, Uri>> LoadStatusMappingsAsync(Guid zaaktypenMappingId, CancellationToken ct)
+    /// <summary>
+    /// Converts status mappings from Guid format to URI format.
+    /// </summary>
+    private Dictionary<string, Uri> ConvertStatusMappingsToUris(Dictionary<string, Guid> statusMappings)
     {
-        var mappings = await context.StatusMappings
-            .Where(sm => sm.ZaaktypenMappingId == zaaktypenMappingId)
-            .ToListAsync(ct);
-
-        logger.LogInformation("Loaded {Count} status mappings for zaaktypenMapping {ZaaktypenMappingId}", mappings.Count, zaaktypenMappingId);
-
         var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
         var dictionary = new Dictionary<string, Uri>();
 
-        foreach (var mapping in mappings)
+        foreach (var (detStatusNaam, ozStatustypeId) in statusMappings)
         {
-            var statustypeUrl = new Uri($"{openZaakBaseUrl}catalogi/api/v1/statustypen/{mapping.OzStatustypeId}");
-            dictionary[mapping.DetStatusNaam] = statustypeUrl;
+            var statustypeUrl = new Uri($"{openZaakBaseUrl}catalogi/api/v1/statustypen/{ozStatustypeId}");
+            dictionary[detStatusNaam] = statustypeUrl;
         }
 
+        logger.LogInformation("Converted {Count} status mappings to URIs", dictionary.Count);
         return dictionary;
     }
 
-    private async Task<Dictionary<string, Uri>> LoadResultaatMappingsAsync(Guid zaaktypenMappingId, CancellationToken ct)
+    /// <summary>
+    /// Converts resultaat mappings from Guid format to URI format.
+    /// </summary>
+    private Dictionary<string, Uri> ConvertResultaatMappingsToUris(Dictionary<string, Guid> resultaatMappings)
     {
-        var mappings = await context.ResultaattypeMappings
-            .Where(rm => rm.ZaaktypenMappingId == zaaktypenMappingId)
-            .ToListAsync(ct);
-
-        logger.LogInformation("Loaded {Count} resultaat mappings for zaaktypenMapping {ZaaktypenMappingId}", mappings.Count, zaaktypenMappingId);
-
         var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
         var dictionary = new Dictionary<string, Uri>();
 
-        foreach (var mapping in mappings)
+        foreach (var (detResultaattypeNaam, ozResultaattypeId) in resultaatMappings)
         {
-            var resultaattypeUrl = new Uri($"{openZaakBaseUrl}catalogi/api/v1/resultaattypen/{mapping.OzResultaattypeId}");
-            dictionary[mapping.DetResultaattypeNaam] = resultaattypeUrl;
+            var resultaattypeUrl = new Uri($"{openZaakBaseUrl}catalogi/api/v1/resultaattypen/{ozResultaattypeId}");
+            dictionary[detResultaattypeNaam] = resultaattypeUrl;
         }
 
+        logger.LogInformation("Converted {Count} resultaat mappings to URIs", dictionary.Count);
         return dictionary;
     }
 }

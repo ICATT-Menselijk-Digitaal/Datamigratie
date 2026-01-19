@@ -6,33 +6,39 @@ namespace Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDet
 
 public interface IValidateResultaattypeMappingsService
 {
-    Task<bool> AreAllResultaattypenMapped(DetZaaktypeDetail detZaaktype);
+    Task<(bool IsValid, Dictionary<string, Guid> Mappings)> ValidateAndGetResultaattypeMappings(DetZaaktypeDetail detZaaktype);
 }
 
 public class ValidateResultaattypeMappingsService(
     DatamigratieDbContext context) : IValidateResultaattypeMappingsService
 {
-    public async Task<bool> AreAllResultaattypenMapped(DetZaaktypeDetail detZaaktype)
+    public async Task<(bool IsValid, Dictionary<string, Guid> Mappings)> ValidateAndGetResultaattypeMappings(DetZaaktypeDetail detZaaktype)
     {
         var detResultaattypen = detZaaktype.Resultaten?
             .Select(r => r.Resultaat.Naam)
             .ToList() ?? [];
 
+        // If no resultaattypen for det zaaktype, consider it valid
         if (detResultaattypen.Count == 0)
-            return true;
+        {
+            return (true, new Dictionary<string, Guid>());
+        }
 
         var zaaktypenMapping = await context.Mappings
             .FirstOrDefaultAsync(m => m.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie);
 
         if (zaaktypenMapping == null)
-            return false;
+            return (false, new Dictionary<string, Guid>());
 
-        var mappedResultaattypen = await context.ResultaattypeMappings
+        var mappings = await context.ResultaattypeMappings
             .Where(rm => rm.ZaaktypenMappingId == zaaktypenMapping.Id)
-            .Select(rm => rm.DetResultaattypeNaam)
             .ToListAsync();
 
+        var mappingDictionary = mappings.ToDictionary(m => m.DetResultaattypeNaam, m => m.OzResultaattypeId);
+
         // checking if all DET resultaattypen are mapped
-        return detResultaattypen.All(resultaat => mappedResultaattypen.Contains(resultaat));
+        var allMapped = detResultaattypen.All(resultaat => mappingDictionary.ContainsKey(resultaat));
+        
+        return (allMapped, mappingDictionary);
     }
 }
