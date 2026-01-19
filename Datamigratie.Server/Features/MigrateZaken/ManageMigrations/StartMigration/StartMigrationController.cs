@@ -1,11 +1,11 @@
 ﻿using Datamigratie.Common.Services.Det;
 using Datamigratie.Data;
-using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.Resultaattypen.ValidateMappings.Services;
-using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.StatusMapping.ValidateMappings.Services;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Models;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues.Items;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.State;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Resultaat;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Status;
 using Datamigratie.Server.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -40,25 +40,17 @@ public class StartMigrationController(
                 return BadRequest(new { message = "DET Zaaktype not found." });
             }
 
-            // validating all statuses are mapped before starting migration
-            var allStatusesMapped = await validateStatusMappingsService.AreAllStatusesMapped(detZaaktype);
-            if (!allStatusesMapped)
-            {
-                return BadRequest(new { message = "Not all DET statuses have been mapped to OZ statuses. Please configure status mappings first." });
-            }
+            var globalMapping = await ValidateAndGetGlobalMappingAsync();
 
-            var allResultaattypenMapped = await validateResultaattypeMappingsService.AreAllResultaattypenMapped(detZaaktype);
-            if (!allResultaattypenMapped)
-            {
-                return BadRequest(new { message = "Not all DET Resultaattypen have been mapped to OZ resultaattypen. Please configure resultaattypen mappings first." });
-            }
-
-            var globalMapping = await GetAndValidateGlobalMappingAsync();
+            var statusMappings = await ValidateAndGetStatusMappingsAsync(detZaaktype);
+            var resultaatMappings = await ValidateAndGetResultaattypeMappingsAsync(detZaaktype);
 
             await backgroundTaskQueue.QueueMigrationAsync(new MigrationQueueItem
             {
                 DetZaaktypeId = request.DetZaaktypeId,
-                GlobalMapping = globalMapping
+                GlobalMapping = globalMapping,
+                StatusMappings = statusMappings,
+                ResultaatMappings = resultaatMappings
             });
         }
         catch (Exception e)
@@ -89,7 +81,7 @@ public class StartMigrationController(
         });
     }
 
-    private async Task<GlobalMapping> GetAndValidateGlobalMappingAsync()
+    private async Task<GlobalMapping> ValidateAndGetGlobalMappingAsync()
     {
         var globalMapping = await dbContext.GlobalConfigurations
             .Select(x => new GlobalMapping { Rsin = x.Rsin! })
@@ -98,5 +90,23 @@ public class StartMigrationController(
         RsinValidator.ValidateRsin(globalMapping.Rsin, logger);
 
         return globalMapping;
+    }
+
+    private async Task<Dictionary<string, Guid>> ValidateAndGetStatusMappingsAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)
+    {
+        var (statusMappingsValid, statusMappings) = await validateStatusMappingsService.ValidateAndGetStatusMappings(detZaaktype);
+
+        return !statusMappingsValid
+            ? throw new InvalidOperationException("Not all DET statuses have been mapped to OZ statuses. Please configure status mappings first.")
+            : statusMappings;
+    }
+
+    private async Task<Dictionary<string, Guid>> ValidateAndGetResultaattypeMappingsAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)
+    {
+        var (resultaatMappingsValid, resultaatMappings) = await validateResultaattypeMappingsService.ValidateAndGetResultaattypeMappings(detZaaktype);
+
+        return !resultaatMappingsValid
+            ? throw new InvalidOperationException("Not all DET Resultaattypen have been mapped to OZ resultaattypen. Please configure resultaattypen mappings first.")
+            : resultaatMappings;
     }
 }

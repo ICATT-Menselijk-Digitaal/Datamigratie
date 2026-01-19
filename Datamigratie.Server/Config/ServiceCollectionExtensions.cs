@@ -4,10 +4,8 @@ using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.MapZaaktypen.Sa
 using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.MapZaaktypen.ShowDetToOzZaaktypeMapping;
 using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.Resultaattypen.SaveResultaattypeMappings;
 using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.Resultaattypen.ShowResultaattypeMapping;
-using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.Resultaattypen.ValidateMappings.Services;
 using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.StatusMapping.SaveStatusMappings.Services;
 using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.StatusMapping.ShowStatusMappings.Services;
-using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.StatusMapping.ValidateMappings.Services;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.MigrationHistory.GetZaaktypeMigrationHistory.Services;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.MigrationHistory.GetZakenMigrationHistory.Services;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues;
@@ -15,6 +13,8 @@ using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Servi
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.State;
 using Datamigratie.Server.Features.Migrate.MigrateZaak;
 using Datamigratie.Server.Features.Migrate.MigrateZaak.Pdf;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Resultaat;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Status;
 
 namespace Datamigratie.Server.Config
 {

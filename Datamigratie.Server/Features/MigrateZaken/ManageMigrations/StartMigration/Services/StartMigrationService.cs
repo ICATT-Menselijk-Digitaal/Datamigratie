@@ -56,17 +56,13 @@ public class StartMigrationService(
             return;
         }
 
-        await ExecuteMigration(migration, closedZaken, zaakTypeMapping.Id, zaakTypeMapping.OzZaaktypeId, migrationQueueItem.GlobalMapping!, stoppingToken);
+        await ExecuteMigration(migration, closedZaken, zaakTypeMapping.Id, zaakTypeMapping.OzZaaktypeId, migrationQueueItem.GlobalMapping!, migrationQueueItem.StatusMappings, migrationQueueItem.ResultaatMappings, stoppingToken);
         await CompleteMigrationAsync(migration);
     }
-    private async Task ExecuteMigration(Migration migration, List<DetZaakMinimal> zaken, Guid zaaktypenMappingId, Guid openZaaktypeId, GlobalMapping globalMapping, CancellationToken ct)
+    private async Task ExecuteMigration(Data.Entities.Migration migration, List<DetZaakMinimal> zaken, Guid zaaktypenMappingId, Guid openZaaktypeId, GlobalMapping globalMapping, Dictionary<string, Guid> statusMappings, Dictionary<string, Guid> resultaatMappings, CancellationToken ct)
     {
         logger.LogInformation("Starting migration {Id} for DET ZaaktypeId {DetZaaktypeId} to OZ ZaaktypeId {OpenZaaktypeId} with zaken count {Count} to migrate", 
             migration.Id, migration.DetZaaktypeId, openZaaktypeId, zaken.Count);
-
-        // Load resultaat and status mappings for this zaaktype
-        var resultaatMappings = await LoadResultaatMappingsAsync(zaaktypenMappingId, ct);
-        var statusMappings = await LoadStatusMappingsAsync(zaaktypenMappingId, ct);
 
         foreach (var zaak in zaken)
         {
@@ -94,7 +90,7 @@ public class StartMigrationService(
                 : 0.0);
     }
 
-    private async Task MigrateSingleZaakAsync(Migration migration, DetZaakMinimal zaakMinimal, Guid openZaaktypeId, GlobalMapping globalMapping, Dictionary<string, Uri> resultaatMappings, Dictionary<string, Uri> statusMappings, CancellationToken ct)
+    private async Task MigrateSingleZaakAsync(Migration migration, DetZaakMinimal zaakMinimal, Guid openZaaktypeId, GlobalMapping globalMapping, Dictionary<string, Guid> resultaatMappings, Dictionary<string, Guid> statusMappings, CancellationToken ct)
     {
         MigrationRecord record;
         try
@@ -142,7 +138,7 @@ public class StartMigrationService(
         migration.LastUpdated = DateTime.UtcNow;
     }
 
-    private Uri? GetResultaattypeUriForZaak(DetZaak zaak, Dictionary<string, Uri> resultaatMappings)
+    private Uri? GetResultaattypeUriForZaak(DetZaak zaak, Dictionary<string, Guid> resultaatMappings)
     {
         if (zaak.Resultaat == null || string.IsNullOrEmpty(zaak.Resultaat.Naam))
         {
@@ -151,9 +147,10 @@ public class StartMigrationService(
             return null;
         }
 
-        if (resultaatMappings.TryGetValue(zaak.Resultaat.Naam, out var resultaattypeUri))
+        if (resultaatMappings.TryGetValue(zaak.Resultaat.Naam, out var resultaattypeId))
         {
-            return resultaattypeUri;
+            var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
+            return new Uri($"{openZaakBaseUrl}catalogi/api/v1/resultaattypen/{resultaattypeId}");
         }
 
         logger.LogWarning("No resultaat mapping found for zaak {Zaaknummer} with resultaat '{DetResultaat}'. Available mappings: {AvailableMappings}. Resultaat will not be migrated.",
@@ -161,7 +158,7 @@ public class StartMigrationService(
         return null;
     }
 
-    private Uri? GetStatustypeUriForZaak(DetZaak zaak, Dictionary<string, Uri> statusMappings)
+    private Uri? GetStatustypeUriForZaak(DetZaak zaak, Dictionary<string, Guid> statusMappings)
     {
         if (zaak.ZaakStatus == null || string.IsNullOrEmpty(zaak.ZaakStatus.Naam))
         {
@@ -170,9 +167,10 @@ public class StartMigrationService(
             return null;
         }
 
-        if (statusMappings.TryGetValue(zaak.ZaakStatus.Naam, out var statustypeUri))
+        if (statusMappings.TryGetValue(zaak.ZaakStatus.Naam, out var statustypeId))
         {
-            return statustypeUri;
+            var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
+            return new Uri($"{openZaakBaseUrl}catalogi/api/v1/statustypen/{statustypeId}");
         }
 
         logger.LogWarning("No status mapping found for zaak {Zaaknummer} with status '{DetStatus}'. Available mappings: {AvailableMappings}. Status will not be migrated.",
@@ -308,45 +306,5 @@ public class StartMigrationService(
         context.Migrations.Add(migration);
         await context.SaveChangesAsync(ct);
         return migration;
-    }
-
-    private async Task<Dictionary<string, Uri>> LoadStatusMappingsAsync(Guid zaaktypenMappingId, CancellationToken ct)
-    {
-        var mappings = await context.StatusMappings
-            .Where(sm => sm.ZaaktypenMappingId == zaaktypenMappingId)
-            .ToListAsync(ct);
-
-        logger.LogInformation("Loaded {Count} status mappings for zaaktypenMapping {ZaaktypenMappingId}", mappings.Count, zaaktypenMappingId);
-
-        var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
-        var dictionary = new Dictionary<string, Uri>();
-
-        foreach (var mapping in mappings)
-        {
-            var statustypeUrl = new Uri($"{openZaakBaseUrl}catalogi/api/v1/statustypen/{mapping.OzStatustypeId}");
-            dictionary[mapping.DetStatusNaam] = statustypeUrl;
-        }
-
-        return dictionary;
-    }
-
-    private async Task<Dictionary<string, Uri>> LoadResultaatMappingsAsync(Guid zaaktypenMappingId, CancellationToken ct)
-    {
-        var mappings = await context.ResultaattypeMappings
-            .Where(rm => rm.ZaaktypenMappingId == zaaktypenMappingId)
-            .ToListAsync(ct);
-
-        logger.LogInformation("Loaded {Count} resultaat mappings for zaaktypenMapping {ZaaktypenMappingId}", mappings.Count, zaaktypenMappingId);
-
-        var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
-        var dictionary = new Dictionary<string, Uri>();
-
-        foreach (var mapping in mappings)
-        {
-            var resultaattypeUrl = new Uri($"{openZaakBaseUrl}catalogi/api/v1/resultaattypen/{mapping.OzResultaattypeId}");
-            dictionary[mapping.DetResultaattypeNaam] = resultaattypeUrl;
-        }
-
-        return dictionary;
     }
 }

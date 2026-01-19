@@ -11,5 +11,17 @@ namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Q
         /// It is guaranteed to be non-null and valid when PerformMigrationAsync is called.
         /// </summary>
         public required GlobalMapping GlobalMapping { get; set; }
+
+        /// <summary>
+        /// Status mappings loaded and validated by StartMigrationController before queuing.
+        /// Dictionary: DetStatusNaam -> OzStatustypeId
+        /// </summary>
+        public required Dictionary<string, Guid> StatusMappings { get; set; }
+
+        /// <summary>
+        /// Resultaat mappings loaded and validated by StartMigrationController before queuing.
+        /// Dictionary: DetResultaattypeNaam -> OzResultaattypeId
+        /// </summary>
+        public required Dictionary<string, Guid> ResultaatMappings { get; set; }
     }
 }
