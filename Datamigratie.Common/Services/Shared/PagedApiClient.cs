@@ -56,8 +56,8 @@ namespace Datamigratie.Common.Services.Shared
             return new PagedResponse<T>
             {
                 Count = totalCount,
-                NextPage = false,
-                PreviousPage = false,
+                Next = null,
+                Previous = null,
                 Results = allResults
             };
         }
