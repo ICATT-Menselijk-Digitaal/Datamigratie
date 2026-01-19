@@ -9,11 +9,7 @@ public static class Extensions
 {
     public static IHostApplicationBuilder AddDatamigratieDbContext(this IHostApplicationBuilder builder, string connectionName = "Datamigratie")
     {
-        builder.Services.AddDbContext<DatamigratieDbContext>(options =>
-        {
-            options.UseNpgsql(builder.Configuration.GetConnectionString(connectionName));
-        });
-
+        builder.AddNpgsqlDbContext<DatamigratieDbContext>(connectionName);
         return builder;
     }
 }
