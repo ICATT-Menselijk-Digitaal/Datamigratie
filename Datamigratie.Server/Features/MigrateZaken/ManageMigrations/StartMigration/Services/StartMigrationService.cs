@@ -64,10 +64,6 @@ public class StartMigrationService(
         logger.LogInformation("Starting migration {Id} for DET ZaaktypeId {DetZaaktypeId} to OZ ZaaktypeId {OpenZaaktypeId} with zaken count {Count} to migrate", 
             migration.Id, migration.DetZaaktypeId, openZaaktypeId, zaken.Count);
 
-        // Convert Guid mappings to URI dictionaries
-        var resultaatUriMappings = ConvertResultaatMappingsToUris(resultaatMappings);
-        var statusUriMappings = ConvertStatusMappingsToUris(statusMappings);
-
         foreach (var zaak in zaken)
         {
             if (ct.IsCancellationRequested)
@@ -76,7 +72,7 @@ public class StartMigrationService(
                 return;
             }
 
-            await MigrateSingleZaakAsync(migration, zaak, openZaaktypeId, globalMapping, resultaatUriMappings, statusUriMappings, ct);
+            await MigrateSingleZaakAsync(migration, zaak, openZaaktypeId, globalMapping, resultaatMappings, statusMappings, ct);
             await ReportProgressAsync(migration, ct);
         }
     }
@@ -94,7 +90,7 @@ public class StartMigrationService(
                 : 0.0);
     }
 
-    private async Task MigrateSingleZaakAsync(Migration migration, DetZaakMinimal zaakMinimal, Guid openZaaktypeId, GlobalMapping globalMapping, Dictionary<string, Uri> resultaatMappings, Dictionary<string, Uri> statusMappings, CancellationToken ct)
+    private async Task MigrateSingleZaakAsync(Migration migration, DetZaakMinimal zaakMinimal, Guid openZaaktypeId, GlobalMapping globalMapping, Dictionary<string, Guid> resultaatMappings, Dictionary<string, Guid> statusMappings, CancellationToken ct)
     {
         MigrationRecord record;
         try
@@ -142,7 +138,7 @@ public class StartMigrationService(
         migration.LastUpdated = DateTime.UtcNow;
     }
 
-    private Uri? GetResultaattypeUriForZaak(DetZaak zaak, Dictionary<string, Uri> resultaatMappings)
+    private Uri? GetResultaattypeUriForZaak(DetZaak zaak, Dictionary<string, Guid> resultaatMappings)
     {
         if (zaak.Resultaat == null || string.IsNullOrEmpty(zaak.Resultaat.Naam))
         {
@@ -151,9 +147,10 @@ public class StartMigrationService(
             return null;
         }
 
-        if (resultaatMappings.TryGetValue(zaak.Resultaat.Naam, out var resultaattypeUri))
+        if (resultaatMappings.TryGetValue(zaak.Resultaat.Naam, out var resultaattypeId))
         {
-            return resultaattypeUri;
+            var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
+            return new Uri($"{openZaakBaseUrl}catalogi/api/v1/resultaattypen/{resultaattypeId}");
         }
 
         logger.LogWarning("No resultaat mapping found for zaak {Zaaknummer} with resultaat '{DetResultaat}'. Available mappings: {AvailableMappings}. Resultaat will not be migrated.",
@@ -161,7 +158,7 @@ public class StartMigrationService(
         return null;
     }
 
-    private Uri? GetStatustypeUriForZaak(DetZaak zaak, Dictionary<string, Uri> statusMappings)
+    private Uri? GetStatustypeUriForZaak(DetZaak zaak, Dictionary<string, Guid> statusMappings)
     {
         if (zaak.ZaakStatus == null || string.IsNullOrEmpty(zaak.ZaakStatus.Naam))
         {
@@ -170,9 +167,10 @@ public class StartMigrationService(
             return null;
         }
 
-        if (statusMappings.TryGetValue(zaak.ZaakStatus.Naam, out var statustypeUri))
+        if (statusMappings.TryGetValue(zaak.ZaakStatus.Naam, out var statustypeId))
         {
-            return statustypeUri;
+            var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
+            return new Uri($"{openZaakBaseUrl}catalogi/api/v1/statustypen/{statustypeId}");
         }
 
         logger.LogWarning("No status mapping found for zaak {Zaaknummer} with status '{DetStatus}'. Available mappings: {AvailableMappings}. Status will not be migrated.",
@@ -308,39 +306,5 @@ public class StartMigrationService(
         context.Migrations.Add(migration);
         await context.SaveChangesAsync(ct);
         return migration;
-    }
-
-    /// <summary>
-    /// Converts status mappings from Guid format to URI format.
-    /// </summary>
-    private Dictionary<string, Uri> ConvertStatusMappingsToUris(Dictionary<string, Guid> statusMappings)
-    {
-        var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
-        var dictionary = new Dictionary<string, Uri>();
-
-        foreach (var (detStatusNaam, ozStatustypeId) in statusMappings)
-        {
-            var statustypeUrl = new Uri($"{openZaakBaseUrl}catalogi/api/v1/statustypen/{ozStatustypeId}");
-            dictionary[detStatusNaam] = statustypeUrl;
-        }
-
-        return dictionary;
-    }
-
-    /// <summary>
-    /// Converts resultaat mappings from Guid format to URI format.
-    /// </summary>
-    private Dictionary<string, Uri> ConvertResultaatMappingsToUris(Dictionary<string, Guid> resultaatMappings)
-    {
-        var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
-        var dictionary = new Dictionary<string, Uri>();
-
-        foreach (var (detResultaattypeNaam, ozResultaattypeId) in resultaatMappings)
-        {
-            var resultaattypeUrl = new Uri($"{openZaakBaseUrl}catalogi/api/v1/resultaattypen/{ozResultaattypeId}");
-            dictionary[detResultaattypeNaam] = resultaattypeUrl;
-        }
-
-        return dictionary;
     }
 }
