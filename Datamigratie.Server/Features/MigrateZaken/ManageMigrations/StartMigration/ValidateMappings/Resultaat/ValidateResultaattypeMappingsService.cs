@@ -2,7 +2,7 @@
 using Datamigratie.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.Resultaattypen.ValidateMappings.Services;
+namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Resultaat;
 
 public interface IValidateResultaattypeMappingsService
 {

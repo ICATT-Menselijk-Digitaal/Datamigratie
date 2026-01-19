@@ -1,11 +1,11 @@
 ﻿using Datamigratie.Common.Services.Det;
 using Datamigratie.Data;
-using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.Resultaattypen.ValidateMappings.Services;
-using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.StatusMapping.ValidateMappings.Services;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Models;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues.Items;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.State;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Resultaat;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Status;
 using Datamigratie.Server.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
