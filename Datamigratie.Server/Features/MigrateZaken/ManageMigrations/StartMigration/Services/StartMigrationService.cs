@@ -324,7 +324,6 @@ public class StartMigrationService(
             dictionary[detStatusNaam] = statustypeUrl;
         }
 
-        logger.LogInformation("Converted {Count} status mappings to URIs", dictionary.Count);
         return dictionary;
     }
 
@@ -342,7 +341,6 @@ public class StartMigrationService(
             dictionary[detResultaattypeNaam] = resultaattypeUrl;
         }
 
-        logger.LogInformation("Converted {Count} resultaat mappings to URIs", dictionary.Count);
         return dictionary;
     }
 }
