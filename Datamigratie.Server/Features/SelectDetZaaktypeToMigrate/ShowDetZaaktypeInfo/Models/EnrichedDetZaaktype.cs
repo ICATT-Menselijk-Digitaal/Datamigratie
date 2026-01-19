@@ -1,6 +1,6 @@
 ﻿using Datamigratie.Common.Services.Det.Models;
 
-namespace Datamigratie.Server.Features.Shared.SelectDetZaaktype.ShowDetZaaktypeInfo.Models
+namespace Datamigratie.Server.Features.SelectDetZaaktypeToMigrate.ShowDetZaaktypeInfo.Models
 {
     public class EnrichedDetZaaktype : DetZaaktype
     {

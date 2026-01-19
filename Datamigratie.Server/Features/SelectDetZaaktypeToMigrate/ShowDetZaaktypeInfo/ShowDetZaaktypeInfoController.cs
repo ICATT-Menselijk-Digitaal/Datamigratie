@@ -1,8 +1,8 @@
 ﻿using Datamigratie.Common.Services.Det;
-using Datamigratie.Server.Features.Shared.SelectDetZaaktype.ShowDetZaaktypeInfo.Models;
+using Datamigratie.Server.Features.SelectDetZaaktypeToMigrate.ShowDetZaaktypeInfo.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Datamigratie.Server.Features.Shared.SelectDetZaaktype.ShowDetZaaktypeInfo
+namespace Datamigratie.Server.Features.SelectDetZaaktypeToMigrate.ShowDetZaaktypeInfo
 {
     [ApiController]
     [Route("api/det/zaaktypen")]
