@@ -12,8 +12,6 @@ OpenZaakApi__ApiKey
 DetApi__BaseUrl
 DetApi__ApiKey
 
-ConnectionStrings__Datamigratie
-
 Oidc__Authority
 Oidc__ClientId
 Oidc__ClientSecret
