@@ -1,7 +1,6 @@
 ﻿using System.Net.Http.Json;
 using System.Runtime.Serialization;
 using Datamigratie.Common.Services.Det.Models;
-using Datamigratie.Common.Services.Shared;
 using Microsoft.Extensions.Logging;
 
 namespace Datamigratie.Common.Services.Det
@@ -21,7 +20,7 @@ namespace Datamigratie.Common.Services.Det
         Task GetDocumentInhoudAsync(long id, Func<Stream, CancellationToken, Task> handleInhoud, CancellationToken token);
     }
 
-    public class DetApiClient(HttpClient httpClient, ILogger<DetApiClient> logger) : PagedApiClient(httpClient), IDetApiClient
+    public class DetApiClient(HttpClient httpClient, ILogger<DetApiClient> logger) : DetPagedApiClient(httpClient), IDetApiClient
     {
         private const int DefaultStartingPage = 0;
 

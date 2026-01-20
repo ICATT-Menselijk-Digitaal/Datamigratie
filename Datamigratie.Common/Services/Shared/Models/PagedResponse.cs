@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Datamigratie.Common.Services.Shared.Models
@@ -13,8 +14,19 @@ namespace Datamigratie.Common.Services.Shared.Models
     public class PagedResponse<T>
     {
         public int Count { get; set; }
-        public bool NextPage { get; set; }
-        public bool PreviousPage { get; set; }
-        public List<T> Results { get; set; }
+        
+        [JsonPropertyName("next")]
+        public string? Next { get; set; }
+        
+        [JsonPropertyName("previous")]
+        public string? Previous { get; set; }
+        
+        public required List<T> Results { get; set; }
+        
+        [JsonIgnore]
+        public bool NextPage => !string.IsNullOrEmpty(Next);
+        
+        [JsonIgnore]
+        public bool PreviousPage => !string.IsNullOrEmpty(Previous);
     }
 }
