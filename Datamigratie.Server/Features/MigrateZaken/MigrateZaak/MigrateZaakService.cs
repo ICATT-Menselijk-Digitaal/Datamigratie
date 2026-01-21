@@ -44,7 +44,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 await UploadZaakgegevensPdfAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, token);
 
                 // Migrate all documents with their versions
-                await MigrateDocumentsAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, token);
+                await MigrateDocumentsAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, mapping.DocumentstatusMappings, token);
 
                 return MigrateZaakResult.Success(createdZaak.Identificatie, "De zaak is aangemaakt in het doelsysteem");
             }
@@ -70,7 +70,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             }
         }
 
-        private static OzDocument MapToOzDocument(DetDocument item, DetDocumentVersie versie, Uri informatieObjectType, string rsin)
+        private static OzDocument MapToOzDocument(DetDocument item, DetDocumentVersie versie, Uri informatieObjectType, string rsin, Dictionary<string, string> documentstatusMappings)
         {
             // Apply data transformations
             const int MaxTitelLength = 200; // 197 + "..."
@@ -87,6 +87,9 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 throw new InvalidDataException($"Document '{item.Titel}' migration failed: The 'kenmerk' field length ({item.Kenmerk.Length}) exceeds the maximum allowed length of {MaxIdentificatieLength} characters.");
             }
 
+            // Map the document status from DET to OpenZaak
+            var ozDocumentStatus = GetOzDocumentStatus(item, documentstatusMappings);
+
             return new OzDocument
             {
                 Bestandsnaam = versie.Bestandsnaam,
@@ -101,11 +104,28 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 Auteur = "onbekend",
                 Beschrijving = beschrijving,
                 Creatiedatum = versie.Creatiedatum,
-                Status = DocumentStatus.in_bewerking,
+                Status = ozDocumentStatus,
                 Trefwoorden = [],
                 Verschijningsvorm = item?.DocumentVorm?.Naam,
                 Link = ""
             };
+        }
+
+        private static DocumentStatus GetOzDocumentStatus(DetDocument document, Dictionary<string, string> documentstatusMappings)
+        {
+            // Look up the mapping for this document status
+            if (!documentstatusMappings.TryGetValue(document.Documentstatus.Naam, out var ozStatusString))
+            {
+                throw new InvalidOperationException($"No mapping found for DET document status '{document.Documentstatus.Naam}'.");
+            }
+
+            // Parse the string to the enum
+            if (!Enum.TryParse<DocumentStatus>(ozStatusString, out var ozStatus))
+            {
+                throw new InvalidOperationException($"Invalid OpenZaak document status '{ozStatusString}' configured for DET status '{document.Documentstatus.Naam}'.");
+            }
+
+            return ozStatus;
         }
         private async Task CreateAndLinkDocumentAsync(
             OzDocument ozDocument, 
@@ -204,22 +224,22 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
         /// Migrates all documents with their versions in the correct order.
         /// First version is created, next versions update the same document (OpenZaak auto-increments version).
         /// </summary>
-        private async Task MigrateDocumentsAsync(DetZaak detZaak, OzZaak createdZaak, Uri informatieObjectType, string rsin, CancellationToken token)
+        private async Task MigrateDocumentsAsync(DetZaak detZaak, OzZaak createdZaak, Uri informatieObjectType, string rsin, Dictionary<string, string> documentstatusMappings, CancellationToken token)
         {
             foreach (var document in detZaak?.Documenten ?? [])
             {
                 var sortedVersions = document.DocumentVersies.OrderBy(v => v.Versienummer).ToList();
-                
+
                 OzDocument? mainDocument = null;
-                
+
                 for (var i = 0; i < sortedVersions.Count; i++)
                 {
                     var detVersie = sortedVersions[i];
                     var isFirstVersion = i == 0;
-                    
+
                     try
                     {
-                        var ozDocument = MapToOzDocument(document, detVersie, informatieObjectType, rsin);
+                        var ozDocument = MapToOzDocument(document, detVersie, informatieObjectType, rsin, documentstatusMappings);
                         
                         if (isFirstVersion)
                         {

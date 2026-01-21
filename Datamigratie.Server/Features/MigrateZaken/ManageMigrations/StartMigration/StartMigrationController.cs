@@ -1,4 +1,5 @@
 ﻿using Datamigratie.Common.Services.Det;
+using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Data;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Models;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues;
@@ -44,13 +45,15 @@ public class StartMigrationController(
 
             var statusMappings = await ValidateAndGetStatusMappingsAsync(detZaaktype);
             var resultaatMappings = await ValidateAndGetResultaattypeMappingsAsync(detZaaktype);
+            var documentstatusMappings = await ValidateAndGetDocumentstatusMappingsAsync();
 
             await backgroundTaskQueue.QueueMigrationAsync(new MigrationQueueItem
             {
                 DetZaaktypeId = request.DetZaaktypeId,
                 RsinMapping = rsinMapping,
                 StatusMappings = statusMappings,
-                ResultaatMappings = resultaatMappings
+                ResultaatMappings = resultaatMappings,
+                DocumentstatusMappings = documentstatusMappings
             });
         }
         catch (Exception e)
@@ -108,5 +111,50 @@ public class StartMigrationController(
         return !resultaatMappingsValid
             ? throw new InvalidOperationException("Not all DET Resultaattypen have been mapped to OZ resultaattypen. Please configure resultaattypen mappings first.")
             : resultaatMappings;
+    }
+
+    private async Task<Dictionary<string, string>> ValidateAndGetDocumentstatusMappingsAsync()
+    {
+        // Get all document status mappings from database
+        var documentstatusMappings = await dbContext.DocumentstatusMappings
+            .ToDictionaryAsync(m => m.DetDocumentstatus, m => m.OzDocumentstatus);
+
+        // Check if any mappings exist
+        if (documentstatusMappings.Count == 0)
+        {
+            throw new InvalidOperationException("Geen documentstatus mappings gevonden. Configureer eerst de documentstatus mappings.");
+        }
+
+        // Get all DET document statuses from the API
+        var allDetDocumentstatuses = await detApiClient.GetAllDocumentstatussen();
+
+        // Find unmapped DET document statuses
+        var unmappedStatuses = allDetDocumentstatuses
+            .Where(status => !documentstatusMappings.ContainsKey(status.Naam))
+            .Select(s => s.Naam)
+            .ToList();
+
+        if (unmappedStatuses.Count > 0)
+        {
+            throw new InvalidOperationException(
+                $"De volgende DET documentstatussen zijn niet gekoppeld: {string.Join(", ", unmappedStatuses)}. " +
+                "Configureer eerst alle documentstatus mappings in de instellingen.");
+        }
+
+        // Validate all mapped OZ statuses are valid according to DocumentStatus enum
+        var invalidMappings = documentstatusMappings
+            .Where(m => !Enum.IsDefined(typeof(DocumentStatus), m.Value))
+            .ToList();
+
+        if (invalidMappings.Count > 0)
+        {
+            var invalidDetails = string.Join(", ", invalidMappings.Select(m => $"'{m.Key}' -> '{m.Value}'"));
+            var validValues = string.Join(", ", Enum.GetNames(typeof(DocumentStatus)));
+            throw new InvalidOperationException(
+                $"Ongeldige OpenZaak documentstatussen gevonden in mappings: {invalidDetails}. " +
+                $"Geldige waarden zijn: {validValues}");
+        }
+
+        return documentstatusMappings;
     }
 }
