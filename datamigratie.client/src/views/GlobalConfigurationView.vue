@@ -22,10 +22,10 @@
     <documentstatus-mapping-section
       :det-documentstatussen="detDocumentstatussen"
       :documentstatus-mappings="documentstatusMappings"
-      :all-mapped="allDocumentstatusesMapped"
-      :is-editing="isEditingDocumentstatuses"
+      :all-mapped="false"
+      :is-editing="true"
       :loading="documentstatusLoading"
-      :show-warning="true"
+      :show-warning="!allDocumentstatusesMapped"
       @update:documentstatus-mappings="documentstatusMappings = $event"
       @save="saveDocumentstatusMappings"
     />
@@ -59,9 +59,6 @@ const allDocumentstatusesMapped = computed(() => {
   });
 });
 
-const isEditingDocumentstatuses = computed(() => {
-  return !allDocumentstatusesMapped.value;
-});
 
 function validateRsin() {
 
