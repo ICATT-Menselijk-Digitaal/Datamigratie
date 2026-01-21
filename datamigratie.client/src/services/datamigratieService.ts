@@ -55,12 +55,12 @@ export type MigrationRecordItem = {
   processedAt: string;
 };
 
-export type GlobalConfiguration = {
+export type RsinConfiguration = {
   rsin?: string;
   updatedAt?: string;
 };
 
-export type UpdateGlobalConfiguration = {
+export type UpdateRsinConfiguration = {
   rsin?: string;
 };
 
@@ -121,9 +121,9 @@ export const datamigratieService = {
     get<MigrationHistoryItem[]>(`/api/migration/history/${detZaaktypeId}`),
   getMigrationRecords: (migrationId: number): Promise<MigrationRecordItem[]> =>
     get<MigrationRecordItem[]>(`/api/migration/${migrationId}/records`),
-  getGlobalConfiguration: (): Promise<GlobalConfiguration> => get<GlobalConfiguration>(`/api/globalmapping`),
-  updateGlobalConfiguration: (payload: UpdateGlobalConfiguration): Promise<GlobalConfiguration> =>
-    put<GlobalConfiguration>(`/api/globalmapping`, payload),
+  getRsinConfiguration: (): Promise<RsinConfiguration> => get<RsinConfiguration>(`/api/globalmapping/rsin`),
+  updateRsinConfiguration: (payload: UpdateRsinConfiguration): Promise<RsinConfiguration> =>
+    put<RsinConfiguration>(`/api/globalmapping/rsin`, payload),
   getStatusMappings: (zaaktypenMappingId: string): Promise<StatusMappingsResponse[]> =>
     get<StatusMappingsResponse[]>(`/api/mappings/${zaaktypenMappingId}/statuses`),
   saveStatusMappings: (zaaktypenMappingId: string, payload: SaveStatusMappingsRequest): Promise<void> =>
