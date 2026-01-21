@@ -26,6 +26,12 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
 
         public async Task<MigrateZaakResult> MigrateZaak(DetZaak detZaak, MigrateZaakMappingModel mapping, CancellationToken token = default)
         {
+            var validationResult = ValidateZaaknummer(detZaak.FunctioneleIdentificatie);
+            if (validationResult != null)
+            {
+                return validationResult;
+            }
+
             try
             {
                 var createZaakRequest = CreateOzZaakCreationRequest(detZaak, mapping.OpenZaaktypeId, mapping.Rsin);
@@ -325,6 +331,25 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             };
 
             return createRequest;
+        }
+
+        /// <summary>
+        /// Validates that the zaaknummer does not exceed the maximum allowed length of 40 characters.
+        /// Returns a failed MigrateZaakResult if validation fails, or null if validation passes.
+        /// </summary>
+        private static MigrateZaakResult? ValidateZaaknummer(string zaaknummer)
+        {
+            const int MaxZaaknummerLength = 40;
+
+            if (zaaknummer.Length > MaxZaaknummerLength)
+            {
+                return MigrateZaakResult.Failed(
+                    zaaknummer,
+                    "Het zaaknummer is te lang.",
+                    $"Het zaaknummer '{zaaknummer}' heeft {zaaknummer.Length} tekens, maar mag maximaal {MaxZaaknummerLength} tekens bevatten.", null);
+            }
+
+            return null;
         }
 
         /// <summary>

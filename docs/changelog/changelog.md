@@ -17,3 +17,4 @@
 - [Global configuration of RSIN](https://dimpact.atlassian.net/browse/DATA-139)
 - [Migration log overview migration-level](https://dimpact.atlassian.net/browse/DATA-17)
 - [Make linking of a Zaaktype less error-prone](https://dimpact.atlassian.net/browse/DATA-89)
+- [Validate zaaknummer length per Zaaktype before migration](https://dimpact.atlassian.net/browse/DATA-92)
