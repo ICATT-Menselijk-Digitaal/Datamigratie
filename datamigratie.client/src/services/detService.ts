@@ -27,11 +27,19 @@ export type DETZaaktype = {
   resultaten?: DetResultaattypen[];
 };
 
+export type DetDocumentstatus = {
+  actief: boolean;
+  naam: string;
+  omschrijving?: string;
+};
+
 export const detService = {
   getAllZaaktypes: (): Promise<DETZaaktype[]> =>
     get<DETZaaktype[]>(`/api/det/zaaktypen`).then((detZaaktypes) =>
       detZaaktypes.sort((a, b) => a.naam.localeCompare(b.naam))
     ),
   getZaaktypeById: (detZaaktypeId: string): Promise<DETZaaktype> =>
-    get<DETZaaktype>(`/api/det/zaaktypen/${detZaaktypeId}`)
+    get<DETZaaktype>(`/api/det/zaaktypen/${detZaaktypeId}`),
+  getAllDocumentstatussen: (): Promise<DetDocumentstatus[]> =>
+    get<DetDocumentstatus[]>(`/api/det/documentstatussen`)
 };

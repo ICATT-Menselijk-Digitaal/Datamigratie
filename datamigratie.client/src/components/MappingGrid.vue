@@ -31,7 +31,7 @@
             @change="updateMapping(sourceItem.id, ($event.target as HTMLSelectElement).value)"
             :disabled="!isEditing && allMapped || disabled"
           >
-            <option value="">{{ targetPlaceholder }}</option>
+            <option value="" disabled>{{ targetPlaceholder }}</option>
             <option
               v-for="targetItem in targetItems"
               :key="targetItem.id"
