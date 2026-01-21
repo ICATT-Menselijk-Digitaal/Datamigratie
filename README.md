@@ -35,3 +35,11 @@ Oidc__FunctioneelBeheerderRole
 1. Open met Visual Studio
 2. Stel Datamigratie.AppHost in als startup project
 3. Start de applicatie
+
+## Database migration aanmaken
+
+.NET CLI:
+
+```bash
+dotnet ef migrations add MyMigration --project Datamigratie.Data --startup-project Datamigratie.Server
+```
