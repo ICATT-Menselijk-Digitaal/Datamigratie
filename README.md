@@ -43,3 +43,9 @@ Oidc__FunctioneelBeheerderRole
 ```bash
 dotnet ef migrations add MyMigration --project Datamigratie.Data --startup-project Datamigratie.Server
 ```
+
+Visual Studio Package Manager Console:
+
+```powershell
+Add-Migration MyMigration -Project Datamigratie.Data -StartupProject Datamigratie.Server
+```
