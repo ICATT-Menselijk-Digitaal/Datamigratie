@@ -188,7 +188,7 @@ namespace Datamigratie.Data.Migrations
                     b.HasIndex("ZaaktypenMappingId", "DetResultaattypeNaam")
                         .IsUnique()
                         .HasDatabaseName("IX_ResultaattypeMapping_ZaaktypenMappingId_DetResultaattypeNaam_Unique");
-                        
+
                     b.ToTable("ResultaattypeMappings");
                 });
 
