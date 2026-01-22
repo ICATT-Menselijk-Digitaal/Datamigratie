@@ -106,26 +106,10 @@ jobs:
           build-args: |
             VERSION=${{ env.VERSION }}
             REVISION=${{ env.REVISION }}
-            VITE_ENABLE_TEST_HELPERS=false
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-      
-      - name: Build & push Server image with test helpers
-        if: ${{ !fromJson(env.SHOULD_RELEASE) }}
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: Datamigratie.Server/Dockerfile
-          push: ${{ fromJSON(env.SHOULD_PUSH) }}
-          tags: ${{ env.SERVER_IMAGE }}:${{ github.ref_name }}-test
-          labels: ${{ steps.meta-server.outputs.labels }}
-          build-args: |
-            VERSION=${{ env.VERSION }}
-            REVISION=${{ env.REVISION }}
             VITE_ENABLE_TEST_HELPERS=true
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
+      
       - name: Build & push Migrations image
         uses: docker/build-push-action@v6
         with:
