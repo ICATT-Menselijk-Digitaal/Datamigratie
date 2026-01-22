@@ -91,6 +91,9 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 throw new InvalidDataException($"Document '{item.Titel}' migration failed: The 'kenmerk' field length ({item.Kenmerk.Length}) exceeds the maximum allowed length of {MaxIdentificatieLength} characters.");
             }
 
+            var taal = item.Taal?.FunctioneelId.ToLower() ?? "dut";
+            var auteur = versie.Auteur ?? "Auteur_onbekend";
+
             return new OzDocument
             {
                 Bestandsnaam = versie.Bestandsnaam,
@@ -98,11 +101,11 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 Formaat = versie.Mimetype,
                 Identificatie = item.Kenmerk,
                 Informatieobjecttype = informatieObjectType,
-                Taal = "dut",
+                Taal = taal,
                 Titel = titel,
                 Vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar,
                 Bestandsomvang = versie.Documentgrootte,
-                Auteur = "onbekend",
+                Auteur = auteur,
                 Beschrijving = beschrijving,
                 Creatiedatum = versie.Creatiedatum,
                 Status = DocumentStatus.in_bewerking,
