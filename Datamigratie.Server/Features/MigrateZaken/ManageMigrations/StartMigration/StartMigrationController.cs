@@ -6,6 +6,7 @@ using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queue
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.State;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Resultaat;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Status;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.DocumentProperty;
 using Datamigratie.Server.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,7 @@ public class StartMigrationController(
     DatamigratieDbContext dbContext,
     IValidateStatusMappingsService validateStatusMappingsService,
     IValidateResultaattypeMappingsService validateResultaattypeMappingsService,
+    IValidateDocumentPropertyMappingsService validateDocumentPropertyMappingsService,
     IDetApiClient detApiClient,
     ILogger<StartMigrationController> logger) : ControllerBase
 {
@@ -44,13 +46,15 @@ public class StartMigrationController(
 
             var statusMappings = await ValidateAndGetStatusMappingsAsync(detZaaktype);
             var resultaatMappings = await ValidateAndGetResultaattypeMappingsAsync(detZaaktype);
+            var documentPropertyMappings = await ValidateAndGetDocumentPropertyMappingsAsync(detZaaktype);
 
             await backgroundTaskQueue.QueueMigrationAsync(new MigrationQueueItem
             {
                 DetZaaktypeId = request.DetZaaktypeId,
                 GlobalMapping = globalMapping,
                 StatusMappings = statusMappings,
-                ResultaatMappings = resultaatMappings
+                ResultaatMappings = resultaatMappings,
+                DocumentPropertyMappings = documentPropertyMappings
             });
         }
         catch (Exception e)
@@ -108,5 +112,14 @@ public class StartMigrationController(
         return !resultaatMappingsValid
             ? throw new InvalidOperationException("Not all DET Resultaattypen have been mapped to OZ resultaattypen. Please configure resultaattypen mappings first.")
             : resultaatMappings;
+    }
+
+    private async Task<Dictionary<string, Dictionary<string, string>>> ValidateAndGetDocumentPropertyMappingsAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)
+    {
+        var (documentPropertyMappingsValid, documentPropertyMappings) = await validateDocumentPropertyMappingsService.ValidateAndGetDocumentPropertyMappings(detZaaktype);
+
+        return !documentPropertyMappingsValid
+            ? throw new InvalidOperationException("Not all document properties have been mapped. Please configure publicatieniveau and documenttype mappings first.")
+            : documentPropertyMappings;
     }
 }
