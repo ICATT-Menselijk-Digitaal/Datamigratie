@@ -37,14 +37,13 @@ Features/
   └── [Feature]/
       └── [SubFeature]/
           ├── [Action]Controller.cs
-          ├── I[Action]Service.cs
           ├── [Action]Service.cs
           └── Models/
 ```
 
 **Patterns:**
 - Primary constructor injection: `public class Service(IDependency dep) : IService`
-- Interface-first for services: `IMapZaaktypenService` + `MapZaaktypenService`
+- Interface-first for services: `IMapZaaktypenService` + `MapZaaktypenService` (in the same file)
 - Async/await throughout all I/O operations
 - EF Core with snake_case naming (via EFCore.NamingConventions)
 
