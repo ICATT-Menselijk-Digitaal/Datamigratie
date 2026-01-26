@@ -1,4 +1,19 @@
-export const featureFlags = {
-  // show checkbox to auto-fill documenttype mappings with random values
-  showDocumenttypeTestHelper: import.meta.env.VITE_ENABLE_TEST_HELPERS === 'true' || import.meta.env.DEV
-};
+import { ref } from 'vue';
+
+interface FeatureFlags {
+  showDocumenttypeTestHelper: boolean;
+}
+
+export const featureFlags = ref<FeatureFlags>({
+  showDocumenttypeTestHelper: false
+});
+
+export async function loadFeatureFlags() {
+  try {
+    const response = await fetch('/api/app-version');
+    const data = await response.json();
+    featureFlags.value.showDocumenttypeTestHelper = data.enableTestHelpers || false;
+  } catch (error) {
+    console.error('Failed to load feature flags:', error);
+  }
+}

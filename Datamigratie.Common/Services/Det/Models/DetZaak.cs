@@ -56,7 +56,7 @@ namespace Datamigratie.Common.Services.Det.Models
         public required int Versienummer { get; set; }
         public required long DocumentInhoudID { get; set; }
         public required string Bestandsnaam { get; set; }
-        public string? Mimetype { get; set; }
+        public string Mimetype { get; set; }
         public long? Documentgrootte { get; set; }
         public string? Auteur { get; set; }
         public required DateOnly Creatiedatum { get; set; }

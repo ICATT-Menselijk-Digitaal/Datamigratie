@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.DocumentPropertyMapping.Constants;
+using Datamigratie.Server.Constants;
 
 namespace Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.DocumentPropertyMapping.GetPublicatieNiveauOptions;
 

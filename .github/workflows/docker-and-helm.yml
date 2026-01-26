@@ -106,7 +106,6 @@ jobs:
           build-args: |
             VERSION=${{ env.VERSION }}
             REVISION=${{ env.REVISION }}
-            VITE_ENABLE_TEST_HELPERS=true
           cache-from: type=gha
           cache-to: type=gha,mode=max
       

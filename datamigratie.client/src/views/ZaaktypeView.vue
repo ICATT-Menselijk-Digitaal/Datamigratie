@@ -144,8 +144,8 @@
 
     <zaaktype-change-confirmation-modal
       :dialog="confirmOzZaaktypeChangeDialog"
-      warning-text="Als je het Open Zaak zaaktype wijzigt, worden alle bestaande statusmappings verwijderd."
-      description-text="Je moet de statusmappings opnieuw configureren voor het nieuwe zaaktype."
+      warning-text="Als je het Open Zaak zaaktype wijzigt, worden alle bestaande mappings verwijderd."
+      description-text="Je moet de mappings opnieuw configureren voor het nieuwe zaaktype."
     />
 
     <section v-if="!errors.length && migrationHistory.length > 0" class="migration-history">

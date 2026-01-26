@@ -2,8 +2,8 @@
   <div v-if="showMapping" class="document-property-mapping-section">
     <mapping-grid
       v-model="publicatieNiveauMappingsModel"
-      title="Publicatieniveau mapping"
-      description="Koppel de e-Suite publicatieniveaus aan de Open Zaak vertrouwelijkheidaanduiding."
+      title="Document publicatieniveau mapping"
+      description="Koppel de e-Suite publicatieniveaus voor documenten aan de Open Zaak vertrouwelijkheidaanduiding."
       source-label="e-Suite Publicatieniveau"
       target-label="Open Zaak Vertrouwelijkheidaanduiding"
       :source-items="publicatieNiveauSourceItems"
@@ -259,30 +259,35 @@ const fillRandomDocumenttypeMappings = (event: Event) => {
 .document-property-mapping-section {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: var(--spacing-large);
 }
 
 .documenttype-section {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--spacing-default);
 }
 
 .test-helper {
-  padding: 0.75rem 1rem;
-  background-color: #fff3cd;
-  border: 2px dashed #ffc107;
-  border-radius: 4px;
+  padding: var(--spacing-default);
+  background-color: var(--marked);
+  border: 2px dashed var(--accent);
+  border-radius: var(--radius-default);
   
   label {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--spacing-small);
     cursor: pointer;
     margin: 0;
     
     input[type="checkbox"] {
       cursor: pointer;
+    }
+    
+    span {
+      color: var(--code);
+      font-weight: var(--font-bold);
     }
   }
 }
