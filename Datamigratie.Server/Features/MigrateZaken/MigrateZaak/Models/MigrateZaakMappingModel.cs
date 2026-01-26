@@ -5,6 +5,7 @@
         public required string Rsin { get; set; }
         public Guid OpenZaaktypeId { get; internal set; }
         public Uri? ResultaattypeUri { get; set; }
-        public Uri? StatustypeUri { get; set; }
+        public Uri? StatustypeUri { get; set; }        
+        public Dictionary<string, Dictionary<string, string>> DocumentPropertyMappings { get; set; } = new();
     }
 }

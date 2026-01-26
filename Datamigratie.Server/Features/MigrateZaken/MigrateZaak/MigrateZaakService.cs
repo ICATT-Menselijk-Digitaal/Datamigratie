@@ -44,7 +44,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 await UploadZaakgegevensPdfAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, token);
 
                 // Migrate all documents with their versions
-                await MigrateDocumentsAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, token);
+                await MigrateDocumentsAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, mapping.DocumentPropertyMappings, token);
 
                 return MigrateZaakResult.Success(createdZaak.Identificatie, "De zaak is aangemaakt in het doelsysteem");
             }
@@ -70,7 +70,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             }
         }
 
-        private static OzDocument MapToOzDocument(DetDocument item, DetDocumentVersie versie, Uri informatieObjectType, string rsin)
+        private static OzDocument MapToOzDocument(DetDocument item, DetDocumentVersie versie, Uri informatieObjectType, string rsin, Dictionary<string, Dictionary<string, string>> documentPropertyMappings)
         {
             // Apply data transformations
             const int MaxTitelLength = 200; // 197 + "..."
@@ -87,16 +87,20 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 throw new InvalidDataException($"Document '{item.Titel}' migration failed: The 'kenmerk' field length ({item.Kenmerk.Length}) exceeds the maximum allowed length of {MaxIdentificatieLength} characters.");
             }
 
+            var vertrouwelijkheidaanduiding = MapPublicatieNiveau(item.Publicatieniveau, documentPropertyMappings, item.Titel);
+
+            var informatieobjecttype = MapDocumenttype(item.Documenttype?.Naam, informatieObjectType, documentPropertyMappings, item.Titel);
+
             return new OzDocument
             {
                 Bestandsnaam = versie.Bestandsnaam,
                 Bronorganisatie = rsin,
                 Formaat = versie.Mimetype,
                 Identificatie = item.Kenmerk,
-                Informatieobjecttype = informatieObjectType,
+                Informatieobjecttype = informatieobjecttype,
                 Taal = "dut",
                 Titel = titel,
-                Vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar,
+                Vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
                 Bestandsomvang = versie.Documentgrootte,
                 Auteur = "onbekend",
                 Beschrijving = beschrijving,
@@ -107,6 +111,61 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 Link = ""
             };
         }
+
+        private static VertrouwelijkheidsAanduiding MapPublicatieNiveau(string? publicatieNiveau, Dictionary<string, Dictionary<string, string>> documentPropertyMappings, string documentTitel)
+        {
+            if (string.IsNullOrWhiteSpace(publicatieNiveau))
+            {
+                throw new InvalidOperationException($"Document '{documentTitel}' migration failed: Publicatieniveau is required but was not provided.");
+            }
+
+            if (!documentPropertyMappings.TryGetValue("publicatieniveau", out var publicatieNiveauMappings))
+            {
+                throw new InvalidOperationException($"Document '{documentTitel}' migration failed: No publicatieniveau mappings configured.");
+            }
+
+            if (!publicatieNiveauMappings.TryGetValue(publicatieNiveau, out var mappedValue))
+            {
+                throw new InvalidOperationException($"Document '{documentTitel}' migration failed: Publicatieniveau '{publicatieNiveau}' has not been mapped to an OpenZaak vertrouwelijkheidaanduiding.");
+            }
+
+            if (!Enum.TryParse<VertrouwelijkheidsAanduiding>(mappedValue, true, out var vertrouwelijkheid))
+            {
+                throw new InvalidOperationException($"Document '{documentTitel}' migration failed: Mapped vertrouwelijkheidaanduiding '{mappedValue}' is not a valid value.");
+            }
+
+            return vertrouwelijkheid;
+        }
+
+        private static Uri MapDocumenttype(string? documenttypeNaam, Uri defaultInformatieobjecttype, Dictionary<string, Dictionary<string, string>> documentPropertyMappings, string documentTitel)
+        {
+            if (string.IsNullOrWhiteSpace(documenttypeNaam))
+            {
+                throw new InvalidOperationException($"Document '{documentTitel}' migration failed: Documenttype is required but was not provided.");
+            }
+
+            if (!documentPropertyMappings.TryGetValue("documenttype", out var documenttypeMappings))
+            {
+                throw new InvalidOperationException($"Document '{documentTitel}' migration failed: No documenttype mappings configured.");
+            }
+
+            if (!documenttypeMappings.TryGetValue(documenttypeNaam, out var mappedValue))
+            {
+                throw new InvalidOperationException($"Document '{documentTitel}' migration failed: Documenttype '{documenttypeNaam}' has not been mapped to an OpenZaak informatieobjecttype.");
+            }
+
+            if (Guid.TryParse(mappedValue, out var guid))
+            {
+                var baseUri = defaultInformatieobjecttype.GetLeftPart(UriPartial.Path);
+                var uriWithoutId = baseUri.Substring(0, baseUri.LastIndexOf('/') + 1);
+                return new Uri($"{uriWithoutId}{guid}");
+            }
+
+            return Uri.TryCreate(mappedValue, UriKind.Absolute, out var uri)
+                ? uri
+                : throw new InvalidOperationException($"Document '{documentTitel}' migration failed: Mapped informatieobjecttype value '{mappedValue}' is neither a valid GUID nor a valid URI.");
+        }
+
         private async Task CreateAndLinkDocumentAsync(
             OzDocument ozDocument, 
             OzZaak zaak, 
@@ -204,7 +263,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
         /// Migrates all documents with their versions in the correct order.
         /// First version is created, next versions update the same document (OpenZaak auto-increments version).
         /// </summary>
-        private async Task MigrateDocumentsAsync(DetZaak detZaak, OzZaak createdZaak, Uri informatieObjectType, string rsin, CancellationToken token)
+        private async Task MigrateDocumentsAsync(DetZaak detZaak, OzZaak createdZaak, Uri informatieObjectType, string rsin, Dictionary<string, Dictionary<string, string>> documentPropertyMappings, CancellationToken token)
         {
             foreach (var document in detZaak?.Documenten ?? [])
             {
@@ -219,7 +278,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                     
                     try
                     {
-                        var ozDocument = MapToOzDocument(document, detVersie, informatieObjectType, rsin);
+                        var ozDocument = MapToOzDocument(document, detVersie, informatieObjectType, rsin, documentPropertyMappings);
                         
                         if (isFirstVersion)
                         {

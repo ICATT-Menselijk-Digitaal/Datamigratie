@@ -27,6 +27,8 @@ namespace Datamigratie.Common.Services.OpenZaak
 
         Task<List<Uri>> GetInformatieobjecttypenUrlsForZaaktype(Uri zaaktypeUri);
 
+        Task<List<OzInformatieobjecttype>> GetInformatieobjecttypenForZaaktype(Uri zaaktypeUri);
+
         Task<OzDocument> CreateDocument(OzDocument document);
 
         Task<OzDocument?> GetDocument(Guid id);
@@ -240,10 +242,42 @@ namespace Datamigratie.Common.Services.OpenZaak
             return result.Results?.Select(x => x?["informatieobjecttype"]?.GetValue<string>()).OfType<string>().Select(url => new Uri(url)).ToList() ?? [];
         }
 
+        public async Task<List<OzInformatieobjecttype>> GetInformatieobjecttypenForZaaktype(Uri zaaktypeUri)
+        {
+            var informatieobjecttypenUrls = await GetInformatieobjecttypenUrlsForZaaktype(zaaktypeUri);
+            
+            if (informatieobjecttypenUrls.Count == 0)
+            {
+                return [];
+            }
+
+            var informatieobjecttypen = new List<OzInformatieobjecttype>();
+            foreach (var url in informatieobjecttypenUrls)
+            {
+                var response = await _httpClient.GetAsync(url);
+                
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    continue;
+                }
+
+                await response.HandleOpenZaakErrorsAsync();
+                
+                var informatieobjecttype = await response.Content.ReadFromJsonAsync<OzInformatieobjecttype>();
+                if (informatieobjecttype != null)
+                {
+                    informatieobjecttypen.Add(informatieobjecttype);
+                }
+            }
+
+            return informatieobjecttypen;
+        }
+
         public async Task UploadBestand(OzDocument document, Stream inputStream, CancellationToken token)
         {
             ArgumentNullException.ThrowIfNull(document.Bestandsdelen);
             ArgumentException.ThrowIfNullOrWhiteSpace(document.Lock);
+            ArgumentException.ThrowIfNullOrWhiteSpace(document.Bestandsnaam);
 
             foreach (var bestandsDeel in document.Bestandsdelen.OrderBy(x => x.Volgnummer))
             {

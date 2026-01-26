@@ -20,6 +20,7 @@ namespace Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDet
 
             var ozStatustypes = await openZaakApiClient.GetStatustypesForZaaktype(new Uri(ozZaaktype.Url));
             var ozResultaattypes = await openZaakApiClient.GetResultaattypenForZaaktype(new Uri(ozZaaktype.Url));
+            var ozInformatieobjecttypen = await openZaakApiClient.GetInformatieobjecttypenForZaaktype(new Uri(ozZaaktype.Url));
 
             var enrichedOzZaaktype = new EnrichedOzZaaktype
             {
@@ -27,6 +28,7 @@ namespace Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDet
                 Identificatie = ozZaaktype.Identificatie,
                 Statustypes = ozStatustypes.OrderBy(st => st.Volgnummer).ToList(),
                 Resultaattypen = ozResultaattypes,
+                Informatieobjecttypen = ozInformatieobjecttypen,
                 Omschrijving = ozZaaktype.Omschrijving
             };
 

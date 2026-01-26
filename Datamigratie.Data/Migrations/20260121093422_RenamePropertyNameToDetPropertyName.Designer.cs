@@ -3,6 +3,7 @@ using System;
 using Datamigratie.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Datamigratie.Data.Migrations
 {
     [DbContext(typeof(DatamigratieDbContext))]
-    partial class DatamigratieDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260121093422_RenamePropertyNameToDetPropertyName")]
+    partial class RenamePropertyNameToDetPropertyName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -186,8 +189,7 @@ namespace Datamigratie.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ZaaktypenMappingId", "DetResultaattypeNaam")
-                        .IsUnique()
-                        .HasDatabaseName("IX_ResultaattypeMapping_ZaaktypenMappingId_DetResultaattypeNaam_Unique");
+                        .IsUnique();
 
                     b.ToTable("ResultaattypeMappings");
                 });
