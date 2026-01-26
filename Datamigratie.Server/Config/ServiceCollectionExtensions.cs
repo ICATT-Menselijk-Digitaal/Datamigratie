@@ -14,6 +14,7 @@ using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Servi
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.State;
 using Datamigratie.Server.Features.Migrate.MigrateZaak;
 using Datamigratie.Server.Features.Migrate.MigrateZaak.Pdf;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Documentstatus;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Resultaat;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Status;
 
@@ -40,6 +41,7 @@ namespace Datamigratie.Server.Config
             services.AddScoped<ISaveStatusMappingsService, SaveStatusMappingsService>();
             services.AddScoped<IValidateStatusMappingsService, ValidateStatusMappingsService>();
             services.AddScoped<IValidateResultaattypeMappingsService, ValidateResultaattypeMappingsService>();
+            services.AddScoped<IValidateDocumentstatusMappingsService, ValidateDocumentstatusMappingsService>();
             services.AddScoped<ISaveDocumentstatusMappingsService, SaveDocumentstatusMappingsService>();
             services.AddScoped<IGetDocumentstatusMappingsService, GetDocumentstatusMappingsService>();
 

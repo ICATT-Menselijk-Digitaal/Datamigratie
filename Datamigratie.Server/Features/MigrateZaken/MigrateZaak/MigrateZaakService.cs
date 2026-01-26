@@ -116,13 +116,13 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             // Look up the mapping for this document status
             if (!documentstatusMappings.TryGetValue(document.Documentstatus.Naam, out var ozStatusString))
             {
-                throw new InvalidOperationException($"No mapping found for DET document status '{document.Documentstatus.Naam}'.");
+                throw new InvalidOperationException($"Document '{document.Titel}' migration failed: No mapping found for DET document status '{document.Documentstatus.Naam}'.");
             }
 
             // Parse the string to the enum
             if (!Enum.TryParse<DocumentStatus>(ozStatusString, out var ozStatus))
             {
-                throw new InvalidOperationException($"Invalid OpenZaak document status '{ozStatusString}' configured for DET status '{document.Documentstatus.Naam}'.");
+                throw new InvalidOperationException($"Document '{document.Titel}' migration failed: Invalid OpenZaak document status '{ozStatusString}' configured for DET status '{document.Documentstatus.Naam}'.");
             }
 
             return ozStatus;
