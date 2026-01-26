@@ -1,7 +1,4 @@
-﻿using System.Net.Http.Json;
-using Datamigratie.AppHost;
-using Microsoft.Extensions.DependencyInjection;
-
+﻿
 var builder = DistributedApplication.CreateBuilder(args);
 
 var detApiKey = builder.AddParameter("DetApiKey", "super-secret", true);
@@ -13,7 +10,7 @@ var postgres = builder.AddPostgres("postgres")
     .WithLifetime(ContainerLifetime.Persistent)
     .WithImage("postgis/postgis");
 
-var redis = builder.AddRedis("redis");
+var redis = builder.AddRedis("redis").WithLifetime(ContainerLifetime.Persistent);
 
 var dmtDb = postgres.AddDatabase("Datamigratie");
 
@@ -26,31 +23,9 @@ var migrations = builder
     .WaitFor(dmtDb);
 
 var det = builder.AddProject<Projects.Datamigratie_FakeDet>("datamigratie-fakedet")
-    .WithEnvironment("ApiKey", detApiKey)
-    .WithHttpCommand("zaken", "clear zaken", commandOptions: new() { Method = HttpMethod.Delete })
-    .WithHttpCommand("zaken", "generate zaken", commandOptions: new()
-    {
-        Method = HttpMethod.Post,
-        PrepareRequest = async (ctx) =>
-        {
-#pragma warning disable ASPIREINTERACTION001
-            var interactionService = ctx.ServiceProvider.GetRequiredService<IInteractionService>();
-            var input = await interactionService.PromptInputAsync(title: "Number of zaken to generate", message: null, input: new()
-            {
-                Name = "zaken",
-                InputType = InputType.Number,
-                Label = "Zaken",
-                Placeholder = "100"
-            }, cancellationToken: ctx.CancellationToken);
-            if (int.TryParse(input.Data?.Value, out var count))
-            {
-                ctx.Request.Content = JsonContent.Create(count);
-            }
-        }
-    });
-#pragma warning restore ASPIREINTERACTION001
+    .WithEnvironment("ApiKey", detApiKey);
 
-var openzaak = builder.AddOpenZaak("openzaak")
+var openzaak = builder.AddOpenZaak("openzaak", port: 54322)
     .WithLifetime(ContainerLifetime.Persistent)
     .WithReference(ozaakdb)
     .WithReference(redis)
@@ -60,7 +35,8 @@ var openzaak = builder.AddOpenZaak("openzaak")
 
 openzaak.AddInitScript(ozaakdb, "CatalogiInladen", Path.Combine("openzaak", "data__dump.sql"));
 
-var proxy = openzaak.AddNginxProxy("OpenZaakProxy");
+var proxy = openzaak.AddNginxProxy("OpenZaakProxy", 54321)
+    .WithLifetime(ContainerLifetime.Persistent);
 
 builder.AddProject<Projects.Datamigratie_Server>("datamigratie-server")
     .WithEnvironment("OpenZaakApi__BaseUrl", $"{proxy.GetEndpoint("http")}/")

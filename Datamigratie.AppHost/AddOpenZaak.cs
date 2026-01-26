@@ -1,14 +1,14 @@
-﻿namespace Datamigratie.AppHost;
+﻿namespace Aspire.Hosting;
 
 public static class AddOpenZaakExtensions
 {
-    public static IResourceBuilder<OpenZaakResource> AddOpenZaak(this IDistributedApplicationBuilder builder, string name, string tag = "latest")
+    public static IResourceBuilder<OpenZaakResource> AddOpenZaak(this IDistributedApplicationBuilder builder, string name, string tag = "latest", int? port = null)
     {
         var resource = new OpenZaakResource(name);
 
         var resourceBuilder = builder
             .AddResource(resource)
-            .WithHttpEndpoint(targetPort: 8000);
+            .WithHttpEndpoint(port: port, targetPort: 8000);
         var endpoint = resourceBuilder.GetEndpoint("http");
 
         return resourceBuilder
@@ -43,14 +43,8 @@ public static class AddOpenZaakExtensions
     {
         var postgres = database.Resource.Parent;
 
-        if (postgres.UserNameParameter is null)
-        {
-            var parameter = builder.ApplicationBuilder.AddParameter("OzaakDbUser", "postgres");
-            postgres.UserNameParameter = parameter.Resource;
-        }
-
         return builder
-            .WithEnvironment("DB_USER", postgres.UserNameParameter)
+            .WithEnvironmentWithFallback("DB_USER", postgres.UserNameParameter, "postgres")
             .WithEnvironment("DB_HOST", postgres.Host)
             .WithEnvironment("DB_NAME", database.Resource.GetConnectionProperty("DatabaseName"))
             .WithEnvironment("DB_PASSWORD", database.Resource.Parent.PasswordParameter)
@@ -73,11 +67,11 @@ public static class AddOpenZaakExtensions
             .WithEnvironment("CACHE_AXES", cacheUrl);
     }
 
-    public static IResourceBuilder<ContainerResource> AddNginxProxy(this IResourceBuilder<OpenZaakResource> openzaak, string name)
+    public static IResourceBuilder<ContainerResource> AddNginxProxy(this IResourceBuilder<OpenZaakResource> openzaak, string name, int? port = null)
     {
         var nginx = openzaak.ApplicationBuilder
             .AddContainer(name, "nginx")
-            .WithHttpEndpoint(targetPort: 80)
+            .WithHttpEndpoint(port: port, targetPort: 80)
             .WithEnvironment("OPEN_ZAAK_REFERENCE", openzaak.GetEndpoint("http"))
             .WithBindMount("nginx/templates/default.conf.template", "/etc/nginx/templates/default.conf.template")
             .WaitFor(openzaak)
@@ -97,26 +91,17 @@ public static class AddOpenZaakExtensions
     {
         const string TargetScript = "/init-script/init.sql";
 
-        var runner = builder.ApplicationBuilder.AddPostgres(name)
+        var parent = builder.Resource.Parent;
+        return builder.ApplicationBuilder.AddPostgres(name)
             .WithBindMount(path, TargetScript)
-            .WithEnvironment("PGPASSWORD", builder.Resource.Parent.PasswordParameter)
+            .WithEnvironment("PGPASSWORD", parent.PasswordParameter)
             .WithEnvironment("PGDATABASE", builder.Resource.DatabaseName)
-            .WithEnvironment("PGHOST", builder.Resource.Parent.Host)
+            .WithEnvironment("PGHOST", parent.Host)
+            .WithEnvironmentWithFallback("PGUSER", parent.UserNameParameter, "postgres")
             .WithArgs("psql", "-f", TargetScript)
             .WaitFor(builder)
             .WaitFor(openzaak)
             .WithParentRelationship(openzaak);
-
-        if(builder.Resource.Parent.UserNameParameter is {} user)
-        {
-            runner.WithEnvironment("PGUSER", user);
-        }
-        else
-        {
-            runner.WithEnvironment("PGUSER", "postgres");
-        }
-
-        return runner;
     }
 
     public static IResourceBuilder<OpenZaakResource> WithInitialSettings(this IResourceBuilder<OpenZaakResource> openzaak, string name, string path)
@@ -129,7 +114,7 @@ public static class AddOpenZaakExtensions
             .WithBindMount(path, TargetFile)
             .WithEnvironment(async ctx =>
             {
-                if(openzaak.Resource.TryGetEnvironmentVariables(out var variables))
+                if (openzaak.Resource.TryGetEnvironmentVariables(out var variables))
                 {
                     foreach (var item in variables)
                     {
@@ -141,9 +126,13 @@ public static class AddOpenZaakExtensions
             .WithArgs("/setup_configuration.sh")
             .WithParentRelationship(openzaak)
             .WaitFor(openzaak);
-        
+
         return openzaak;
     }
+
+    private static IResourceBuilder<T> WithEnvironmentWithFallback<T>(this IResourceBuilder<T> builder, string key, ParameterResource? parameter, string defaultValue) where T : IResourceWithEnvironment => parameter is { }
+        ? builder.WithEnvironment(key, parameter)
+        : builder.WithEnvironment(key, defaultValue);
 }
 
 public class OpenZaakResource : ContainerResource
