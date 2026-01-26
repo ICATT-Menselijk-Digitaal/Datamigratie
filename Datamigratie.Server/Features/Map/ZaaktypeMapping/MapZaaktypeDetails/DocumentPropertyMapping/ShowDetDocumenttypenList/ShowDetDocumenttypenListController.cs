@@ -1,8 +1,8 @@
-using Datamigratie.Common.Services.Det;
+﻿using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Datamigratie.Server.Features.SelectDetZaaktypeToMigrate.ShowDetDocumenttypenList;
+namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.DocumentPropertyMapping.ShowDetDocumenttypenList;
 
 [ApiController]
 [Route("api/det/documenttypen")]
