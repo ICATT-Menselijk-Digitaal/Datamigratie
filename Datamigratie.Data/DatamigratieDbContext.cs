@@ -32,7 +32,9 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
         {
             // Unique constraint: One DET Resultaattype (per zaaktype) can only map to one OZ Resultaattype
             entity.HasIndex(m => new { m.ZaaktypenMappingId, m.DetResultaattypeNaam })
-                .IsUnique();
+            .IsUnique()
+            .HasDatabaseName("IX_ResultaattypeMapping_ZaaktypenMappingId_DetResultaattypeNaam_Unique")
+
         });
 
         modelBuilder.Entity<Migration>(entity =>
@@ -91,8 +93,6 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
 
             entity.Property(e => e.Rsin)
                 .HasMaxLength(9);
-
-            entity.ToTable("RsinConfigurations");
         });
 
         modelBuilder.Entity<StatusMapping>(entity =>
@@ -105,14 +105,6 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
 
         modelBuilder.Entity<DocumentstatusMapping>(entity =>
         {
-            entity.HasKey(e => e.Id);
-
-            entity.Property(e => e.DetDocumentstatus)
-                .IsRequired();
-
-            entity.Property(e => e.OzDocumentstatus)
-                .IsRequired();
-
             // Unique constraint: Each DET document status can only map to one OZ document status
             entity.HasIndex(e => e.DetDocumentstatus)
                 .IsUnique()
