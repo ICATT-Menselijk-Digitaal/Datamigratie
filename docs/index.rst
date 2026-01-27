@@ -11,6 +11,7 @@ De Datamigratie Tool (DMT) stelt gemeenten in staat om zaken te migreren vanuit 
    :maxdepth: 2
    :hidden:
 
+   requirements/index
    installation/index
    manual/index
    configuration/index
