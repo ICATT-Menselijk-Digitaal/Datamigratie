@@ -35,14 +35,12 @@ public class SaveRsinController(
             }
 
             config.Rsin = request.Rsin;
-            config.UpdatedAt = DateTime.UtcNow;
 
             await dbContext.SaveChangesAsync();
 
             return new GetRsinResponseModel
             {
                 Rsin = config.Rsin,
-                UpdatedAt = config.UpdatedAt
             };
         }
         catch (ArgumentException ex)

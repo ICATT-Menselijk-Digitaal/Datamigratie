@@ -92,9 +92,6 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
             entity.Property(e => e.Rsin)
                 .HasMaxLength(9);
 
-            entity.Property(e => e.UpdatedAt)
-                .IsRequired();
-
             entity.ToTable("RsinConfigurations");
         });
 
@@ -114,9 +111,6 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
                 .IsRequired();
 
             entity.Property(e => e.OzDocumentstatus)
-                .IsRequired();
-
-            entity.Property(e => e.UpdatedAt)
                 .IsRequired();
 
             // Unique constraint: Each DET document status can only map to one OZ document status

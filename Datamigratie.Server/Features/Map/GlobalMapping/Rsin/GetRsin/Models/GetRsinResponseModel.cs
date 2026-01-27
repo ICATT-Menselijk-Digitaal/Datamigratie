@@ -3,6 +3,5 @@
     public class GetRsinResponseModel
     {
         public string? Rsin { get; set; }
-        public DateTime? UpdatedAt { get; set; }
     }
 }

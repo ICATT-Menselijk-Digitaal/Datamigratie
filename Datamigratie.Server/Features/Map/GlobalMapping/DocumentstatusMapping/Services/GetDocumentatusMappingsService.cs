@@ -23,7 +23,6 @@ public class GetDocumentstatusMappingsService(
         {
             DetDocumentstatus = m.DetDocumentstatus,
             OzDocumentstatus = m.OzDocumentstatus,
-            UpdatedAt = m.UpdatedAt
         }).ToList();
 
         return result;

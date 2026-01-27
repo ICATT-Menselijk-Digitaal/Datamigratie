@@ -15,9 +15,4 @@ public class DocumentstatusMappingResponseModel
     /// Valid values: "in_bewerking", "ter_vaststelling", "definitief", "gearchiveerd"
     /// </summary>
     public required string OzDocumentstatus { get; set; }
-
-    /// <summary>
-    /// When this mapping was last updated
-    /// </summary>
-    public DateTime UpdatedAt { get; set; }
 }

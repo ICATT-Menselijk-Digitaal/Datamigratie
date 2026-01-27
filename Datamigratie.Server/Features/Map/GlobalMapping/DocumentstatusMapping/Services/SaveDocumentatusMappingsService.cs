@@ -56,7 +56,6 @@ public class SaveDocumentstatusMappingsService(
             {
                 DetDocumentstatus = m.DetDocumentstatus,
                 OzDocumentstatus = m.OzDocumentstatus,
-                UpdatedAt = now
             }).ToList();
 
             dbContext.DocumentstatusMappings.AddRange(newMappings);
@@ -65,8 +64,7 @@ public class SaveDocumentstatusMappingsService(
             return [.. newMappings.Select(m => new DocumentstatusMappingResponseModel
             {
                 DetDocumentstatus = m.DetDocumentstatus,
-                OzDocumentstatus = m.OzDocumentstatus,
-                UpdatedAt = m.UpdatedAt
+                OzDocumentstatus = m.OzDocumentstatus
             })];
         }
         catch (ArgumentException ex)

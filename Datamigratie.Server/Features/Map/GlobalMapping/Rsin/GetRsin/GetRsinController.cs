@@ -23,7 +23,6 @@ public class GetRsinController(
                 : Ok(new GetRsinResponseModel
                 {
                     Rsin = config.Rsin,
-                    UpdatedAt = config.UpdatedAt
                 });
         }
         catch (Exception ex)

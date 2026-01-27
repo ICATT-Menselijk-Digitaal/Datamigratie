@@ -57,7 +57,6 @@ export type MigrationRecordItem = {
 
 export type RsinConfiguration = {
   rsin?: string;
-  updatedAt?: string;
 };
 
 export type UpdateRsinConfiguration = {

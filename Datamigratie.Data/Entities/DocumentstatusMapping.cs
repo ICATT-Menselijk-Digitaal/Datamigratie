@@ -23,9 +23,4 @@ public class DocumentstatusMapping
     /// </summary>
     [Required]
     public required string OzDocumentstatus { get; set; }
-
-    /// <summary>
-    /// When this mapping was created or last updated
-    /// </summary>
-    public DateTime UpdatedAt { get; set; }
 }
