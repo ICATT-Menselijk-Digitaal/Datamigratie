@@ -97,6 +97,22 @@
       </li>
     </menu>
 
+    <document-property-mapping-section
+      :det-documenttypen="detDocumenttypen"
+      :oz-zaaktype="ozZaaktype"
+      :document-property-mappings="documentPropertyMappings"
+      :is-editing-publicatieniveau="isEditingPublicatieNiveauMapping"
+      :is-editing-documenttype="isEditingDocumenttypeMapping"
+      :disabled="isThisMigrationRunning"
+      :loading="!ozZaaktype"
+      :show-warning="!!mapping.detZaaktypeId"
+      :show-mapping="showDetailMapping"
+      @update:document-property-mappings="documentPropertyMappings = $event"
+      @save="saveDocumentPropertyMappings"
+      @edit-publicatieniveau="setEditingPublicatieNiveauMapping(true)"
+      @edit-documenttype="setEditingDocumenttypeMapping(true)"
+    />
+
     <menu class="reset">
       <li>
         <router-link
@@ -128,8 +144,8 @@
 
     <zaaktype-change-confirmation-modal
       :dialog="confirmOzZaaktypeChangeDialog"
-      warning-text="Als je het Open Zaak zaaktype wijzigt, worden alle bestaande statusmappings verwijderd."
-      description-text="Je moet de statusmappings opnieuw configureren voor het nieuwe zaaktype."
+      warning-text="Als je het Open Zaak zaaktype wijzigt, worden alle bestaande mappings verwijderd."
+      description-text="Je moet de mappings opnieuw configureren voor het nieuwe zaaktype."
     />
 
     <section v-if="!errors.length && migrationHistory.length > 0" class="migration-history">
@@ -181,7 +197,7 @@ import PromptModal from "@/components/PromptModal.vue";
 import StatusMappingSection from "@/components/StatusMappingSection.vue";
 import ZaaktypeChangeConfirmationModal from "@/components/ZaaktypeChangeConfirmationModal.vue";
 import toast from "@/components/toast/toast";
-import { detService, type DETZaaktype } from "@/services/detService";
+import { detService, type DETZaaktype, type DetDocumenttype } from "@/services/detService";
 import { ozService, type OZZaaktype } from "@/services/ozService";
 import {
   datamigratieService,
@@ -191,11 +207,13 @@ import {
   type UpdateZaaktypeMapping,
   type MigrationHistoryItem,
   type StatusMappingItem,
-  type ResultaattypeMappingItem
+  type ResultaattypeMappingItem,
+  type DocumentPropertyMappingItem
 } from "@/services/datamigratieService";
 import { knownErrorMessages } from "@/utils/fetchWrapper";
 import { useMigration } from "@/composables/use-migration-status";
 import ResultaattypeMappingSection from "@/components/ResultaattypeMappingSection.vue";
+import DocumentPropertyMappingSection from "@/components/DocumentPropertyMappingSection.vue";
 
 const { detZaaktypeId } = defineProps<{ detZaaktypeId: string }>();
 
@@ -219,6 +237,15 @@ const resultaattypeMappings = ref<ResultaattypeMappingItem[]>([]);
 
 const resultaattypeMappingsComplete = ref(false);
 
+const detDocumenttypen = ref<DetDocumenttype[]>([]);
+
+const documentPropertyMappings = ref<DocumentPropertyMappingItem[]>([]);
+
+const documentPropertyMappingsComplete = ref(false);
+
+// flag to prevent re-entrant calls
+let isFetchingDocumentPropertyMappings = false;
+
 const { migration, fetchMigration } = useMigration();
 
 const isEditingZaaktypeMapping = ref(false);
@@ -230,6 +257,11 @@ const setEditingStatusMapping = (value: boolean) => (isEditingStatusMapping.valu
 const isEditingResultaattypeMapping = ref(false);
 const setEditingResultaattypeMapping = (value: boolean) => (isEditingResultaattypeMapping.value = value);
 
+const isEditingPublicatieNiveauMapping = ref(true);
+const setEditingPublicatieNiveauMapping = (value: boolean) => (isEditingPublicatieNiveauMapping.value = value);
+
+const isEditingDocumenttypeMapping = ref(true);
+const setEditingDocumenttypeMapping = (value: boolean) => (isEditingDocumenttypeMapping.value = value);
 
 const previousOzZaaktypeId = ref<string>("");
 
@@ -253,6 +285,16 @@ const canEditResultaattypeMappings = computed(
     resultaattypeMappingsComplete.value
 );
 
+const canEditDocumentPropertyMappings = computed(
+  () =>
+    !isThisMigrationRunning.value &&
+    mapping.value.detZaaktypeId &&
+    mapping.value.ozZaaktypeId &&
+    !isEditingZaaktypeMapping.value &&
+    (!isEditingPublicatieNiveauMapping.value || !isEditingDocumenttypeMapping.value) &&
+    documentPropertyMappingsComplete.value
+);
+
 const canStartMigration = computed(
   () =>
     mapping.value.detZaaktypeId &&
@@ -262,7 +304,10 @@ const canStartMigration = computed(
     !isEditingStatusMapping.value &&
     statusMappingsComplete.value &&
     !isEditingResultaattypeMapping.value &&
-    resultaattypeMappingsComplete.value
+    resultaattypeMappingsComplete.value &&
+    !isEditingPublicatieNiveauMapping.value &&
+    !isEditingDocumenttypeMapping.value &&
+    documentPropertyMappingsComplete.value
 );
 
 const isThisMigrationRunning = computed(
@@ -394,6 +439,106 @@ const saveResultaattypeMappings = async () => {
   }
 };
 
+const fetchDocumentPropertyMappings = async () => {
+  if (isFetchingDocumentPropertyMappings) {
+    return;
+  }
+
+  isFetchingDocumentPropertyMappings = true;
+
+  if (!mapping.value.ozZaaktypeId) {
+    documentPropertyMappings.value = [];
+    documentPropertyMappingsComplete.value = false;
+    isFetchingDocumentPropertyMappings = false;
+    return;
+  }
+
+  try {
+    let ozZaaktypeData = ozZaaktype.value;
+    if (!ozZaaktypeData) {
+      ozZaaktypeData = await ozService.getZaaktypeById(mapping.value.ozZaaktypeId);
+    }
+
+    const detDocumenttypenData = await detService.getAllDocumenttypen();
+    const publicatieNiveauValuesData = await datamigratieService.getPublicatieNiveauOptions();
+
+    let mappingsData: DocumentPropertyMappingItem[] = [];
+    if (mapping.value.id) {
+      const apiResponse = await datamigratieService.getDocumentPropertyMappings(mapping.value.id);
+      mappingsData = apiResponse as DocumentPropertyMappingItem[];
+    }
+
+    const publicatieNiveauMappings = publicatieNiveauValuesData.map((val: string) => {
+      const existingMapping = mappingsData.find(m => m.detPropertyName === "publicatieniveau" && m.detValue === val);
+      return existingMapping || {
+        detPropertyName: "publicatieniveau",
+        detValue: val,
+        ozValue: null
+      };
+    });
+
+    const activeDocumenttypen = detDocumenttypenData.filter(dt => dt.actief);
+    const documenttypeMappings = activeDocumenttypen.map(dt => {
+      const existingMapping = mappingsData.find(m => m.detPropertyName === "documenttype" && m.detValue === dt.naam);
+      return existingMapping || {
+        detPropertyName: "documenttype",
+        detValue: dt.naam,
+        ozValue: null
+      };
+    });
+
+    const publicatieNiveauMapped = publicatieNiveauMappings.every(m => m.ozValue !== null);
+    const documenttypeMapped = documenttypeMappings.length === 0 || documenttypeMappings.every(m => m.ozValue !== null);
+
+    const savedPublicatieNiveauMappings = mappingsData.filter(m => m.detPropertyName === "publicatieniveau");
+    const savedDocumenttypeMappings = mappingsData.filter(m => m.detPropertyName === "documenttype");
+    
+    const shouldEditPublicatieniveau = !(publicatieNiveauMapped && savedPublicatieNiveauMappings.length > 0);
+    const shouldEditDocumenttype = !(documenttypeMapped && savedDocumenttypeMappings.length > 0);
+
+    if (!ozZaaktype.value) {
+      ozZaaktype.value = ozZaaktypeData;
+    }
+    detDocumenttypen.value = detDocumenttypenData;
+    documentPropertyMappings.value = [...publicatieNiveauMappings, ...documenttypeMappings];
+    documentPropertyMappingsComplete.value = publicatieNiveauMapped && documenttypeMapped;
+    
+    // Only update editing states if they need to change
+    if (isEditingPublicatieNiveauMapping.value !== shouldEditPublicatieniveau) {
+      setEditingPublicatieNiveauMapping(shouldEditPublicatieniveau);
+    }
+    if (isEditingDocumenttypeMapping.value !== shouldEditDocumenttype) {
+      setEditingDocumenttypeMapping(shouldEditDocumenttype);
+    }
+  } catch (err: unknown) {
+    console.error("Error fetching document property mappings:", err);
+    documentPropertyMappings.value = [];
+    documentPropertyMappingsComplete.value = false;
+  } finally {
+    isFetchingDocumentPropertyMappings = false;
+  }
+};
+
+const saveDocumentPropertyMappings = async () => {
+  loading.value = true;
+
+  try {
+    const mappingsToSave = documentPropertyMappings.value.filter(m => m.ozValue !== null && m.ozValue !== "");
+
+    await datamigratieService.saveDocumentPropertyMappings(mapping.value.id, {
+      mappings: mappingsToSave
+    });
+
+    toast.add({ text: "De documentproperty mappings zijn succesvol opgeslagen." });
+
+    await fetchDocumentPropertyMappings();
+  } catch (err: unknown) {
+    toast.add({ text: `Fout bij opslaan van de documentproperty mappings - ${err}`, type: "error" });
+  } finally {
+    loading.value = false;
+  }
+};
+
 const saveStatusMappings = async () => {
   loading.value = true;
 
@@ -471,6 +616,7 @@ const fetchMappingData = async () => {
   if (mapping.value.ozZaaktypeId) {
     await fetchStatusMappings();
     await fetchResultaattypenMappings();
+    await fetchDocumentPropertyMappings();
   }
 };
 
@@ -483,12 +629,16 @@ const submitMapping = async () => {
   const hasResultaattypeMappings = 
     resultaattypeMappings.value.some(m => m.ozResultaattypeId !== null);
 
+  const hasDocumentPropertyMappings = 
+    documentPropertyMappings.value.some(m => m.ozValue !== null);
+
   if (
     mapping.value.detZaaktypeId &&
     previousOzZaaktypeId.value &&
     hasZaaktypeChanged &&
     (hasStatusMappings ||
-    hasResultaattypeMappings)
+    hasResultaattypeMappings ||
+    hasDocumentPropertyMappings)
   ) {
     const result = await confirmOzZaaktypeChangeDialog.reveal();
     
@@ -533,6 +683,7 @@ const submitMapping = async () => {
     if (hasZaaktypeChanged) {
       await fetchStatusMappings();
       await fetchResultaattypenMappings();
+      await fetchDocumentPropertyMappings();
     }
   } catch (err: unknown) {
     toast.add({ text: `Fout bij opslaan van de mapping - ${err}`, type: "error" });

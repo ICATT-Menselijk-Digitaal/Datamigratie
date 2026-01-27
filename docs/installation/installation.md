@@ -1,13 +1,5 @@
 # Installatie
 
-## Lokaal Draaien
-
-Om de Datamigratie applicatie lokaal te draaien:
-
-1. Open met Visual Studio
-2. Stel Datamigratie.AppHost in als startup project
-3. Start de applicatie
-
 ## Helm Deployment
 
 Voor het deployen van de applicatie met Helm:

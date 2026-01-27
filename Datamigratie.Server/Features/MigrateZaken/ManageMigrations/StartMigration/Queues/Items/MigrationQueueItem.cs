@@ -23,5 +23,11 @@ namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Q
         /// Dictionary: DetResultaattypeNaam -> OzResultaattypeId
         /// </summary>
         public required Dictionary<string, Guid> ResultaatMappings { get; set; }
+
+        /// <summary>
+        /// Document property mappings loaded and validated by StartMigrationController before queuing.
+        /// Dictionary: PropertyName -> (DetValue -> OzValue)
+        /// </summary>
+        public required Dictionary<string, Dictionary<string, string>> DocumentPropertyMappings { get; set; }
     }
 }
