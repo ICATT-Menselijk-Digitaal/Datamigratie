@@ -148,6 +148,9 @@ Features/
 
 ### Database & Migrations
 
+- [ ] **Convention over configuration**: Trust EF Core conventions instead of explicit configuration when the convention produces the correct result. Don't add `.ToTable()`, `.HasColumnName()`, or other fluent API calls that just repeat what EF would infer automatically. Less code = less noise = fewer bugs.
+  > *"boyscout rule: laat het netter achter dan hoe je het aantrof. minder code = minder ruis = minder fouten."* (PR #86)
+
 - [ ] **Migration impact**: Editing existing migrations requires all developers to recreate their database
   > *"Een bestaande migratie aanpassen betekent dat alle ontwikkelaars de bestaande database moeten weggooien"* (PR #15)
 
