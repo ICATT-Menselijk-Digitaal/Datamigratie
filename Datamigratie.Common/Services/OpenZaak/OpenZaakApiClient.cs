@@ -17,6 +17,8 @@ namespace Datamigratie.Common.Services.OpenZaak
 
         Task<List<OzStatustype>> GetStatustypesForZaaktype(Uri zaaktypeUri);
 
+        Task<List<OzBesluittype>> GetBesluittypenForZaaktype(Uri zaaktypeUri);
+
         Task<OzZaak> CreateZaak(CreateOzZaakRequest request);
 
         Task<OzResultaat> CreateResultaat(CreateOzResultaatRequest request);
@@ -101,8 +103,19 @@ namespace Datamigratie.Common.Services.OpenZaak
         public async Task<List<OzResultaattype>> GetResultaattypenForZaaktype(Uri zaaktypeUri)
         {
             var endpoint = $"catalogi/api/v1/resultaattypen?zaaktype={Uri.EscapeDataString(zaaktypeUri.ToString())}";
-            var pagedStatustypes = await GetAllPagedData<OzResultaattype>(endpoint);
-            return pagedStatustypes.Results;
+            var pagedResultaattypen = await GetAllPagedData<OzResultaattype>(endpoint);
+            return pagedResultaattypen.Results;
+        }
+
+        /// <summary>
+        /// Gets all besluittypen for a specific zaaktype.
+        /// </summary>
+        /// <returns>A list of besluittypen for the zaaktype</returns>
+        public async Task<List<OzBesluittype>> GetBesluittypenForZaaktype(Uri zaaktypeUri)
+        {
+            var endpoint = $"catalogi/api/v1/besluittypen?zaaktypen={Uri.EscapeDataString(zaaktypeUri.ToString())}";
+            var pagedBesluittypen = await GetAllPagedData<OzBesluittype>(endpoint);
+            return pagedBesluittypen.Results;
         }
 
         public async Task<OzZaak?> GetZaakByIdentificatie(string zaakNummer)

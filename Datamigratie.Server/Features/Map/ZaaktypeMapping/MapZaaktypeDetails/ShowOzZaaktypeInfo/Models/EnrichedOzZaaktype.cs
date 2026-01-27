@@ -9,5 +9,7 @@ namespace Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDet
         public List<OzResultaattype> Resultaattypen { get; set; } = [];
 
         public List<OzInformatieobjecttype> Informatieobjecttypen { get; set; } = [];
+
+        public List<OzBesluittype> Besluittypen { get; set; } = [];
     }
 }

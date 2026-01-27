@@ -20,6 +20,8 @@ namespace Datamigratie.Common.Services.Det
         Task GetDocumentInhoudAsync(long id, Func<Stream, CancellationToken, Task> handleInhoud, CancellationToken token);
 
         Task<List<DetDocumenttype>> GetAllDocumenttypen();
+
+        Task<List<DetBesluittype>> GetAllBesluittypen();
     }
 
     public class DetApiClient(HttpClient httpClient, ILogger<DetApiClient> logger) : DetPagedApiClient(httpClient), IDetApiClient
@@ -164,6 +166,18 @@ namespace Datamigratie.Common.Services.Det
         {
             _logger.LogInformation("Fetching all documenttypen.");
             var pagedDocumenttypen = await GetAllPagedData<DetDocumenttype>("documenttypen");
+            return pagedDocumenttypen.Results;
+        }
+
+        /// <summary>
+        /// Gets all besluitypen with pagination details.
+        /// Endpoint: /besluittypen
+        /// </summary>
+        /// <returns>A list of all Documenttype objects across all pages.</returns>
+        public async Task<List<DetBesluittype>> GetAllBesluittypen()
+        {
+            _logger.LogInformation("Fetching all besluittypen.");
+            var pagedDocumenttypen = await GetAllPagedData<DetBesluittype>("besluittypen");
             return pagedDocumenttypen.Results;
         }
 
