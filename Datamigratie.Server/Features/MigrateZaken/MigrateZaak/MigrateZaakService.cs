@@ -79,6 +79,10 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             const int MaxBeschijvingLength = 1000; // 997 + "..."
             var beschrijving = TruncateWithDots(item.Beschrijving, MaxBeschijvingLength);
 
+            beschrijving ??= "";
+
+            var verschijningsvorm = item?.DocumentVorm?.Naam ?? "";
+
             const int MaxIdentificatieLength = 40;
 
             // If kenmerk is longer than 40, fail the migration
@@ -91,6 +95,9 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
 
             var informatieobjecttype = MapDocumenttype(item.Documenttype?.Naam, informatieObjectType, documentPropertyMappings, item.Titel);
 
+            var taal = item.Taal?.FunctioneelId.ToLower() ?? "dut";
+            var auteur = versie.Auteur ?? "Auteur_onbekend";
+
             return new OzDocument
             {
                 Bestandsnaam = versie.Bestandsnaam,
@@ -98,17 +105,17 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 Formaat = versie.Mimetype,
                 Identificatie = item.Kenmerk,
                 Informatieobjecttype = informatieobjecttype,
-                Taal = "dut",
+                Taal = taal,
                 Titel = titel,
                 Vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
                 Bestandsomvang = versie.Documentgrootte,
-                Auteur = "onbekend",
+                Auteur = auteur,
                 Beschrijving = beschrijving,
                 Creatiedatum = versie.Creatiedatum,
                 Status = DocumentStatus.in_bewerking,
-                Trefwoorden = [],
-                Verschijningsvorm = item?.DocumentVorm?.Naam,
-                Link = ""
+                Verschijningsvorm = verschijningsvorm,
+                Link = "",
+                Trefwoorden = []
             };
         }
 
@@ -193,16 +200,16 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 Identificatie = $"zaakgegevens-{detZaak.FunctioneleIdentificatie}",
                 Informatieobjecttype = informatieObjectType,
                 Taal = "dut",
-                Titel = $"Zaakgegevens {detZaak.FunctioneleIdentificatie}",
+                Titel = $"e-Suite zaakgegevens {detZaak.FunctioneleIdentificatie}",
                 Vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar,
                 Bestandsomvang = pdfBytes.Length,
-                Auteur = "Datamigratie",
+                Auteur = "Automatisch gegenereerd bij migratie vanuit e-Suite",
                 Beschrijving = "Automatisch gegenereerd document met basisgegevens van de zaak uit het bronsysteem",
                 Creatiedatum = DateOnly.FromDateTime(DateTime.Now),
-                Status = DocumentStatus.in_bewerking,
+                Status = DocumentStatus.definitief,
+                Link = "",
+                Verschijningsvorm = "",
                 Trefwoorden = [],
-                Verschijningsvorm = "verschijningsvorm",
-                Link = ""
             };
 
             await CreateAndLinkDocumentAsync(
