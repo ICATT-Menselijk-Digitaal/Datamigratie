@@ -28,7 +28,33 @@ Oidc__Authority
 Oidc__ClientId
 Oidc__ClientSecret
 Oidc__FunctioneelBeheerderRole
+
+FeatureFlags__EnableTestHelpers
 ```
+
+### Feature Flags
+The application uses feature flags to enable or disable certain functionality. These can be configured via environment variables.
+
+#### Available Feature Flags
+
+| Flag | Environment Variable | Default | Description |
+|------|---------------------|---------|-------------|
+| `EnableTestHelpers` | `FeatureFlags__EnableTestHelpers` | `false` | Enables test helper UI for batch selection when mapping large numbers of documenttypes. Provides a pre-selection option to speed up the mapping process. |
+
+#### Configuration
+
+**Via environment variables:**
+```bash
+export FeatureFlags__EnableTestHelpers=true
+```
+
+**Via Helm (values.yaml):**
+```yaml
+featureFlags:
+  enableTestHelpers: true
+```
+
+Feature flags are loaded by the frontend via the `/api/app-version` endpoint and are available through the `featureFlags` object in Vue components.
 
 ### Inloggen in de UI
 - Om in de UI in te kunnen loggen, moet je in de user secrets van het Datamigratie.Server project de benodigde configuratie invullen:
