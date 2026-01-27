@@ -38,9 +38,6 @@ namespace Datamigratie.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.HasKey("Id");
 
                     b.HasIndex("DetDocumentstatus")
@@ -164,7 +161,8 @@ namespace Datamigratie.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ZaaktypenMappingId", "DetResultaattypeNaam")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("IX_ResultaattypeMapping_ZaaktypenMappingId_DetResultaattypeNaam_Unique");
 
                     b.ToTable("ResultaattypeMappings");
                 });
@@ -181,12 +179,9 @@ namespace Datamigratie.Data.Migrations
                         .HasMaxLength(9)
                         .HasColumnType("character varying(9)");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.HasKey("Id");
 
-                    b.ToTable("RsinConfigurations", (string)null);
+                    b.ToTable("RsinConfigurations");
                 });
 
             modelBuilder.Entity("Datamigratie.Data.Entities.StatusMapping", b =>

@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Datamigratie.Data.Migrations
 {
     [DbContext(typeof(DatamigratieDbContext))]
-    [Migration("20260120132919_RenameGlobalConfigurationToRsinConfiguration")]
-    partial class RenameGlobalConfigurationToRsinConfiguration
+    [Migration("20260127143542_RenameGlobalConfiguration")]
+    partial class RenameGlobalConfiguration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -40,9 +40,6 @@ namespace Datamigratie.Data.Migrations
                     b.Property<string>("OzDocumentstatus")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -167,7 +164,8 @@ namespace Datamigratie.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ZaaktypenMappingId", "DetResultaattypeNaam")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("IX_ResultaattypeMapping_ZaaktypenMappingId_DetResultaattypeNaam_Unique");
 
                     b.ToTable("ResultaattypeMappings");
                 });
@@ -184,12 +182,9 @@ namespace Datamigratie.Data.Migrations
                         .HasMaxLength(9)
                         .HasColumnType("character varying(9)");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.HasKey("Id");
 
-                    b.ToTable("RsinConfigurations", (string)null);
+                    b.ToTable("RsinConfigurations");
                 });
 
             modelBuilder.Entity("Datamigratie.Data.Entities.StatusMapping", b =>

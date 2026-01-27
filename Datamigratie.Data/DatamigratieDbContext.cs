@@ -33,7 +33,7 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
             // Unique constraint: One DET Resultaattype (per zaaktype) can only map to one OZ Resultaattype
             entity.HasIndex(m => new { m.ZaaktypenMappingId, m.DetResultaattypeNaam })
             .IsUnique()
-            .HasDatabaseName("IX_ResultaattypeMapping_ZaaktypenMappingId_DetResultaattypeNaam_Unique")
+            .HasDatabaseName("IX_ResultaattypeMapping_ZaaktypenMappingId_DetResultaattypeNaam_Unique");
 
         });
 
