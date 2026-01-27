@@ -108,15 +108,15 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             };
         }
         private async Task CreateAndLinkDocumentAsync(
-            OzDocument ozDocument, 
-            OzZaak zaak, 
+            OzDocument ozDocument,
+            OzZaak zaak,
             Func<OzDocument, CancellationToken, Task> uploadContentAction,
             CancellationToken token)
         {
             var savedDocument = await _openZaakApiClient.CreateDocument(ozDocument);
-            
+
             await uploadContentAction(savedDocument, token);
-            
+
             await _openZaakApiClient.UnlockDocument(savedDocument.Id, savedDocument.Lock, token);
             await _openZaakApiClient.KoppelDocument(zaak, savedDocument, token);
         }
@@ -209,18 +209,18 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             foreach (var document in detZaak?.Documenten ?? [])
             {
                 var sortedVersions = document.DocumentVersies.OrderBy(v => v.Versienummer).ToList();
-                
+
                 OzDocument? mainDocument = null;
-                
+
                 for (var i = 0; i < sortedVersions.Count; i++)
                 {
                     var detVersie = sortedVersions[i];
                     var isFirstVersion = i == 0;
-                    
+
                     try
                     {
                         var ozDocument = MapToOzDocument(document, detVersie, informatieObjectType, rsin);
-                        
+
                         if (isFirstVersion)
                         {
                             // create new document and link to zaak
@@ -238,20 +238,21 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                                         ct);
                                 },
                                 token);
-                                
+
 
                             mainDocument = capturedDocument;
                         }
                         else
                         {
                             // other versions: update existing document
-                            if (mainDocument?.Id == null) {
+                            if (mainDocument?.Id == null)
+                            {
                                 throw new InvalidOperationException("First document version must be created before updating");
                             }
 
                             // lock the document to get a lock token
                             var lockToken = await _openZaakApiClient.LockDocument(mainDocument.Id, token);
-                            
+
                             // set lock token
                             ozDocument.Lock = lockToken;
 
@@ -269,12 +270,12 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
 
                             // set lock token again
                             refreshedDocument.Lock = lockToken;
-                            
+
                             await detClient.GetDocumentInhoudAsync(
                                 detVersie.DocumentInhoudID,
                                 async (stream, ct) => await _openZaakApiClient.UploadBestand(refreshedDocument, stream, ct),
                                 token);
-                            
+
                             await _openZaakApiClient.UnlockDocument(mainDocument.Id, lockToken, token);
                         }
                     }
@@ -303,7 +304,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             var registratieDatum = detZaak.CreatieDatumTijd.ToString("yyyy-MM-dd");
 
             var startDatum = detZaak.Startdatum.ToString("yyyy-MM-dd");
-            
+
             const int MaxOmschrijvingLength = 80;
             var omschrijving = TruncateWithDots(detZaak.Omschrijving, MaxOmschrijvingLength);
 
@@ -311,7 +312,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
 
             if (detZaak.FunctioneleIdentificatie.Length > MaxZaaknummerLength)
             {
-                throw new InvalidDataException($"Zaak '{detZaak.FunctioneleIdentificatie}' migration failed: The 'functionele identificatie' field length ({detZaak.FunctioneleIdentificatie.Length}) exceeds the maximum allowed length of {MaxZaaknummerLength} characters.");
+                throw new InvalidDataException($"Zaak '{detZaak.FunctioneleIdentificatie}' migration failed: The 'zaaknummer' field length ({detZaak.FunctioneleIdentificatie.Length}) exceeds the maximum allowed length of {MaxZaaknummerLength} characters.");
             }
 
             // Now create the request
