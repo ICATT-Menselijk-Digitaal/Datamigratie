@@ -10,7 +10,7 @@ namespace Datamigratie.FakeDet
 {
     public static class FakeDetEndpoints
     {
-        public static async Task<Ok<PagedResponse<ZaaktypeOverzicht>>> GetAllZaaktypen([Range(1, int.MaxValue)] int page = 1)
+        public static async Task<Ok<DetPagedResponse<ZaaktypeOverzicht>>> GetAllZaaktypen([Range(1, int.MaxValue)] int page = 1)
         {
             const int PageSize = 100;
 
@@ -26,7 +26,7 @@ namespace Datamigratie.FakeDet
 
             var chunks = zaaktypen.Values.Chunk(PageSize).ToList();
 
-            var result = new PagedResponse<ZaaktypeOverzicht>
+            var result = new DetPagedResponse<ZaaktypeOverzicht>
             {
                 Count = zaaktypen.Count,
                 Results = chunks.ElementAtOrDefault(page - 1)?.ToList() ?? [],
@@ -52,7 +52,7 @@ namespace Datamigratie.FakeDet
             return TypedResults.NotFound();
         }
 
-        public static async Task<Ok<PagedResponse<DetZaakMinimal>>> GetZakenByZaaktype([FromServices] ZaakDatabase zaakDatabase, string zaaktype, [Range(1, int.MaxValue)] int page = 1)
+        public static async Task<Ok<DetPagedResponse<DetZaakMinimal>>> GetZakenByZaaktype([FromServices] ZaakDatabase zaakDatabase, string zaaktype, [Range(1, int.MaxValue)] int page = 1)
         {
             var results = new List<DetZaakMinimal>();
             var count = await zaakDatabase.GetZakenCountByZaaktype(zaaktype);
@@ -60,7 +60,7 @@ namespace Datamigratie.FakeDet
             {
                 results.Add(item);
             }
-            return TypedResults.Ok(new PagedResponse<DetZaakMinimal>
+            return TypedResults.Ok(new DetPagedResponse<DetZaakMinimal>
             {
                 Results = results,
                 Count = count,
