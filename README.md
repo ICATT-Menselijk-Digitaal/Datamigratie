@@ -33,17 +33,17 @@ FeatureFlags__EnableTestHelpers
 ```
 
 ### Feature Flags
-The application uses feature flags to enable or disable certain functionality. These can be configured via environment variables.
+De applicatie gebruikt feature flags om bepaalde functionaliteit in of uit te schakelen. Deze kunnen geconfigureerd worden via environment variabelen.
 
-#### Available Feature Flags
+#### Beschikbare Feature Flags
 
-| Flag | Environment Variable | Default | Description |
-|------|---------------------|---------|-------------|
-| `EnableTestHelpers` | `FeatureFlags__EnableTestHelpers` | `false` | Enables test helper UI for batch selection when mapping large numbers of documenttypes. Provides a pre-selection option to speed up the mapping process. |
+| Flag | Environment Variable | Standaard | Beschrijving |
+|------|---------------------|-----------|--------------|
+| `EnableTestHelpers` | `FeatureFlags__EnableTestHelpers` | `false` | Schakelt test helper UI in voor batch selectie bij het mappen van grote aantallen documenttypes. Biedt een pre-selectie optie om het mapping proces te versnellen. |
 
-#### Configuration
+#### Configuratie
 
-**Via environment variables:**
+**Via environment variabelen:**
 ```bash
 export FeatureFlags__EnableTestHelpers=true
 ```
@@ -54,7 +54,7 @@ featureFlags:
   enableTestHelpers: true
 ```
 
-Feature flags are loaded by the frontend via the `/api/app-version` endpoint and are available through the `featureFlags` object in Vue components.
+Feature flags worden geladen door de frontend via het `/api/app-version` endpoint en zijn beschikbaar via het `featureFlags` object in Vue componenten.
 
 ### Opstarten
 
