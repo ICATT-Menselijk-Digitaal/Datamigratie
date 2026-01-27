@@ -1,9 +1,8 @@
-Handleiding
+Vereisten
 ===========
 
 .. toctree::
    :maxdepth: 1
    :caption: Lees meer
 
-   manual.md
-   validation.md
+   requirements.md

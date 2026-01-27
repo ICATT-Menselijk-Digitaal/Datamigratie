@@ -18,3 +18,4 @@
 - [Migration log overview migration-level](https://dimpact.atlassian.net/browse/DATA-17)
 - [Make linking of a Zaaktype less error-prone](https://dimpact.atlassian.net/browse/DATA-89)
 - [Fill and migrate required meta-data for generated PDF](https://dimpact.atlassian.net/browse/DATA-163)
+- [Validate zaaknummer length per Zaaktype before migration](https://dimpact.atlassian.net/browse/DATA-92)
