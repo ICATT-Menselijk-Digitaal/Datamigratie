@@ -108,6 +108,27 @@ export type ResultaattypeMappingResponse = {
   ozResultaattypeId: string;
 };
 
+export type DocumentPropertyMappingItem = {
+  detPropertyName: string;
+  detValue: string;
+  ozValue: string | null;
+};
+
+export type SaveDocumentPropertyMappingsRequest = {
+  mappings: DocumentPropertyMappingItem[];
+};
+
+export type DocumentPropertyMappingResponse = {
+  detPropertyName: string;
+  detValue: string;
+  ozValue: string;
+};
+
+export type VertrouwelijkheidaanduidingOption = {
+  value: string;
+  label: string;
+};
+
 export const datamigratieService = {
   getMappingByDETZaaktypeId: (detZaaktypeId: string): Promise<ZaaktypeMapping> =>
     get<ZaaktypeMapping>(`/api/mapping/${detZaaktypeId}`),
@@ -131,5 +152,13 @@ export const datamigratieService = {
   getResultaattypeMappings: (zaaktypenMappingId: string): Promise<ResultaattypeMappingResponse[]> =>
     get<ResultaattypeMappingResponse[]>(`/api/mappings/${zaaktypenMappingId}/resultaattypen`),
   saveResultaattypeMappings: (zaaktypenMappingId: string, payload: SaveResultaattypeMappingsRequest): Promise<void> =>
-    post(`/api/mappings/${zaaktypenMappingId}/resultaattypen`, payload)
+    post(`/api/mappings/${zaaktypenMappingId}/resultaattypen`, payload),
+  getDocumentPropertyMappings: (zaaktypenMappingId: string): Promise<DocumentPropertyMappingResponse[]> =>
+    get<DocumentPropertyMappingResponse[]>(`/api/mappings/${zaaktypenMappingId}/documentproperties`),
+  saveDocumentPropertyMappings: (zaaktypenMappingId: string, payload: SaveDocumentPropertyMappingsRequest): Promise<void> =>
+    post(`/api/mappings/${zaaktypenMappingId}/documentproperties`, payload),
+  getPublicatieNiveauOptions: (): Promise<string[]> =>
+    get<string[]>(`/api/det/options/publicatieniveau`),
+  getVertrouwelijkheidaanduidingOptions: (): Promise<VertrouwelijkheidaanduidingOption[]> =>
+    get<VertrouwelijkheidaanduidingOption[]>(`/api/oz/options/vertrouwelijkheidaanduiding`)
 };
