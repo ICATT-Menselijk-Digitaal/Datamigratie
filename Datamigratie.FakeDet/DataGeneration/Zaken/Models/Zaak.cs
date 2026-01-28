@@ -190,8 +190,10 @@ public record ZaakResultaat
     [JsonPropertyName("omschrijving")]
     public string? Omschrijving { get; init; }
 
-    [JsonPropertyName("toelichting")]
-    public string? Toelichting { get; init; }
+    [JsonPropertyName("uitwisselingscode")]
+    public required string Uitwisselingscode { get; init; }
+
+    public required bool Actief { get; init; }
 }
 
 public record ArchiveerGegevens
