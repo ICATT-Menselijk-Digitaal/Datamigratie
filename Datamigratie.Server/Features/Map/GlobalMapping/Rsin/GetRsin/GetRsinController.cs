@@ -16,7 +16,7 @@ public class GetRsinController(
     {
         try
         {
-            var config = await dbContext.RsinConfigurations.FirstOrDefaultAsync();
+            var config = await dbContext.RsinConfiguration.FirstOrDefaultAsync();
 
             return config == null
                 ? Ok(new GetRsinResponseModel())

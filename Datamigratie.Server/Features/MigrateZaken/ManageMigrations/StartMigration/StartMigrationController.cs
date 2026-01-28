@@ -83,7 +83,7 @@ public class StartMigrationController(
 
     private async Task<RsinMapping> ValidateAndGetRsinMappingAsync()
     {
-        var rsinMapping = await dbContext.RsinConfigurations
+        var rsinMapping = await dbContext.RsinConfiguration
             .Select(x => new RsinMapping { Rsin = x.Rsin! })
             .FirstOrDefaultAsync() ?? throw new InvalidOperationException("Geen rsin configuratie gevonden.");
 

@@ -25,13 +25,13 @@ public class SaveRsinController(
                 RsinValidator.ValidateRsin(request.Rsin, logger);
             }
 
-            var config = await dbContext.RsinConfigurations.FirstOrDefaultAsync();
+            var config = await dbContext.RsinConfiguration.FirstOrDefaultAsync();
 
             if (config == null)
             {
                 // Create new configuration
                 config = new Data.Entities.RsinConfiguration();
-                dbContext.RsinConfigurations.Add(config);
+                dbContext.RsinConfiguration.Add(config);
             }
 
             config.Rsin = request.Rsin;
