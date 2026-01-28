@@ -116,7 +116,7 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
     public DbSet<ResultaattypeMapping> ResultaattypeMappings { get; set; }
     public DbSet<Migration> Migrations { get; set; }
     public DbSet<MigrationRecord> MigrationRecords { get; set; }
-    public DbSet<RsinConfiguration> RsinConfiguration { get; set; }
+    public DbSet<RsinConfiguration> RsinConfigurations { get; set; }
     public DbSet<StatusMapping> StatusMappings { get; set; }
     public DbSet<DocumentstatusMapping> DocumentstatusMappings { get; set; }
 }

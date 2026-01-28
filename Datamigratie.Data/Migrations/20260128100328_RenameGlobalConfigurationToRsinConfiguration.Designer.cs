@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Datamigratie.Data.Migrations
 {
     [DbContext(typeof(DatamigratieDbContext))]
-    [Migration("20260127143542_RenameGlobalConfiguration")]
-    partial class RenameGlobalConfiguration
+    [Migration("20260128100328_RenameGlobalConfigurationToRsinConfiguration")]
+    partial class RenameGlobalConfigurationToRsinConfiguration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
