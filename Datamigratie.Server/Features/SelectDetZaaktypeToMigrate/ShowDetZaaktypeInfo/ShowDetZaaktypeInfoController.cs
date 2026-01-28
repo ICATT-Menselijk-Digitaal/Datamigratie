@@ -31,7 +31,8 @@ namespace Datamigratie.Server.Features.SelectDetZaaktypeToMigrate.ShowDetZaaktyp
                 FunctioneleIdentificatie = detZaaktypeDetail.FunctioneleIdentificatie,
                 ClosedZakenCount = closedDetZaken,
                 Resultaten = detZaaktypeDetail.Resultaten,
-                Statuses = detZaaktypeDetail.Statussen
+                Statuses = detZaaktypeDetail.Statussen,
+                Documenttypen = [.. detZaaktypeDetail.Documenttypen.Select(dt => dt.Documenttype)]
             };
 
             return enrichedDetZaaktype;

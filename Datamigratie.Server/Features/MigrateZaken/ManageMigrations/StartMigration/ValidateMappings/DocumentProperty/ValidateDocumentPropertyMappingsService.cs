@@ -1,4 +1,3 @@
-using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Data;
 using Datamigratie.Server.Constants;
@@ -8,7 +7,6 @@ namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigrat
 
 public class ValidateDocumentPropertyMappingsService(
     DatamigratieDbContext dbContext,
-    IDetApiClient detApiClient,
     ILogger<ValidateDocumentPropertyMappingsService> logger) : IValidateDocumentPropertyMappingsService
 {
     public async Task<(bool IsValid, Dictionary<string, Dictionary<string, string>> Mappings)> ValidateAndGetDocumentPropertyMappings(DetZaaktypeDetail detZaaktype)
@@ -47,8 +45,7 @@ public class ValidateDocumentPropertyMappingsService(
             return (false, new Dictionary<string, Dictionary<string, string>>());
         }
 
-        var allDocumenttypen = await detApiClient.GetAllDocumenttypen();
-        var activeDocumenttypen = allDocumenttypen.Where(dt => dt.Actief).ToList();
+        var activeDocumenttypen = detZaaktype.Documenttypen?.Where(dt => dt.Documenttype.Actief).ToList() ?? [];
 
         if (activeDocumenttypen.Count != 0)
         {
@@ -57,8 +54,8 @@ public class ValidateDocumentPropertyMappingsService(
                 .ToList();
 
             var missingDocumenttypen = activeDocumenttypen
-                .Where(dt => !documenttypeMappings.Any(m => m.DetValue == dt.Naam))
-                .Select(dt => dt.Naam)
+                .Where(dt => !documenttypeMappings.Any(m => m.DetValue == dt.Documenttype.Naam))
+                .Select(dt => dt.Documenttype.Naam)
                 .ToList();
 
             if (missingDocumenttypen.Count != 0)

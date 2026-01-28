@@ -6,3 +6,4 @@ Handleiding
    :caption: Lees meer
 
    manual.md
+   validation.md

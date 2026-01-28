@@ -578,7 +578,7 @@ const fetchDocumentPropertyMappings = async () => {
       ozZaaktypeData = await ozService.getZaaktypeById(mapping.value.ozZaaktypeId);
     }
 
-    const detDocumenttypenData = await detService.getAllDocumenttypen();
+    const detDocumenttypenData = detZaaktype.value?.documenttypen || [];
     const publicatieNiveauValuesData = await datamigratieService.getPublicatieNiveauOptions();
 
     let mappingsData: DocumentPropertyMappingItem[] = [];
