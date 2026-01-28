@@ -40,6 +40,9 @@ public sealed class ZaakFaker
         var startStatus = zaaktype.Statussen?.FirstOrDefault(s => s.IsStartstatus == true);
         var eindStatus = zaaktype.Statussen?.FirstOrDefault(s => s.IsEindstatus == true);
         var huidigeStatus = isAfgerond && eindStatus is not null ? eindStatus : (startStatus ?? zaaktype.Statussen?.FirstOrDefault());
+        var huidigResultaat = isAfgerond
+            ? zaaktype.Resultaten?.FirstOrDefault()
+            : zaaktype.Resultaten?.LastOrDefault();
 
         var initiator = GenerateInitiator(zaaktype);
         var behandelaar = _faker.PickRandom(DutchDataSets.Medewerkers);
@@ -95,7 +98,15 @@ public sealed class ZaakFaker
                 Start = huidigeStatus?.IsStartstatus ?? false,
                 Eind = huidigeStatus?.IsEindstatus ?? false
             },
-            Resultaat = isAfgerond ? GenerateResultaat(zaaktype) : null,
+            Resultaat = huidigResultaat is null
+                ? null
+                : new ZaakResultaat
+                {
+                    Actief = true,
+                    Naam = huidigResultaat.Omschrijving,
+                    Omschrijving = huidigResultaat.Toelichting,
+                    Uitwisselingscode = huidigResultaat.SelectielijstItem ?? "ONBEKEND"
+                },
             Intake = false,
             ArchiveerGegevens = isAfgerond ? GenerateArchiveerGegevens(streefdatum) : null,
             Geolocatie = GenerateGeolocatie(),
@@ -283,20 +294,6 @@ public sealed class ZaakFaker
             $"Behandeling {zaaktype.Omschrijving.ToLowerInvariant()}"
         };
         return _faker.PickRandom(templates);
-    }
-
-    private ZaakResultaat? GenerateResultaat(Zaaktype zaaktype)
-    {
-        if (zaaktype.Resultaten is not { Count: > 0 })
-            return null;
-
-        var gekozenResultaat = zaaktype.Resultaten[_faker.Random.Int(0, zaaktype.Resultaten.Count - 1)];
-        return new ZaakResultaat
-        {
-            Naam = gekozenResultaat.Omschrijving,
-            Omschrijving = gekozenResultaat.OmschrijvingGeneriek,
-            Toelichting = gekozenResultaat.Toelichting
-        };
     }
 
     private ArchiveerGegevens GenerateArchiveerGegevens(DateOnly einddatum)
