@@ -6,7 +6,6 @@ using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Result
 using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Resultaattypen.ShowResultaattypeMapping;
 using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.StatusMapping.SaveStatusMappings.Services;
 using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.StatusMapping.ShowStatusMappings.Services;
-using Datamigratie.Server.Features.Map.GlobalMapping.DocumentstatusMapping.Services;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.MigrationHistory.GetZaaktypeMigrationHistory.Services;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.MigrationHistory.GetZakenMigrationHistory.Services;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues;
@@ -16,6 +15,7 @@ using Datamigratie.Server.Features.Migrate.MigrateZaak;
 using Datamigratie.Server.Features.Migrate.MigrateZaak.Pdf;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Resultaat;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Status;
+using Datamigratie.Server.Features.Map.GlobalMapping.DocumentstatusMapping.Save.Services;
 
 namespace Datamigratie.Server.Config
 {
@@ -41,7 +41,6 @@ namespace Datamigratie.Server.Config
             services.AddScoped<IValidateStatusMappingsService, ValidateStatusMappingsService>();
             services.AddScoped<IValidateResultaattypeMappingsService, ValidateResultaattypeMappingsService>();
             services.AddScoped<ISaveDocumentstatusMappingsService, SaveDocumentstatusMappingsService>();
-            services.AddScoped<IGetDocumentstatusMappingsService, GetDocumentstatusMappingsService>();
 
             services.AddHostedService<StartMigrationBackgroundService>();
             services.AddSingleton<IMigrationBackgroundTaskQueue>(ctx =>

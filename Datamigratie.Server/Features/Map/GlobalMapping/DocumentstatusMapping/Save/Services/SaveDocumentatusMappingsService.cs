@@ -2,7 +2,7 @@ using Datamigratie.Data;
 using Datamigratie.Server.Features.Map.GlobalMapping.DocumentstatusMapping.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Datamigratie.Server.Features.Map.GlobalMapping.DocumentstatusMapping.Services;
+namespace Datamigratie.Server.Features.Map.GlobalMapping.DocumentstatusMapping.Save.Services;
 
 /// <summary>
 /// Implementation of document status mapping service

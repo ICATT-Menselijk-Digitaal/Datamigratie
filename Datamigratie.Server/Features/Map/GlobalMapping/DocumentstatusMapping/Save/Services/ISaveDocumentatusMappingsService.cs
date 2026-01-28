@@ -1,6 +1,6 @@
 using Datamigratie.Server.Features.Map.GlobalMapping.DocumentstatusMapping.Models;
 
-namespace Datamigratie.Server.Features.Map.GlobalMapping.DocumentstatusMapping.Services;
+namespace Datamigratie.Server.Features.Map.GlobalMapping.DocumentstatusMapping.Save.Services;
 
 /// <summary>
 /// Service for managing global document status mappings

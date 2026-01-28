@@ -1,6 +1,7 @@
+using Datamigratie.Data;
 using Datamigratie.Server.Features.Map.GlobalMapping.DocumentstatusMapping.Models;
-using Datamigratie.Server.Features.Map.GlobalMapping.DocumentstatusMapping.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Datamigratie.Server.Features.Map.GlobalMapping.DocumentstatusMapping.Show;
 
@@ -10,7 +11,7 @@ namespace Datamigratie.Server.Features.Map.GlobalMapping.DocumentstatusMapping.S
 [ApiController]
 [Route("api/globalmapping/documentstatuses")]
 public class GetDocumentstatusMappingsController(
-    IGetDocumentstatusMappingsService getDocumentstatusMappingsService,
+    DatamigratieDbContext dbContext,
     ILogger<GetDocumentstatusMappingsController> logger) : ControllerBase
 {
     /// <summary>
@@ -20,9 +21,15 @@ public class GetDocumentstatusMappingsController(
     public async Task<ActionResult<List<DocumentstatusMappingResponseModel>>> GetDocumentstatusMappings()
     {
         try
-        {
-            var mappings = await getDocumentstatusMappingsService.GetDocumentstatusMappings();
-            return Ok(mappings);
+        {           
+            return await dbContext.DocumentstatusMappings
+            .Select(m => new DocumentstatusMappingResponseModel
+            {
+                DetDocumentstatus = m.DetDocumentstatus,
+                OzDocumentstatus = m.OzDocumentstatus,
+            })
+            .OrderBy(m => m.DetDocumentstatus)
+            .ToListAsync();
         }
         catch (Exception ex)
         {

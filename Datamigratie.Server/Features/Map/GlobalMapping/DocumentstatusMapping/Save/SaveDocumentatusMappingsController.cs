@@ -1,6 +1,5 @@
 using Datamigratie.Server.Features.Map.GlobalMapping.DocumentstatusMapping.Models;
-using Datamigratie.Server.Features.Map.GlobalMapping.DocumentstatusMapping.Services;
-using Microsoft.AspNetCore.Authorization;
+using Datamigratie.Server.Features.Map.GlobalMapping.DocumentstatusMapping.Save.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Datamigratie.Server.Features.Map.GlobalMapping.DocumentstatusMapping.Save;
