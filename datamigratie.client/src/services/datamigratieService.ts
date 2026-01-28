@@ -116,7 +116,6 @@ export type DocumentstatusMappingItem = {
 export type DocumentstatusMappingResponse = {
   detDocumentstatus: string;
   ozDocumentstatus: string;
-  updatedAt: string;
 };
 
 export type SaveDocumentstatusMappingsRequest = {
