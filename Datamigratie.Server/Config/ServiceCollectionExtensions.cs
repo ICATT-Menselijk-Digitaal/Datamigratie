@@ -6,6 +6,8 @@ using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetails
 using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.Resultaattypen.ShowResultaattypeMapping;
 using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.StatusMapping.SaveStatusMappings.Services;
 using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.StatusMapping.ShowStatusMappings.Services;
+using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.BesluittypeMapping.SaveBesluittypeMappings.Services;
+using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.BesluittypeMapping.ShowBesluittypeMappings.Services;
 using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.DocumentPropertyMapping.SaveDocumentPropertyMappings.Services;
 using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.DocumentPropertyMapping.ShowDocumentPropertyMappings.Services;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.MigrationHistory.GetZaaktypeMigrationHistory.Services;
@@ -40,6 +42,8 @@ namespace Datamigratie.Server.Config
             services.AddScoped<IGetMigrationRecordsService, GetMigrationRecordsService>();
             services.AddScoped<IShowStatusMappingsService, ShowStatusMappingsService>();
             services.AddScoped<ISaveStatusMappingsService, SaveStatusMappingsService>();
+            services.AddScoped<IShowBesluittypeMappingsService, ShowBesluittypeMappingsService>();
+            services.AddScoped<ISaveBesluittypeMappingsService, SaveBesluittypeMappingsService>();
             services.AddScoped<IValidateStatusMappingsService, ValidateStatusMappingsService>();
             services.AddScoped<IValidateResultaattypeMappingsService, ValidateResultaattypeMappingsService>();
             services.AddScoped<IValidateDocumentPropertyMappingsService, ValidateDocumentPropertyMappingsService>();

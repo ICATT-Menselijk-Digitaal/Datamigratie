@@ -19,6 +19,12 @@ export type OzInformatieobjecttype = {
   url: string;
 };
 
+export type OzBesluittype = {
+  id: string;
+  omschrijving: string;
+  url: string;
+};
+
 export type OZZaaktype = {
   id: string;
   identificatie: string;
@@ -26,6 +32,7 @@ export type OZZaaktype = {
   statustypes?: OzStatustype[];
   resultaattypen?: OzResultaattype[];
   informatieobjecttypen?: OzInformatieobjecttype[];
+  besluittypen?: OzBesluittype[];
 };
 
 export const ozService = {

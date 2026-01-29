@@ -23,6 +23,12 @@ export type DetDocumenttype = {
   actief: boolean;
 };
 
+export type DetBesluittype = {
+  naam: string;
+  omschrijving?: string;
+  actief: boolean;
+};
+
 export type DETZaaktype = {
   actief: boolean;
   naam: string;
@@ -40,5 +46,9 @@ export const detService = {
       detZaaktypes.sort((a, b) => a.naam.localeCompare(b.naam))
     ),
   getZaaktypeById: (detZaaktypeId: string): Promise<DETZaaktype> =>
-    get<DETZaaktype>(`/api/det/zaaktypen/${detZaaktypeId}`)
+    get<DETZaaktype>(`/api/det/zaaktypen/${detZaaktypeId}`),
+  getAllBesluittypen: (): Promise<DetBesluittype[]> =>
+    get<DetBesluittype[]>(`/api/det/besluittypen`).then((besluittypen) =>
+      besluittypen.sort((a, b) => a.naam.localeCompare(b.naam))
+    )
 };

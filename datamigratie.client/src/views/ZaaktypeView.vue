@@ -97,6 +97,28 @@
       </li>
     </menu>
 
+    <besluittype-mapping-section
+      :det-besluittypen="detBesluittypen"
+      :oz-zaaktype="ozZaaktype"
+      :besluittype-mappings="besluittypeMappings"
+      :all-mapped="besluittypeMappingsComplete"
+      :is-editing="isEditingBesluittypeMapping"
+      :disabled="isThisMigrationRunning"
+      :loading="!ozZaaktype"
+      :show-warning="!!mapping.detZaaktypeId"
+      :show-mapping="showDetailMapping"
+      @update:besluittype-mappings="besluittypeMappings = $event"
+      @save="saveBesluittypeMappings"
+    />
+
+    <menu class="reset edit-menu">
+      <li v-if="canEditBesluittypeMappings">
+        <button type="button" class="secondary" @click="setEditingBesluittypeMapping(true)">
+          Besluittypemappings aanpassen
+        </button>
+      </li>
+    </menu>
+
     <document-property-mapping-section
       :det-documenttypen="detDocumenttypen"
       :oz-zaaktype="ozZaaktype"
@@ -195,9 +217,10 @@ import AlertInline from "@/components/AlertInline.vue";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
 import PromptModal from "@/components/PromptModal.vue";
 import StatusMappingSection from "@/components/StatusMappingSection.vue";
+import BesluittypeMappingSection from "@/components/BesluittypeMappingSection.vue";
 import ZaaktypeChangeConfirmationModal from "@/components/ZaaktypeChangeConfirmationModal.vue";
 import toast from "@/components/toast/toast";
-import { detService, type DETZaaktype, type DetDocumenttype } from "@/services/detService";
+import { detService, type DETZaaktype, type DetDocumenttype, type DetBesluittype } from "@/services/detService";
 import { ozService, type OZZaaktype } from "@/services/ozService";
 import {
   datamigratieService,
@@ -208,7 +231,8 @@ import {
   type MigrationHistoryItem,
   type StatusMappingItem,
   type ResultaattypeMappingItem,
-  type DocumentPropertyMappingItem
+  type DocumentPropertyMappingItem,
+  type BesluittypeMappingItem
 } from "@/services/datamigratieService";
 import { knownErrorMessages } from "@/utils/fetchWrapper";
 import { useMigration } from "@/composables/use-migration-status";
@@ -237,6 +261,12 @@ const resultaattypeMappings = ref<ResultaattypeMappingItem[]>([]);
 
 const resultaattypeMappingsComplete = ref(false);
 
+const detBesluittypen = ref<DetBesluittype[]>([]);
+
+const besluittypeMappings = ref<BesluittypeMappingItem[]>([]);
+
+const besluittypeMappingsComplete = ref(false);
+
 const detDocumenttypen = ref<DetDocumenttype[]>([]);
 
 const documentPropertyMappings = ref<DocumentPropertyMappingItem[]>([]);
@@ -256,6 +286,9 @@ const setEditingStatusMapping = (value: boolean) => (isEditingStatusMapping.valu
 
 const isEditingResultaattypeMapping = ref(false);
 const setEditingResultaattypeMapping = (value: boolean) => (isEditingResultaattypeMapping.value = value);
+
+const isEditingBesluittypeMapping = ref(false);
+const setEditingBesluittypeMapping = (value: boolean) => (isEditingBesluittypeMapping.value = value);
 
 const isEditingPublicatieNiveauMapping = ref(true);
 const setEditingPublicatieNiveauMapping = (value: boolean) => (isEditingPublicatieNiveauMapping.value = value);
@@ -285,6 +318,16 @@ const canEditResultaattypeMappings = computed(
     resultaattypeMappingsComplete.value
 );
 
+const canEditBesluittypeMappings = computed(
+  () =>
+    !isThisMigrationRunning.value &&
+    mapping.value.detZaaktypeId &&
+    mapping.value.ozZaaktypeId &&
+    !isEditingZaaktypeMapping.value &&
+    !isEditingBesluittypeMapping.value &&
+    besluittypeMappingsComplete.value
+);
+
 const canEditDocumentPropertyMappings = computed(
   () =>
     !isThisMigrationRunning.value &&
@@ -305,6 +348,8 @@ const canStartMigration = computed(
     statusMappingsComplete.value &&
     !isEditingResultaattypeMapping.value &&
     resultaattypeMappingsComplete.value &&
+    !isEditingBesluittypeMapping.value &&
+    besluittypeMappingsComplete.value &&
     !isEditingPublicatieNiveauMapping.value &&
     !isEditingDocumenttypeMapping.value &&
     documentPropertyMappingsComplete.value
@@ -434,6 +479,80 @@ const saveResultaattypeMappings = async () => {
     setEditingResultaattypeMapping(false);
   } catch (err: unknown) {
     toast.add({ text: `Fout bij opslaan van de resultaattype mappings - ${err}`, type: "error" });
+  } finally {
+    loading.value = false;
+  }
+};
+
+const fetchBesluittypeMappings = async () => {
+  if (!mapping.value.ozZaaktypeId) {
+    detBesluittypen.value = [];
+    besluittypeMappings.value = [];
+    besluittypeMappingsComplete.value = false;
+    return;
+  }
+
+  try {
+    // Fetch OZ zaaktype with besluittypen
+    if (!ozZaaktype.value) {
+      ozZaaktype.value = await ozService.getZaaktypeById(mapping.value.ozZaaktypeId);
+    }
+
+    // Fetch all DET besluittypen
+    const detBesluittypeData = await detService.getAllBesluittypen();
+    detBesluittypen.value = detBesluittypeData;
+    
+    // Fetch existing mappings -> if mapping has been already saved
+    let mappingsData: BesluittypeMappingItem[] = [];
+    if (mapping.value.id) {
+      const apiResponse = await datamigratieService.getBesluittypeMappings(mapping.value.id);
+      mappingsData = apiResponse.map(m => ({
+        detBesluittypeNaam: m.detBesluittypeNaam,
+        ozBesluittypeId: m.ozBesluittypeId
+      }));
+    }
+    
+    // Build complete mapping list from DET besluittypen
+    const activeDetBesluittypen = detBesluittypeData.filter(b => b.actief);
+    besluittypeMappings.value = activeDetBesluittypen.map(detBesluittype => {
+      const existingMapping = mappingsData.find(m => m.detBesluittypeNaam === detBesluittype.naam);
+      return existingMapping || {
+        detBesluittypeNaam: detBesluittype.naam,
+        ozBesluittypeId: null
+      };
+    });
+
+    // Check if all besluittypen are mapped
+    besluittypeMappingsComplete.value = besluittypeMappings.value.length > 0 && 
+      besluittypeMappings.value.every(m => m.ozBesluittypeId !== null);
+  } catch (err: unknown) {
+    console.error("Error fetching besluittype mappings:", err);
+    detBesluittypen.value = [];
+    besluittypeMappings.value = [];
+    besluittypeMappingsComplete.value = false;
+  }
+};
+
+const saveBesluittypeMappings = async () => {
+  loading.value = true;
+
+  try {    
+    const mappingsToSave = besluittypeMappings.value.filter(m => m.ozBesluittypeId !== null);
+  
+    await datamigratieService.saveBesluittypeMappings(mapping.value.id, {
+      mappings: mappingsToSave
+    });
+
+    toast.add({ text: "De besluittype mappings zijn succesvol opgeslagen." });
+
+    // Recalculate completion status
+    besluittypeMappingsComplete.value = besluittypeMappings.value.length > 0 && 
+      besluittypeMappings.value.every(m => m.ozBesluittypeId !== null);
+
+    // exiting edit mode after successful save
+    setEditingBesluittypeMapping(false);
+  } catch (err: unknown) {
+    toast.add({ text: `Fout bij opslaan van de besluittype mappings - ${err}`, type: "error" });
   } finally {
     loading.value = false;
   }
@@ -616,6 +735,7 @@ const fetchMappingData = async () => {
   if (mapping.value.ozZaaktypeId) {
     await fetchStatusMappings();
     await fetchResultaattypenMappings();
+    await fetchBesluittypeMappings();
     await fetchDocumentPropertyMappings();
   }
 };
@@ -629,6 +749,9 @@ const submitMapping = async () => {
   const hasResultaattypeMappings = 
     resultaattypeMappings.value.some(m => m.ozResultaattypeId !== null);
 
+  const hasBesluittypeMappings = 
+    besluittypeMappings.value.some(m => m.ozBesluittypeId !== null);
+
   const hasDocumentPropertyMappings = 
     documentPropertyMappings.value.some(m => m.ozValue !== null);
 
@@ -638,6 +761,7 @@ const submitMapping = async () => {
     hasZaaktypeChanged &&
     (hasStatusMappings ||
     hasResultaattypeMappings ||
+    hasBesluittypeMappings ||
     hasDocumentPropertyMappings)
   ) {
     const result = await confirmOzZaaktypeChangeDialog.reveal();
@@ -683,6 +807,7 @@ const submitMapping = async () => {
     if (hasZaaktypeChanged) {
       await fetchStatusMappings();
       await fetchResultaattypenMappings();
+      await fetchBesluittypeMappings();
       await fetchDocumentPropertyMappings();
     }
   } catch (err: unknown) {

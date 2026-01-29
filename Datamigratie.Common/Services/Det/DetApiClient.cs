@@ -18,6 +18,8 @@ namespace Datamigratie.Common.Services.Det
         Task<DetZaaktypeDetail?> GetZaaktypeDetail(string zaaktypeName);
 
         Task GetDocumentInhoudAsync(long id, Func<Stream, CancellationToken, Task> handleInhoud, CancellationToken token);
+
+        Task<List<DetBesluittype>> GetAllBesluittypen();
     }
 
     public class DetApiClient(HttpClient httpClient, ILogger<DetApiClient> logger) : DetPagedApiClient(httpClient), IDetApiClient
@@ -151,6 +153,18 @@ namespace Datamigratie.Common.Services.Det
 
             await using var contentStream = await response.Content.ReadAsStreamAsync(token);
             await handleInhoud(contentStream, token);
+        }
+
+        /// <summary>
+        /// Gets all besluitypen with pagination details.
+        /// Endpoint: /besluittypen
+        /// </summary>
+        /// <returns>A list of all Documenttype objects across all pages.</returns>
+        public async Task<List<DetBesluittype>> GetAllBesluittypen()
+        {
+            _logger.LogInformation("Fetching all besluittypen.");
+            var pagedDocumenttypen = await GetAllPagedData<DetBesluittype>("besluittypen");
+            return pagedDocumenttypen.Results;
         }
 
         protected override int GetDefaultStartingPage()
