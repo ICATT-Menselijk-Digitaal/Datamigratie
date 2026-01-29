@@ -7,5 +7,9 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Sh
         public List<OzStatustype> Statustypes { get; set; } = [];
 
         public List<OzResultaattype> Resultaattypen { get; set; } = [];
+
+        public List<OzInformatieobjecttype> Informatieobjecttypen { get; set; } = [];
+
+        public List<OzBesluittype> Besluittypen { get; set; } = [];
     }
 }

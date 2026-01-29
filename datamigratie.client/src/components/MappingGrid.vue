@@ -27,7 +27,7 @@
 
         <div class="target-item">
           <select
-            :value="getMappingForSource(sourceItem.id).targetId ?? ''"
+            :value="getMappingForSource(sourceItem.id).targetId || ''"
             @change="updateMapping(sourceItem.id, ($event.target as HTMLSelectElement).value)"
             :disabled="!isEditing && allMapped || disabled"
           >
@@ -44,6 +44,10 @@
       </div>
       <div v-if="(!allMapped || isEditing) && !disabled" class="mapping-actions">
         <button type="button" @click="handleSave">{{ saveButtonText }}</button>
+      </div>
+
+      <div v-if="showEditButton && allMapped && !isEditing && !disabled" class="mapping-actions">
+        <button type="button" class="secondary" @click="handleEdit">{{ editButtonText }}</button>
       </div>
 
       <alert-inline v-if="!allMapped && showWarning" type="warning">
@@ -83,6 +87,8 @@ interface Props {
   emptyMessage?: string;
   targetPlaceholder?: string;
   saveButtonText?: string;
+  editButtonText?: string;
+  showEditButton?: boolean;
   showWarning?: boolean;
   warningMessage?: string;
 }
@@ -93,6 +99,8 @@ const props = withDefaults(defineProps<Props>(), {
   emptyMessage: "Er zijn geen items beschikbaar voor dit zaaktype.",
   targetPlaceholder: "Kies een item",
   saveButtonText: "Mappings opslaan",
+  editButtonText: "Mappings aanpassen",
+  showEditButton: false,
   showWarning: true,
   warningMessage: "Niet alle items zijn gekoppeld. Migratie kan niet worden gestart."
 });
@@ -100,6 +108,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   (e: "update:modelValue", value: Mapping[]): void;
   (e: "save"): void;
+  (e: "edit"): void;
 }>();
 
 const getMappingForSource = (sourceId: string): Mapping => {
@@ -126,18 +135,20 @@ const updateMapping = (sourceId: string, targetId: string) => {
       ...updatedMappings[existingIndex],
       targetId: normalizedTargetId
     };
-    console.log(`MappingGrid: Updating mapping for ${sourceId} to ${normalizedTargetId}`);
     emit("update:modelValue", updatedMappings);
   } else {
     // Create new mapping
     const newMapping: Mapping = { sourceId, targetId: normalizedTargetId };
-    console.log(`MappingGrid: Creating new mapping for ${sourceId} to ${normalizedTargetId}`);
     emit("update:modelValue", [...props.modelValue, newMapping]);
   }
 };
 
 const handleSave = () => {
   emit("save");
+};
+
+const handleEdit = () => {
+  emit("edit");
 };
 </script>
 

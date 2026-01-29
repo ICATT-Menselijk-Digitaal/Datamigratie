@@ -93,6 +93,20 @@ export type StatusMappingValidationResponse = {
   allStatusesMapped: boolean;
 };
 
+export type BesluittypeMappingItem = {
+  detBesluittypeNaam: string;
+  ozBesluittypeId: string | null;
+};
+
+export type BesluittypeMappingsResponse = {
+  detBesluittypeNaam: string;
+  ozBesluittypeId: string;
+};
+
+export type SaveBesluittypeMappingsRequest = {
+  mappings: BesluittypeMappingItem[];
+};
+
 export type ResultaattypeMappingItem = {
   detResultaattypeNaam: string;
   ozResultaattypeId: string | null;
@@ -121,6 +135,27 @@ export type SaveDocumentstatusMappingsRequest = {
   mappings: DocumentstatusMappingItem[];
 };
 
+export type DocumentPropertyMappingItem = {
+  detPropertyName: string;
+  detValue: string;
+  ozValue: string | null;
+};
+
+export type SaveDocumentPropertyMappingsRequest = {
+  mappings: DocumentPropertyMappingItem[];
+};
+
+export type DocumentPropertyMappingResponse = {
+  detPropertyName: string;
+  detValue: string;
+  ozValue: string;
+};
+
+export type VertrouwelijkheidaanduidingOption = {
+  value: string;
+  label: string;
+};
+
 export const datamigratieService = {
   getMappingByDETZaaktypeId: (detZaaktypeId: string): Promise<ZaaktypeMapping> =>
     get<ZaaktypeMapping>(`/api/mapping/${detZaaktypeId}`),
@@ -141,6 +176,10 @@ export const datamigratieService = {
     get<StatusMappingsResponse[]>(`/api/mappings/${zaaktypenMappingId}/statuses`),
   saveStatusMappings: (zaaktypenMappingId: string, payload: SaveStatusMappingsRequest): Promise<void> =>
     post(`/api/mappings/${zaaktypenMappingId}/statuses`, payload),
+  getBesluittypeMappings: (zaaktypenMappingId: string): Promise<BesluittypeMappingsResponse[]> =>
+    get<BesluittypeMappingsResponse[]>(`/api/mappings/${zaaktypenMappingId}/besluittypen`),
+  saveBesluittypeMappings: (zaaktypenMappingId: string, payload: SaveBesluittypeMappingsRequest): Promise<void> =>
+    post(`/api/mappings/${zaaktypenMappingId}/besluittypen`, payload),
   getResultaattypeMappings: (zaaktypenMappingId: string): Promise<ResultaattypeMappingResponse[]> =>
     get<ResultaattypeMappingResponse[]>(`/api/mappings/${zaaktypenMappingId}/resultaattypen`),
   saveResultaattypeMappings: (zaaktypenMappingId: string, payload: SaveResultaattypeMappingsRequest): Promise<void> =>
@@ -148,5 +187,13 @@ export const datamigratieService = {
   getDocumentstatusMappings: (): Promise<DocumentstatusMappingResponse[]> =>
     get<DocumentstatusMappingResponse[]>(`/api/globalmapping/documentstatuses`),
   saveDocumentstatusMappings: (payload: SaveDocumentstatusMappingsRequest): Promise<DocumentstatusMappingResponse[]> =>
-    put<DocumentstatusMappingResponse[]>(`/api/globalmapping/documentstatuses`, payload)
+    put<DocumentstatusMappingResponse[]>(`/api/globalmapping/documentstatuses`, payload),
+  getDocumentPropertyMappings: (zaaktypenMappingId: string): Promise<DocumentPropertyMappingResponse[]> =>
+    get<DocumentPropertyMappingResponse[]>(`/api/mappings/${zaaktypenMappingId}/documentproperties`),
+  saveDocumentPropertyMappings: (zaaktypenMappingId: string, payload: SaveDocumentPropertyMappingsRequest): Promise<void> =>
+    post(`/api/mappings/${zaaktypenMappingId}/documentproperties`, payload),
+  getPublicatieNiveauOptions: (): Promise<string[]> =>
+    get<string[]>(`/api/det/options/publicatieniveau`),
+  getVertrouwelijkheidaanduidingOptions: (): Promise<VertrouwelijkheidaanduidingOption[]> =>
+    get<VertrouwelijkheidaanduidingOption[]>(`/api/oz/options/vertrouwelijkheidaanduiding`)
 };

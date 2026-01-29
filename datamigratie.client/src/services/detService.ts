@@ -17,6 +17,18 @@ export type DetResultaattypen = {
    resultaat: DetResultaat;
 };
 
+export type DetDocumenttype = {
+  naam: string;
+  omschrijving?: string;
+  actief: boolean;
+};
+
+export type DetBesluittype = {
+  naam: string;
+  omschrijving?: string;
+  actief: boolean;
+};
+
 export type DETZaaktype = {
   actief: boolean;
   naam: string;
@@ -25,6 +37,7 @@ export type DETZaaktype = {
   closedZakenCount?: number;
   statuses?: DetStatus[];
   resultaten?: DetResultaattypen[];
+  documenttypen?: DetDocumenttype[];
 };
 
 export type DetDocumentstatus = {
@@ -40,6 +53,10 @@ export const detService = {
     ),
   getZaaktypeById: (detZaaktypeId: string): Promise<DETZaaktype> =>
     get<DETZaaktype>(`/api/det/zaaktypen/${detZaaktypeId}`),
-  getAllDocumentstatussen: (): Promise<DetDocumentstatus[]> =>
+  getAllBesluittypen: (): Promise<DetBesluittype[]> =>
+    get<DetBesluittype[]>(`/api/det/besluittypen`).then((besluittypen) =>
+      besluittypen.sort((a, b) => a.naam.localeCompare(b.naam))
+    ),
+    getAllDocumentstatussen: (): Promise<DetDocumentstatus[]> =>
     get<DetDocumentstatus[]>(`/api/det/documentstatussen`)
 };

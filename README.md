@@ -28,10 +28,50 @@ Oidc__Authority
 Oidc__ClientId
 Oidc__ClientSecret
 Oidc__FunctioneelBeheerderRole
+
+FeatureFlags__EnableTestHelpers
 ```
+
+### Feature Flags
+De applicatie gebruikt feature flags om bepaalde functionaliteit in of uit te schakelen. Deze kunnen geconfigureerd worden via environment variabelen.
+
+#### Beschikbare Feature Flags
+
+| Flag | Environment Variable | Standaard | Beschrijving |
+|------|---------------------|-----------|--------------|
+| `EnableTestHelpers` | `FeatureFlags__EnableTestHelpers` | `false` | Schakelt test helper UI in voor batch selectie bij het mappen van grote aantallen documenttypes. Biedt een pre-selectie optie om het mapping proces te versnellen. |
+
+#### Configuratie
+
+**Via environment variabelen:**
+```bash
+export FeatureFlags__EnableTestHelpers=true
+```
+
+**Via Helm (values.yaml):**
+```yaml
+featureFlags:
+  enableTestHelpers: true
+```
+
+Feature flags worden geladen door de frontend via het `/api/app-version` endpoint en zijn beschikbaar via het `featureFlags` object in Vue componenten.
 
 ### Opstarten
 
 1. Open met Visual Studio
 2. Stel Datamigratie.AppHost in als startup project
 3. Start de applicatie
+
+## Database migration aanmaken
+
+.NET CLI:
+
+```bash
+dotnet ef migrations add MyMigration --project Datamigratie.Data --startup-project Datamigratie.Server
+```
+
+Visual Studio Package Manager Console:
+
+```powershell
+Add-Migration MyMigration -Project Datamigratie.Data -StartupProject Datamigratie.Server
+```

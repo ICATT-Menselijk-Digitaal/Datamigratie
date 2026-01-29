@@ -7,6 +7,7 @@ using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.State
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Documentstatus;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Resultaat;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Status;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.DocumentProperty;
 using Datamigratie.Server.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,7 @@ public class StartMigrationController(
     IValidateStatusMappingsService validateStatusMappingsService,
     IValidateResultaattypeMappingsService validateResultaattypeMappingsService,
     IValidateDocumentstatusMappingsService validateDocumentstatusMappingsService,
+    IValidateDocumentPropertyMappingsService validateDocumentPropertyMappingsService,
     IDetApiClient detApiClient,
     ILogger<StartMigrationController> logger) : ControllerBase
 {
@@ -47,6 +49,7 @@ public class StartMigrationController(
             var statusMappings = await ValidateAndGetStatusMappingsAsync(detZaaktype);
             var resultaatMappings = await ValidateAndGetResultaattypeMappingsAsync(detZaaktype);
             var documentstatusMappings = await ValidateAndGetDocumentstatusMappingsAsync();
+            var documentPropertyMappings = await ValidateAndGetDocumentPropertyMappingsAsync(detZaaktype);
 
             await backgroundTaskQueue.QueueMigrationAsync(new MigrationQueueItem
             {
@@ -54,7 +57,8 @@ public class StartMigrationController(
                 RsinMapping = rsinMapping,
                 StatusMappings = statusMappings,
                 ResultaatMappings = resultaatMappings,
-                DocumentstatusMappings = documentstatusMappings
+                DocumentstatusMappings = documentstatusMappings,
+                DocumentPropertyMappings = documentPropertyMappings
             });
         }
         catch (Exception e)
@@ -121,5 +125,14 @@ public class StartMigrationController(
         return !documentstatusMappingsValid
             ? throw new InvalidOperationException("Not all DET document statuses have been mapped to OZ document statuses. Please configure document status mappings first.")
             : documentstatusMappings;
+    }
+
+    private async Task<Dictionary<string, Dictionary<string, string>>> ValidateAndGetDocumentPropertyMappingsAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)
+    {
+        var (documentPropertyMappingsValid, documentPropertyMappings) = await validateDocumentPropertyMappingsService.ValidateAndGetDocumentPropertyMappings(detZaaktype);
+
+        return !documentPropertyMappingsValid
+            ? throw new InvalidOperationException("Not all document properties have been mapped. Please configure publicatieniveau and documenttype mappings first.")
+            : documentPropertyMappings;
     }
 }

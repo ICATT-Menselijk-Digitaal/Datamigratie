@@ -13,13 +13,26 @@ export type OzResultaattype = {
   url: string;
 };
 
+export type OzInformatieobjecttype = {
+  id: string;
+  omschrijving: string;
+  url: string;
+};
+
+export type OzBesluittype = {
+  id: string;
+  omschrijving: string;
+  url: string;
+};
+
 export type OZZaaktype = {
   id: string;
   identificatie: string;
   omschrijving: string;
   statustypes?: OzStatustype[];
   resultaattypen?: OzResultaattype[];
-
+  informatieobjecttypen?: OzInformatieobjecttype[];
+  besluittypen?: OzBesluittype[];
 };
 
 export const ozService = {

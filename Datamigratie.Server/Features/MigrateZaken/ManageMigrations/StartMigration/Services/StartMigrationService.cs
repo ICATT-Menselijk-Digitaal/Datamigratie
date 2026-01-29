@@ -56,10 +56,10 @@ public class StartMigrationService(
             return;
         }
 
-        await ExecuteMigration(migration, closedZaken, zaakTypeMapping.Id, zaakTypeMapping.OzZaaktypeId, migrationQueueItem.RsinMapping!, migrationQueueItem.StatusMappings, migrationQueueItem.ResultaatMappings, migrationQueueItem.DocumentstatusMappings, stoppingToken);
+        await ExecuteMigration(migration, closedZaken, zaakTypeMapping.Id, zaakTypeMapping.OzZaaktypeId, migrationQueueItem.RsinMapping!, migrationQueueItem.StatusMappings, migrationQueueItem.ResultaatMappings, migrationQueueItem.DocumentstatusMappings, migrationQueueItem.DocumentPropertyMappings, stoppingToken);
         await CompleteMigrationAsync(migration);
     }
-    private async Task ExecuteMigration(Data.Entities.Migration migration, List<DetZaakMinimal> zaken, Guid zaaktypenMappingId, Guid openZaaktypeId, RsinMapping rsinMapping, Dictionary<string, Guid> statusMappings, Dictionary<string, Guid> resultaatMappings, Dictionary<string, string> documentstatusMappings, CancellationToken ct)
+    private async Task ExecuteMigration(Data.Entities.Migration migration, List<DetZaakMinimal> zaken, Guid zaaktypenMappingId, Guid openZaaktypeId, RsinMapping rsinMapping, Dictionary<string, Guid> statusMappings, Dictionary<string, Guid> resultaatMappings, Dictionary<string, string> documentstatusMappings, Dictionary<string, Dictionary<string, string>> documentPropertyMappings, CancellationToken ct)
     {
         logger.LogInformation("Starting migration {Id} for DET ZaaktypeId {DetZaaktypeId} to OZ ZaaktypeId {OpenZaaktypeId} with zaken count {Count} to migrate", 
             migration.Id, migration.DetZaaktypeId, openZaaktypeId, zaken.Count);
@@ -72,7 +72,7 @@ public class StartMigrationService(
                 return;
             }
 
-            await MigrateSingleZaakAsync(migration, zaak, openZaaktypeId, rsinMapping, resultaatMappings, statusMappings, documentstatusMappings, ct);
+            await MigrateSingleZaakAsync(migration, zaak, openZaaktypeId, rsinMapping, resultaatMappings, statusMappings, documentstatusMappings, documentPropertyMappings, ct);
             await ReportProgressAsync(migration, ct);
         }
     }
@@ -90,7 +90,7 @@ public class StartMigrationService(
                 : 0.0);
     }
 
-    private async Task MigrateSingleZaakAsync(Migration migration, DetZaakMinimal zaakMinimal, Guid openZaaktypeId, RsinMapping rsinMapping, Dictionary<string, Guid> resultaatMappings, Dictionary<string, Guid> statusMappings, Dictionary<string, string> documentstatusMappings, CancellationToken ct)
+    private async Task MigrateSingleZaakAsync(Migration migration, DetZaakMinimal zaakMinimal, Guid openZaaktypeId, RsinMapping rsinMapping, Dictionary<string, Guid> resultaatMappings, Dictionary<string, Guid> statusMappings, Dictionary<string, string> documentstatusMappings, Dictionary<string, Dictionary<string, string>> documentPropertyMappings, CancellationToken ct)
     {
         MigrationRecord record;
         try
@@ -107,7 +107,8 @@ public class StartMigrationService(
                 Rsin = rsinMapping.Rsin,
                 ResultaattypeUri = resultaattypeUri,
                 StatustypeUri = statustypeUri,
-                DocumentstatusMappings = documentstatusMappings
+                DocumentstatusMappings = documentstatusMappings,
+                DocumentPropertyMappings = documentPropertyMappings
             }, ct);
             
             record = CreateMigrationRecord(migration, zaakMinimal.FunctioneleIdentificatie, result);

@@ -6,6 +6,10 @@ using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Result
 using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Resultaattypen.ShowResultaattypeMapping;
 using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.StatusMapping.SaveStatusMappings.Services;
 using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.StatusMapping.ShowStatusMappings.Services;
+using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.BesluittypeMapping.SaveBesluittypeMappings.Services;
+using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.BesluittypeMapping.ShowBesluittypeMappings.Services;
+using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.DocumentPropertyMapping.SaveDocumentPropertyMappings.Services;
+using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.DocumentPropertyMapping.ShowDocumentPropertyMappings.Services;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.MigrationHistory.GetZaaktypeMigrationHistory.Services;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.MigrationHistory.GetZakenMigrationHistory.Services;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues;
@@ -17,6 +21,7 @@ using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Resultaat;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Status;
 using Datamigratie.Server.Features.Map.GlobalMapping.DocumentstatusMapping.Save.Services;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.DocumentProperty;
 
 namespace Datamigratie.Server.Config
 {
@@ -39,10 +44,15 @@ namespace Datamigratie.Server.Config
             services.AddScoped<IGetMigrationRecordsService, GetMigrationRecordsService>();
             services.AddScoped<IShowStatusMappingsService, ShowStatusMappingsService>();
             services.AddScoped<ISaveStatusMappingsService, SaveStatusMappingsService>();
+            services.AddScoped<IShowBesluittypeMappingsService, ShowBesluittypeMappingsService>();
+            services.AddScoped<ISaveBesluittypeMappingsService, SaveBesluittypeMappingsService>();
             services.AddScoped<IValidateStatusMappingsService, ValidateStatusMappingsService>();
             services.AddScoped<IValidateResultaattypeMappingsService, ValidateResultaattypeMappingsService>();
             services.AddScoped<IValidateDocumentstatusMappingsService, ValidateDocumentstatusMappingsService>();
             services.AddScoped<ISaveDocumentstatusMappingsService, SaveDocumentstatusMappingsService>();
+            services.AddScoped<IValidateDocumentPropertyMappingsService, ValidateDocumentPropertyMappingsService>();
+            services.AddScoped<IShowDocumentPropertyMappingsService, ShowDocumentPropertyMappingsService>();
+            services.AddScoped<ISaveDocumentPropertyMappingsService, SaveDocumentPropertyMappingsService>();
 
             services.AddHostedService<StartMigrationBackgroundService>();
             services.AddSingleton<IMigrationBackgroundTaskQueue>(ctx =>

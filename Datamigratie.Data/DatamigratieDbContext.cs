@@ -110,6 +110,21 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
                 .IsUnique()
                 .HasDatabaseName("IX_DocumentstatusMapping_DetDocumentstatus_Unique");
         });
+
+        modelBuilder.Entity<BesluittypeMapping>(entity =>
+        {
+            // Unique constraint: One DET besluittype per zaaktype can only map to one OZ besluittype
+            entity.HasIndex(e => new { e.ZaaktypenMappingId, e.DetBesluittypeNaam })
+                .IsUnique()
+                .HasDatabaseName("IX_BesluittypeMapping_ZaaktypenMappingId_DetBesluittypeNaam_Unique");
+        });
+
+        modelBuilder.Entity<DocumentPropertyMapping>(entity =>
+        {
+            entity.HasIndex(e => new { e.ZaaktypenMappingId, e.DetPropertyName, e.DetValue })
+                .IsUnique()
+                .HasDatabaseName("IX_DocumentPropertyMapping_ZaaktypenMappingId_DetPropertyName_DetValue_Unique");
+        });
     }
 
     public DbSet<ZaaktypenMapping> Mappings { get; set; }
@@ -118,5 +133,7 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
     public DbSet<MigrationRecord> MigrationRecords { get; set; }
     public DbSet<RsinConfiguration> RsinConfigurations { get; set; }
     public DbSet<StatusMapping> StatusMappings { get; set; }
+    public DbSet<BesluittypeMapping> BesluittypeMappings { get; set; }
+    public DbSet<DocumentPropertyMapping> DocumentPropertyMappings { get; set; }
     public DbSet<DocumentstatusMapping> DocumentstatusMappings { get; set; }
 }

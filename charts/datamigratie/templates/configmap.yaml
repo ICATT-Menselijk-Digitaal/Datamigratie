@@ -26,3 +26,6 @@ data:
   Oidc__RoleClaimType: {{ .Values.oidc.roleClaimType }}
   Oidc__EmailClaimType: {{ .Values.oidc.emailClaimType }}
   {{- end }}
+
+  # Feature Flags
+  FeatureFlags__EnableTestHelpers: {{ .Values.featureFlags.enableTestHelpers | toString | quote }}
