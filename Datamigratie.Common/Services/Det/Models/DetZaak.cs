@@ -37,6 +37,7 @@ namespace Datamigratie.Common.Services.Det.Models
         public DateTimeOffset WijzigDatumTijd { get; set; }
         public DetZaaktype? Zaaktype { get; set; }
         public List<DetDocument>? Documenten { get; set; }
+        public List<DetBesluit>? Besluiten { get; set; }
     }
 
     public class DetDocument
@@ -79,5 +80,24 @@ namespace Datamigratie.Common.Services.Det.Models
     public class DocumentVorm
     {
         public required string Naam { get; set; }
+    }
+
+    public class DetBesluit
+    {
+        public required string FunctioneleIdentificatie { get; set; }
+        public required DetBesluitBesluittype Besluittype { get; set; }
+        public required DateOnly BesluitDatum { get; set; }
+        public DateOnly? Vervaldatum { get; set; }
+        public DateOnly? Ingangsdatum { get; set; }
+        public DateOnly? Reactiedatum { get; set; }
+        public DateOnly? Publicatiedatum { get; set; }
+        public string? Toelichting { get; set; }
+    }
+
+    public class DetBesluitBesluittype
+    {
+        public required string Naam { get; set; }
+        public string? Omschrijving { get; set; }
+        public bool Actief { get; set; }
     }
 }
