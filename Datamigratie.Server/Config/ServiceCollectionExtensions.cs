@@ -1,11 +1,11 @@
 ﻿
 using Datamigratie.Common.Extensions;
-using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.MapZaaktypen.SaveDetToOzZaaktypeMapping;
-using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.MapZaaktypen.ShowDetToOzZaaktypeMapping;
-using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.Resultaattypen.SaveResultaattypeMappings;
-using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.Resultaattypen.ShowResultaattypeMapping;
-using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.StatusMapping.SaveStatusMappings.Services;
-using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.StatusMapping.ShowStatusMappings.Services;
+using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.SaveDetToOzZaaktypeMapping;
+using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.ShowDetToOzZaaktypeMapping;
+using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Resultaattypen.SaveResultaattypeMappings;
+using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Resultaattypen.ShowResultaattypeMapping;
+using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.StatusMapping.SaveStatusMappings.Services;
+using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.StatusMapping.ShowStatusMappings.Services;
 using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.BesluittypeMapping.SaveBesluittypeMappings.Services;
 using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.BesluittypeMapping.ShowBesluittypeMappings.Services;
 using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.DocumentPropertyMapping.SaveDocumentPropertyMappings.Services;
@@ -17,8 +17,10 @@ using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Servi
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.State;
 using Datamigratie.Server.Features.Migrate.MigrateZaak;
 using Datamigratie.Server.Features.Migrate.MigrateZaak.Pdf;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Documentstatus;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Resultaat;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Status;
+using Datamigratie.Server.Features.Map.GlobalMapping.DocumentstatusMapping.Save.Services;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.DocumentProperty;
 
 namespace Datamigratie.Server.Config
@@ -46,6 +48,8 @@ namespace Datamigratie.Server.Config
             services.AddScoped<ISaveBesluittypeMappingsService, SaveBesluittypeMappingsService>();
             services.AddScoped<IValidateStatusMappingsService, ValidateStatusMappingsService>();
             services.AddScoped<IValidateResultaattypeMappingsService, ValidateResultaattypeMappingsService>();
+            services.AddScoped<IValidateDocumentstatusMappingsService, ValidateDocumentstatusMappingsService>();
+            services.AddScoped<ISaveDocumentstatusMappingsService, SaveDocumentstatusMappingsService>();
             services.AddScoped<IValidateDocumentPropertyMappingsService, ValidateDocumentPropertyMappingsService>();
             services.AddScoped<IShowDocumentPropertyMappingsService, ShowDocumentPropertyMappingsService>();
             services.AddScoped<ISaveDocumentPropertyMappingsService, SaveDocumentPropertyMappingsService>();

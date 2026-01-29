@@ -79,7 +79,7 @@ namespace Datamigratie.Data.Migrations
                     b.ToTable("DocumentPropertyMappings");
                 });
 
-            modelBuilder.Entity("Datamigratie.Data.Entities.GlobalConfiguration", b =>
+            modelBuilder.Entity("Datamigratie.Data.Entities.DocumentstatusMapping", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -87,16 +87,21 @@ namespace Datamigratie.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Rsin")
-                        .HasMaxLength(9)
-                        .HasColumnType("character varying(9)");
+                    b.Property<string>("DetDocumentstatus")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<string>("OzDocumentstatus")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.ToTable("GlobalConfigurations");
+                    b.HasIndex("DetDocumentstatus")
+                        .IsUnique()
+                        .HasDatabaseName("IX_DocumentstatusMapping_DetDocumentstatus_Unique");
+
+                    b.ToTable("DocumentstatusMappings");
                 });
 
             modelBuilder.Entity("Datamigratie.Data.Entities.Migration", b =>
@@ -216,6 +221,23 @@ namespace Datamigratie.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("ResultaattypeMappings");
+                });
+
+            modelBuilder.Entity("Datamigratie.Data.Entities.RsinConfiguration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Rsin")
+                        .HasMaxLength(9)
+                        .HasColumnType("character varying(9)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RsinConfigurations");
                 });
 
             modelBuilder.Entity("Datamigratie.Data.Entities.StatusMapping", b =>

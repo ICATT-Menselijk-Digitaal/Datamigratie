@@ -7,10 +7,10 @@ namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Q
         public required string DetZaaktypeId { get; set; }
         
         /// <summary>
-        /// GlobalMapping is validated and set by StartMigrationController before queuing.
+        /// Rsin Mapping is validated and set by StartMigrationController before queuing.
         /// It is guaranteed to be non-null and valid when PerformMigrationAsync is called.
         /// </summary>
-        public required GlobalMapping GlobalMapping { get; set; }
+        public required RsinMapping RsinMapping { get; set; }
 
         /// <summary>
         /// Status mappings loaded and validated by StartMigrationController before queuing.
@@ -23,6 +23,12 @@ namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Q
         /// Dictionary: DetResultaattypeNaam -> OzResultaattypeId
         /// </summary>
         public required Dictionary<string, Guid> ResultaatMappings { get; set; }
+
+        /// <summary>
+        /// Document status mappings loaded and validated by StartMigrationController before queuing.
+        /// Dictionary: DetDocumentstatusNaam -> OzDocumentstatus (e.g., "in_bewerking", "definitief")
+        /// </summary>
+        public required Dictionary<string, string> DocumentstatusMappings { get; set; }
 
         /// <summary>
         /// Document property mappings loaded and validated by StartMigrationController before queuing.

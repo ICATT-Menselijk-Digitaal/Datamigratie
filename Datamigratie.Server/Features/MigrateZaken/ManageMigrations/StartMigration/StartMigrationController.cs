@@ -4,6 +4,7 @@ using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Model
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues.Items;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.State;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Documentstatus;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Resultaat;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Status;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.DocumentProperty;
@@ -21,6 +22,7 @@ public class StartMigrationController(
     DatamigratieDbContext dbContext,
     IValidateStatusMappingsService validateStatusMappingsService,
     IValidateResultaattypeMappingsService validateResultaattypeMappingsService,
+    IValidateDocumentstatusMappingsService validateDocumentstatusMappingsService,
     IValidateDocumentPropertyMappingsService validateDocumentPropertyMappingsService,
     IDetApiClient detApiClient,
     ILogger<StartMigrationController> logger) : ControllerBase
@@ -42,18 +44,20 @@ public class StartMigrationController(
                 return BadRequest(new { message = "DET Zaaktype not found." });
             }
 
-            var globalMapping = await ValidateAndGetGlobalMappingAsync();
+            var rsinMapping = await ValidateAndGetRsinMappingAsync();
 
             var statusMappings = await ValidateAndGetStatusMappingsAsync(detZaaktype);
             var resultaatMappings = await ValidateAndGetResultaattypeMappingsAsync(detZaaktype);
+            var documentstatusMappings = await ValidateAndGetDocumentstatusMappingsAsync();
             var documentPropertyMappings = await ValidateAndGetDocumentPropertyMappingsAsync(detZaaktype);
 
             await backgroundTaskQueue.QueueMigrationAsync(new MigrationQueueItem
             {
                 DetZaaktypeId = request.DetZaaktypeId,
-                GlobalMapping = globalMapping,
+                RsinMapping = rsinMapping,
                 StatusMappings = statusMappings,
                 ResultaatMappings = resultaatMappings,
+                DocumentstatusMappings = documentstatusMappings,
                 DocumentPropertyMappings = documentPropertyMappings
             });
         }
@@ -85,15 +89,15 @@ public class StartMigrationController(
         });
     }
 
-    private async Task<GlobalMapping> ValidateAndGetGlobalMappingAsync()
+    private async Task<RsinMapping> ValidateAndGetRsinMappingAsync()
     {
-        var globalMapping = await dbContext.GlobalConfigurations
-            .Select(x => new GlobalMapping { Rsin = x.Rsin! })
-            .FirstOrDefaultAsync() ?? throw new InvalidOperationException("Geen globale configuratie gevonden.");
+        var rsinMapping = await dbContext.RsinConfigurations
+            .Select(x => new RsinMapping { Rsin = x.Rsin! })
+            .FirstOrDefaultAsync() ?? throw new InvalidOperationException("Geen rsin configuratie gevonden.");
 
-        RsinValidator.ValidateRsin(globalMapping.Rsin, logger);
+        RsinValidator.ValidateRsin(rsinMapping.Rsin, logger);
 
-        return globalMapping;
+        return rsinMapping;
     }
 
     private async Task<Dictionary<string, Guid>> ValidateAndGetStatusMappingsAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)
@@ -112,6 +116,15 @@ public class StartMigrationController(
         return !resultaatMappingsValid
             ? throw new InvalidOperationException("Not all DET Resultaattypen have been mapped to OZ resultaattypen. Please configure resultaattypen mappings first.")
             : resultaatMappings;
+    }
+
+    private async Task<Dictionary<string, string>> ValidateAndGetDocumentstatusMappingsAsync()
+    {
+        var (documentstatusMappingsValid, documentstatusMappings) = await validateDocumentstatusMappingsService.ValidateAndGetDocumentstatusMappings();
+
+        return !documentstatusMappingsValid
+            ? throw new InvalidOperationException("Not all DET document statuses have been mapped to OZ document statuses. Please configure document status mappings first.")
+            : documentstatusMappings;
     }
 
     private async Task<Dictionary<string, Dictionary<string, string>>> ValidateAndGetDocumentPropertyMappingsAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)

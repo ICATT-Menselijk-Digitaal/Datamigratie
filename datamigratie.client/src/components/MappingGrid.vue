@@ -42,7 +42,6 @@
           </select>
         </div>
       </div>
-
       <div v-if="(!allMapped || isEditing) && !disabled" class="mapping-actions">
         <button type="button" @click="handleSave">{{ saveButtonText }}</button>
       </div>
@@ -59,7 +58,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
 import AlertInline from "@/components/AlertInline.vue";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
 

@@ -19,6 +19,8 @@ namespace Datamigratie.Common.Services.Det
 
         Task GetDocumentInhoudAsync(long id, Func<Stream, CancellationToken, Task> handleInhoud, CancellationToken token);
 
+        Task<List<DetDocumentstatus>> GetAllDocumentstatussen();
+
         Task<List<DetBesluittype>> GetAllBesluittypen();
     }
 
@@ -156,6 +158,18 @@ namespace Datamigratie.Common.Services.Det
         }
 
         /// <summary>
+        /// Gets all document statuses.
+        /// Endpoint: /documentstatussen
+        /// </summary>
+        /// <returns>A list of all DetDocumentstatus objects across all pages.</returns>
+        public async Task<List<DetDocumentstatus>> GetAllDocumentstatussen()
+        {
+            _logger.LogInformation("Fetching all documentstatussen.");
+            var pagedDocumentstatussen = await GetAllPagedData<DetDocumentstatus>("documentstatussen");
+            return pagedDocumentstatussen.Results;
+        }
+
+        /// <summary>
         /// Gets all besluitypen with pagination details.
         /// Endpoint: /besluittypen
         /// </summary>
@@ -171,8 +185,6 @@ namespace Datamigratie.Common.Services.Det
         {
             return DefaultStartingPage;
         }
-
-
 
         private static string SanitizeForLogging(string input) => input.Replace("\r", "").Replace("\n", "");
     }

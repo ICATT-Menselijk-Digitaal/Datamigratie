@@ -1,4 +1,4 @@
-﻿namespace Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.Resultaattypen.ShowResultaattypeMapping.Models
+﻿namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Resultaattypen.ShowResultaattypeMapping.Models
 {
     public class ResultaattypeMappingResponse
     {

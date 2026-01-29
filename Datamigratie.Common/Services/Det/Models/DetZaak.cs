@@ -47,6 +47,8 @@ namespace Datamigratie.Common.Services.Det.Models
         public string? Beschrijving {get; set; }
         public DocumentTaal? Taal { get; set; }
         public DocumentVorm? DocumentVorm { get; set; }
+
+        public required DetDocumentstatus Documentstatus { get; set; }
         public string? Publicatieniveau { get; set; }
         public DetDocumenttype? Documenttype { get; set; }
     }

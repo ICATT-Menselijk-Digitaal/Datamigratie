@@ -1,4 +1,4 @@
-﻿namespace Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.MapZaaktypen.SaveDetToOzZaaktypeMapping.Models
+﻿namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.SaveDetToOzZaaktypeMapping.Models
 {
     public class UpdateZaaktypeMapping
     {
