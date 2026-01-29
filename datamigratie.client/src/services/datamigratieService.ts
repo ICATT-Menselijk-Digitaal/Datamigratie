@@ -107,6 +107,20 @@ export type ResultaattypeMappingResponse = {
   ozResultaattypeId: string;
 };
 
+export type DocumentstatusMappingItem = {
+  detDocumentstatus: string;
+  ozDocumentstatus: string | null;
+};
+
+export type DocumentstatusMappingResponse = {
+  detDocumentstatus: string;
+  ozDocumentstatus: string;
+};
+
+export type SaveDocumentstatusMappingsRequest = {
+  mappings: DocumentstatusMappingItem[];
+};
+
 export const datamigratieService = {
   getMappingByDETZaaktypeId: (detZaaktypeId: string): Promise<ZaaktypeMapping> =>
     get<ZaaktypeMapping>(`/api/mapping/${detZaaktypeId}`),
@@ -130,5 +144,9 @@ export const datamigratieService = {
   getResultaattypeMappings: (zaaktypenMappingId: string): Promise<ResultaattypeMappingResponse[]> =>
     get<ResultaattypeMappingResponse[]>(`/api/mappings/${zaaktypenMappingId}/resultaattypen`),
   saveResultaattypeMappings: (zaaktypenMappingId: string, payload: SaveResultaattypeMappingsRequest): Promise<void> =>
-    post(`/api/mappings/${zaaktypenMappingId}/resultaattypen`, payload)
+    post(`/api/mappings/${zaaktypenMappingId}/resultaattypen`, payload),
+  getDocumentstatusMappings: (): Promise<DocumentstatusMappingResponse[]> =>
+    get<DocumentstatusMappingResponse[]>(`/api/globalmapping/documentstatuses`),
+  saveDocumentstatusMappings: (payload: SaveDocumentstatusMappingsRequest): Promise<DocumentstatusMappingResponse[]> =>
+    put<DocumentstatusMappingResponse[]>(`/api/globalmapping/documentstatuses`, payload)
 };

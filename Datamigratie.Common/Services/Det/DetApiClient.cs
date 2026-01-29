@@ -19,6 +19,8 @@ namespace Datamigratie.Common.Services.Det
         Task<DetZaaktypeDetail?> GetZaaktypeDetail(string zaaktypeName);
 
         Task GetDocumentInhoudAsync(long id, Func<Stream, CancellationToken, Task> handleInhoud, CancellationToken token);
+
+        Task<List<DetDocumentstatus>> GetAllDocumentstatussen();
     }
 
     public class DetApiClient(HttpClient httpClient, ILogger<DetApiClient> logger) : PagedApiClient(httpClient), IDetApiClient
@@ -154,12 +156,22 @@ namespace Datamigratie.Common.Services.Det
             await handleInhoud(contentStream, token);
         }
 
+        /// <summary>
+        /// Gets all document statuses.
+        /// Endpoint: /documentstatussen
+        /// </summary>
+        /// <returns>A list of all DetDocumentstatus objects across all pages.</returns>
+        public async Task<List<DetDocumentstatus>> GetAllDocumentstatussen()
+        {
+            _logger.LogInformation("Fetching all documentstatussen.");
+            var pagedDocumentstatussen = await GetAllPagedData<DetDocumentstatus>("documentstatussen");
+            return pagedDocumentstatussen.Results;
+        }
+
         protected override int GetDefaultStartingPage()
         {
             return DefaultStartingPage;
         }
-
-
 
         private static string SanitizeForLogging(string input) => input.Replace("\r", "").Replace("\n", "");
     }
