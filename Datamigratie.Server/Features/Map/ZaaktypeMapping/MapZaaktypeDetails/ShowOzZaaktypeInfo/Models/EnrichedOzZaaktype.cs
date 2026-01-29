@@ -1,6 +1,6 @@
 ﻿using Datamigratie.Common.Services.OpenZaak.Models;
 
-namespace Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.ShowOzZaaktypeInfo.Models
+namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.ShowOzZaaktypeInfo.Models
 {
     public class EnrichedOzZaaktype : OzZaaktype
     {

@@ -1,4 +1,4 @@
-﻿namespace Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.StatusMapping.SaveStatusMappings.Models;
+﻿namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.StatusMapping.SaveStatusMappings.Models;
 
 public class SaveStatusMappingsRequest
 {

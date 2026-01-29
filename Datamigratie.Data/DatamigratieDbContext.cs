@@ -32,7 +32,9 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
         {
             // Unique constraint: One DET Resultaattype (per zaaktype) can only map to one OZ Resultaattype
             entity.HasIndex(m => new { m.ZaaktypenMappingId, m.DetResultaattypeNaam })
-                .IsUnique();
+            .IsUnique()
+            .HasDatabaseName("IX_ResultaattypeMapping_ZaaktypenMappingId_DetResultaattypeNaam_Unique");
+
         });
 
         modelBuilder.Entity<Migration>(entity =>
@@ -85,15 +87,12 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
 
         });
 
-        modelBuilder.Entity<GlobalConfiguration>(entity =>
+        modelBuilder.Entity<RsinConfiguration>(entity =>
         {
             entity.HasKey(e => e.Id);
 
             entity.Property(e => e.Rsin)
                 .HasMaxLength(9);
-
-            entity.Property(e => e.UpdatedAt)
-                .IsRequired();
         });
 
         modelBuilder.Entity<StatusMapping>(entity =>
@@ -103,12 +102,21 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
                 .IsUnique()
                 .HasDatabaseName("IX_StatusMapping_ZaaktypenMappingId_DetStatusNaam_Unique");
         });
+
+        modelBuilder.Entity<DocumentstatusMapping>(entity =>
+        {
+            // Unique constraint: Each DET document status can only map to one OZ document status
+            entity.HasIndex(e => e.DetDocumentstatus)
+                .IsUnique()
+                .HasDatabaseName("IX_DocumentstatusMapping_DetDocumentstatus_Unique");
+        });
     }
 
     public DbSet<ZaaktypenMapping> Mappings { get; set; }
     public DbSet<ResultaattypeMapping> ResultaattypeMappings { get; set; }
     public DbSet<Migration> Migrations { get; set; }
     public DbSet<MigrationRecord> MigrationRecords { get; set; }
-    public DbSet<GlobalConfiguration> GlobalConfigurations { get; set; }
+    public DbSet<RsinConfiguration> RsinConfigurations { get; set; }
     public DbSet<StatusMapping> StatusMappings { get; set; }
+    public DbSet<DocumentstatusMapping> DocumentstatusMappings { get; set; }
 }

@@ -40,7 +40,7 @@ public class StartMigrationController(
                 return BadRequest(new { message = "DET Zaaktype not found." });
             }
 
-            var globalMapping = await ValidateAndGetGlobalMappingAsync();
+            var rsinMapping = await ValidateAndGetRsinMappingAsync();
 
             var statusMappings = await ValidateAndGetStatusMappingsAsync(detZaaktype);
             var resultaatMappings = await ValidateAndGetResultaattypeMappingsAsync(detZaaktype);
@@ -48,7 +48,7 @@ public class StartMigrationController(
             await backgroundTaskQueue.QueueMigrationAsync(new MigrationQueueItem
             {
                 DetZaaktypeId = request.DetZaaktypeId,
-                GlobalMapping = globalMapping,
+                RsinMapping = rsinMapping,
                 StatusMappings = statusMappings,
                 ResultaatMappings = resultaatMappings
             });
@@ -81,15 +81,15 @@ public class StartMigrationController(
         });
     }
 
-    private async Task<GlobalMapping> ValidateAndGetGlobalMappingAsync()
+    private async Task<RsinMapping> ValidateAndGetRsinMappingAsync()
     {
-        var globalMapping = await dbContext.GlobalConfigurations
-            .Select(x => new GlobalMapping { Rsin = x.Rsin! })
-            .FirstOrDefaultAsync() ?? throw new InvalidOperationException("Geen globale configuratie gevonden.");
+        var rsinMapping = await dbContext.RsinConfigurations
+            .Select(x => new RsinMapping { Rsin = x.Rsin! })
+            .FirstOrDefaultAsync() ?? throw new InvalidOperationException("Geen rsin configuratie gevonden.");
 
-        RsinValidator.ValidateRsin(globalMapping.Rsin, logger);
+        RsinValidator.ValidateRsin(rsinMapping.Rsin, logger);
 
-        return globalMapping;
+        return rsinMapping;
     }
 
     private async Task<Dictionary<string, Guid>> ValidateAndGetStatusMappingsAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)

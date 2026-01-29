@@ -1,7 +1,7 @@
 <template>
   <simple-spinner v-if="loading" />
 
-  <form v-else @submit.prevent="saveConfiguration">
+  <form v-else @submit.prevent="saveRsinConfiguration">
     <label for="rsin">RSIN</label>
     <input
       type="text"
@@ -23,13 +23,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted, useTemplateRef } from "vue";
-import { datamigratieService, type GlobalConfiguration } from "@/services/datamigratieService";
+import { datamigratieService, type RsinConfiguration } from "@/services/datamigratieService";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
 import toast from "@/components/toast/toast";
 
 const loading = ref(true);
 const rsin = ref("");
-const configuration = ref<GlobalConfiguration>({});
+const rsinConfiguration = ref<RsinConfiguration>({});
 const rsinInput = useTemplateRef<HTMLInputElement>("rsinInput");
 
 function validateRsin() {
@@ -70,8 +70,8 @@ async function loadConfiguration() {
   loading.value = true;
 
   try {
-    configuration.value = await datamigratieService.getGlobalConfiguration();
-    rsin.value = configuration.value.rsin || "";
+    rsinConfiguration.value = await datamigratieService.getRsinConfiguration();
+    rsin.value = rsinConfiguration.value.rsin || "";
     if (rsin.value) {
       validateRsin();
     }
@@ -82,14 +82,14 @@ async function loadConfiguration() {
   }
 }
 
-async function saveConfiguration() {
+async function saveRsinConfiguration() {
   loading.value = true;
 
   try {
-    const updated = await datamigratieService.updateGlobalConfiguration({
+    const updated = await datamigratieService.updateRsinConfiguration({
       rsin: rsin.value || undefined
     });
-    configuration.value = updated;
+    rsinConfiguration.value = updated;
     toast.add({ text: "Configuratie succesvol opgeslagen." });
   } catch (error: unknown) {
     toast.add({ text: `Fout bij opslaan van de mapping - ${error}`, type: "error" });

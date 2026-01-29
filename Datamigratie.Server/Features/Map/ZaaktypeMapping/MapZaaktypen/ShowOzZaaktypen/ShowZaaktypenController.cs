@@ -2,7 +2,7 @@
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.MapZaaktypen.ShowOzZaaktypen
+namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.ShowOzZaaktypen
 {
     [ApiController]
     [Route("api/oz/zaaktypen")]

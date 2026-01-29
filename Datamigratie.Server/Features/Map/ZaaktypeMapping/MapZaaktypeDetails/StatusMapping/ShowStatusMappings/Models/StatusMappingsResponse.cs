@@ -1,4 +1,4 @@
-﻿namespace Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.StatusMapping.ShowStatusMappings.Models;
+﻿namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.StatusMapping.ShowStatusMappings.Models;
 
 public class StatusMappingsResponse
 {
