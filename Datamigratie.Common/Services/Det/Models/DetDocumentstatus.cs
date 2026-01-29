@@ -1,4 +1,4 @@
-namespace Datamigratie.Common.Services.Det.Models
+﻿namespace Datamigratie.Common.Services.Det.Models
 {
     public class DetDocumentstatus
     {

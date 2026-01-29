@@ -4,6 +4,7 @@ using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Model
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues.Items;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.State;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Documentstatus;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Resultaat;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Status;
 using Datamigratie.Server.Helpers;
@@ -20,6 +21,7 @@ public class StartMigrationController(
     DatamigratieDbContext dbContext,
     IValidateStatusMappingsService validateStatusMappingsService,
     IValidateResultaattypeMappingsService validateResultaattypeMappingsService,
+    IValidateDocumentstatusMappingsService validateDocumentstatusMappingsService,
     IDetApiClient detApiClient,
     ILogger<StartMigrationController> logger) : ControllerBase
 {
@@ -44,13 +46,15 @@ public class StartMigrationController(
 
             var statusMappings = await ValidateAndGetStatusMappingsAsync(detZaaktype);
             var resultaatMappings = await ValidateAndGetResultaattypeMappingsAsync(detZaaktype);
+            var documentstatusMappings = await ValidateAndGetDocumentstatusMappingsAsync();
 
             await backgroundTaskQueue.QueueMigrationAsync(new MigrationQueueItem
             {
                 DetZaaktypeId = request.DetZaaktypeId,
                 RsinMapping = rsinMapping,
                 StatusMappings = statusMappings,
-                ResultaatMappings = resultaatMappings
+                ResultaatMappings = resultaatMappings,
+                DocumentstatusMappings = documentstatusMappings
             });
         }
         catch (Exception e)
@@ -108,5 +112,14 @@ public class StartMigrationController(
         return !resultaatMappingsValid
             ? throw new InvalidOperationException("Not all DET Resultaattypen have been mapped to OZ resultaattypen. Please configure resultaattypen mappings first.")
             : resultaatMappings;
+    }
+
+    private async Task<Dictionary<string, string>> ValidateAndGetDocumentstatusMappingsAsync()
+    {
+        var (documentstatusMappingsValid, documentstatusMappings) = await validateDocumentstatusMappingsService.ValidateAndGetDocumentstatusMappings();
+
+        return !documentstatusMappingsValid
+            ? throw new InvalidOperationException("Not all DET document statuses have been mapped to OZ document statuses. Please configure document status mappings first.")
+            : documentstatusMappings;
     }
 }
