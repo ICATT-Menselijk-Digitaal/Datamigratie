@@ -48,6 +48,7 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.SaveDetT
                 .FirstOrDefaultAsync(m => m.DetZaaktypeId == detZaaktypeId) ?? throw new InvalidOperationException($"Mapping for Det zaaktype ID '{detZaaktypeId}' does not exist.");
 
             // delete status mappings if the OZ zaaktype is being changed
+            // to be revisited: DATA-259 - Cascade delete all the mappings when mapped OZ zaaktype is changed
             if (currentMapping.OzZaaktypeId != newOzZaaktypeId)
             {
                 var statusMappings = await context.StatusMappings
@@ -77,6 +78,16 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.SaveDetT
                 if (documentPropertyMappings.Count != 0)
                 {
                     context.DocumentPropertyMappings.RemoveRange(documentPropertyMappings);
+                    await context.SaveChangesAsync();
+                }
+
+                var besluittypeMappings = await context.BesluittypeMappings
+                   .Where(bm => bm.ZaaktypenMappingId == currentMapping.Id)
+                   .ToListAsync();
+
+                if (besluittypeMappings.Count != 0)
+                {
+                    context.BesluittypeMappings.RemoveRange(besluittypeMappings);
                     await context.SaveChangesAsync();
                 }
             }
