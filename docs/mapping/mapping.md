@@ -11,6 +11,12 @@ During migration from DET to OpenZaak, certain field values must be transformed 
 | `Startdatum` | `Startdatum` | Formatted as `yyyy-MM-dd` | - |
 | `CreatieDatumTijd` | `Registratiedatum` | Formatted as `yyyy-MM-dd` | - |
 
+## Besluit Field Mappings
+
+| DET Field | OpenZaak Field | Transformation | Max Length |
+|-----------|----------------|----------------|------------|
+| `FunctioneleIdentificatie` | `Identificatie` | Truncated with "..." suffix if too long | 50 characters |
+
 ## Document Field Mappings
 
 | DET Field | OpenZaak Field | Transformation | Max Length |
