@@ -330,15 +330,22 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             // Get the besluittype URI based on the mapping
             var besluittypeUri = GetBesluittypeUri(detBesluit.Besluittype.Naam, besluittypeMappings, detBesluit.FunctioneleIdentificatie);
 
+            // according to the municipalities, this is never possible, so lets throw an exception if it does happen just in case
+            if (!detBesluit.Ingangsdatum.HasValue)
+            {
+                throw new InvalidOperationException(
+                    $"Besluit {detBesluit.FunctioneleIdentificatie} has no ingangsdatum. Cannot determine ingangsdatum.");
+            }
+
             return new CreateOzBesluitRequest
             {
-                Identificatie = identificatie,
+                Identificatie = identificatie, // TODO -> Wait on Kim for response municipality. THis should be Besluit[*].Naam
                 VerantwoordelijkeOrganisatie = "",
                 Besluittype = besluittypeUri,
                 Zaak = createdZaak.Url,
                 Datum = detBesluit.BesluitDatum,
                 Toelichting = detBesluit.Toelichting,
-                Ingangsdatum = detBesluit.Ingangsdatum, // TODO -> ask kim
+                Ingangsdatum = detBesluit.Ingangsdatum.Value,
                 Vervaldatum = detBesluit.Vervaldatum,
                 Publicatiedatum = detBesluit.Publicatiedatum,
                 UiterlijkeReactiedatum = detBesluit.Reactiedatum,
