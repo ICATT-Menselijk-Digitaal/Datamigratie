@@ -50,6 +50,7 @@ const documentstatusMappings = ref<DocumentstatusMappingItem[]>([]);
 const documentstatusLoading = ref(false);
 
 const allDocumentstatusesMapped = computed(() => {
+  if (detDocumentstatussen.value.length === 0) return true;
   return detDocumentstatussen.value.every(status => {
     const mapping = documentstatusMappings.value.find(m => m.detDocumentstatus === status.naam);
     return mapping && mapping.ozDocumentstatus;
