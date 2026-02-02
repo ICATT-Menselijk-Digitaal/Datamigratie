@@ -56,7 +56,6 @@ const ozDocumentstatussen = [
 
 const sourceItems = computed<MappingItem[]>(() => {
   return props.detDocumentstatussen
-    .filter(status => status.actief)
     .map(status => ({
       id: status.naam,
       name: status.naam,

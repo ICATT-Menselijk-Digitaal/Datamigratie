@@ -50,10 +50,7 @@ const documentstatusMappings = ref<DocumentstatusMappingItem[]>([]);
 const documentstatusLoading = ref(false);
 
 const allDocumentstatusesMapped = computed(() => {
-  const activeStatuses = detDocumentstatussen.value.filter(s => s.actief);
-  if (activeStatuses.length === 0) return true;
-
-  return activeStatuses.every(status => {
+  return detDocumentstatussen.value.every(status => {
     const mapping = documentstatusMappings.value.find(m => m.detDocumentstatus === status.naam);
     return mapping && mapping.ozDocumentstatus;
   });
@@ -114,7 +111,6 @@ async function loadConfiguration() {
 
     // Initialize mappings from saved data
     documentstatusMappings.value = detStatuses
-      .filter(s => s.actief)
       .map(status => {
         const existingMapping = savedMappings.find(m => m.detDocumentstatus === status.naam);
         return {
