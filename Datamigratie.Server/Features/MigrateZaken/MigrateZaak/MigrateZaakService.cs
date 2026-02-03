@@ -448,7 +448,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                             ? $" | HTTP {(int)httpEx.StatusCode}: {httpEx.Message}"
                             : ex is HttpRequestException httpExOuter && httpExOuter.StatusCode.HasValue
                             ? $" | HTTP {(int)httpExOuter.StatusCode}: {httpExOuter.Message}"
-                            : "";
+                            : $" | {ex.GetType().Name}: {ex.Message}";
 
                         throw new Exception(
                             $"Migratie onderbroken: versie {detVersie.Versienummer} van document '{document.Titel}' (bestand: {detVersie.Bestandsnaam}) kon niet worden gemigreerd{httpStatusInfo}",
