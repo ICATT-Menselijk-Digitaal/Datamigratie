@@ -170,9 +170,9 @@
       description-text="Je moet de mappings opnieuw configureren voor het nieuwe zaaktype."
     />
 
-    <migration-history-table 
+    <migration-history-table
       v-if="!errors.length"
-      :history="migrationHistory" 
+      :history="migrationHistory"
       @row-click="(id) => navigateToMigrationDetail(id, search)"
     />
   </form>
@@ -227,7 +227,9 @@ const {
 
 const ozZaaktype = ref<OZZaaktype>();
 
-const showDetailMapping = computed(() => !!(mapping.value.detZaaktypeId && mapping.value.ozZaaktypeId));
+const showDetailMapping = computed(
+  () => !!(mapping.value.detZaaktypeId && mapping.value.ozZaaktypeId)
+);
 
 const { migration, fetchMigration } = useMigration();
 
@@ -236,9 +238,17 @@ const mappingId = computed(() => mapping.value.id);
 const ozZaaktypeId = computed(() => mapping.value.ozZaaktypeId);
 
 const statusMappingsComposable = useStatusMappings(mappingId, detZaaktype, ozZaaktypeId);
-const resultaattypeMappingsComposable = useResultaattypeMappings(mappingId, detZaaktype, ozZaaktypeId);
+const resultaattypeMappingsComposable = useResultaattypeMappings(
+  mappingId,
+  detZaaktype,
+  ozZaaktypeId
+);
 const besluittypeMappingsComposable = useBesluittypeMappings(mappingId, ozZaaktypeId);
-const documentPropertyMappingsComposable = useDocumentPropertyMappings(mappingId, detZaaktype, ozZaaktypeId);
+const documentPropertyMappingsComposable = useDocumentPropertyMappings(
+  mappingId,
+  detZaaktype,
+  ozZaaktypeId
+);
 
 // Destructure composable state and methods
 const {
@@ -350,10 +360,14 @@ const canEditDocumentPropertyMappings = computed(
 );
 
 const submitMapping = async () => {
-  const hasStatusMappings = statusMappings.value.some(m => m.ozStatustypeId !== null);
-  const hasResultaattypeMappings = resultaattypeMappings.value.some(m => m.ozResultaattypeId !== null);
-  const hasBesluittypeMappings = besluittypeMappings.value.some(m => m.ozBesluittypeId !== null);
-  const hasDocumentPropertyMappings = documentPropertyMappings.value.some(m => m.ozValue !== null);
+  const hasStatusMappings = statusMappings.value.some((m) => m.ozStatustypeId !== null);
+  const hasResultaattypeMappings = resultaattypeMappings.value.some(
+    (m) => m.ozResultaattypeId !== null
+  );
+  const hasBesluittypeMappings = besluittypeMappings.value.some((m) => m.ozBesluittypeId !== null);
+  const hasDocumentPropertyMappings = documentPropertyMappings.value.some(
+    (m) => m.ozValue !== null
+  );
 
   // Check if zaaktype is being changed and there are existing mappings
   if (
@@ -367,7 +381,7 @@ const submitMapping = async () => {
     })
   ) {
     const result = await confirmOzZaaktypeChangeDialog.reveal();
-    
+
     if (result.isCanceled) {
       revertMapping();
       return;
@@ -405,11 +419,11 @@ watch(ozZaaktypeId, async (newId) => {
 
 onMounted(async () => {
   await fetchMappingData();
-  
+
   if (mapping.value.ozZaaktypeId) {
     try {
       ozZaaktype.value = await ozService.getZaaktypeById(mapping.value.ozZaaktypeId);
-      
+
       await Promise.all([
         fetchStatusMappings(),
         fetchResultaattypeMappings(),
@@ -540,4 +554,3 @@ menu {
   }
 }
 </style>
-

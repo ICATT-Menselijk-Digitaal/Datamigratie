@@ -55,8 +55,8 @@ const emit = defineEmits<{
 const sourceStatusItems = computed<MappingItem[]>(() => {
   if (!props.detZaaktype?.statuses) return [];
   return props.detZaaktype.statuses
-    .filter(status => status.actief)
-    .map(status => ({
+    .filter((status) => status.actief)
+    .map((status) => ({
       id: status.naam,
       name: status.naam,
       description: status.omschrijving
@@ -65,7 +65,7 @@ const sourceStatusItems = computed<MappingItem[]>(() => {
 
 const targetStatusItems = computed<MappingItem[]>(() => {
   if (!props.ozZaaktype?.statustypes) return [];
-  return props.ozZaaktype.statustypes.map(statustype => ({
+  return props.ozZaaktype.statustypes.map((statustype) => ({
     id: statustype.uuid,
     name: statustype.omschrijving,
     description: undefined
@@ -74,13 +74,13 @@ const targetStatusItems = computed<MappingItem[]>(() => {
 
 const mappingsModel = computed<Mapping[]>({
   get: () => {
-    return props.statusMappings.map(m => ({
+    return props.statusMappings.map((m) => ({
       sourceId: m.detStatusNaam,
       targetId: m.ozStatustypeId
     }));
   },
   set: (newMappings: Mapping[]) => {
-    const updated = newMappings.map(m => ({
+    const updated = newMappings.map((m) => ({
       detStatusNaam: m.sourceId,
       ozStatustypeId: m.targetId
     }));
