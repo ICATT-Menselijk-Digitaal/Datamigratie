@@ -55,8 +55,8 @@ const emit = defineEmits<{
 const sourceResultaattypeItems = computed<MappingItem[]>(() => {
   if (!props.detZaaktype?.resultaten) return [];
   return props.detZaaktype.resultaten
-    .filter(resultaattype => resultaattype.resultaat.actief)
-    .map(resultaattype => ({
+    .filter((resultaattype) => resultaattype.resultaat.actief)
+    .map((resultaattype) => ({
       id: resultaattype.resultaat.naam,
       name: resultaattype.resultaat.naam,
       description: resultaattype.resultaat.omschrijving
@@ -65,7 +65,7 @@ const sourceResultaattypeItems = computed<MappingItem[]>(() => {
 
 const targetResultaattypeItems = computed<MappingItem[]>(() => {
   if (!props.ozZaaktype?.resultaattypen) return [];
-  return props.ozZaaktype.resultaattypen.map(resultaattype => ({
+  return props.ozZaaktype.resultaattypen.map((resultaattype) => ({
     id: resultaattype.id,
     name: resultaattype.omschrijving,
     description: undefined
@@ -74,13 +74,13 @@ const targetResultaattypeItems = computed<MappingItem[]>(() => {
 
 const mappingsModel = computed<Mapping[]>({
   get: () => {
-    return props.resultaattypeMappings.map(m => ({
+    return props.resultaattypeMappings.map((m) => ({
       sourceId: m.detResultaattypeNaam,
       targetId: m.ozResultaattypeId
     }));
   },
   set: (newMappings: Mapping[]) => {
-    const updated = newMappings.map(m => ({
+    const updated = newMappings.map((m) => ({
       detResultaattypeNaam: m.sourceId,
       ozResultaattypeId: m.targetId
     }));

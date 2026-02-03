@@ -55,8 +55,8 @@ const emit = defineEmits<{
 const sourceBesluittypeItems = computed<MappingItem[]>(() => {
   if (!props.detBesluittypen) return [];
   return props.detBesluittypen
-    .filter(besluittype => besluittype.actief)
-    .map(besluittype => ({
+    .filter((besluittype) => besluittype.actief)
+    .map((besluittype) => ({
       id: besluittype.naam,
       name: besluittype.naam,
       description: besluittype.omschrijving
@@ -65,7 +65,7 @@ const sourceBesluittypeItems = computed<MappingItem[]>(() => {
 
 const targetBesluittypeItems = computed<MappingItem[]>(() => {
   if (!props.ozZaaktype?.besluittypen) return [];
-  return props.ozZaaktype.besluittypen.map(besluittype => ({
+  return props.ozZaaktype.besluittypen.map((besluittype) => ({
     id: besluittype.id,
     name: besluittype.omschrijving,
     description: undefined
@@ -74,13 +74,13 @@ const targetBesluittypeItems = computed<MappingItem[]>(() => {
 
 const mappingsModel = computed<Mapping[]>({
   get: () => {
-    return props.besluittypeMappings.map(m => ({
+    return props.besluittypeMappings.map((m) => ({
       sourceId: m.detBesluittypeNaam,
       targetId: m.ozBesluittypeId
     }));
   },
   set: (newMappings: Mapping[]) => {
-    const updated = newMappings.map(m => ({
+    const updated = newMappings.map((m) => ({
       detBesluittypeNaam: m.sourceId,
       ozBesluittypeId: m.targetId
     }));

@@ -21,7 +21,7 @@ export const MigrationStatus = Object.freeze({
   inProgress: "InProgress"
 });
 
-export type MigrationStatus = typeof MigrationStatus[keyof typeof MigrationStatus];
+export type MigrationStatus = (typeof MigrationStatus)[keyof typeof MigrationStatus];
 
 export type Migration = {
   detZaaktypeId?: string;
@@ -162,36 +162,53 @@ export const datamigratieService = {
   createMapping: (payload: CreateZaaktypeMapping): Promise<void> =>
     post(`/api/mapping/${payload.detZaaktypeId}`, { ozZaaktypeId: payload.ozZaaktypeId }),
   updateMapping: (payload: UpdateZaaktypeMapping): Promise<void> =>
-    put(`/api/mapping/${payload.detZaaktypeId}`, { updatedOzZaaktypeId: payload.updatedOzZaaktypeId }),
+    put(`/api/mapping/${payload.detZaaktypeId}`, {
+      updatedOzZaaktypeId: payload.updatedOzZaaktypeId
+    }),
   startMigration: (payload: StartMigration): Promise<void> => post(`/api/migration/start`, payload),
   getMigration: (): Promise<Migration> => get(`/api/migration`),
   getMigrationHistory: (detZaaktypeId: string): Promise<MigrationHistoryItem[]> =>
     get<MigrationHistoryItem[]>(`/api/migration/history/${detZaaktypeId}`),
   getMigrationRecords: (migrationId: number): Promise<MigrationRecordItem[]> =>
     get<MigrationRecordItem[]>(`/api/migration/${migrationId}/records`),
-  getRsinConfiguration: (): Promise<RsinConfiguration> => get<RsinConfiguration>(`/api/globalmapping/rsin`),
+  getRsinConfiguration: (): Promise<RsinConfiguration> =>
+    get<RsinConfiguration>(`/api/globalmapping/rsin`),
   updateRsinConfiguration: (payload: UpdateRsinConfiguration): Promise<RsinConfiguration> =>
     put<RsinConfiguration>(`/api/globalmapping/rsin`, payload),
   getStatusMappings: (zaaktypenMappingId: string): Promise<StatusMappingsResponse[]> =>
     get<StatusMappingsResponse[]>(`/api/mappings/${zaaktypenMappingId}/statuses`),
-  saveStatusMappings: (zaaktypenMappingId: string, payload: SaveStatusMappingsRequest): Promise<void> =>
-    post(`/api/mappings/${zaaktypenMappingId}/statuses`, payload),
+  saveStatusMappings: (
+    zaaktypenMappingId: string,
+    payload: SaveStatusMappingsRequest
+  ): Promise<void> => post(`/api/mappings/${zaaktypenMappingId}/statuses`, payload),
   getBesluittypeMappings: (zaaktypenMappingId: string): Promise<BesluittypeMappingsResponse[]> =>
     get<BesluittypeMappingsResponse[]>(`/api/mappings/${zaaktypenMappingId}/besluittypen`),
-  saveBesluittypeMappings: (zaaktypenMappingId: string, payload: SaveBesluittypeMappingsRequest): Promise<void> =>
-    post(`/api/mappings/${zaaktypenMappingId}/besluittypen`, payload),
+  saveBesluittypeMappings: (
+    zaaktypenMappingId: string,
+    payload: SaveBesluittypeMappingsRequest
+  ): Promise<void> => post(`/api/mappings/${zaaktypenMappingId}/besluittypen`, payload),
   getResultaattypeMappings: (zaaktypenMappingId: string): Promise<ResultaattypeMappingResponse[]> =>
     get<ResultaattypeMappingResponse[]>(`/api/mappings/${zaaktypenMappingId}/resultaattypen`),
-  saveResultaattypeMappings: (zaaktypenMappingId: string, payload: SaveResultaattypeMappingsRequest): Promise<void> =>
-    post(`/api/mappings/${zaaktypenMappingId}/resultaattypen`, payload),
+  saveResultaattypeMappings: (
+    zaaktypenMappingId: string,
+    payload: SaveResultaattypeMappingsRequest
+  ): Promise<void> => post(`/api/mappings/${zaaktypenMappingId}/resultaattypen`, payload),
   getDocumentstatusMappings: (): Promise<DocumentstatusMappingResponse[]> =>
     get<DocumentstatusMappingResponse[]>(`/api/globalmapping/documentstatuses`),
-  saveDocumentstatusMappings: (payload: SaveDocumentstatusMappingsRequest): Promise<DocumentstatusMappingResponse[]> =>
+  saveDocumentstatusMappings: (
+    payload: SaveDocumentstatusMappingsRequest
+  ): Promise<DocumentstatusMappingResponse[]> =>
     put<DocumentstatusMappingResponse[]>(`/api/globalmapping/documentstatuses`, payload),
-  getDocumentPropertyMappings: (zaaktypenMappingId: string): Promise<DocumentPropertyMappingResponse[]> =>
-    get<DocumentPropertyMappingResponse[]>(`/api/mappings/${zaaktypenMappingId}/documentproperties`),
-  saveDocumentPropertyMappings: (zaaktypenMappingId: string, payload: SaveDocumentPropertyMappingsRequest): Promise<void> =>
-    post(`/api/mappings/${zaaktypenMappingId}/documentproperties`, payload),
+  getDocumentPropertyMappings: (
+    zaaktypenMappingId: string
+  ): Promise<DocumentPropertyMappingResponse[]> =>
+    get<DocumentPropertyMappingResponse[]>(
+      `/api/mappings/${zaaktypenMappingId}/documentproperties`
+    ),
+  saveDocumentPropertyMappings: (
+    zaaktypenMappingId: string,
+    payload: SaveDocumentPropertyMappingsRequest
+  ): Promise<void> => post(`/api/mappings/${zaaktypenMappingId}/documentproperties`, payload),
   getPublicatieNiveauOptions: (): Promise<string[]> =>
     get<string[]>(`/api/det/options/publicatieniveau`),
   getVertrouwelijkheidaanduidingOptions: (): Promise<VertrouwelijkheidaanduidingOption[]> =>

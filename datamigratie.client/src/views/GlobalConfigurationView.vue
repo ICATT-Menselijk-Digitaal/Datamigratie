@@ -34,7 +34,11 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, useTemplateRef } from "vue";
-import { datamigratieService, type RsinConfiguration, type DocumentstatusMappingItem } from "@/services/datamigratieService";
+import {
+  datamigratieService,
+  type RsinConfiguration,
+  type DocumentstatusMappingItem
+} from "@/services/datamigratieService";
 import { detService, type DetDocumentstatus } from "@/services/detService";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
 import DocumentstatusMappingSection from "@/components/DocumentstatusMappingSection.vue";
@@ -51,16 +55,14 @@ const documentstatusLoading = ref(false);
 
 const allDocumentstatusesMapped = computed(() => {
   if (detDocumentstatussen.value.length === 0) return true;
-  return detDocumentstatussen.value.every(status => {
-    const mapping = documentstatusMappings.value.find(m => m.detDocumentstatus === status.naam);
+  return detDocumentstatussen.value.every((status) => {
+    const mapping = documentstatusMappings.value.find((m) => m.detDocumentstatus === status.naam);
     return mapping && mapping.ozDocumentstatus;
   });
 });
 
-
 function validateRsin() {
-
-  if (!rsinInput.value ) {
+  if (!rsinInput.value) {
     return;
   }
 
@@ -111,14 +113,13 @@ async function loadConfiguration() {
     detDocumentstatussen.value = detStatuses;
 
     // Initialize mappings from saved data
-    documentstatusMappings.value = detStatuses
-      .map(status => {
-        const existingMapping = savedMappings.find(m => m.detDocumentstatus === status.naam);
-        return {
-          detDocumentstatus: status.naam,
-          ozDocumentstatus: existingMapping?.ozDocumentstatus || null
-        };
-      });
+    documentstatusMappings.value = detStatuses.map((status) => {
+      const existingMapping = savedMappings.find((m) => m.detDocumentstatus === status.naam);
+      return {
+        detDocumentstatus: status.naam,
+        ozDocumentstatus: existingMapping?.ozDocumentstatus || null
+      };
+    });
   } catch (error: unknown) {
     toast.add({ text: `Fout bij laden van de configuratie - ${error}`, type: "error" });
   } finally {
@@ -147,8 +148,8 @@ async function saveDocumentstatusMappings() {
 
   try {
     const mappingsToSave = documentstatusMappings.value
-      .filter(m => m.ozDocumentstatus)
-      .map(m => ({
+      .filter((m) => m.ozDocumentstatus)
+      .map((m) => ({
         detDocumentstatus: m.detDocumentstatus,
         ozDocumentstatus: m.ozDocumentstatus as string
       }));
@@ -156,7 +157,10 @@ async function saveDocumentstatusMappings() {
     await datamigratieService.saveDocumentstatusMappings({ mappings: mappingsToSave });
     toast.add({ text: "Documentstatus mappings succesvol opgeslagen." });
   } catch (error: unknown) {
-    toast.add({ text: `Fout bij opslaan van de documentstatus mappings - ${error}`, type: "error" });
+    toast.add({
+      text: `Fout bij opslaan van de documentstatus mappings - ${error}`,
+      type: "error"
+    });
   } finally {
     documentstatusLoading.value = false;
   }

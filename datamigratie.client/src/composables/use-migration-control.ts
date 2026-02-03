@@ -2,7 +2,12 @@ import { computed, watch, type Ref } from "vue";
 import { useRouter } from "vue-router";
 import { useConfirmDialog } from "@vueuse/core";
 import toast from "@/components/toast/toast";
-import { datamigratieService, MigrationStatus, type ZaaktypeMapping, type Migration } from "@/services/datamigratieService";
+import {
+  datamigratieService,
+  MigrationStatus,
+  type ZaaktypeMapping,
+  type Migration
+} from "@/services/datamigratieService";
 
 export function useMigrationControl(
   detZaaktypeId: string,
@@ -107,4 +112,3 @@ export function useMigrationControl(
     navigateToMigrationDetail
   };
 }
-

@@ -28,22 +28,26 @@ export function useResultaattypeMappings(
 
     isLoading.value = true;
     try {
-      const existingMappings = mappingId.value 
+      const existingMappings = mappingId.value
         ? await datamigratieService.getResultaattypeMappings(mappingId.value)
         : [];
-      
+
       const detResultaattypen = detZaaktype.value?.resultaten || [];
 
       mappings.value = detResultaattypen.map((detResultaattypen) => {
-        const existingMapping = existingMappings.find((m) => m.detResultaattypeNaam === detResultaattypen.resultaat.naam);
-        return existingMapping || {
-          detResultaattypeNaam: detResultaattypen.resultaat.naam,
-          ozResultaattypeId: null
-        };
+        const existingMapping = existingMappings.find(
+          (m) => m.detResultaattypeNaam === detResultaattypen.resultaat.naam
+        );
+        return (
+          existingMapping || {
+            detResultaattypeNaam: detResultaattypen.resultaat.naam,
+            ozResultaattypeId: null
+          }
+        );
       });
 
-      isComplete.value = mappings.value.length > 0 && 
-        mappings.value.every((m) => m.ozResultaattypeId !== null);
+      isComplete.value =
+        mappings.value.length > 0 && mappings.value.every((m) => m.ozResultaattypeId !== null);
     } catch (error) {
       mappings.value = [];
       isComplete.value = false;
@@ -64,12 +68,15 @@ export function useResultaattypeMappings(
 
       toast.add({ text: "De resultaattype mappings zijn succesvol opgeslagen." });
 
-      isComplete.value = mappings.value.length > 0 && 
-        mappings.value.every((m) => m.ozResultaattypeId !== null);
+      isComplete.value =
+        mappings.value.length > 0 && mappings.value.every((m) => m.ozResultaattypeId !== null);
 
       setEditing(false);
     } catch (error) {
-      toast.add({ text: `Fout bij opslaan van de resultaattype mappings - ${error}`, type: "error" });
+      toast.add({
+        text: `Fout bij opslaan van de resultaattype mappings - ${error}`,
+        type: "error"
+      });
       throw error;
     } finally {
       isLoading.value = false;

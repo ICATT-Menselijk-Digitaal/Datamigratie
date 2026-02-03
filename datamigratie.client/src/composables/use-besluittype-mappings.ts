@@ -4,10 +4,7 @@ import type { DetBesluittype } from "@/services/detService";
 import { datamigratieService, type BesluittypeMappingItem } from "@/services/datamigratieService";
 import { detService } from "@/services/detService";
 
-export function useBesluittypeMappings(
-  mappingId: Ref<string>,
-  ozZaaktypeId: Ref<string>
-) {
+export function useBesluittypeMappings(mappingId: Ref<string>, ozZaaktypeId: Ref<string>) {
   const mappings = ref<BesluittypeMappingItem[]>([]);
   const detBesluittypen = ref<DetBesluittype[]>([]);
   const isComplete = ref(false);
@@ -29,27 +26,31 @@ export function useBesluittypeMappings(
     }
 
     isLoading.value = true;
-    try {      
+    try {
       const detBesluittypeData = await detService.getAllBesluittypen();
       detBesluittypen.value = detBesluittypeData;
 
-      const existingMappings = mappingId.value 
+      const existingMappings = mappingId.value
         ? await datamigratieService.getBesluittypeMappings(mappingId.value)
         : [];
 
       mappings.value = detBesluittypeData.map((detBesluittype) => {
-        const existingMapping = existingMappings.find((m) => m.detBesluittypeNaam === detBesluittype.naam);
-        return existingMapping ? {
-          detBesluittypeNaam: existingMapping.detBesluittypeNaam,
-          ozBesluittypeId: existingMapping.ozBesluittypeId
-        } : {
-          detBesluittypeNaam: detBesluittype.naam,
-          ozBesluittypeId: null
-        };
+        const existingMapping = existingMappings.find(
+          (m) => m.detBesluittypeNaam === detBesluittype.naam
+        );
+        return existingMapping
+          ? {
+              detBesluittypeNaam: existingMapping.detBesluittypeNaam,
+              ozBesluittypeId: existingMapping.ozBesluittypeId
+            }
+          : {
+              detBesluittypeNaam: detBesluittype.naam,
+              ozBesluittypeId: null
+            };
       });
 
-      isComplete.value = mappings.value.length > 0 && 
-        mappings.value.every((m) => m.ozBesluittypeId !== null);
+      isComplete.value =
+        mappings.value.length > 0 && mappings.value.every((m) => m.ozBesluittypeId !== null);
     } catch (error) {
       detBesluittypen.value = [];
       mappings.value = [];
@@ -71,8 +72,8 @@ export function useBesluittypeMappings(
 
       toast.add({ text: "De besluittype mappings zijn succesvol opgeslagen." });
 
-      isComplete.value = mappings.value.length > 0 && 
-        mappings.value.every((m) => m.ozBesluittypeId !== null);
+      isComplete.value =
+        mappings.value.length > 0 && mappings.value.every((m) => m.ozBesluittypeId !== null);
 
       setEditing(false);
     } catch (error) {

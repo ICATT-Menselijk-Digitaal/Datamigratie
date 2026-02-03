@@ -41,8 +41,8 @@ export function useStatusMappings(
         };
       });
 
-      isComplete.value = mappings.value.length > 0 && 
-        mappings.value.every((m) => m.ozStatustypeId !== null);
+      isComplete.value =
+        mappings.value.length > 0 && mappings.value.every((m) => m.ozStatustypeId !== null);
     } catch (error) {
       mappings.value = [];
       isComplete.value = false;
@@ -63,8 +63,8 @@ export function useStatusMappings(
 
       toast.add({ text: "De status mappings zijn succesvol opgeslagen." });
 
-      isComplete.value = mappings.value.length > 0 && 
-        mappings.value.every((m) => m.ozStatustypeId !== null);
+      isComplete.value =
+        mappings.value.length > 0 && mappings.value.every((m) => m.ozStatustypeId !== null);
 
       setEditing(false);
     } catch (error) {

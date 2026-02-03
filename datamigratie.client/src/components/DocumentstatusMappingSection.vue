@@ -55,16 +55,15 @@ const ozDocumentstatussen = [
 ];
 
 const sourceItems = computed<MappingItem[]>(() => {
-  return props.detDocumentstatussen
-    .map(status => ({
-      id: status.naam,
-      name: status.naam,
-      description: status.omschrijving
-    }));
+  return props.detDocumentstatussen.map((status) => ({
+    id: status.naam,
+    name: status.naam,
+    description: status.omschrijving
+  }));
 });
 
 const targetItems = computed<MappingItem[]>(() => {
-  return ozDocumentstatussen.map(status => ({
+  return ozDocumentstatussen.map((status) => ({
     id: status.id,
     name: status.name,
     description: undefined
@@ -73,13 +72,13 @@ const targetItems = computed<MappingItem[]>(() => {
 
 const mappingsModel = computed<Mapping[]>({
   get: () => {
-    return props.documentstatusMappings.map(m => ({
+    return props.documentstatusMappings.map((m) => ({
       sourceId: m.detDocumentstatus,
       targetId: m.ozDocumentstatus
     }));
   },
   set: (newMappings: Mapping[]) => {
-    const updated = newMappings.map(m => ({
+    const updated = newMappings.map((m) => ({
       detDocumentstatus: m.sourceId,
       ozDocumentstatus: m.targetId
     }));

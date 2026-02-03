@@ -66,7 +66,11 @@ export function useZaaktypeMapping(detZaaktypeId: string) {
         } else {
           const { reason } = result;
 
-          if (ignore404 && reason instanceof Error && reason.message === knownErrorMessages.notFound) {
+          if (
+            ignore404 &&
+            reason instanceof Error &&
+            reason.message === knownErrorMessages.notFound
+          ) {
             return;
           }
 

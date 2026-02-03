@@ -8,9 +8,9 @@
  */
 export function formatDateTime(dateString: string | null): string {
   if (!dateString) return "-";
-  
+
   const date = new Date(dateString);
-  
+
   return date.toLocaleString("nl-NL", {
     year: "numeric",
     month: "2-digit",
@@ -30,9 +30,9 @@ export function formatDateTime(dateString: string | null): string {
  */
 export function formatDate(dateString: string | null): string {
   if (!dateString) return "-";
-  
+
   const date = new Date(dateString);
-  
+
   return date.toLocaleString("nl-NL", {
     year: "numeric",
     month: "2-digit",
@@ -50,9 +50,9 @@ export function formatDate(dateString: string | null): string {
  */
 export function formatTime(dateString: string | null): string {
   if (!dateString) return "-";
-  
+
   const date = new Date(dateString);
-  
+
   return date.toLocaleString("nl-NL", {
     hour: "2-digit",
     minute: "2-digit"
