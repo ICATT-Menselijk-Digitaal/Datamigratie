@@ -161,7 +161,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
 
             if (!documenttypeMappings.TryGetValue(documenttypeNaam, out var mappedValue))
             {
-                throw new InvalidOperationException($"Document '{documentTitel}' migration failed: Documenttype '{documenttypeNaam}' has not been mapped to an OpenZaak informatieobjecttype.");
+                throw new InvalidOperationException($"Document '{documentTitel}' migration failed: Documenttype '{documenttypeNaam}' was found in the document of the zaak, but not in the list of possible DocumentTypen in the zaaktype. Please configure this correctly in the ESuite");
             }
 
             if (Guid.TryParse(mappedValue, out var guid))
@@ -309,7 +309,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                     try
                     {
                         var ozDocument = MapToOzDocument(document, detVersie, informatieObjectType, rsin, documentstatusMappings, documentPropertyMappings);
-                        
+
                         if (isFirstVersion)
                         {
                             // create new document and link to zaak
