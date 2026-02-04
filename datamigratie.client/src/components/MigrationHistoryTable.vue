@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import type { MigrationHistoryItem } from "@/services/datamigratieService";
+import type { MigrationHistoryItem } from "@/types/datamigratie";
 import { formatDateTime } from "@/utils/dateFormatter";
 
 defineProps<{

@@ -2,16 +2,15 @@ import { ref, type Ref } from "vue";
 import toast from "@/components/toast/toast";
 import type { DETZaaktype } from "@/services/detService";
 import type { OZZaaktype } from "@/services/ozService";
+import { get, post, put, knownErrorMessages } from "@/utils/fetchWrapper";
 import {
-  datamigratieService,
   type ZaaktypeMapping,
   type CreateZaaktypeMapping,
   type UpdateZaaktypeMapping,
   type MigrationHistoryItem
-} from "@/services/datamigratieService";
+} from "@/types/datamigratie";
 import { detService } from "@/services/detService";
 import { ozService } from "@/services/ozService";
-import { knownErrorMessages } from "@/utils/fetchWrapper";
 
 export function useZaaktypeMapping(detZaaktypeId: string) {
   const detZaaktype = ref<DETZaaktype>();
@@ -45,12 +44,12 @@ export function useZaaktypeMapping(detZaaktypeId: string) {
           target: ozZaaktypes
         },
         {
-          service: datamigratieService.getMappingByDETZaaktypeId(detZaaktypeId),
+          service: get<ZaaktypeMapping>(`/api/mapping/${detZaaktypeId}`),
           target: mapping,
           ignore404: true
         },
         {
-          service: datamigratieService.getMigrationHistory(detZaaktypeId),
+          service: get<MigrationHistoryItem[]>(`/api/migration/history/${detZaaktypeId}`),
           target: migrationHistory,
           ignore404: false
         }
@@ -109,10 +108,12 @@ export function useZaaktypeMapping(detZaaktypeId: string) {
           ozZaaktypeId: mapping.value.ozZaaktypeId
         };
 
-        await datamigratieService.createMapping(createMapping);
+        await post(`/api/mapping/${createMapping.detZaaktypeId}`, {
+          ozZaaktypeId: createMapping.ozZaaktypeId
+        });
 
         // Fetch the created mapping to get its ID
-        const createdMapping = await datamigratieService.getMappingByDETZaaktypeId(detZaaktypeId);
+        const createdMapping = await get<ZaaktypeMapping>(`/api/mapping/${detZaaktypeId}`);
         mapping.value = createdMapping;
       } else {
         // Update existing mapping
@@ -121,7 +122,9 @@ export function useZaaktypeMapping(detZaaktypeId: string) {
           updatedOzZaaktypeId: mapping.value.ozZaaktypeId
         };
 
-        await datamigratieService.updateMapping(updatedMapping);
+        await put(`/api/mapping/${updatedMapping.detZaaktypeId}`, {
+          updatedOzZaaktypeId: updatedMapping.updatedOzZaaktypeId
+        });
       }
 
       previousOzZaaktypeId.value = mapping.value.ozZaaktypeId;

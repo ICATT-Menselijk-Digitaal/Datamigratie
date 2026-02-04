@@ -54,85 +54,83 @@
     </dl>
 
     <status-mapping-section
+      ref="statusMappingSectionRef"
+      :mapping-id="mapping.id"
       :det-zaaktype="detZaaktype"
       :oz-zaaktype="ozZaaktype"
-      :status-mappings="statusMappings"
-      :all-mapped="statusMappingsComplete"
-      :is-editing="isEditingStatusMapping"
       :disabled="isThisMigrationRunning"
-      :loading="!ozZaaktype"
       :show-warning="!!mapping.detZaaktypeId"
       :show-mapping="showDetailMapping"
-      @update:status-mappings="statusMappings = $event"
-      @save="saveStatusMappings"
+      @update:complete="statusMappingsComplete = $event"
+      @update:editing="isEditingStatusMapping = $event"
     />
 
     <menu class="reset edit-menu">
       <li v-if="canEditStatusMappings">
-        <button type="button" class="secondary" @click="setEditingStatusMapping(true)">
+        <button type="button" class="secondary" @click="statusMappingSectionRef?.setEditing(true)">
           Statusmappings aanpassen
         </button>
       </li>
     </menu>
 
     <resultaattype-mapping-section
+      ref="resultaattypeMappingSectionRef"
+      :mapping-id="mapping.id"
       :det-zaaktype="detZaaktype"
       :oz-zaaktype="ozZaaktype"
-      :resultaattype-mappings="resultaattypeMappings"
-      :all-mapped="resultaattypeMappingsComplete"
-      :is-editing="isEditingResultaattypeMapping"
       :disabled="isThisMigrationRunning"
-      :loading="!ozZaaktype"
       :show-warning="!!mapping.detZaaktypeId"
       :show-mapping="showDetailMapping"
-      @update:resultaattype-mappings="resultaattypeMappings = $event"
-      @save="saveResultaattypeMappings"
+      @update:complete="resultaattypeMappingsComplete = $event"
+      @update:editing="isEditingResultaattypeMapping = $event"
     />
 
     <menu class="reset edit-menu">
       <li v-if="canEditResultaattypeMappings">
-        <button type="button" class="secondary" @click="setEditingResultaattypeMapping(true)">
+        <button
+          type="button"
+          class="secondary"
+          @click="resultaattypeMappingSectionRef?.setEditing(true)"
+        >
           Resultaattypemappings aanpassen
         </button>
       </li>
     </menu>
 
     <besluittype-mapping-section
-      :det-besluittypen="detBesluittypen"
+      ref="besluittypeMappingSectionRef"
+      :mapping-id="mapping.id"
       :oz-zaaktype="ozZaaktype"
-      :besluittype-mappings="besluittypeMappings"
-      :all-mapped="besluittypeMappingsComplete"
-      :is-editing="isEditingBesluittypeMapping"
       :disabled="isThisMigrationRunning"
-      :loading="!ozZaaktype"
       :show-warning="!!mapping.detZaaktypeId"
       :show-mapping="showDetailMapping"
-      @update:besluittype-mappings="besluittypeMappings = $event"
-      @save="saveBesluittypeMappings"
+      @update:complete="besluittypeMappingsComplete = $event"
+      @update:editing="isEditingBesluittypeMapping = $event"
     />
 
     <menu class="reset edit-menu">
       <li v-if="canEditBesluittypeMappings">
-        <button type="button" class="secondary" @click="setEditingBesluittypeMapping(true)">
+        <button
+          type="button"
+          class="secondary"
+          @click="besluittypeMappingSectionRef?.setEditing(true)"
+        >
           Besluittypemappings aanpassen
         </button>
       </li>
     </menu>
 
     <document-property-mapping-section
-      :det-documenttypen="detDocumenttypen"
+      ref="documentPropertyMappingSectionRef"
+      :mapping-id="mapping.id"
+      :det-documenttypen="detZaaktype?.documenttypen"
       :oz-zaaktype="ozZaaktype"
-      :document-property-mappings="documentPropertyMappings"
-      :is-editing-publicatieniveau="isEditingPublicatieNiveauMapping"
-      :is-editing-documenttype="isEditingDocumenttypeMapping"
       :disabled="isThisMigrationRunning"
-      :loading="!ozZaaktype"
       :show-warning="!!mapping.detZaaktypeId"
       :show-mapping="showDetailMapping"
-      @update:document-property-mappings="documentPropertyMappings = $event"
-      @save="saveDocumentPropertyMappings"
-      @edit-publicatieniveau="setEditingPublicatieNiveauMapping(true)"
-      @edit-documenttype="setEditingDocumenttypeMapping(true)"
+      @update:complete="documentPropertyMappingsComplete = $event"
+      @update:editing-publicatieniveau="isEditingPublicatieNiveauMapping = $event"
+      @update:editing-documenttype="isEditingDocumenttypeMapping = $event"
     />
 
     <menu class="reset">
@@ -190,14 +188,10 @@ import BesluittypeMappingSection from "@/components/BesluittypeMappingSection.vu
 import ZaaktypeChangeConfirmationModal from "@/components/ZaaktypeChangeConfirmationModal.vue";
 import type { OZZaaktype } from "@/services/ozService";
 import { ozService } from "@/services/ozService";
-import { MigrationStatus } from "@/services/datamigratieService";
+import { MigrationStatus } from "@/types/datamigratie";
 import { useMigration } from "@/composables/use-migration-status";
 import { useZaaktypeMapping } from "@/composables/use-zaaktype-mapping";
 import { useMigrationControl } from "@/composables/use-migration-control";
-import { useStatusMappings } from "@/composables/use-status-mappings";
-import { useResultaattypeMappings } from "@/composables/use-resultaattype-mappings";
-import { useBesluittypeMappings } from "@/composables/use-besluittype-mappings";
-import { useDocumentPropertyMappings } from "@/composables/use-document-property-mappings";
 import ResultaattypeMappingSection from "@/components/ResultaattypeMappingSection.vue";
 import DocumentPropertyMappingSection from "@/components/DocumentPropertyMappingSection.vue";
 import MigrationHistoryTable from "@/components/MigrationHistoryTable.vue";
@@ -207,7 +201,6 @@ const { detZaaktypeId } = defineProps<{ detZaaktypeId: string }>();
 const route = useRoute();
 const search = computed(() => String(route.query.search || "").trim());
 
-// Initialize zaaktype mapping composable
 const zaaktypeMappingComposable = useZaaktypeMapping(detZaaktypeId);
 const {
   detZaaktype,
@@ -227,71 +220,34 @@ const {
 
 const ozZaaktype = ref<OZZaaktype>();
 
+const statusMappingSectionRef = ref<InstanceType<typeof StatusMappingSection>>();
+const resultaattypeMappingSectionRef = ref<InstanceType<typeof ResultaattypeMappingSection>>();
+const besluittypeMappingSectionRef = ref<InstanceType<typeof BesluittypeMappingSection>>();
+const documentPropertyMappingSectionRef =
+  ref<InstanceType<typeof DocumentPropertyMappingSection>>();
+
 const showDetailMapping = computed(
   () => !!(mapping.value.detZaaktypeId && mapping.value.ozZaaktypeId)
 );
 
 const { migration, fetchMigration } = useMigration();
 
-// Initialize composables for each mapping type
-const mappingId = computed(() => mapping.value.id);
+const mappingId = computed(() => (mapping.value.id ? +mapping.value.id : undefined));
 const ozZaaktypeId = computed(() => mapping.value.ozZaaktypeId);
 
-const statusMappingsComposable = useStatusMappings(mappingId, detZaaktype, ozZaaktypeId);
-const resultaattypeMappingsComposable = useResultaattypeMappings(
-  mappingId,
-  detZaaktype,
-  ozZaaktypeId
-);
-const besluittypeMappingsComposable = useBesluittypeMappings(mappingId, ozZaaktypeId);
-const documentPropertyMappingsComposable = useDocumentPropertyMappings(
-  mappingId,
-  detZaaktype,
-  ozZaaktypeId
-);
+const statusMappingsComplete = ref(false);
+const isEditingStatusMapping = ref(false);
 
-// Destructure composable state and methods
-const {
-  mappings: statusMappings,
-  isComplete: statusMappingsComplete,
-  isEditing: isEditingStatusMapping,
-  setEditing: setEditingStatusMapping,
-  fetchMappings: fetchStatusMappings,
-  saveMappings: saveStatusMappings
-} = statusMappingsComposable;
+const resultaattypeMappingsComplete = ref(false);
+const isEditingResultaattypeMapping = ref(false);
 
-const {
-  mappings: resultaattypeMappings,
-  isComplete: resultaattypeMappingsComplete,
-  isEditing: isEditingResultaattypeMapping,
-  setEditing: setEditingResultaattypeMapping,
-  fetchMappings: fetchResultaattypeMappings,
-  saveMappings: saveResultaattypeMappings
-} = resultaattypeMappingsComposable;
+const besluittypeMappingsComplete = ref(false);
+const isEditingBesluittypeMapping = ref(false);
 
-const {
-  mappings: besluittypeMappings,
-  detBesluittypen,
-  isComplete: besluittypeMappingsComplete,
-  isEditing: isEditingBesluittypeMapping,
-  setEditing: setEditingBesluittypeMapping,
-  fetchMappings: fetchBesluittypeMappings,
-  saveMappings: saveBesluittypeMappings
-} = besluittypeMappingsComposable;
+const documentPropertyMappingsComplete = ref(false);
+const isEditingPublicatieNiveauMapping = ref(false);
+const isEditingDocumenttypeMapping = ref(false);
 
-const {
-  mappings: documentPropertyMappings,
-  detDocumenttypen,
-  isComplete: documentPropertyMappingsComplete,
-  isEditingPublicatieniveau: isEditingPublicatieNiveauMapping,
-  isEditingDocumenttype: isEditingDocumenttypeMapping,
-  setEditingPublicatieniveau: setEditingPublicatieNiveauMapping,
-  setEditingDocumenttype: setEditingDocumenttypeMapping,
-  fetchMappings: fetchDocumentPropertyMappings,
-  saveMappings: saveDocumentPropertyMappings
-} = documentPropertyMappingsComposable;
-
-// Initialize migration control composable
 const migrationControlComposable = useMigrationControl(
   detZaaktypeId,
   mapping,
@@ -360,14 +316,10 @@ const canEditDocumentPropertyMappings = computed(
 );
 
 const submitMapping = async () => {
-  const hasStatusMappings = statusMappings.value.some((m) => m.ozStatustypeId !== null);
-  const hasResultaattypeMappings = resultaattypeMappings.value.some(
-    (m) => m.ozResultaattypeId !== null
-  );
-  const hasBesluittypeMappings = besluittypeMappings.value.some((m) => m.ozBesluittypeId !== null);
-  const hasDocumentPropertyMappings = documentPropertyMappings.value.some(
-    (m) => m.ozValue !== null
-  );
+  const hasStatusMappings = statusMappingsComplete.value;
+  const hasResultaattypeMappings = resultaattypeMappingsComplete.value;
+  const hasBesluittypeMappings = besluittypeMappingsComplete.value;
+  const hasDocumentPropertyMappings = documentPropertyMappingsComplete.value;
 
   // Check if zaaktype is being changed and there are existing mappings
   if (
@@ -388,52 +340,44 @@ const submitMapping = async () => {
     }
   }
 
-  // Save the mapping with callback to refresh related mappings if zaaktype changed
+  // Save the mapping with callback to refresh related mappings if zaaktype changed.
+  // When the OpenZaak zaaktype changes, all child mappings (status, resultaattype,
+  // besluittype, document properties) must be deleted because they depend on
+  // the specific zaaktype's available options (statustypen, resultaattypen, etc.)
   await saveMapping(async () => {
     try {
       await Promise.all([
-        fetchStatusMappings(),
-        fetchResultaattypeMappings(),
-        fetchBesluittypeMappings(),
-        fetchDocumentPropertyMappings()
+        statusMappingSectionRef.value?.fetchMappings() ?? Promise.resolve(),
+        resultaattypeMappingSectionRef.value?.fetchMappings() ?? Promise.resolve(),
+        besluittypeMappingSectionRef.value?.fetchMappings() ?? Promise.resolve(),
+        documentPropertyMappingSectionRef.value?.fetchMappings() ?? Promise.resolve()
       ]);
     } catch (error) {
-      // Errors are already handled in individual composables
+      // handled in respective components
     }
   });
 };
 
 const startMigration = () => startMigrationAction(fetchMigration);
 
-watch(ozZaaktypeId, async (newId) => {
-  if (newId) {
-    try {
-      ozZaaktype.value = await ozService.getZaaktypeById(newId);
-    } catch (error) {
+watch(
+  ozZaaktypeId,
+  async (newId) => {
+    if (newId) {
+      try {
+        ozZaaktype.value = await ozService.getZaaktypeById(newId);
+      } catch (error) {
+        ozZaaktype.value = undefined;
+      }
+    } else {
       ozZaaktype.value = undefined;
     }
-  } else {
-    ozZaaktype.value = undefined;
-  }
-});
+  },
+  { immediate: true }
+);
 
 onMounted(async () => {
   await fetchMappingData();
-
-  if (mapping.value.ozZaaktypeId) {
-    try {
-      ozZaaktype.value = await ozService.getZaaktypeById(mapping.value.ozZaaktypeId);
-
-      await Promise.all([
-        fetchStatusMappings(),
-        fetchResultaattypeMappings(),
-        fetchBesluittypeMappings(),
-        fetchDocumentPropertyMappings()
-      ]);
-    } catch (error) {
-      // Errors are already handled in individual composables
-    }
-  }
 });
 </script>
 

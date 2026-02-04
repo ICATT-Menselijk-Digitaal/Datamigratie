@@ -11,7 +11,7 @@
       :all-mapped="allPublicatieNiveauMapped"
       :is-editing="isEditingPublicatieniveau"
       :disabled="disabled"
-      :loading="loading"
+      :loading="showLoading"
       empty-message="Er zijn geen publicatieniveaus beschikbaar."
       target-placeholder="Kies een vertrouwelijkheidaanduiding"
       save-button-text="Publicatieniveau mappings opslaan"
@@ -52,7 +52,7 @@
         :all-mapped="allDocumenttypeMapped"
         :is-editing="isEditingDocumenttype"
         :disabled="disabled"
-        :loading="loading"
+        :loading="showLoading"
         empty-message="Er zijn geen documenttypes beschikbaar."
         target-placeholder="Kies een informatieobjecttype"
         save-button-text="Documenttype mappings opslaan"
@@ -68,51 +68,183 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted } from "vue";
+import { computed, ref, watch } from "vue";
 import MappingGrid, { type MappingItem, type Mapping } from "@/components/MappingGrid.vue";
 import type { DetDocumenttype } from "@/services/detService";
 import type { OZZaaktype } from "@/services/ozService";
-import {
-  datamigratieService,
-  type DocumentPropertyMappingItem
-} from "@/services/datamigratieService";
+import { get, post } from "@/utils/fetchWrapper";
 import { featureFlags } from "@/config/featureFlags";
 
+type DocumentPropertyMappingItem = {
+  detPropertyName: string;
+  detValue: string;
+  ozValue: string | null;
+};
+
+type DocumentPropertyMappingResponse = {
+  detPropertyName: string;
+  detValue: string;
+  ozValue: string;
+};
+
+type SaveDocumentPropertyMappingsRequest = {
+  mappings: DocumentPropertyMappingItem[];
+};
+
+type VertrouwelijkheidaanduidingOption = {
+  value: string;
+  label: string;
+};
+
 interface Props {
+  mappingId?: string;
   detDocumenttypen?: DetDocumenttype[];
   ozZaaktype?: OZZaaktype;
-  documentPropertyMappings: DocumentPropertyMappingItem[];
-  isEditingPublicatieniveau: boolean;
-  isEditingDocumenttype: boolean;
   disabled?: boolean;
-  loading?: boolean;
   showWarning?: boolean;
   showMapping: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   disabled: false,
-  loading: false,
   showWarning: true
 });
 
 const emit = defineEmits<{
-  (e: "update:documentPropertyMappings", value: DocumentPropertyMappingItem[]): void;
-  (e: "save"): void;
-  (e: "editPublicatieniveau"): void;
-  (e: "editDocumenttype"): void;
+  (e: "update:complete", value: boolean): void;
+  (e: "update:editingPublicatieniveau", value: boolean): void;
+  (e: "update:editingDocumenttype", value: boolean): void;
 }>();
 
+const mappings = ref<DocumentPropertyMappingItem[]>([]);
 const publicatieNiveauOptions = ref<string[]>([]);
 const vertrouwelijkheidaanduidingOptions = ref<{ value: string; label: string }[]>([]);
+const isEditingPublicatieniveau = ref(false);
+const isEditingDocumenttype = ref(false);
+const isLoading = ref(false);
+const isFetching = ref(false);
 
-onMounted(async () => {
+const isDataLoaded = computed(() => {
+  return !!(
+    publicatieNiveauOptions.value.length > 0 &&
+    vertrouwelijkheidaanduidingOptions.value.length > 0 &&
+    props.ozZaaktype?.informatieobjecttypen
+  );
+});
+
+const showLoading = computed(() => {
+  return isLoading.value || !isDataLoaded.value;
+});
+
+const detDocumenttypen = computed(() => {
+  if (!props.detDocumenttypen) return [];
+  return props.detDocumenttypen.filter((dt) => dt.actief);
+});
+
+const fetchMappings = async () => {
+  if (!props.ozZaaktype?.id || isFetching.value) return;
+
+  isFetching.value = true;
+  isLoading.value = true;
   try {
-    publicatieNiveauOptions.value = await datamigratieService.getPublicatieNiveauOptions();
-    vertrouwelijkheidaanduidingOptions.value =
-      await datamigratieService.getVertrouwelijkheidaanduidingOptions();
+    publicatieNiveauOptions.value = await get<string[]>(`/api/det/options/publicatieniveau`);
+    vertrouwelijkheidaanduidingOptions.value = await get<VertrouwelijkheidaanduidingOption[]>(
+      `/api/oz/options/vertrouwelijkheidaanduiding`
+    );
+
+    const savedMappings = props.mappingId
+      ? await get<DocumentPropertyMappingResponse[]>(
+          `/api/mappings/${props.mappingId}/documentproperties`
+        )
+      : [];
+
+    const publicatieNiveauMappingsArray = publicatieNiveauOptions.value.map((niveau) => {
+      const existing = savedMappings.find(
+        (m) => m.detPropertyName === "publicatieniveau" && m.detValue === niveau
+      );
+      return {
+        detPropertyName: "publicatieniveau",
+        detValue: niveau,
+        ozValue: existing?.ozValue ?? null
+      };
+    });
+
+    const documenttypeMappingsArray = detDocumenttypen.value.map((dt) => {
+      const existing = savedMappings.find(
+        (m) => m.detPropertyName === "documenttype" && m.detValue === dt.naam
+      );
+      return {
+        detPropertyName: "documenttype",
+        detValue: dt.naam,
+        ozValue: existing?.ozValue ?? null
+      };
+    });
+
+    mappings.value = [...publicatieNiveauMappingsArray, ...documenttypeMappingsArray];
+
+    // decide which sections should be in edit mode
+    const publicatieNiveauComplete = publicatieNiveauMappingsArray.every((m) => m.ozValue !== null);
+    const documenttypeComplete = documenttypeMappingsArray.every((m) => m.ozValue !== null);
+
+    const hasPublicatieNiveauSaved = savedMappings.some(
+      (m) => m.detPropertyName === "publicatieniveau"
+    );
+    const hasDocumenttypeSaved = savedMappings.some((m) => m.detPropertyName === "documenttype");
+
+    isEditingPublicatieniveau.value = !publicatieNiveauComplete || !hasPublicatieNiveauSaved;
+    isEditingDocumenttype.value = !documenttypeComplete || !hasDocumenttypeSaved;
+
+    emit("update:editingPublicatieniveau", isEditingPublicatieniveau.value);
+    emit("update:editingDocumenttype", isEditingDocumenttype.value);
+    emit("update:complete", isComplete.value);
   } catch (error) {
-    console.error("Error fetching document property options:", error);
+    console.error("Error fetching document property mappings:", error);
+  } finally {
+    isFetching.value = false;
+    isLoading.value = false;
+  }
+};
+
+const saveMappings = async () => {
+  if (!props.mappingId) return;
+
+  isLoading.value = true;
+  try {
+    const mappingsToSave = mappings.value.filter((m) => m.ozValue !== null);
+    await post(`/api/mappings/${props.mappingId}/documentproperties`, {
+      mappings: mappingsToSave
+    } as SaveDocumentPropertyMappingsRequest);
+    await fetchMappings();
+  } catch (error) {
+    console.error("Error saving document property mappings:", error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+watch(
+  () => [props.ozZaaktype?.id, props.detDocumenttypen],
+  () => {
+    fetchMappings();
+  },
+  { immediate: true, deep: true }
+);
+
+watch(isEditingPublicatieniveau, (value) => {
+  emit("update:editingPublicatieniveau", value);
+});
+
+watch(isEditingDocumenttype, (value) => {
+  emit("update:editingDocumenttype", value);
+});
+
+defineExpose({
+  fetchMappings,
+  setEditingPublicatieniveau: (value: boolean) => {
+    isEditingPublicatieniveau.value = value;
+  },
+  setEditingDocumenttype: (value: boolean) => {
+    isEditingDocumenttype.value = value;
   }
 });
 
@@ -153,11 +285,11 @@ const informatieobjecttypeTargetItems = computed<MappingItem[]>(() => {
 });
 
 const publicatieNiveauMappings = computed(() =>
-  props.documentPropertyMappings.filter((m) => m.detPropertyName === "publicatieniveau")
+  mappings.value.filter((m) => m.detPropertyName === "publicatieniveau")
 );
 
 const documenttypeMappings = computed(() =>
-  props.documentPropertyMappings.filter((m) => m.detPropertyName === "documenttype")
+  mappings.value.filter((m) => m.detPropertyName === "documenttype")
 );
 
 // check if all are mapped
@@ -179,6 +311,12 @@ const allDocumenttypeMapped = computed(() => {
   );
 });
 
+const isComplete = computed(() => allPublicatieNiveauMapped.value && allDocumenttypeMapped.value);
+
+watch(isComplete, (value) => {
+  emit("update:complete", value);
+});
+
 // mapping for MappingGrid
 const publicatieNiveauMappingsModel = computed<Mapping[]>({
   get: () => {
@@ -194,14 +332,9 @@ const publicatieNiveauMappingsModel = computed<Mapping[]>({
       ozValue: m.targetId
     }));
 
-    const allMappings = [...updatedPublicatieNiveau, ...documenttypeMappings.value];
-
-    // emit if data actually changed
-    const hasChanged =
-      JSON.stringify(allMappings) !== JSON.stringify(props.documentPropertyMappings);
-    if (hasChanged) {
-      emit("update:documentPropertyMappings", allMappings);
-    }
+    mappings.value = [...updatedPublicatieNiveau, ...documenttypeMappings.value];
+    isEditingPublicatieniveau.value = true;
+    emit("update:editingPublicatieniveau", true);
   }
 });
 
@@ -219,30 +352,28 @@ const documenttypeMappingsModel = computed<Mapping[]>({
       ozValue: m.targetId
     }));
 
-    const allMappings = [...publicatieNiveauMappings.value, ...updatedDocumenttypes];
-
-    const hasChanged =
-      JSON.stringify(allMappings) !== JSON.stringify(props.documentPropertyMappings);
-    if (hasChanged) {
-      emit("update:documentPropertyMappings", allMappings);
-    }
+    mappings.value = [...publicatieNiveauMappings.value, ...updatedDocumenttypes];
+    isEditingDocumenttype.value = true;
+    emit("update:editingDocumenttype", true);
   }
 });
 
-const handleSavePublicatieNiveau = () => {
-  emit("save");
+const handleSavePublicatieNiveau = async () => {
+  await saveMappings();
+  isEditingPublicatieniveau.value = false;
 };
 
-const handleSaveDocumenttype = () => {
-  emit("save");
+const handleSaveDocumenttype = async () => {
+  await saveMappings();
+  isEditingDocumenttype.value = false;
 };
 
 const handleEditPublicatieNiveau = () => {
-  emit("editPublicatieniveau");
+  isEditingPublicatieniveau.value = true;
 };
 
 const handleEditDocumenttype = () => {
-  emit("editDocumenttype");
+  isEditingDocumenttype.value = true;
 };
 
 // fills documenttype mappings with random selections (when VITE_ENABLE_TEST_HELPERS=true)

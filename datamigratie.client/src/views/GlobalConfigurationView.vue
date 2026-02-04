@@ -34,11 +34,14 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, useTemplateRef } from "vue";
-import {
-  datamigratieService,
-  type RsinConfiguration,
-  type DocumentstatusMappingItem
-} from "@/services/datamigratieService";
+import { get, put } from "@/utils/fetchWrapper";
+import type {
+  RsinConfiguration,
+  UpdateRsinConfiguration,
+  DocumentstatusMappingItem,
+  DocumentstatusMappingResponse,
+  SaveDocumentstatusMappingsRequest
+} from "@/types/datamigratie";
 import { detService, type DetDocumentstatus } from "@/services/detService";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
 import DocumentstatusMappingSection from "@/components/DocumentstatusMappingSection.vue";
@@ -99,9 +102,9 @@ async function loadConfiguration() {
 
   try {
     const [rsinConfig, detStatuses, savedMappings] = await Promise.all([
-      datamigratieService.getRsinConfiguration(),
+      get<RsinConfiguration>(`/api/globalmapping/rsin`),
       detService.getAllDocumentstatussen(),
-      datamigratieService.getDocumentstatusMappings()
+      get<DocumentstatusMappingResponse[]>(`/api/globalmapping/documentstatuses`)
     ]);
 
     rsinConfiguration.value = rsinConfig;
@@ -113,7 +116,7 @@ async function loadConfiguration() {
     detDocumentstatussen.value = detStatuses;
 
     // Initialize mappings from saved data
-    documentstatusMappings.value = detStatuses.map((status) => {
+    documentstatusMappings.value = detStatuses.map((status: DetDocumentstatus) => {
       const existingMapping = savedMappings.find((m) => m.detDocumentstatus === status.naam);
       return {
         detDocumentstatus: status.naam,
@@ -131,9 +134,9 @@ async function saveRsinConfiguration() {
   loading.value = true;
 
   try {
-    const updated = await datamigratieService.updateRsinConfiguration({
+    const updated = await put<RsinConfiguration>(`/api/globalmapping/rsin`, {
       rsin: rsin.value || undefined
-    });
+    } as UpdateRsinConfiguration);
     rsinConfiguration.value = updated;
     toast.add({ text: "RSIN configuratie succesvol opgeslagen." });
   } catch (error: unknown) {
@@ -154,7 +157,9 @@ async function saveDocumentstatusMappings() {
         ozDocumentstatus: m.ozDocumentstatus as string
       }));
 
-    await datamigratieService.saveDocumentstatusMappings({ mappings: mappingsToSave });
+    await put<DocumentstatusMappingResponse[]>(`/api/globalmapping/documentstatuses`, {
+      mappings: mappingsToSave
+    } as SaveDocumentstatusMappingsRequest);
     toast.add({ text: "Documentstatus mappings succesvol opgeslagen." });
   } catch (error: unknown) {
     toast.add({

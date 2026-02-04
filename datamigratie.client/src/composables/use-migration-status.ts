@@ -1,5 +1,6 @@
 import { readonly, ref } from "vue";
-import { datamigratieService, type Migration } from "@/services/datamigratieService";
+import { get } from "@/utils/fetchWrapper";
+import type { Migration } from "@/types/datamigratie";
 
 const migration = ref<Migration>();
 
@@ -11,7 +12,7 @@ export const useMigration = () => {
     loading.value = true;
 
     try {
-      migration.value = await datamigratieService.getMigration();
+      migration.value = await get<Migration>(`/api/migration`);
     } catch (err: unknown) {
       error.value = `Fout bij ophalen van de migratie status - ${err}`;
     } finally {

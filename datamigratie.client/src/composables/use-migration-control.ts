@@ -2,12 +2,13 @@ import { computed, watch, type Ref } from "vue";
 import { useRouter } from "vue-router";
 import { useConfirmDialog } from "@vueuse/core";
 import toast from "@/components/toast/toast";
+import { post } from "@/utils/fetchWrapper";
 import {
-  datamigratieService,
   MigrationStatus,
   type ZaaktypeMapping,
-  type Migration
-} from "@/services/datamigratieService";
+  type Migration,
+  type StartMigration
+} from "@/types/datamigratie";
 
 export function useMigrationControl(
   detZaaktypeId: string,
@@ -67,7 +68,7 @@ export function useMigrationControl(
     if ((await confirmDialog.reveal()).isCanceled) return;
 
     try {
-      await datamigratieService.startMigration({ detZaaktypeId });
+      await post(`/api/migration/start`, { detZaaktypeId } as StartMigration);
       fetchMigration();
     } catch (err: unknown) {
       toast.add({ text: `Fout bij starten van de migratie - ${err}`, type: "error" });
