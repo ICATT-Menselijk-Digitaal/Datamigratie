@@ -1,3 +1,5 @@
+using Datamigratie.Common.Services.OpenZaak.Models;
+
 namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.VertrouwelijkheidMapping.SaveVertrouwelijkheidMappings.Models;
 
 public class SaveVertrouwelijkheidMappingsRequest
@@ -8,5 +10,5 @@ public class SaveVertrouwelijkheidMappingsRequest
 public class VertrouwelijkheidMappingItem
 {
     public required bool DetVertrouwelijkheid { get; set; }
-    public required string OzVertrouwelijkheidaanduiding { get; set; }
+    public required VertrouwelijkheidsAanduiding OzVertrouwelijkheidaanduiding { get; set; }
 }

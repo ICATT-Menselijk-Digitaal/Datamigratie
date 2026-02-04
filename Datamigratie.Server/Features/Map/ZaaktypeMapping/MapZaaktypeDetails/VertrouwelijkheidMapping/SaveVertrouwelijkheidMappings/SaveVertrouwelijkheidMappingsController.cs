@@ -24,7 +24,7 @@ public class SaveVertrouwelijkheidMappingsController(DatamigratieDbContext conte
         {
             ZaaktypenMappingId = zaaktypenMappingId,
             DetVertrouwelijkheid = m.DetVertrouwelijkheid,
-            OzVertrouwelijkheidaanduiding = m.OzVertrouwelijkheidaanduiding
+            OzVertrouwelijkheidaanduiding = m.OzVertrouwelijkheidaanduiding.ToString()
         });
 
         await context.VertrouwelijkheidMappings.AddRangeAsync(newMappings);

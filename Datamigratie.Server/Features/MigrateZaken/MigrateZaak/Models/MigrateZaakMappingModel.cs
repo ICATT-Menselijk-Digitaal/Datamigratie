@@ -1,4 +1,6 @@
-﻿namespace Datamigratie.Server.Features.Migrate.MigrateZaak.Models
+﻿using Datamigratie.Common.Services.OpenZaak.Models;
+
+namespace Datamigratie.Server.Features.Migrate.MigrateZaak.Models
 {
     public class MigrateZaakMappingModel
     {
@@ -16,6 +18,6 @@
         /// <summary>
         /// Vertrouwelijkheid mappings: DetVertrouwelijkheid (true/false) -> OzVertrouwelijkheidaanduiding
         /// </summary>
-        public required Dictionary<bool, string> VertrouwelijkheidMappings { get; set; }
+        public required Dictionary<bool, VertrouwelijkheidsAanduiding> VertrouwelijkheidMappings { get; set; }
     }
 }

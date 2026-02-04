@@ -384,7 +384,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             }
         }
 
-        private CreateOzZaakRequest CreateOzZaakCreationRequest(DetZaak detZaak, Guid ozZaaktypeId, string rsin, Dictionary<bool, string> vertrouwelijkheidMappings)
+        private CreateOzZaakRequest CreateOzZaakCreationRequest(DetZaak detZaak, Guid ozZaaktypeId, string rsin, Dictionary<bool, VertrouwelijkheidsAanduiding> vertrouwelijkheidMappings)
         {
             // First apply data transformation to follow OpenZaak constraints
             var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
@@ -418,7 +418,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
 
                 //verplichte velden, ookal zeggen de specs van niet
                 Registratiedatum = registratieDatum,
-                Vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
+                Vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding.ToString(),
                 Betalingsindicatie = "",
                 Archiefstatus = "nog_te_archiveren"
             };
@@ -426,7 +426,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             return createRequest;
         }
 
-        private static string MapVertrouwelijkheid(bool detVertrouwelijk, Dictionary<bool, string> vertrouwelijkheidMappings, string zaakIdentificatie)
+        private static VertrouwelijkheidsAanduiding MapVertrouwelijkheid(bool detVertrouwelijk, Dictionary<bool, VertrouwelijkheidsAanduiding> vertrouwelijkheidMappings, string zaakIdentificatie)
         {
             if (!vertrouwelijkheidMappings.TryGetValue(detVertrouwelijk, out var ozVertrouwelijkheidaanduiding))
             {

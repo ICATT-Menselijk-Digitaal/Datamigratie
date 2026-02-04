@@ -1,3 +1,4 @@
+using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Data;
 using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.VertrouwelijkheidMapping.ShowVertrouwelijkheidMappings.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -15,13 +16,14 @@ public class ShowVertrouwelijkheidMappingsController(DatamigratieDbContext conte
     {
         var mappings = await context.VertrouwelijkheidMappings
             .Where(m => m.ZaaktypenMappingId == zaaktypenMappingId)
-            .Select(m => new VertrouwelijkheidMappingResponse
-            {
-                DetVertrouwelijkheid = m.DetVertrouwelijkheid,
-                OzVertrouwelijkheidaanduiding = m.OzVertrouwelijkheidaanduiding
-            })
             .ToListAsync();
 
-        return Ok(mappings);
+        var response = mappings.Select(m => new VertrouwelijkheidMappingResponse
+        {
+            DetVertrouwelijkheid = m.DetVertrouwelijkheid,
+            OzVertrouwelijkheidaanduiding = Enum.Parse<VertrouwelijkheidsAanduiding>(m.OzVertrouwelijkheidaanduiding)
+        }).ToList();
+
+        return Ok(response);
     }
 }

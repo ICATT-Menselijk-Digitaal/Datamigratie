@@ -1,4 +1,5 @@
 ﻿using Datamigratie.Common.Services.Det;
+using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Data;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Models;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues;
@@ -140,7 +141,7 @@ public class StartMigrationController(
             : documentPropertyMappings;
     }
 
-    private async Task<Dictionary<bool, string>> ValidateAndGetVertrouwelijkheidMappingsAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)
+    private async Task<Dictionary<bool, VertrouwelijkheidsAanduiding>> ValidateAndGetVertrouwelijkheidMappingsAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)
     {
         var (vertrouwelijkheidMappingsValid, vertrouwelijkheidMappings) = await validateVertrouwelijkheidMappingsService.ValidateAndGetVertrouwelijkheidMappings(detZaaktype);
 
