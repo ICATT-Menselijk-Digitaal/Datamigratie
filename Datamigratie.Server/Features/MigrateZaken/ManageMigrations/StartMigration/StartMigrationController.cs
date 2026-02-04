@@ -8,6 +8,7 @@ using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Resultaat;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Status;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.DocumentProperty;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Vertrouwelijkheid;
 using Datamigratie.Server.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,7 @@ public class StartMigrationController(
     IValidateResultaattypeMappingsService validateResultaattypeMappingsService,
     IValidateDocumentstatusMappingsService validateDocumentstatusMappingsService,
     IValidateDocumentPropertyMappingsService validateDocumentPropertyMappingsService,
+    IValidateVertrouwelijkheidMappingsService validateVertrouwelijkheidMappingsService,
     IDetApiClient detApiClient,
     ILogger<StartMigrationController> logger) : ControllerBase
 {
@@ -50,6 +52,7 @@ public class StartMigrationController(
             var resultaatMappings = await ValidateAndGetResultaattypeMappingsAsync(detZaaktype);
             var documentstatusMappings = await ValidateAndGetDocumentstatusMappingsAsync();
             var documentPropertyMappings = await ValidateAndGetDocumentPropertyMappingsAsync(detZaaktype);
+            var vertrouwelijkheidMappings = await ValidateAndGetVertrouwelijkheidMappingsAsync(detZaaktype);
 
             await backgroundTaskQueue.QueueMigrationAsync(new MigrationQueueItem
             {
@@ -58,7 +61,8 @@ public class StartMigrationController(
                 StatusMappings = statusMappings,
                 ResultaatMappings = resultaatMappings,
                 DocumentstatusMappings = documentstatusMappings,
-                DocumentPropertyMappings = documentPropertyMappings
+                DocumentPropertyMappings = documentPropertyMappings,
+                VertrouwelijkheidMappings = vertrouwelijkheidMappings
             });
         }
         catch (Exception e)
@@ -134,5 +138,14 @@ public class StartMigrationController(
         return !documentPropertyMappingsValid
             ? throw new InvalidOperationException("Not all document properties have been mapped. Please configure publicatieniveau and documenttype mappings first.")
             : documentPropertyMappings;
+    }
+
+    private async Task<Dictionary<bool, string>> ValidateAndGetVertrouwelijkheidMappingsAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)
+    {
+        var (vertrouwelijkheidMappingsValid, vertrouwelijkheidMappings) = await validateVertrouwelijkheidMappingsService.ValidateAndGetVertrouwelijkheidMappings(detZaaktype);
+
+        return !vertrouwelijkheidMappingsValid
+            ? throw new InvalidOperationException("Not all vertrouwelijkheid values have been mapped. Please configure vertrouwelijkheid mappings first.")
+            : vertrouwelijkheidMappings;
     }
 }

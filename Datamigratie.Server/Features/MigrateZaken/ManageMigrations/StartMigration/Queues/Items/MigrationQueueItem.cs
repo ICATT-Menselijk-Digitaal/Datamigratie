@@ -35,5 +35,11 @@ namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Q
         /// Dictionary: PropertyName -> (DetValue -> OzValue)
         /// </summary>
         public required Dictionary<string, Dictionary<string, string>> DocumentPropertyMappings { get; set; }
+
+        /// <summary>
+        /// Vertrouwelijkheid mappings loaded and validated by StartMigrationController before queuing.
+        /// Dictionary: DetVertrouwelijkheid (true/false) -> OzVertrouwelijkheidaanduiding
+        /// </summary>
+        public required Dictionary<bool, string> VertrouwelijkheidMappings { get; set; }
     }
 }
