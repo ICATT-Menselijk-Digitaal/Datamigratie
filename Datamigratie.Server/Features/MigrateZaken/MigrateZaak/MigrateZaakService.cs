@@ -309,7 +309,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                     try
                     {
                         var ozDocument = MapToOzDocument(document, detVersie, informatieObjectType, rsin, documentstatusMappings, documentPropertyMappings);
-                        
+
                         if (isFirstVersion)
                         {
                             // create new document and link to zaak
@@ -418,7 +418,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
 
                 //verplichte velden, ookal zeggen de specs van niet
                 Registratiedatum = registratieDatum,
-                Vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding.ToString(),
+                Vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
                 Betalingsindicatie = "",
                 Archiefstatus = "nog_te_archiveren"
             };
