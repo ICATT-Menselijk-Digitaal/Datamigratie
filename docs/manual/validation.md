@@ -5,3 +5,4 @@ Tijdens de migratie worden zaken gevalideerd voordat ze worden gemigreerd naar O
 ## Zaaknummer lengte
 
 Zaken met een zaaknummer (identificatie) van meer dan 40 tekens worden niet gemigreerd. Deze zaken verschijnen in de resultatenlog met de melding "Het zaaknummer is te lang."
+
