@@ -10,4 +10,4 @@ Zaken met een zaaknummer (identificatie) van meer dan 40 tekens worden niet gemi
 
 Documenten met een documenttype dat niet voorkomt in de lijst van documenttypen voor het zaaktype worden niet gemigreerd. Deze moeten eerst in de esuite worden aangepast.
 
-**Foutmelding:** `Documenttype '<naam>' was found in the document of the zaak, but not in the list of possible DocumentTypen in the zaaktype. Please configure this correctly in the esuite`
+**Foutmelding:** `Documenttype '<naam>' is set on this document, but is not mapped. Please add this documenttype to the corresponding zaaktype in the ESuite`
