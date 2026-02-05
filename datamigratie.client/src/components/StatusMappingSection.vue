@@ -1,6 +1,5 @@
 <template>
   <mapping-grid
-    v-if="showMapping"
     v-model="mappingsModel"
     title="Status mapping"
     description="Koppel de e-Suite statussen aan de Open Zaak statustypes."
@@ -9,58 +8,83 @@
     :source-items="sourceStatusItems"
     :target-items="targetStatusItems"
     :all-mapped="allMapped"
-    :is-editing="isEditing"
+    :is-editing="isInEditMode"
     :disabled="disabled"
-    :loading="loading"
+    :loading="isLoading"
     empty-message="Er zijn geen statussen beschikbaar voor dit zaaktype."
     target-placeholder="Kies een statustype"
     save-button-text="Statusmappings opslaan"
-    :show-warning="showWarning"
+    :show-warning="true"
     warning-message="Niet alle statussen zijn gekoppeld. Migratie kan niet worden gestart."
-    @save="handleSave"
+    @save="saveMappings"
+    edit-button-text="Statusmappings aanpassen"
+    :show-edit-button="true"
+    @edit="forceEdit = true"
   />
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from "vue";
+import { ref, computed, watch } from "vue";
 import MappingGrid, { type MappingItem, type Mapping } from "@/components/MappingGrid.vue";
+import toast from "@/components/toast/toast";
 import type { DETZaaktype } from "@/services/detService";
 import type { OZZaaktype } from "@/services/ozService";
-import type { StatusMappingItem } from "@/services/datamigratieService";
+import { get, post } from "@/utils/fetchWrapper";
+
+type StatusMappingItem = {
+  detStatusNaam: string;
+  ozStatustypeId: string | null;
+};
+
+type StatusMappingsResponse = {
+  detStatusNaam: string;
+  ozStatustypeId: string;
+};
+
+type SaveStatusMappingsRequest = {
+  mappings: StatusMappingItem[];
+};
 
 interface Props {
-  detZaaktype?: DETZaaktype;
-  ozZaaktype?: OZZaaktype;
-  statusMappings: StatusMappingItem[];
-  allMapped: boolean;
-  isEditing: boolean;
-  disabled?: boolean;
-  loading?: boolean;
-  showWarning?: boolean;
-  showMapping: boolean;
+  mappingId: string;
+  detZaaktype: DETZaaktype;
+  ozZaaktype: OZZaaktype;
+  disabled: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  disabled: false,
-  loading: false,
-  showWarning: true
-});
+const props = defineProps<Props>();
 
 const emit = defineEmits<{
-  (e: "update:statusMappings", value: StatusMappingItem[]): void;
-  (e: "save"): void;
+  (e: "update:complete", value: boolean): void;
 }>();
 
-// Computed properties for MappingGrid component
+const mappingsFromServer = ref<StatusMappingItem[]>([]);
+const validMappings = computed(
+  () =>
+    props.detZaaktype.statuses?.map(({ naam }) => ({
+      sourceId: naam,
+      targetId:
+        mappingsFromServer.value.find((s) => s.detStatusNaam === naam)?.ozStatustypeId || null
+    })) || []
+);
+
+const isLoading = ref(false);
+const forceEdit = ref(false);
+const isInEditMode = computed(() => forceEdit.value || !allMapped.value);
+
+const allMapped = computed(() => {
+  return validMappings.value.length > 0 && validMappings.value.every((m) => m.targetId);
+});
+
+const isComplete = computed(() => !isInEditMode.value);
+
 const sourceStatusItems = computed<MappingItem[]>(() => {
-  if (!props.detZaaktype?.statuses) return [];
-  return props.detZaaktype.statuses
-    .filter((status) => status.actief)
-    .map((status) => ({
-      id: status.naam,
-      name: status.naam,
-      description: status.omschrijving
-    }));
+  if (!props.detZaaktype.statuses) return [];
+  return props.detZaaktype.statuses.map((status) => ({
+    id: status.naam,
+    name: status.naam,
+    description: status.omschrijving
+  }));
 });
 
 const targetStatusItems = computed<MappingItem[]>(() => {
@@ -72,27 +96,67 @@ const targetStatusItems = computed<MappingItem[]>(() => {
   }));
 });
 
-const mappingsModel = computed<Mapping[]>({
-  get: () => {
-    return props.statusMappings.map((m) => ({
-      sourceId: m.detStatusNaam,
-      targetId: m.ozStatustypeId
-    }));
-  },
-  set: (newMappings: Mapping[]) => {
-    const updated = newMappings.map((m) => ({
-      detStatusNaam: m.sourceId,
-      ozStatustypeId: m.targetId
-    }));
-    emit("update:statusMappings", updated);
+const mappingsModel = ref<Mapping[]>([]);
+
+const fetchMappings = async () => {
+  isLoading.value = true;
+  try {
+    mappingsFromServer.value = await get<StatusMappingsResponse[]>(
+      `/api/mappings/${props.mappingId}/statuses`
+    );
+  } catch (error) {
+    toast.add({ text: `Fout bij ophalen van de status mappings - ${error}`, type: "error" });
+    throw error;
+  } finally {
+    isLoading.value = false;
   }
-});
-
-const handleSave = () => {
-  emit("save");
 };
-</script>
 
-<style lang="scss" scoped>
-// Component-specific styles if needed
-</style>
+const saveMappings = async () => {
+  isLoading.value = true;
+  try {
+    const mappingsToSave = mappingsModel.value
+      .filter((m) => m.targetId)
+      .map(({ sourceId, targetId }) => ({
+        detStatusNaam: sourceId,
+        ozStatustypeId: targetId
+      }));
+
+    await post(`/api/mappings/${props.mappingId}/statuses`, {
+      mappings: mappingsToSave
+    } as SaveStatusMappingsRequest);
+
+    toast.add({ text: "De status mappings zijn succesvol opgeslagen." });
+
+    // re-fetch mappings to check for completeness
+    await fetchMappings();
+
+    forceEdit.value = false;
+  } catch (error) {
+    toast.add({ text: `Fout bij opslaan van de status mappings - ${error}`, type: "error" });
+    throw error;
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// trigger fetching mappings whenever the mapping id or target zaaktype changes
+watch(
+  [() => props.mappingId, () => props.ozZaaktype],
+  () => {
+    fetchMappings();
+  },
+  { immediate: true }
+);
+
+// update the mapping model based on server data whenever it changes
+watch(
+  validMappings,
+  (value) => {
+    mappingsModel.value = value;
+  },
+  { immediate: true }
+);
+
+watch(isComplete, (v) => emit("update:complete", v));
+</script>
