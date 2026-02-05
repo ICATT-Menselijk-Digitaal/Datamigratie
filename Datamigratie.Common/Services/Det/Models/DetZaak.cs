@@ -85,7 +85,7 @@ namespace Datamigratie.Common.Services.Det.Models
     public class DetBesluit
     {
         public required string FunctioneleIdentificatie { get; set; }
-        public required DetBesluitBesluittype Besluittype { get; set; }
+        public required DetBesluittype Besluittype { get; set; }
         public required DateOnly BesluitDatum { get; set; }
         public DateOnly? Vervaldatum { get; set; }
         public DateOnly? Ingangsdatum { get; set; }
@@ -94,7 +94,7 @@ namespace Datamigratie.Common.Services.Det.Models
         public string? Toelichting { get; set; }
     }
 
-    public class DetBesluitBesluittype
+    public class DetBesluittype
     {
         public required string Naam { get; set; }
         public string? Omschrijving { get; set; }
