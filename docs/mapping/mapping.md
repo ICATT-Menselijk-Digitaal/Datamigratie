@@ -10,6 +10,13 @@ During migration from DET to OpenZaak, certain field values must be transformed 
 | `FunctioneleIdentificatie` | `Identificatie` | **Migration fails** if exceeds max length | 40 characters |
 | `Startdatum` | `Startdatum` | Formatted as `yyyy-MM-dd` | - |
 | `CreatieDatumTijd` | `Registratiedatum` | Formatted as `yyyy-MM-dd` | - |
+| `RedenStart` | `Toelichting` | Truncated with "..." suffix if too long | 1000 characters |
+| `ExterneIdentificatie` | `Kenmerken` | Mapped as zaak kenmerk with bron "e-Suite" (optional) | - |
+| `Kanaal.Naam` | `CommunicatiekanaalNaam` | Direct mapping (optional) | - |
+| `Geolocatie.Type` | `Zaakgeometrie.Type` | Direct mapping (optional) | - |
+| `Geolocatie.Point2D` | `Zaakgeometrie.Coordinates` | Array of coordinates (optional) | - |
+| `Betaalgegevens.TransactieDatum` | `LaatsteBetaaldatum` | Formatted as `yyyy-MM-dd` (optional) | - |
+| `ArchiveerGegevens.BewaartermijnEinddatum` | `Archiefactiedatum` | Formatted as `yyyy-MM-dd` (optional) | - |
 
 ## Document Field Mappings
 
@@ -18,6 +25,13 @@ During migration from DET to OpenZaak, certain field values must be transformed 
 | `Titel` | `Titel` | Truncated with "..." suffix if too long | 200 characters |
 | `Beschrijving` | `Beschrijving` | Truncated with "..." suffix if too long | 1000 characters |
 | `Kenmerk` | `Identificatie` | **Migration fails** if exceeds max length | 40 characters |
+
+## Geometry Mapping
+
+Geographic location data is transformed from DET's format to GeoJSON Point format:
+
+- **DET format**: `{ "type": "Point", "point2D": [x, y] }`
+- **OpenZaak format**: `{ "type": "Point", "coordinates": [x, y] }`
 
 ## Truncation Behavior
 
