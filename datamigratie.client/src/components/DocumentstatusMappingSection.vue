@@ -24,7 +24,7 @@
 import { computed } from "vue";
 import MappingGrid, { type MappingItem, type Mapping } from "@/components/MappingGrid.vue";
 import type { DetDocumentstatus } from "@/services/detService";
-import type { DocumentstatusMappingItem } from "@/services/datamigratieService";
+import type { DocumentstatusMappingItem } from "@/types/datamigratie";
 
 interface Props {
   detDocumentstatussen: DetDocumentstatus[];

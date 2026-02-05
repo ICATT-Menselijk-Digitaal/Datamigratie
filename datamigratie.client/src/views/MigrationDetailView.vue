@@ -75,7 +75,8 @@ import { computed, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import AlertInline from "@/components/AlertInline.vue";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
-import { datamigratieService, type MigrationRecordItem } from "@/services/datamigratieService";
+import { get } from "@/utils/fetchWrapper";
+import type { MigrationRecordItem } from "@/types/datamigratie";
 
 const { migrationId, detZaaktypeId } = defineProps<{
   migrationId: string;
@@ -97,7 +98,9 @@ const fetchMigrationRecords = async () => {
   error.value = "";
 
   try {
-    records.value = await datamigratieService.getMigrationRecords(Number(migrationId));
+    records.value = await get<MigrationRecordItem[]>(
+      `/api/migration/${Number(migrationId)}/records`
+    );
   } catch (err: unknown) {
     error.value = `Fout bij ophalen migratie records - ${err}`;
   } finally {
