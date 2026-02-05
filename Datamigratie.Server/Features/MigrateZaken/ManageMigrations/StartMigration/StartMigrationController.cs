@@ -47,6 +47,8 @@ public class StartMigrationController(
                 return BadRequest(new { message = "DET Zaaktype not found." });
             }
 
+            await ValidateZaaktypeMappingAsync(detZaaktype);
+
             var rsinMapping = await ValidateAndGetRsinMappingAsync();
 
             var statusMappings = await ValidateAndGetStatusMappingsAsync(detZaaktype);
@@ -148,5 +150,14 @@ public class StartMigrationController(
         return !vertrouwelijkheidMappingsValid
             ? throw new InvalidOperationException("Not all vertrouwelijkheid values have been mapped. Please configure vertrouwelijkheid mappings first.")
             : vertrouwelijkheidMappings;
+    }
+
+    private async Task ValidateZaaktypeMappingAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)
+    {
+        var zaaktypeMapping = await dbContext.Mappings
+            .FirstOrDefaultAsync(m => m.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie);
+
+        if (zaaktypeMapping == null)
+            throw new InvalidOperationException("No zaaktype mapping found. Please configure the zaaktype mapping first.");
     }
 }

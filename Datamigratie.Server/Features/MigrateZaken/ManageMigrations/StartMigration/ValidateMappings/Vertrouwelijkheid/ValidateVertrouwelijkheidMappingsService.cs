@@ -15,14 +15,8 @@ public class ValidateVertrouwelijkheidMappingsService(
 {
     public async Task<(bool IsValid, Dictionary<bool, VertrouwelijkheidsAanduiding> Mappings)> ValidateAndGetVertrouwelijkheidMappings(DetZaaktypeDetail detZaaktype)
     {
-        var zaaktypenMapping = await context.Mappings
-            .FirstOrDefaultAsync(m => m.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie);
-
-        if (zaaktypenMapping == null)
-            return (false, new Dictionary<bool, VertrouwelijkheidsAanduiding>());
-
         var mappings = await context.VertrouwelijkheidMappings
-            .Where(m => m.ZaaktypenMappingId == zaaktypenMapping.Id)
+            .Where(m => m.ZaaktypenMapping.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie)
             .ToListAsync();
 
         var mappingDictionary = mappings.ToDictionary(
