@@ -312,7 +312,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                         ? $" | HTTP {(int)httpEx.StatusCode}: {httpEx.Message}"
                         : ex is HttpRequestException httpExOuter && httpExOuter.StatusCode.HasValue
                         ? $" | HTTP {(int)httpExOuter.StatusCode}: {httpExOuter.Message}"
-                        : "";
+                        : $" | {ex.GetType().Name}: {ex.Message}";
 
                     throw new Exception(
                         $"Migratie onderbroken: besluit '{detBesluit.FunctioneleIdentificatie}' kon niet worden gemigreerd{httpStatusInfo}",
@@ -336,15 +336,17 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             return new CreateOzBesluitRequest
             {
                 Identificatie = identificatie,
-                VerantwoordelijkeOrganisatie = "",
+                VerantwoordelijkeOrganisatie = "123456782", // placeholder
                 Besluittype = besluittypeUri,
                 Zaak = createdZaak.Url,
                 Datum = detBesluit.BesluitDatum,
-                Toelichting = detBesluit.Toelichting,
+                Toelichting = detBesluit.Toelichting ?? "",
+                Bestuursorgaan =  "",
                 Ingangsdatum = ingangsdatum,
                 Vervaldatum = detBesluit.Vervaldatum,
                 Publicatiedatum = detBesluit.Publicatiedatum,
                 UiterlijkeReactiedatum = detBesluit.Reactiedatum,
+                Vervalreden = Vervalreden.None
             };
         }
 

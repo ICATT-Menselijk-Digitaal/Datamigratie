@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Datamigratie.Common.Converters;
 
 namespace Datamigratie.Common.Services.OpenZaak.Models
 {
@@ -37,17 +38,19 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
         public required DateOnly Datum { get; set; }
 
         /// <summary>
-        /// Toelichting bij het besluit.
+        /// Toelichting bij het besluit (is not required in OpenZaak doc, but must be present)
         /// </summary>
         [JsonPropertyName("toelichting")]
-        public string? Toelichting { get; set; }
+        public required string Toelichting { get; set; }
 
         /// <summary>
         /// Een orgaan van een rechtspersoon krachtens publiekrecht ingesteld of een persoon of college,
         /// met enig openbaar gezag bekleed onder wiens verantwoordelijkheid het besluit vastgesteld is. Max 50 characters.
+        /// 
+        /// Is not required in OpenZaak doc, but must be present.
         /// </summary>
         [JsonPropertyName("bestuursorgaan")]
-        public string? Bestuursorgaan { get; set; }
+        public required string Bestuursorgaan { get; set; }
 
         /// <summary>
         /// Ingangsdatum van de werkingsperiode van het besluit. Required.
@@ -65,7 +68,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
         /// De omschrijving die aangeeft op grond waarvan het besluit is of komt te vervallen.
         /// </summary>
         [JsonPropertyName("vervalreden")]
-        public Vervalreden? Vervalreden { get; set; }
+        public required Vervalreden Vervalreden { get; set; }
 
         /// <summary>
         /// Datum waarop het besluit gepubliceerd wordt.
@@ -134,9 +137,14 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
     /// <summary>
     /// De omschrijving die aangeeft op grond waarvan het besluit is of komt te vervallen.
     /// </summary>
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumWithNoneConverter))]
     public enum Vervalreden
     {
+        /// <summary>
+        /// Geen vervalreden (leeg)
+        /// </summary>
+        None,
+
         /// <summary>
         /// Besluit met tijdelijke werking
         /// </summary>

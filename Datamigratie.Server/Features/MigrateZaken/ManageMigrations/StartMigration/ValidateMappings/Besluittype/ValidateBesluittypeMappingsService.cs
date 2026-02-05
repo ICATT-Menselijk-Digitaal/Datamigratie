@@ -14,9 +14,9 @@ public class ValidateBesluittypeMappingsService(
 {
     public async Task<(bool IsValid, Dictionary<string, Guid> Mappings)> ValidateAndGetBesluittypeMappings(DetZaaktypeDetail detZaaktype)
     {
-        var activeDetBesluittypen = detZaaktype.Besluittypen
-            .Where(b => b.Actief)
-            .Select(b => b.Naam)
+        var activeDetBesluittypen = detZaaktype.Besluiten
+            .Where(b => b.Besluittype.Actief)
+            .Select(b => b.Besluittype.Naam)
             .ToList();
 
         // If no active besluittypen, consider it valid
