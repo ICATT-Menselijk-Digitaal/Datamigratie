@@ -1,5 +1,5 @@
 <template>
-  <section v-if="history.length > 0" class="migration-history">
+  <section v-if="migrationHistory.length > 0" class="migration-history">
     <h2>Migratie geschiedenis</h2>
     <p>Hieronder ziet u een overzicht van alle voltooide migraties voor dit zaaktype.</p>
 
@@ -18,10 +18,10 @@
       </thead>
       <tbody>
         <tr
-          v-for="item in history"
+          v-for="item in migrationHistory"
           :key="item.id"
           class="clickable-row"
-          @click="handleRowClick(item.id)"
+          @click="navigateToMigrationDetail(item.id)"
         >
           <td>{{ item.status }}</td>
           <td>{{ formatDateTime(item.startedAt ?? null) }}</td>
@@ -38,20 +38,66 @@
 </template>
 
 <script setup lang="ts">
-import type { MigrationHistoryItem } from "@/types/datamigratie";
+import { MigrationStatus, type MigrationHistoryItem } from "@/types/datamigratie";
 import { formatDateTime } from "@/utils/dateFormatter";
+import { computed, ref, watch } from "vue";
+import toast from "./toast/toast";
+import { useRoute, useRouter } from "vue-router";
+import { get } from "@/utils/fetchWrapper";
+import { useMigration } from "@/composables/migration-store";
 
-defineProps<{
-  history: MigrationHistoryItem[];
+const props = defineProps<{
+  detZaaktypeId: string;
 }>();
 
-const emit = defineEmits<{
-  rowClick: [migrationId: number];
-}>();
+const migrationHistory = ref<MigrationHistoryItem[]>([]);
+const isLoading = ref(true);
+const route = useRoute();
+const router = useRouter();
+const search = computed(() => String(route.query.search || "").trim());
+const { migration } = useMigration();
 
-const handleRowClick = (migrationId: number) => {
-  emit("rowClick", migrationId);
+/**
+ * Fetches all initial data: DET zaaktype, OZ zaaktypes, existing mapping, and migration history
+ */
+const fetchMigrationHistory = async () => {
+  isLoading.value = true;
+  // errors.value = [];
+
+  try {
+    migrationHistory.value = await get<MigrationHistoryItem[]>(
+      `/api/migration/history/${props.detZaaktypeId}`
+    );
+  } catch (err: unknown) {
+    toast.add({ text: `Fout bij ophalen van de migratiehistorie - ${err}`, type: "error" });
+  } finally {
+    isLoading.value = false;
+  }
 };
+
+/**
+ * Navigates to the migration detail view
+ * @param migrationId - The ID of the migration to view
+ * @param search - Optional search query parameter
+ */
+const navigateToMigrationDetail = (migrationId: number) => {
+  router.push({
+    name: "migrationDetail",
+    params: { detZaaktypeId: props.detZaaktypeId, migrationId: migrationId.toString() },
+    query: search.value ? { search: search.value } : undefined
+  });
+};
+
+watch(() => props.detZaaktypeId, fetchMigrationHistory, { immediate: true });
+watch(
+  migration,
+  async (_, old) => {
+    if (old?.detZaaktypeId === props.detZaaktypeId) {
+      await fetchMigrationHistory();
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <style lang="scss" scoped>

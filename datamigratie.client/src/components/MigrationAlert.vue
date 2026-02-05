@@ -24,7 +24,7 @@ import { onMounted } from "vue";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
 import AlertInline from "@/components/AlertInline.vue";
 import { MigrationStatus } from "@/types/datamigratie";
-import { useMigration } from "@/composables/use-migration-status";
+import { useMigration } from "@/composables/migration-store";
 
 const { migration, fetchMigration, loading, error } = useMigration();
 onMounted(() => fetchMigration());

@@ -1,6 +1,5 @@
 <template>
   <mapping-grid
-    v-if="showMapping"
     v-model="mappingsModel"
     title="Besluittype mapping"
     description="Koppel de e-Suite besluittypen aan de Open Zaak besluittypen."
@@ -9,26 +8,28 @@
     :source-items="sourceBesluittypeItems"
     :target-items="targetBesluittypeItems"
     :all-mapped="allMapped"
-    :is-editing="isEditing"
+    :is-editing="isInEditMode"
     :disabled="disabled"
-    :loading="showLoading"
+    :loading="isLoading"
     empty-message="Er zijn geen besluittypen beschikbaar voor dit zaaktype."
     target-placeholder="Kies een besluittype"
     save-button-text="Besluittypemappings opslaan"
-    :show-warning="showWarning"
+    :show-warning="true"
     warning-message="Niet alle besluittypen zijn gekoppeld. Migratie kan niet worden gestart."
     @save="saveMappings"
+    edit-button-text="Besluittypemappings aanpassen"
+    :show-edit-button="true"
+    @edit="forceEdit = true"
   />
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import MappingGrid, { type MappingItem, type Mapping } from "@/components/MappingGrid.vue";
 import toast from "@/components/toast/toast";
-import type { DetBesluittype } from "@/services/detService";
+import { detService, type DetBesluittype, type DETZaaktype } from "@/services/detService";
 import type { OZZaaktype } from "@/services/ozService";
 import { get, post } from "@/utils/fetchWrapper";
-import { detService } from "@/services/detService";
 
 type BesluittypeMappingItem = {
   detBesluittypeNaam: string;
@@ -45,42 +46,37 @@ type SaveBesluittypeMappingsRequest = {
 };
 
 interface Props {
-  mappingId?: string;
-  ozZaaktype?: OZZaaktype;
-  disabled?: boolean;
-  showWarning?: boolean;
-  showMapping: boolean;
+  mappingId: string;
+  detZaaktype: DETZaaktype;
+  ozZaaktype: OZZaaktype;
+  disabled: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  disabled: false,
-  showWarning: true
-});
+const props = defineProps<Props>();
 
 const emit = defineEmits<{
   (e: "update:complete", value: boolean): void;
-  (e: "update:editing", value: boolean): void;
 }>();
 
-// State
-const mappings = ref<BesluittypeMappingItem[]>([]);
+const mappingsFromServer = ref<BesluittypeMappingItem[]>([]);
+const validMappings = computed(() =>
+  detBesluittypen.value.map(({ naam }) => ({
+    sourceId: naam,
+    targetId:
+      mappingsFromServer.value.find((s) => s.detBesluittypeNaam === naam)?.ozBesluittypeId || null
+  }))
+);
+
 const detBesluittypen = ref<DetBesluittype[]>([]);
-const isEditing = ref(false);
 const isLoading = ref(false);
-const isFetching = ref(false);
+const forceEdit = ref(false);
+const isInEditMode = computed(() => forceEdit.value || !allMapped.value);
 
-const isDataLoaded = computed(() => {
-  return !!(detBesluittypen.value.length > 0 && props.ozZaaktype?.besluittypen);
-});
-
-const showLoading = computed(() => {
-  return isLoading.value || !isDataLoaded.value;
-});
-
-// Computed
 const allMapped = computed(() => {
-  return mappings.value.length > 0 && mappings.value.every((m) => m.ozBesluittypeId !== null);
+  return validMappings.value.length > 0 && validMappings.value.every((m) => m.targetId !== null);
 });
+
+const isComplete = computed(() => !isInEditMode.value);
 
 const sourceBesluittypeItems = computed<MappingItem[]>(() => {
   return detBesluittypen.value
@@ -101,72 +97,18 @@ const targetBesluittypeItems = computed<MappingItem[]>(() => {
   }));
 });
 
-const mappingsModel = computed<Mapping[]>({
-  get: () => {
-    return mappings.value.map((m) => ({
-      sourceId: m.detBesluittypeNaam,
-      targetId: m.ozBesluittypeId
-    }));
-  },
-  set: (newMappings: Mapping[]) => {
-    const updated = newMappings.map((m) => ({
-      detBesluittypeNaam: m.sourceId,
-      ozBesluittypeId: m.targetId
-    }));
-    mappings.value = updated;
-    isEditing.value = true;
-    emit("update:editing", true);
-  }
-});
+const mappingsModel = ref<Mapping[]>([]);
 
 const fetchMappings = async () => {
-  if (!props.ozZaaktype?.id || isFetching.value) {
-    detBesluittypen.value = [];
-    mappings.value = [];
-    emit("update:complete", false);
-    return;
-  }
-
-  isFetching.value = true;
   isLoading.value = true;
   try {
-    const detBesluittypeData = await detService.getAllBesluittypen();
-    detBesluittypen.value = detBesluittypeData;
-
-    const existingMappings = props.mappingId
-      ? await get<BesluittypeMappingsResponse[]>(`/api/mappings/${props.mappingId}/besluittypen`)
-      : [];
-
-    mappings.value = detBesluittypeData.map((detBesluittype) => {
-      const existingMapping = existingMappings.find(
-        (m) => m.detBesluittypeNaam === detBesluittype.naam
-      );
-      return existingMapping
-        ? {
-            detBesluittypeNaam: existingMapping.detBesluittypeNaam,
-            ozBesluittypeId: existingMapping.ozBesluittypeId
-          }
-        : {
-            detBesluittypeNaam: detBesluittype.naam,
-            ozBesluittypeId: null
-          };
-    });
-
-    const isComplete =
-      mappings.value.length > 0 && mappings.value.every((m) => m.ozBesluittypeId !== null);
-    emit("update:complete", isComplete);
-
-    if (isComplete && existingMappings.length > 0) {
-      isEditing.value = false;
-      emit("update:editing", false);
-    }
+    mappingsFromServer.value = await get<BesluittypeMappingsResponse[]>(
+      `/api/mappings/${props.mappingId}/besluittypen`
+    );
   } catch (error) {
-    detBesluittypen.value = [];
-    mappings.value = [];
-    emit("update:complete", false);
+    toast.add({ text: `Fout bij ophalen van de besluittype mappings - ${error}`, type: "error" });
     throw error;
   } finally {
-    isFetching.value = false;
     isLoading.value = false;
   }
 };
@@ -174,20 +116,21 @@ const fetchMappings = async () => {
 const saveMappings = async () => {
   isLoading.value = true;
   try {
-    const mappingsToSave = mappings.value.filter((m) => m.ozBesluittypeId !== null);
+    const mappingsToSave = mappingsModel.value
+      .filter((m) => m.targetId)
+      .map(({ sourceId, targetId }) => ({
+        detBesluittypeNaam: sourceId,
+        ozBesluittypeId: targetId
+      }));
 
     await post(`/api/mappings/${props.mappingId}/besluittypen`, {
       mappings: mappingsToSave
     } as SaveBesluittypeMappingsRequest);
 
     toast.add({ text: "De besluittype mappings zijn succesvol opgeslagen." });
-
-    const isComplete =
-      mappings.value.length > 0 && mappings.value.every((m) => m.ozBesluittypeId !== null);
-
-    emit("update:complete", isComplete);
-    isEditing.value = false;
-    emit("update:editing", false);
+    // re-fetch mappings to check for completeness
+    await fetchMappings();
+    forceEdit.value = false;
   } catch (error) {
     toast.add({ text: `Fout bij opslaan van de besluittype mappings - ${error}`, type: "error" });
     throw error;
@@ -196,19 +139,30 @@ const saveMappings = async () => {
   }
 };
 
+// trigger fetching mappings whenever the mapping id or target zaaktype changes
 watch(
-  () => props.ozZaaktype?.id,
+  [() => props.mappingId, () => props.ozZaaktype],
   () => {
     fetchMappings();
   },
   { immediate: true }
 );
 
-defineExpose({
-  fetchMappings,
-  setEditing: (value: boolean) => {
-    isEditing.value = value;
-    emit("update:editing", value);
+// update the mapping model based on server data whenever it changes
+watch(validMappings, (v) => {
+  mappingsModel.value = v;
+});
+
+watch(isComplete, (v) => emit("update:complete", v));
+
+onMounted(async () => {
+  isLoading.value = true;
+  try {
+    detBesluittypen.value = await detService.getAllBesluittypen();
+  } catch (error) {
+    toast.add({ text: `Fout bij ophalen van de besluittypen uit DET - ${error}`, type: "error" });
+  } finally {
+    isLoading.value = false;
   }
 });
 </script>
