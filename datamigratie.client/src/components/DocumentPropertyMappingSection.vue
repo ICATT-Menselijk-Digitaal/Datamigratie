@@ -28,7 +28,6 @@
       <div
         v-if="
           featureFlags.showDocumenttypeTestHelper &&
-          forceEditDocumenttype &&
           documenttypeSourceItems.length > 0
         "
         class="test-helper"
