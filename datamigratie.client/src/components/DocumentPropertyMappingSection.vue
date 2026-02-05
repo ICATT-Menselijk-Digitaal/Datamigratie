@@ -33,7 +33,11 @@
         class="test-helper"
       >
         <label>
-          <input type="checkbox" @change="fillRandomDocumenttypeMappings($event)" />
+          <input
+            type="checkbox"
+            :disabled="!documenttypeIsInEditMode"
+            @change="fillRandomDocumenttypeMappings($event)"
+          />
           <span style="color: #e74c3c; font-weight: bold"
             >for testing: check to autofill with random selections</span
           >
