@@ -1,6 +1,5 @@
 <template>
   <mapping-grid
-    v-if="showMapping"
     v-model="mappingsModel"
     title="Resultaattype mapping"
     description="Koppel de e-Suite resultaattypen aan de Open Zaak resultaattypen."
@@ -9,14 +8,17 @@
     :source-items="sourceResultaattypeItems"
     :target-items="targetResultaattypeItems"
     :all-mapped="allMapped"
-    :is-editing="isEditing"
+    :is-editing="isInEditMode"
     :disabled="disabled"
-    :loading="showLoading"
+    :loading="isLoading"
     empty-message="Er zijn geen resultaattypen beschikbaar voor dit zaaktype."
     target-placeholder="Kies een resultaattype"
     save-button-text="Resultaattypen mappings opslaan"
-    :show-warning="showWarning"
+    :show-warning="true"
     warning-message="Niet alle resultaattypen zijn gekoppeld. Migratie kan niet worden gestart."
+    edit-button-text="Resultaattypemappings aanpassen"
+    :show-edit-button="true"
+    @edit="forceEdit = true"
     @save="saveMappings"
   />
 </template>
@@ -44,43 +46,42 @@ type SaveResultaattypeMappingsRequest = {
 };
 
 interface Props {
-  mappingId?: string;
-  detZaaktype?: DETZaaktype;
-  ozZaaktype?: OZZaaktype;
-  disabled?: boolean;
-  showWarning?: boolean;
-  showMapping: boolean;
+  mappingId: string;
+  detZaaktype: DETZaaktype;
+  ozZaaktype: OZZaaktype;
+  disabled: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  disabled: false,
-  showWarning: true
-});
+const props = defineProps<Props>();
 
 const emit = defineEmits<{
   (e: "update:complete", value: boolean): void;
-  (e: "update:editing", value: boolean): void;
 }>();
 
-const mappings = ref<ResultaattypeMappingItem[]>([]);
-const isEditing = ref(false);
+const mappingsFromServer = ref<ResultaattypeMappingItem[]>([]);
+
+const validMappings = computed(
+  () =>
+    props.detZaaktype.resultaten?.map(({ resultaat: { naam } }) => ({
+      sourceId: naam,
+      targetId:
+        mappingsFromServer.value.find((s) => s.detResultaattypeNaam === naam)?.ozResultaattypeId ||
+        null
+    })) || []
+);
+
 const isLoading = ref(false);
-const isFetching = ref(false);
-
-const isDataLoaded = computed(() => {
-  return !!(props.detZaaktype?.resultaten && props.ozZaaktype?.resultaattypen);
-});
-
-const showLoading = computed(() => {
-  return isLoading.value || !isDataLoaded.value;
-});
+const forceEdit = ref(false);
+const isInEditMode = computed(() => forceEdit.value || !allMapped.value);
 
 const allMapped = computed(() => {
-  return mappings.value.length > 0 && mappings.value.every((m) => m.ozResultaattypeId !== null);
+  return validMappings.value.length > 0 && validMappings.value.every((m) => m.targetId);
 });
 
+const isComplete = computed(() => !isInEditMode.value);
+
 const sourceResultaattypeItems = computed<MappingItem[]>(() => {
-  if (!props.detZaaktype?.resultaten) return [];
+  if (!props.detZaaktype.resultaten) return [];
   return props.detZaaktype.resultaten.map((resultaattype) => ({
     id: resultaattype.resultaat.naam,
     name: resultaattype.resultaat.naam,
@@ -89,7 +90,7 @@ const sourceResultaattypeItems = computed<MappingItem[]>(() => {
 });
 
 const targetResultaattypeItems = computed<MappingItem[]>(() => {
-  if (!props.ozZaaktype?.resultaattypen) return [];
+  if (!props.ozZaaktype.resultaattypen) return [];
   return props.ozZaaktype.resultaattypen.map((resultaattype) => ({
     id: resultaattype.id,
     name: resultaattype.omschrijving,
@@ -97,66 +98,18 @@ const targetResultaattypeItems = computed<MappingItem[]>(() => {
   }));
 });
 
-const mappingsModel = computed<Mapping[]>({
-  get: () => {
-    return mappings.value.map((m) => ({
-      sourceId: m.detResultaattypeNaam,
-      targetId: m.ozResultaattypeId
-    }));
-  },
-  set: (newMappings: Mapping[]) => {
-    const updated = newMappings.map((m) => ({
-      detResultaattypeNaam: m.sourceId,
-      ozResultaattypeId: m.targetId
-    }));
-    mappings.value = updated;
-    isEditing.value = true;
-    emit("update:editing", true);
-  }
-});
+const mappingsModel = ref<Mapping[]>([]);
 
 const fetchMappings = async () => {
-  if (!props.ozZaaktype?.id || isFetching.value) {
-    mappings.value = [];
-    emit("update:complete", false);
-    return;
-  }
-
-  isFetching.value = true;
   isLoading.value = true;
   try {
-    const existingMappings = props.mappingId
-      ? await get<ResultaattypeMappingResponse[]>(`/api/mappings/${props.mappingId}/resultaattypen`)
-      : [];
-
-    const detResultaattypen = props.detZaaktype?.resultaten || [];
-
-    mappings.value = detResultaattypen.map((detResultaattypen) => {
-      const existingMapping = existingMappings.find(
-        (m) => m.detResultaattypeNaam === detResultaattypen.resultaat.naam
-      );
-      return (
-        existingMapping || {
-          detResultaattypeNaam: detResultaattypen.resultaat.naam,
-          ozResultaattypeId: null
-        }
-      );
-    });
-
-    const isComplete =
-      mappings.value.length > 0 && mappings.value.every((m) => m.ozResultaattypeId !== null);
-    emit("update:complete", isComplete);
-
-    if (isComplete && existingMappings.length > 0) {
-      isEditing.value = false;
-      emit("update:editing", false);
-    }
+    mappingsFromServer.value = await get<ResultaattypeMappingResponse[]>(
+      `/api/mappings/${props.mappingId}/resultaattypen`
+    );
   } catch (error) {
-    mappings.value = [];
-    emit("update:complete", false);
+    toast.add({ text: `Fout bij ophalen van de resultaattype mappings - ${error}`, type: "error" });
     throw error;
   } finally {
-    isFetching.value = false;
     isLoading.value = false;
   }
 };
@@ -164,7 +117,12 @@ const fetchMappings = async () => {
 const saveMappings = async () => {
   isLoading.value = true;
   try {
-    const mappingsToSave = mappings.value.filter((m) => m.ozResultaattypeId !== null);
+    const mappingsToSave = mappingsModel.value
+      .filter((m) => m.targetId)
+      .map(({ sourceId, targetId }) => ({
+        detResultaattypeNaam: sourceId,
+        ozResultaattypeId: targetId
+      }));
 
     await post(`/api/mappings/${props.mappingId}/resultaattypen`, {
       mappings: mappingsToSave
@@ -172,12 +130,10 @@ const saveMappings = async () => {
 
     toast.add({ text: "De resultaattype mappings zijn succesvol opgeslagen." });
 
-    const isComplete =
-      mappings.value.length > 0 && mappings.value.every((m) => m.ozResultaattypeId !== null);
+    // re-fetch mappings to check for completeness
+    await fetchMappings();
 
-    emit("update:complete", isComplete);
-    isEditing.value = false;
-    emit("update:editing", false);
+    forceEdit.value = false;
   } catch (error) {
     toast.add({ text: `Fout bij opslaan van de resultaattype mappings - ${error}`, type: "error" });
     throw error;
@@ -186,19 +142,19 @@ const saveMappings = async () => {
   }
 };
 
+// trigger fetching mappings whenever the mapping id or target zaaktype changes
 watch(
-  () => [props.ozZaaktype?.id, props.detZaaktype?.resultaten],
+  [() => props.mappingId, () => props.ozZaaktype],
   () => {
     fetchMappings();
   },
-  { immediate: true, deep: true }
+  { immediate: true }
 );
 
-defineExpose({
-  fetchMappings,
-  setEditing: (value: boolean) => {
-    isEditing.value = value;
-    emit("update:editing", value);
-  }
+// update the mapping model based on server data whenever it changes
+watch(validMappings, (value) => {
+  mappingsModel.value = value;
 });
+
+watch(isComplete, (v) => emit("update:complete", v));
 </script>

@@ -110,3 +110,8 @@ export const patch = <T = unknown>(
   data: unknown,
   options: FetchOptions = {}
 ): Promise<T> => fetchWrapper<T>(url, { method: "PATCH", body: JSON.stringify(data), ...options });
+
+export const swallow404 = (reason: unknown) =>
+  reason instanceof Error && knownErrorMessages.notFound === reason.message
+    ? undefined
+    : Promise.reject(reason);
