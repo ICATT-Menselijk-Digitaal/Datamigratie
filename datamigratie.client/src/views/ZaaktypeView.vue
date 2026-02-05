@@ -51,7 +51,7 @@
       </li>
 
       <template v-if="!error && !isThisMigrationRunning">
-        <li v-if="allIsComplete">
+        <li v-if="canStartMigration">
           <button type="button" @click="startMigration">Start migratie</button>
         </li>
       </template>
@@ -88,6 +88,7 @@ import ZaaktypeMappingSection, {
   type ZaaktypeMappingModel
 } from "@/components/ZaaktypeMappingSection.vue";
 import { useMigration } from "@/composables/migration-store";
+import { MigrationStatus } from "@/types/datamigratie";
 const { detZaaktypeId } = defineProps<{ detZaaktypeId: string }>();
 
 const route = useRoute();
@@ -100,7 +101,7 @@ const resultaattypeMappingsComplete = ref(false);
 const besluittypeMappingsComplete = ref(false);
 const documentPropertyMappingsComplete = ref(false);
 
-const { error } = useMigration();
+const { error, migration } = useMigration();
 const { isThisMigrationRunning, confirmDialog, startMigration } = useMigrationControl(
   () => detZaaktypeId
 );
@@ -111,6 +112,10 @@ const allIsComplete = computed(
     besluittypeMappingsComplete.value &&
     resultaattypeMappingsComplete.value &&
     documentPropertyMappingsComplete.value
+);
+
+const canStartMigration = computed(
+  () => allIsComplete.value && migration.value?.status !== MigrationStatus.inProgress
 );
 </script>
 
