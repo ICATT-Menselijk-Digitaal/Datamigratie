@@ -37,6 +37,10 @@ namespace Datamigratie.Common.Services.Det.Models
         public DateTimeOffset WijzigDatumTijd { get; set; }
         public DetZaaktype? Zaaktype { get; set; }
         public List<DetDocument>? Documenten { get; set; }
+        public string? RedenStart { get; set; }
+        public DetArchiveerGegevens? ArchiveerGegevens { get; set; }
+        public DetGeolocatie? Geolocatie { get; set; }
+        public DetKanaal? Kanaal { get; set; }
     }
 
     public class DetDocument
@@ -44,7 +48,7 @@ namespace Datamigratie.Common.Services.Det.Models
         public required List<DetDocumentVersie> DocumentVersies { get; set; }
         public string? Kenmerk { get; set; }
         public required string Titel { get; set; }
-        public string? Beschrijving {get; set; }
+        public string? Beschrijving { get; set; }
         public DocumentTaal? Taal { get; set; }
         public DocumentVorm? DocumentVorm { get; set; }
 
@@ -69,6 +73,12 @@ namespace Datamigratie.Common.Services.Det.Models
         public decimal? Bedrag { get; set; }
         public string? Betaalstatus { get; set; }
         public string? Kenmerk { get; set; }
+        public DateOnly? TransactieDatum { get; set; }
+    }
+
+    public class DetArchiveerGegevens
+    {
+        public DateOnly? BewaartermijnEinddatum { get; set; }
     }
 
     public class DocumentTaal
@@ -77,6 +87,17 @@ namespace Datamigratie.Common.Services.Det.Models
     }
 
     public class DocumentVorm
+    {
+        public required string Naam { get; set; }
+    }
+
+    public class DetGeolocatie
+    {
+        public string? Type { get; set; }
+        public List<decimal>? Point2D { get; set; }
+    }
+
+    public class DetKanaal
     {
         public required string Naam { get; set; }
     }

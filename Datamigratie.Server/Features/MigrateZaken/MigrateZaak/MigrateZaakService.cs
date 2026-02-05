@@ -386,6 +386,12 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
 
         private CreateOzZaakRequest CreateOzZaakCreationRequest(DetZaak detZaak, Guid ozZaaktypeId, string rsin)
         {
+            const int MaxZaaknummerLength = 40;
+            if (detZaak.FunctioneleIdentificatie.Length > MaxZaaknummerLength)
+            {
+                throw new InvalidDataException($"Zaak '{detZaak.FunctioneleIdentificatie}' migration failed: The 'zaaknummer' field length ({detZaak.FunctioneleIdentificatie.Length}) exceeds the maximum allowed length of {MaxZaaknummerLength} characters.");
+            }
+
             // First apply data transformation to follow OpenZaak constraints
             var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
             var url = new Uri($"{openZaakBaseUrl}catalogi/api/v1/zaaktypen/{ozZaaktypeId}");
@@ -397,11 +403,37 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             const int MaxOmschrijvingLength = 80;
             var omschrijving = TruncateWithDots(detZaak.Omschrijving, MaxOmschrijvingLength);
 
-            const int MaxZaaknummerLength = 40;
+            const int MaxToelichtingLength = 1000;
+            var toelichting = TruncateWithDots(detZaak.RedenStart, MaxToelichtingLength);
 
-            if (detZaak.FunctioneleIdentificatie.Length > MaxZaaknummerLength)
+            var communicatiekanaalNaam = detZaak.Kanaal?.Naam;
+
+            var einddatumGepland = detZaak.Streefdatum.ToString("yyyy-MM-dd");
+            var uiterlijkeEinddatumAfdoening = detZaak.Fataledatum?.ToString("yyyy-MM-dd");
+            var archiefactiedatum = detZaak.ArchiveerGegevens?.BewaartermijnEinddatum?.ToString("yyyy-MM-dd");
+            var laatsteBetaaldatum = detZaak.Betaalgegevens?.TransactieDatum?.ToString("yyyy-MM-dd");
+
+            List<OzZaakKenmerk>? kenmerken = null;
+            if (!string.IsNullOrWhiteSpace(detZaak.ExterneIdentificatie))
             {
-                throw new InvalidDataException($"Zaak '{detZaak.FunctioneleIdentificatie}' migration failed: The 'zaaknummer' field length ({detZaak.FunctioneleIdentificatie.Length}) exceeds the maximum allowed length of {MaxZaaknummerLength} characters.");
+                kenmerken =
+                [
+                    new OzZaakKenmerk
+                    {
+                        Kenmerk = detZaak.ExterneIdentificatie,
+                        Bron = "e-Suite"
+                    }
+                ];
+            }
+
+            OzZaakgeometrie? zaakgeometrie = null;
+            if (detZaak.Geolocatie?.Type != null && detZaak.Geolocatie?.Point2D != null)
+            {
+                zaakgeometrie = new OzZaakgeometrie
+                {
+                    Type = detZaak.Geolocatie.Type,
+                    Coordinates = detZaak.Geolocatie.Point2D
+                };
             }
 
             // Now create the request
@@ -418,7 +450,15 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 Registratiedatum = registratieDatum, //todo moet deze zijn, maar die heeft een raar format. moet custom gedeserialized worden sourceZaak.CreatieDatumTijd
                 Vertrouwelijkheidaanduiding = "openbaar", //hier moet in een latere story nog custom mapping voor komen
                 Betalingsindicatie = "",
-                Archiefstatus = "nog_te_archiveren"
+                Archiefstatus = "nog_te_archiveren",
+                EinddatumGepland = einddatumGepland,
+                UiterlijkeEinddatumAfdoening = uiterlijkeEinddatumAfdoening,
+                Toelichting = toelichting,
+                Archiefactiedatum = archiefactiedatum,
+                LaatsteBetaaldatum = laatsteBetaaldatum,
+                Zaakgeometrie = zaakgeometrie,
+                CommunicatiekanaalNaam = communicatiekanaalNaam,
+                Kenmerken = kenmerken
             };
 
             return createRequest;
