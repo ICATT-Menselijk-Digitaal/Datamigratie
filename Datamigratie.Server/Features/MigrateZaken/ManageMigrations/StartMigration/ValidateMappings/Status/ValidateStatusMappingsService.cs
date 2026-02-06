@@ -24,21 +24,15 @@ public class ValidateStatusMappingsService(
             return (true, new Dictionary<string, Guid>());
         }
 
-        var zaaktypenMapping = await context.Mappings
-            .FirstOrDefaultAsync(m => m.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie);
-
-        if (zaaktypenMapping == null)
-            return (false, new Dictionary<string, Guid>());
-
         var mappings = await context.StatusMappings
-            .Where(sm => sm.ZaaktypenMappingId == zaaktypenMapping.Id)
+            .Where(sm => sm.ZaaktypenMapping.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie)
             .ToListAsync();
 
         var mappingDictionary = mappings.ToDictionary(m => m.DetStatusNaam, m => m.OzStatustypeId);
 
         // checking if all DET statuses are mapped
         var allMapped = detStatuses.All(status => mappingDictionary.ContainsKey(status));
-        
+
         return (allMapped, mappingDictionary);
     }
 }

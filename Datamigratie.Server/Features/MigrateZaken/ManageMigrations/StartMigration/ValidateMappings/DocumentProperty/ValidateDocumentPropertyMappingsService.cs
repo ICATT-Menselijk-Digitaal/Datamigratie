@@ -11,18 +11,8 @@ public class ValidateDocumentPropertyMappingsService(
 {
     public async Task<(bool IsValid, Dictionary<string, Dictionary<string, string>> Mappings)> ValidateAndGetDocumentPropertyMappings(DetZaaktypeDetail detZaaktype)
     {
-        var zaaktypenMapping = await dbContext.Mappings
-            .FirstOrDefaultAsync(m => m.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie);
-
-        if (zaaktypenMapping == null)
-        {
-            logger.LogWarning("No zaaktypen mapping found for DET zaaktype with FunctioneleIdentificatie '{DetZaaktypeFunctioneleIdentificatie}'", 
-                detZaaktype.FunctioneleIdentificatie);
-            return (false, new Dictionary<string, Dictionary<string, string>>());
-        }
-
         var documentPropertyMappings = await dbContext.DocumentPropertyMappings
-            .Where(m => m.ZaaktypenMappingId == zaaktypenMapping.Id)
+            .Where(m => m.ZaaktypenMapping.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie)
             .ToListAsync();
 
         // Filter out mappings with null or empty OzValue

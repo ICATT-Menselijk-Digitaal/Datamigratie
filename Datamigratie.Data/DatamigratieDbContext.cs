@@ -125,6 +125,13 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
                 .IsUnique()
                 .HasDatabaseName("IX_DocumentPropertyMapping_ZaaktypenMappingId_DetPropertyName_DetValue_Unique");
         });
+
+        modelBuilder.Entity<VertrouwelijkheidMapping>(entity =>
+        {
+            entity.HasIndex(e => new { e.ZaaktypenMappingId, e.DetVertrouwelijkheid })
+                .IsUnique()
+                .HasDatabaseName("IX_VertrouwelijkheidMapping_ZaaktypenMappingId_DetVertrouwelijkheid_Unique");
+        });
     }
 
     public DbSet<ZaaktypenMapping> Mappings { get; set; }
@@ -136,4 +143,5 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
     public DbSet<BesluittypeMapping> BesluittypeMappings { get; set; }
     public DbSet<DocumentPropertyMapping> DocumentPropertyMappings { get; set; }
     public DbSet<DocumentstatusMapping> DocumentstatusMappings { get; set; }
+    public DbSet<VertrouwelijkheidMapping> VertrouwelijkheidMappings { get; set; }
 }

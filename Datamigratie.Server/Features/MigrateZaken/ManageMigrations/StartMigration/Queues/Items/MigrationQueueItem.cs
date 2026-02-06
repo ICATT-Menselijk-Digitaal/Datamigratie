@@ -1,11 +1,12 @@
-﻿using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Models;
+﻿using Datamigratie.Common.Services.OpenZaak.Models;
+using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Models;
 
 namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues.Items
 {
     public class MigrationQueueItem
     {
         public required string DetZaaktypeId { get; set; }
-        
+
         /// <summary>
         /// Rsin Mapping is validated and set by StartMigrationController before queuing.
         /// It is guaranteed to be non-null and valid when PerformMigrationAsync is called.
@@ -35,5 +36,11 @@ namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Q
         /// Dictionary: PropertyName -> (DetValue -> OzValue)
         /// </summary>
         public required Dictionary<string, Dictionary<string, string>> DocumentPropertyMappings { get; set; }
+
+        /// <summary>
+        /// Vertrouwelijkheid mappings loaded and validated by StartMigrationController before queuing.
+        /// Dictionary: DetVertrouwelijkheid (true/false) -> OzVertrouwelijkheidaanduiding
+        /// </summary>
+        public required Dictionary<bool, VertrouwelijkheidsAanduiding> VertrouwelijkheidMappings { get; set; }
     }
 }
