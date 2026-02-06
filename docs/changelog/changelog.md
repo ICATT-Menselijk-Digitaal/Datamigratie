@@ -3,6 +3,7 @@
 ## Latest version
 
 ### New features
+
 - [Migratiemanagement: Zaaktype selecteren uit DET](https://dimpact.atlassian.net/browse/DATA-21)
 - [Migratiemanagement: Zaaktype mappings beheren](https://dimpact.atlassian.net/browse/DATA-20)
 - [Migratiemanagement: Zaak omschrijving meemigreren](https://dimpact.atlassian.net/browse/DATA-49)
@@ -20,3 +21,4 @@
 - [Fill and migrate required meta-data for generated PDF](https://dimpact.atlassian.net/browse/DATA-163)
 - [Validate zaaknummer length per Zaaktype before migration](https://dimpact.atlassian.net/browse/DATA-92)
 - [Global mapping & migration of Documentstatussen](https://dimpact.atlassian.net/browse/DATA-195)
+- [Mapping & migration Vertrouwelijkheid per Zaaktype](https://dimpact.atlassian.net/browse/DATA-181)

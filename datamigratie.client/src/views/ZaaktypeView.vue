@@ -41,6 +41,12 @@
       @update:complete="documentPropertyMappingsComplete = $event"
     />
 
+    <vertrouwelijkheid-mapping-section
+      :mapping-id="zaaktypeMapping.id"
+      :disabled="isThisMigrationRunning"
+      @update:complete="vertrouwelijkheidMappingsComplete = $event"
+    />
+
     <menu class="reset">
       <li>
         <router-link
@@ -83,6 +89,7 @@ import BesluittypeMappingSection from "@/components/BesluittypeMappingSection.vu
 import { useMigrationControl } from "@/composables/use-migration-control";
 import ResultaattypeMappingSection from "@/components/ResultaattypeMappingSection.vue";
 import DocumentPropertyMappingSection from "@/components/DocumentPropertyMappingSection.vue";
+import VertrouwelijkheidMappingSection from "@/components/VertrouwelijkheidMappingSection.vue";
 import MigrationHistoryTable from "@/components/MigrationHistoryTable.vue";
 import ZaaktypeMappingSection, {
   type ZaaktypeMappingModel
@@ -100,6 +107,7 @@ const statusMappingsComplete = ref(false);
 const resultaattypeMappingsComplete = ref(false);
 const besluittypeMappingsComplete = ref(false);
 const documentPropertyMappingsComplete = ref(false);
+const vertrouwelijkheidMappingsComplete = ref(false);
 
 const { error, migration } = useMigration();
 const { isThisMigrationRunning, confirmDialog, startMigration } = useMigrationControl(
@@ -111,7 +119,8 @@ const allIsComplete = computed(
     statusMappingsComplete.value &&
     besluittypeMappingsComplete.value &&
     resultaattypeMappingsComplete.value &&
-    documentPropertyMappingsComplete.value
+    documentPropertyMappingsComplete.value &&
+    vertrouwelijkheidMappingsComplete.value
 );
 
 const canStartMigration = computed(
