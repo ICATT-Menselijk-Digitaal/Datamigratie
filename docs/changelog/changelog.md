@@ -21,3 +21,4 @@
 - [Validate zaaknummer length per Zaaktype before migration](https://dimpact.atlassian.net/browse/DATA-92)
 - [Global mapping & migration of Documentstatussen](https://dimpact.atlassian.net/browse/DATA-195)
 - [Migrate Besluit of Zaak](https://dimpact.atlassian.net/browse/DATA-192)
+- [Migrate RSIN](https://dimpact.atlassian.net/browse/DATA-162)
