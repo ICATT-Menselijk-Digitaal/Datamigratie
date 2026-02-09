@@ -46,6 +46,9 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 // Migrate all documents with their versions
                 await MigrateDocumentsAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, mapping.DocumentstatusMappings, mapping.DocumentPropertyMappings, token);
 
+                // Migrate all besluiten for the zaak
+                await MigrateBesluitenAsync(detZaak, createdZaak, mapping.Rsin, mapping.BesluittypeMappings, token);
+
                 return MigrateZaakResult.Success(createdZaak.Identificatie, "De zaak is aangemaakt in het doelsysteem");
             }
             catch (HttpRequestException httpEx)
@@ -287,6 +290,78 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
         }
 
         /// <summary>
+        /// Migrates all besluiten for a zaak to OpenZaak.
+        /// </summary>
+        private async Task MigrateBesluitenAsync(DetZaak detZaak, OzZaak createdZaak, string rsin, Dictionary<string, Guid> besluittypeMappings, CancellationToken token)
+        {
+            if (detZaak.Besluiten == null || detZaak.Besluiten.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var detBesluit in detZaak.Besluiten)
+            {
+                try
+                {
+                    var ozBesluitRequest = MapToOzBesluit(detBesluit, createdZaak, rsin, besluittypeMappings);
+                    await _openZaakApiClient.CreateBesluit(ozBesluitRequest);
+                }
+                catch (Exception ex)
+                {
+                    var httpStatusInfo = ex.InnerException is HttpRequestException httpEx && httpEx.StatusCode.HasValue
+                        ? $" | HTTP {(int)httpEx.StatusCode}: {httpEx.Message}"
+                        : ex is HttpRequestException httpExOuter && httpExOuter.StatusCode.HasValue
+                        ? $" | HTTP {(int)httpExOuter.StatusCode}: {httpExOuter.Message}"
+                        : $" | {ex.GetType().Name}: {ex.Message}";
+
+                    throw new Exception(
+                        $"Migratie onderbroken: besluit '{detBesluit.FunctioneleIdentificatie}' kon niet worden gemigreerd{httpStatusInfo}",
+                        ex);
+                }
+            }
+        }
+
+        private CreateOzBesluitRequest MapToOzBesluit(DetBesluit detBesluit, OzZaak createdZaak, string rsin, Dictionary<string, Guid> besluittypeMappings)
+        {
+            // Truncate identificatie to 47 characters + "..." = 50 max (OpenZaak limit)
+            const int MaxIdentificatieLength = 50;
+            var identificatie = TruncateWithDots(detBesluit.FunctioneleIdentificatie, MaxIdentificatieLength);
+
+            // Get the besluittype URI based on the mapping
+            var besluittypeUri = GetBesluittypeUri(detBesluit.Besluittype.Naam, besluittypeMappings, detBesluit.FunctioneleIdentificatie);
+
+            // Use ingangsdatum if available, otherwise fall back to 01-01-0001
+            var ingangsdatum = detBesluit.Ingangsdatum ?? new DateOnly(1, 1, 1);
+
+            return new CreateOzBesluitRequest
+            {
+                Identificatie = identificatie,
+                VerantwoordelijkeOrganisatie = rsin,
+                Besluittype = besluittypeUri,
+                Zaak = createdZaak.Url,
+                Datum = detBesluit.BesluitDatum,
+                Toelichting = detBesluit.Toelichting ?? "",
+                Bestuursorgaan =  "",
+                Ingangsdatum = ingangsdatum,
+                Vervaldatum = detBesluit.Vervaldatum,
+                Publicatiedatum = detBesluit.Publicatiedatum,
+                UiterlijkeReactiedatum = detBesluit.Reactiedatum,
+            };
+        }
+
+        private Uri GetBesluittypeUri(string detBesluittypeNaam, Dictionary<string, Guid> besluittypeMappings, string besluitIdentificatie)
+        {
+            if (!besluittypeMappings.TryGetValue(detBesluittypeNaam, out var ozBesluittypeId))
+            {
+                throw new InvalidOperationException(
+                    $"Besluit '{besluitIdentificatie}' migration failed: No mapping found for DET besluittype '{detBesluittypeNaam}'.");
+            }
+
+            var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
+            return new Uri($"{openZaakBaseUrl}catalogi/api/v1/besluittypen/{ozBesluittypeId}");
+        }
+
+        /// <summary>
         /// Migrates all documents with their versions in the correct order.
         /// First version is created, next versions update the same document (OpenZaak auto-increments version).
         /// </summary>
@@ -374,7 +449,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                             ? $" | HTTP {(int)httpEx.StatusCode}: {httpEx.Message}"
                             : ex is HttpRequestException httpExOuter && httpExOuter.StatusCode.HasValue
                             ? $" | HTTP {(int)httpExOuter.StatusCode}: {httpExOuter.Message}"
-                            : "";
+                            : $" | {ex.GetType().Name}: {ex.Message}";
 
                         throw new Exception(
                             $"Migratie onderbroken: versie {detVersie.Versienummer} van document '{document.Titel}' (bestand: {detVersie.Bestandsnaam}) kon niet worden gemigreerd{httpStatusInfo}",
