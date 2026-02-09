@@ -45,15 +45,15 @@ public class ValidateDocumentPropertyMappingsService(
             return (false, new Dictionary<string, Dictionary<string, string>>());
         }
 
-        var activeDocumenttypen = detZaaktype.Documenttypen?.Where(dt => dt.Documenttype.Actief).ToList() ?? [];
+        var documenttypen = detZaaktype.Documenttypen?.ToList() ?? [];
 
-        if (activeDocumenttypen.Count != 0)
+        if (documenttypen.Count != 0)
         {
             var documenttypeMappings = validMappings
                 .Where(m => m.DetPropertyName == "documenttype")
                 .ToList();
 
-            var missingDocumenttypen = activeDocumenttypen
+            var missingDocumenttypen = documenttypen
                 .Where(dt => !documenttypeMappings.Any(m => m.DetValue == dt.Documenttype.Naam))
                 .Select(dt => dt.Documenttype.Naam)
                 .ToList();

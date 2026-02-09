@@ -1,14 +1,8 @@
 <template>
-  <prompt-modal
-    :dialog="dialog"
-    cancel-text="Annuleren"
-    confirm-text="Ja, wijzig zaaktype"
-  >
+  <prompt-modal :dialog="dialog" cancel-text="Annuleren" confirm-text="Ja, wijzig zaaktype">
     <h2>{{ title }}</h2>
 
-    <p>
-      <strong>Let op:</strong> {{ warningText }}
-    </p>
+    <p><strong>Let op:</strong> {{ warningText }}</p>
     <p>
       {{ descriptionText }}
     </p>
@@ -33,7 +27,8 @@ interface Props {
 
 withDefaults(defineProps<Props>(), {
   title: "Open Zaak zaaktype wijzigen",
-  warningText: "Als je het OpenZaak zaaktype wijzigt, wordt de opgeslagen mapping van het huidige OpenZaak zaaktype verwijderd.",
+  warningText:
+    "Als je het OpenZaak zaaktype wijzigt, wordt de opgeslagen mapping van het huidige OpenZaak zaaktype verwijderd.",
   descriptionText: "Je moet de mappings opnieuw configureren voor het nieuwe zaaktype.",
   confirmationText: "Weet je zeker dat je wilt doorgaan?",
   mappingType: "mappings"

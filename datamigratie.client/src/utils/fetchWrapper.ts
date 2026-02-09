@@ -51,12 +51,11 @@ export async function fetchWrapper<T = unknown>(
 
   if (response.status === 400) {
     const contentType = response.headers.get("content-type");
-    const errorMessage =  contentType?.includes("application/json")
-      ? ((await response.json()))
-      : ((await response.text()));
+    const errorMessage = contentType?.includes("application/json")
+      ? await response.json()
+      : await response.text();
     throw new Error(errorMessage);
   }
-
 
   let errorMessage = `Request failed with status ${response.status}`;
 
@@ -111,3 +110,8 @@ export const patch = <T = unknown>(
   data: unknown,
   options: FetchOptions = {}
 ): Promise<T> => fetchWrapper<T>(url, { method: "PATCH", body: JSON.stringify(data), ...options });
+
+export const swallow404 = (reason: unknown) =>
+  reason instanceof Error && knownErrorMessages.notFound === reason.message
+    ? undefined
+    : Promise.reject(reason);

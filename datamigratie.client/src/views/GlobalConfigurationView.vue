@@ -34,7 +34,14 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, useTemplateRef } from "vue";
-import { datamigratieService, type RsinConfiguration, type DocumentstatusMappingItem } from "@/services/datamigratieService";
+import { get, put } from "@/utils/fetchWrapper";
+import type {
+  RsinConfiguration,
+  UpdateRsinConfiguration,
+  DocumentstatusMappingItem,
+  DocumentstatusMappingResponse,
+  SaveDocumentstatusMappingsRequest
+} from "@/types/datamigratie";
 import { detService, type DetDocumentstatus } from "@/services/detService";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
 import DocumentstatusMappingSection from "@/components/DocumentstatusMappingSection.vue";
@@ -50,19 +57,15 @@ const documentstatusMappings = ref<DocumentstatusMappingItem[]>([]);
 const documentstatusLoading = ref(false);
 
 const allDocumentstatusesMapped = computed(() => {
-  const activeStatuses = detDocumentstatussen.value.filter(s => s.actief);
-  if (activeStatuses.length === 0) return true;
-
-  return activeStatuses.every(status => {
-    const mapping = documentstatusMappings.value.find(m => m.detDocumentstatus === status.naam);
+  if (detDocumentstatussen.value.length === 0) return true;
+  return detDocumentstatussen.value.every((status) => {
+    const mapping = documentstatusMappings.value.find((m) => m.detDocumentstatus === status.naam);
     return mapping && mapping.ozDocumentstatus;
   });
 });
 
-
 function validateRsin() {
-
-  if (!rsinInput.value ) {
+  if (!rsinInput.value) {
     return;
   }
 
@@ -99,9 +102,9 @@ async function loadConfiguration() {
 
   try {
     const [rsinConfig, detStatuses, savedMappings] = await Promise.all([
-      datamigratieService.getRsinConfiguration(),
+      get<RsinConfiguration>(`/api/globalmapping/rsin`),
       detService.getAllDocumentstatussen(),
-      datamigratieService.getDocumentstatusMappings()
+      get<DocumentstatusMappingResponse[]>(`/api/globalmapping/documentstatuses`)
     ]);
 
     rsinConfiguration.value = rsinConfig;
@@ -113,15 +116,13 @@ async function loadConfiguration() {
     detDocumentstatussen.value = detStatuses;
 
     // Initialize mappings from saved data
-    documentstatusMappings.value = detStatuses
-      .filter(s => s.actief)
-      .map(status => {
-        const existingMapping = savedMappings.find(m => m.detDocumentstatus === status.naam);
-        return {
-          detDocumentstatus: status.naam,
-          ozDocumentstatus: existingMapping?.ozDocumentstatus || null
-        };
-      });
+    documentstatusMappings.value = detStatuses.map((status: DetDocumentstatus) => {
+      const existingMapping = savedMappings.find((m) => m.detDocumentstatus === status.naam);
+      return {
+        detDocumentstatus: status.naam,
+        ozDocumentstatus: existingMapping?.ozDocumentstatus || null
+      };
+    });
   } catch (error: unknown) {
     toast.add({ text: `Fout bij laden van de configuratie - ${error}`, type: "error" });
   } finally {
@@ -133,9 +134,9 @@ async function saveRsinConfiguration() {
   loading.value = true;
 
   try {
-    const updated = await datamigratieService.updateRsinConfiguration({
+    const updated = await put<RsinConfiguration>(`/api/globalmapping/rsin`, {
       rsin: rsin.value || undefined
-    });
+    } as UpdateRsinConfiguration);
     rsinConfiguration.value = updated;
     toast.add({ text: "RSIN configuratie succesvol opgeslagen." });
   } catch (error: unknown) {
@@ -150,16 +151,21 @@ async function saveDocumentstatusMappings() {
 
   try {
     const mappingsToSave = documentstatusMappings.value
-      .filter(m => m.ozDocumentstatus)
-      .map(m => ({
+      .filter((m) => m.ozDocumentstatus)
+      .map((m) => ({
         detDocumentstatus: m.detDocumentstatus,
         ozDocumentstatus: m.ozDocumentstatus as string
       }));
 
-    await datamigratieService.saveDocumentstatusMappings({ mappings: mappingsToSave });
+    await put<DocumentstatusMappingResponse[]>(`/api/globalmapping/documentstatuses`, {
+      mappings: mappingsToSave
+    } as SaveDocumentstatusMappingsRequest);
     toast.add({ text: "Documentstatus mappings succesvol opgeslagen." });
   } catch (error: unknown) {
-    toast.add({ text: `Fout bij opslaan van de documentstatus mappings - ${error}`, type: "error" });
+    toast.add({
+      text: `Fout bij opslaan van de documentstatus mappings - ${error}`,
+      type: "error"
+    });
   } finally {
     documentstatusLoading.value = false;
   }

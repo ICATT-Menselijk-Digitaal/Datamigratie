@@ -14,13 +14,12 @@ public class ValidateStatusMappingsService(
 {
     public async Task<(bool IsValid, Dictionary<string, Guid> Mappings)> ValidateAndGetStatusMappings(DetZaaktypeDetail detZaaktype)
     {
-        var activeDetStatuses = detZaaktype.Statussen
-            .Where(s => s.Actief)
+        var detStatuses = detZaaktype.Statussen
             .Select(s => s.Naam)
             .ToList();
 
-        // If no active statuses, consider it valid
-        if (activeDetStatuses.Count == 0)
+        // If no statuses, consider it valid
+        if (detStatuses.Count == 0)
         {
             return (true, new Dictionary<string, Guid>());
         }
@@ -37,8 +36,8 @@ public class ValidateStatusMappingsService(
 
         var mappingDictionary = mappings.ToDictionary(m => m.DetStatusNaam, m => m.OzStatustypeId);
 
-        // checking if all active DET statuses are mapped
-        var allMapped = activeDetStatuses.All(status => mappingDictionary.ContainsKey(status));
+        // checking if all DET statuses are mapped
+        var allMapped = detStatuses.All(status => mappingDictionary.ContainsKey(status));
         
         return (allMapped, mappingDictionary);
     }

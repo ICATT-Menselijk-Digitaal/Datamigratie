@@ -1,6 +1,5 @@
 <template>
   <mapping-grid
-    v-if="showMapping"
     v-model="mappingsModel"
     title="Resultaattype mapping"
     description="Koppel de e-Suite resultaattypen aan de Open Zaak resultaattypen."
@@ -9,90 +8,153 @@
     :source-items="sourceResultaattypeItems"
     :target-items="targetResultaattypeItems"
     :all-mapped="allMapped"
-    :is-editing="isEditing"
+    :is-editing="isInEditMode"
     :disabled="disabled"
-    :loading="loading"
+    :loading="isLoading"
     empty-message="Er zijn geen resultaattypen beschikbaar voor dit zaaktype."
     target-placeholder="Kies een resultaattype"
     save-button-text="Resultaattypen mappings opslaan"
-    :show-warning="showWarning"
+    :show-warning="true"
     warning-message="Niet alle resultaattypen zijn gekoppeld. Migratie kan niet worden gestart."
-    @save="handleSave"
+    edit-button-text="Resultaattypemappings aanpassen"
+    :show-edit-button="true"
+    @edit="forceEdit = true"
+    @save="saveMappings"
   />
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from "vue";
+import { ref, computed, watch } from "vue";
 import MappingGrid, { type MappingItem, type Mapping } from "@/components/MappingGrid.vue";
+import toast from "@/components/toast/toast";
 import type { DETZaaktype } from "@/services/detService";
 import type { OZZaaktype } from "@/services/ozService";
-import type { ResultaattypeMappingItem } from "@/services/datamigratieService";
+import { get, post } from "@/utils/fetchWrapper";
+
+type ResultaattypeMappingItem = {
+  detResultaattypeNaam: string;
+  ozResultaattypeId: string | null;
+};
+
+type ResultaattypeMappingResponse = {
+  detResultaattypeNaam: string;
+  ozResultaattypeId: string;
+};
+
+type SaveResultaattypeMappingsRequest = {
+  mappings: ResultaattypeMappingItem[];
+};
 
 interface Props {
-  detZaaktype?: DETZaaktype;
-  ozZaaktype?: OZZaaktype;
-  resultaattypeMappings: ResultaattypeMappingItem[];
-  allMapped: boolean;
-  isEditing: boolean;
-  disabled?: boolean;
-  loading?: boolean;
-  showWarning?: boolean;
-  showMapping: boolean;
+  mappingId: string;
+  detZaaktype: DETZaaktype;
+  ozZaaktype: OZZaaktype;
+  disabled: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  disabled: false,
-  loading: false,
-  showWarning: true
-});
+const props = defineProps<Props>();
 
 const emit = defineEmits<{
-  (e: "update:resultaattypeMappings", value: ResultaattypeMappingItem[]): void;
-  (e: "save"): void;
+  (e: "update:complete", value: boolean): void;
 }>();
 
-// Computed properties for MappingGrid component
+const mappingsFromServer = ref<ResultaattypeMappingItem[]>([]);
+
+const validMappings = computed(
+  () =>
+    props.detZaaktype.resultaten?.map(({ resultaat: { naam } }) => ({
+      sourceId: naam,
+      targetId:
+        mappingsFromServer.value.find((s) => s.detResultaattypeNaam === naam)?.ozResultaattypeId ||
+        null
+    })) || []
+);
+
+const isLoading = ref(false);
+const forceEdit = ref(false);
+const isInEditMode = computed(() => forceEdit.value || !allMapped.value);
+
+const allMapped = computed(() => {
+  return validMappings.value.length > 0 && validMappings.value.every((m) => m.targetId);
+});
+
+const isComplete = computed(() => !isInEditMode.value);
+
 const sourceResultaattypeItems = computed<MappingItem[]>(() => {
-  if (!props.detZaaktype?.resultaten) return [];
-  return props.detZaaktype.resultaten
-    .filter(resultaattype => resultaattype.resultaat.actief)
-    .map(resultaattype => ({
-      id: resultaattype.resultaat.naam,
-      name: resultaattype.resultaat.naam,
-      description: resultaattype.resultaat.omschrijving
-    }));
+  if (!props.detZaaktype.resultaten) return [];
+  return props.detZaaktype.resultaten.map((resultaattype) => ({
+    id: resultaattype.resultaat.naam,
+    name: resultaattype.resultaat.naam,
+    description: resultaattype.resultaat.omschrijving
+  }));
 });
 
 const targetResultaattypeItems = computed<MappingItem[]>(() => {
-  if (!props.ozZaaktype?.resultaattypen) return [];
-  return props.ozZaaktype.resultaattypen.map(resultaattype => ({
+  if (!props.ozZaaktype.resultaattypen) return [];
+  return props.ozZaaktype.resultaattypen.map((resultaattype) => ({
     id: resultaattype.id,
     name: resultaattype.omschrijving,
     description: undefined
   }));
 });
 
-const mappingsModel = computed<Mapping[]>({
-  get: () => {
-    return props.resultaattypeMappings.map(m => ({
-      sourceId: m.detResultaattypeNaam,
-      targetId: m.ozResultaattypeId
-    }));
-  },
-  set: (newMappings: Mapping[]) => {
-    const updated = newMappings.map(m => ({
-      detResultaattypeNaam: m.sourceId,
-      ozResultaattypeId: m.targetId
-    }));
-    emit("update:resultaattypeMappings", updated);
+const mappingsModel = ref<Mapping[]>([]);
+
+const fetchMappings = async () => {
+  isLoading.value = true;
+  try {
+    mappingsFromServer.value = await get<ResultaattypeMappingResponse[]>(
+      `/api/mappings/${props.mappingId}/resultaattypen`
+    );
+  } catch (error) {
+    toast.add({ text: `Fout bij ophalen van de resultaattype mappings - ${error}`, type: "error" });
+    throw error;
+  } finally {
+    isLoading.value = false;
   }
+};
+
+const saveMappings = async () => {
+  isLoading.value = true;
+  try {
+    const mappingsToSave = mappingsModel.value
+      .filter((m) => m.targetId)
+      .map(({ sourceId, targetId }) => ({
+        detResultaattypeNaam: sourceId,
+        ozResultaattypeId: targetId
+      }));
+
+    await post(`/api/mappings/${props.mappingId}/resultaattypen`, {
+      mappings: mappingsToSave
+    } as SaveResultaattypeMappingsRequest);
+
+    toast.add({ text: "De resultaattype mappings zijn succesvol opgeslagen." });
+
+    // re-fetch mappings to check for completeness
+    await fetchMappings();
+
+    forceEdit.value = false;
+  } catch (error) {
+    toast.add({ text: `Fout bij opslaan van de resultaattype mappings - ${error}`, type: "error" });
+    throw error;
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// trigger fetching mappings whenever the mapping id or target zaaktype changes
+watch(
+  [() => props.mappingId, () => props.ozZaaktype],
+  () => {
+    fetchMappings();
+  },
+  { immediate: true }
+);
+
+// update the mapping model based on server data whenever it changes
+watch(validMappings, (value) => {
+  mappingsModel.value = value;
 });
 
-const handleSave = () => {
-  emit("save");
-};
+watch(isComplete, (v) => emit("update:complete", v));
 </script>
-
-<style lang="scss" scoped>
-// Component-specific styles if needed
-</style>

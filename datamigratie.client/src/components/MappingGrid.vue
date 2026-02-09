@@ -15,28 +15,22 @@
         <div>{{ targetLabel }}</div>
       </div>
 
-      <div
-        v-for="sourceItem in sourceItems"
-        :key="sourceItem.id"
-        class="mapping-row"
-      >
+      <div v-for="sourceItem in sourceItems" :key="sourceItem.id" class="mapping-row">
         <div class="source-item">
           <strong>{{ sourceItem.name }}</strong>
-          <span v-if="sourceItem.description" class="item-description">{{ sourceItem.description }}</span>
+          <span v-if="sourceItem.description" class="item-description">{{
+            sourceItem.description
+          }}</span>
         </div>
 
         <div class="target-item">
           <select
             :value="getMappingForSource(sourceItem.id).targetId || ''"
             @change="updateMapping(sourceItem.id, ($event.target as HTMLSelectElement).value)"
-            :disabled="!isEditing && allMapped || disabled"
+            :disabled="(!isEditing && allMapped) || disabled"
           >
             <option value="">{{ targetPlaceholder }}</option>
-            <option
-              v-for="targetItem in targetItems"
-              :key="targetItem.id"
-              :value="targetItem.id"
-            >
+            <option v-for="targetItem in targetItems" :key="targetItem.id" :value="targetItem.id">
               {{ targetItem.name }}
             </option>
           </select>
@@ -114,7 +108,7 @@ const emit = defineEmits<{
 const getMappingForSource = (sourceId: string): Mapping => {
   const existing = props.modelValue.find((m) => m.sourceId === sourceId);
   if (existing) return existing;
-  
+
   // Create a new mapping and add it to the array
   const newMapping: Mapping = { sourceId, targetId: null };
   emit("update:modelValue", [...props.modelValue, newMapping]);
@@ -123,11 +117,11 @@ const getMappingForSource = (sourceId: string): Mapping => {
 
 const updateMapping = (sourceId: string, targetId: string) => {
   // Convert empty string to null
-  const normalizedTargetId = targetId === '' || targetId === 'null' ? null : targetId;
-  
+  const normalizedTargetId = targetId === "" || targetId === "null" ? null : targetId;
+
   // Find existing mapping or create new one
   const existingIndex = props.modelValue.findIndex((m) => m.sourceId === sourceId);
-  
+
   if (existingIndex >= 0) {
     // Update existing mapping
     const updatedMappings = [...props.modelValue];

@@ -14,7 +14,7 @@ export type DetResultaat = {
 };
 
 export type DetResultaattypen = {
-   resultaat: DetResultaat;
+  resultaat: DetResultaat;
 };
 
 export type DetDocumenttype = {
@@ -57,6 +57,6 @@ export const detService = {
     get<DetBesluittype[]>(`/api/det/besluittypen`).then((besluittypen) =>
       besluittypen.sort((a, b) => a.naam.localeCompare(b.naam))
     ),
-    getAllDocumentstatussen: (): Promise<DetDocumentstatus[]> =>
+  getAllDocumentstatussen: (): Promise<DetDocumentstatus[]> =>
     get<DetDocumentstatus[]>(`/api/det/documentstatussen`)
 };
