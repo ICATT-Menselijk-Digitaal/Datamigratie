@@ -60,22 +60,21 @@ const emit = defineEmits<{
 }>();
 
 // Fixed source items: True and False for the boolean e-Suite property
-const detVertrouwelijkheidOptions: { value: boolean; label: string }[] = [
-  { value: true, label: "Ja (Vertrouwelijk)" },
-  { value: false, label: "Nee (Niet vertrouwelijk)" }
+const detVertrouwelijkheidOptions: MappingItem[] = [
+  { id: "true", name: "Ja (Vertrouwelijk)" },
+  { id: "false", name: "Nee (Niet vertrouwelijk)" }
 ];
 
 const ozVertrouwelijkheidOptions = ref<VertrouwelijkheidaanduidingOption[]>([]);
 const mappingsFromServer = ref<VertrouwelijkheidMappingItem[]>([]);
 
-const validMappings = computed(
-  () =>
-    detVertrouwelijkheidOptions.map(({ value }) => ({
-      sourceId: String(value),
-      targetId:
-        mappingsFromServer.value.find((m) => m.detVertrouwelijkheid === value)
-          ?.ozVertrouwelijkheidaanduiding || null
-    }))
+const validMappings = computed(() =>
+  detVertrouwelijkheidOptions.map(({ id }) => ({
+    sourceId: id,
+    targetId:
+      mappingsFromServer.value.find((m) => m.detVertrouwelijkheid === (id === "true"))
+        ?.ozVertrouwelijkheidaanduiding || null
+  }))
 );
 
 const isLoading = ref(false);
@@ -88,13 +87,7 @@ const allMapped = computed(() => {
 
 const isComplete = computed(() => !isInEditMode.value);
 
-const sourceItems = computed<MappingItem[]>(() => {
-  return detVertrouwelijkheidOptions.map((option) => ({
-    id: String(option.value),
-    name: option.label,
-    description: undefined
-  }));
-});
+const sourceItems = computed<MappingItem[]>(() => detVertrouwelijkheidOptions);
 
 const targetItems = computed<MappingItem[]>(() => {
   return ozVertrouwelijkheidOptions.value.map((option) => ({
