@@ -22,11 +22,11 @@ app.MapDefaultEndpoints();
 
 var group = app.MapGroup("/").AddEndpointFilter(async (context, next) =>
 {
-    if(!context.HttpContext.Request.Headers.TryGetValue("X-API-KEY", out var extractedApiKey))
+    if (!context.HttpContext.Request.Headers.TryGetValue("X-API-KEY", out var extractedApiKey))
     {
         return Results.Unauthorized();
     }
-    if(!extractedApiKey.Equals(app.Configuration["ApiKey"]))
+    if (!extractedApiKey.Equals(app.Configuration["ApiKey"]))
     {
         return Results.Forbid();
     }
@@ -38,6 +38,7 @@ app.MapGet("zaaktypen/{zaaktypeName}", FakeDetEndpoints.GetZaaktype);
 app.MapGet("zaken", FakeDetEndpoints.GetZakenByZaaktype);
 app.MapGet("zaken/{zaaknummer}", FakeDetEndpoints.GetZaak);
 app.MapGet("documenten/inhoud/{id}", FakeDetEndpoints.DownloadBestand);
+app.MapGet("documentstatussen", FakeDetEndpoints.GetAllDocumentStatussen);
 app.MapDelete("zaken", (ZakenGenerator generator) => generator.Delete());
 app.MapPost("zaken", async (ZakenGenerator generator, [FromBody] int? count) => await generator.Generate(count));
 

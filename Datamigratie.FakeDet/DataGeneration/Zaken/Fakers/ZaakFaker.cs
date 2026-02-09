@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using Datamigratie.FakeDet.DataGeneration.Zaken.Models;
 
 namespace Datamigratie.FakeDet.DataGeneration.Zaken.Fakers;
@@ -832,35 +832,33 @@ public sealed class ZaakFaker
         if (!requiresDecision || !isAfgerond || !_faker.Random.Bool(0.7f))
             return null;
 
-        var besluitCategorien = new[] { "Toekenning", "Afwijzing", "Gedeeltelijke toekenning", "Intrekking" };
-        var besluitNamen = new[] { "Vergunning verleend", "Aanvraag afgewezen", "Subsidie toegekend", "Bezwaar gegrond", "Bezwaar ongegrond" };
+        return zaaktype.Besluittypen?.Select(besluittype =>
+        {
+            var besluitDatum = streefdatum.AddDays(_faker.Random.Int(-5, 0));
 
-        var besluitDatum = streefdatum.AddDays(_faker.Random.Int(-5, 0));
-
-        return
-        [
-            new Besluit
+            return new Besluit
             {
                 FunctioneleIdentificatie = $"BESL-{DateTime.Now.Year}-{_zaakCounter:D6}",
                 Besluittype = new Besluittype
                 {
-                    Naam = _faker.PickRandom(besluitNamen),
-                    Omschrijving = $"Besluit inzake {zaaktype.Omschrijving}",
+                    Naam = besluittype.Naam,
+                    Omschrijving = besluittype.Naam,
                     Besluitcategorie = new Besluitcategorie
                     {
-                        Naam = _faker.PickRandom(besluitCategorien)
+                        Naam = besluittype.Besluitcategorie
                     },
-                    ReactietermijnInDagen = _faker.Random.Int(14, 42),
-                    PublicatieIndicatie = _faker.Random.Bool(0.3f)
+                    ReactietermijnInDagen = besluittype.ReactietermijnInDagen ?? 10,
+                    PublicatieIndicatie = besluittype.PublicatieIndicatie
                 },
                 BesluitDatum = besluitDatum,
                 Ingangsdatum = besluitDatum,
                 Vervaldatum = _faker.Random.Bool(0.5f) ? besluitDatum.AddYears(_faker.Random.Int(1, 5)) : null,
                 Reactiedatum = besluitDatum.AddDays(_faker.Random.Int(14, 42)),
                 BerekenVervaldatum = false,
-                Toelichting = _faker.Random.Bool(0.4f) ? _faker.Lorem.Sentence() : null
-            }
-        ];
+                Toelichting = _faker.Random.Bool(0.4f) ? _faker.Lorem.Sentence() : null,
+                Publicatiedatum = besluitDatum
+            };
+        }).ToList();
     }
 
     private IReadOnlyList<string>? GenerateContacten()

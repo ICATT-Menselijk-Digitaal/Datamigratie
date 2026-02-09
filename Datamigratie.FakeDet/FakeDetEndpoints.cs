@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Datamigratie.Common.Services.Det.Models;
-using Datamigratie.Common.Services.Shared.Models;
 using Datamigratie.FakeDet.Catalogi;
 using Datamigratie.FakeDet.DataGeneration;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -84,6 +83,16 @@ namespace Datamigratie.FakeDet
                     stream => TestFileGenerator.Generate(stream, versie.Mimetype, versie.Documentgrootte.Value, versie.Bestandsnaam),
                     contentType: versie.Mimetype)
                 : TypedResults.NotFound();
+        }
+
+        public static Ok<DetPagedResponse<DetDocumentstatus>> GetAllDocumentStatussen()
+        {
+            var results = DocumentStatusHelper.GetDetDocumentstatusen().ToList();
+            return TypedResults.Ok(new DetPagedResponse<DetDocumentstatus>
+            {
+                Results = results,
+                Count = results.Count
+            });
         }
     }
 }
