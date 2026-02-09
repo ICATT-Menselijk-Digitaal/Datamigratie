@@ -336,7 +336,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             return new CreateOzBesluitRequest
             {
                 Identificatie = identificatie,
-                VerantwoordelijkeOrganisatie = "123456782", // placeholder
+                VerantwoordelijkeOrganisatie = rsin,
                 Besluittype = besluittypeUri,
                 Zaak = createdZaak.Url,
                 Datum = detBesluit.BesluitDatum,
