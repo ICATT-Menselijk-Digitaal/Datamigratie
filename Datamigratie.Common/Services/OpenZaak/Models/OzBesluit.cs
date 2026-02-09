@@ -68,7 +68,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
         /// De omschrijving die aangeeft op grond waarvan het besluit is of komt te vervallen.
         /// </summary>
         [JsonPropertyName("vervalreden")]
-        public required Vervalreden Vervalreden { get; set; }
+        public Vervalreden? Vervalreden { get; set; }
 
         /// <summary>
         /// Datum waarop het besluit gepubliceerd wordt.
@@ -137,7 +137,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
     /// <summary>
     /// De omschrijving die aangeeft op grond waarvan het besluit is of komt te vervallen.
     /// </summary>
-    [JsonConverter(typeof(JsonStringEnumWithNoneConverter))]
+    [JsonConverter(typeof(JsonStringEnumWithNullConverter<Vervalreden>))]
     public enum Vervalreden
     {
         /// <summary>

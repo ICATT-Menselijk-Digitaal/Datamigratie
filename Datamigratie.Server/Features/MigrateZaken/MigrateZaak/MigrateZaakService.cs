@@ -346,7 +346,6 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 Vervaldatum = detBesluit.Vervaldatum,
                 Publicatiedatum = detBesluit.Publicatiedatum,
                 UiterlijkeReactiedatum = detBesluit.Reactiedatum,
-                Vervalreden = Vervalreden.None
             };
         }
 
