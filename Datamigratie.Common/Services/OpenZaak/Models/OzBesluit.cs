@@ -141,11 +141,6 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
     public enum Vervalreden
     {
         /// <summary>
-        /// Geen vervalreden (leeg)
-        /// </summary>
-        None,
-
-        /// <summary>
         /// Besluit met tijdelijke werking
         /// </summary>
         tijdelijk,
