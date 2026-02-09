@@ -41,13 +41,13 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 // Create status for the zaak based on status mapping
                 await MigrateStatusAsync(detZaak, createdZaak, mapping, token);
 
-                if(firstInformatieObjectType is {})
+                if (firstInformatieObjectType is { })
                 {
                     await UploadZaakgegevensPdfAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, token);
 
-                // Migrate all documents with their versions
-                await MigrateDocumentsAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, mapping.DocumentstatusMappings, mapping.DocumentPropertyMappings, token);
-
+                    // Migrate all documents with their versions
+                    await MigrateDocumentsAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, mapping.DocumentstatusMappings, mapping.DocumentPropertyMappings, token);
+                }
                 // Migrate all besluiten for the zaak
                 await MigrateBesluitenAsync(detZaak, createdZaak, mapping.Rsin, mapping.BesluittypeMappings, token);
 
