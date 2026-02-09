@@ -13,6 +13,7 @@ During migration from DET to OpenZaak, certain field values must be transformed 
 | `RedenStart` | `Toelichting` | Truncated with "..." suffix if too long | 1000 characters |
 | `Betaalgegevens.TransactieDatum` | `LaatsteBetaaldatum` | Formatted as `yyyy-MM-dd` (optional) | - |
 | `ArchiveerGegevens.BewaartermijnEinddatum` | `Archiefactiedatum` | Formatted as `yyyy-MM-dd` (optional) | - |
+| `ExterneIdentificatie` | `Kenmerken` | Used constant value "e-Suite" for field `Kenmerken[].bron` | - |
 
 ## Document Field Mappings
 
