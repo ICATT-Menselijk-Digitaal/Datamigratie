@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Datamigratie.FakeDet.DataGeneration.Zaken.Models;
 
@@ -38,7 +38,7 @@ public record Zaak
     public required string AangemaaktDoor { get; init; }
 
     [JsonPropertyName("kanaal")]
-    public required Kanaal Kanaal { get; init; }
+    public required ZaakKanaal Kanaal { get; init; }
 
     [JsonPropertyName("creatieDatumTijd")]
     public required DateTime CreatieDatumTijd { get; init; }
@@ -635,4 +635,10 @@ public record Documenttype
 
     [JsonPropertyName("omschrijving")]
     public string? Omschrijving { get; init; }
+}
+
+public record ZaakKanaal
+{
+    [JsonPropertyName("naam")]
+    public required Kanaal Naam { get; init; }
 }

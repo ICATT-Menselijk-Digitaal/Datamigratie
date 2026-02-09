@@ -81,7 +81,7 @@ public sealed class ZaakFaker
             Afdeling = afdeling,
             Groep = $"Team {afdeling}",
             AangemaaktDoor = _faker.PickRandom(DutchDataSets.Medewerkers),
-            Kanaal = _faker.PickRandom<Kanaal>(),
+            Kanaal = new() { Naam = _faker.PickRandom<Kanaal>() },
             CreatieDatumTijd = creatieDatum,
             WijzigDatumTijd = isAfgerond ? creatieDatum.AddDays(_faker.Random.Int(1, doorlooptijdDagen)) : null,
             Startdatum = DateOnly.FromDateTime(creatieDatum),
