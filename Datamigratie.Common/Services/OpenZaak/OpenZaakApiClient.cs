@@ -25,6 +25,8 @@ namespace Datamigratie.Common.Services.OpenZaak
 
         Task<OzStatus> CreateStatus(CreateOzStatusRequest request);
 
+        Task<OzBesluit> CreateBesluit(CreateOzBesluitRequest request);
+
         Task<OzZaak?> GetZaakByIdentificatie(string zaakNummer);
 
         Task<List<Uri>> GetInformatieobjecttypenUrlsForZaaktype(Uri zaaktypeUri);
@@ -181,6 +183,22 @@ namespace Datamigratie.Common.Services.OpenZaak
             using var response = await _httpClient.PostAsync(endpoint, content);
             await response.HandleOpenZaakErrorsAsync();
             return await response.Content.ReadFromJsonAsync<OzStatus>()
+                ?? throw new SerializationException("Unexpected null response");
+        }
+
+        /// <summary>
+        /// Creates a besluit for a zaak in OpenZaak.
+        /// </summary>
+        /// <param name="request">The besluit creation request</param>
+        /// <returns>The created besluit</returns>
+        /// <exception cref="HttpRequestException">Thrown when OpenZaak returns validation errors or other HTTP errors</exception>
+        public async Task<OzBesluit> CreateBesluit(CreateOzBesluitRequest request)
+        {
+            var endpoint = "besluiten/api/v1/besluiten";
+
+            using var response = await _httpClient.PostAsJsonAsync(endpoint, request);
+            await response.HandleOpenZaakErrorsAsync();
+            return await response.Content.ReadFromJsonAsync<OzBesluit>()
                 ?? throw new SerializationException("Unexpected null response");
         }
 

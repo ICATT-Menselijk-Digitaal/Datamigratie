@@ -2,7 +2,6 @@
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Datamigratie.Common.Services.OpenZaak
 {
@@ -12,7 +11,6 @@ namespace Datamigratie.Common.Services.OpenZaak
         {
             // one minute leeway to account for clock differences between machines
             var timeNow = DateTime.UtcNow.AddMinutes(-1);
-            var issuer = "kissdev";
 
             var claims = new Dictionary<string, object>
             {
@@ -28,7 +26,7 @@ namespace Datamigratie.Common.Services.OpenZaak
                 // this keeps time consistent and adds our leeway
                 NotBefore = timeNow, 
                 Expires = timeNow.AddHours(1), 
-                Issuer = issuer,
+                Issuer = clientId,
                 Claims = claims,
                 Subject = new ClaimsIdentity(),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

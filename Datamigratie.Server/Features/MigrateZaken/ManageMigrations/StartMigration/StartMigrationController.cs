@@ -10,6 +10,7 @@ using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Status;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.DocumentProperty;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Vertrouwelijkheid;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Besluittype;
 using Datamigratie.Server.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +28,7 @@ public class StartMigrationController(
     IValidateDocumentstatusMappingsService validateDocumentstatusMappingsService,
     IValidateDocumentPropertyMappingsService validateDocumentPropertyMappingsService,
     IValidateVertrouwelijkheidMappingsService validateVertrouwelijkheidMappingsService,
+    IValidateBesluittypeMappingsService validateBesluittypeMappingsService,
     IDetApiClient detApiClient,
     ILogger<StartMigrationController> logger) : ControllerBase
 {
@@ -56,6 +58,7 @@ public class StartMigrationController(
             var documentstatusMappings = await ValidateAndGetDocumentstatusMappingsAsync();
             var documentPropertyMappings = await ValidateAndGetDocumentPropertyMappingsAsync(detZaaktype);
             var vertrouwelijkheidMappings = await ValidateAndGetVertrouwelijkheidMappingsAsync(detZaaktype);
+            var besluittypeMappings = await ValidateAndGetBesluittypeMappingsAsync(detZaaktype);
 
             await backgroundTaskQueue.QueueMigrationAsync(new MigrationQueueItem
             {
@@ -65,7 +68,8 @@ public class StartMigrationController(
                 ResultaatMappings = resultaatMappings,
                 DocumentstatusMappings = documentstatusMappings,
                 DocumentPropertyMappings = documentPropertyMappings,
-                VertrouwelijkheidMappings = vertrouwelijkheidMappings
+                VertrouwelijkheidMappings = vertrouwelijkheidMappings,
+                BesluittypeMappings = besluittypeMappings
             });
         }
         catch (Exception e)
@@ -159,5 +163,14 @@ public class StartMigrationController(
 
         if (zaaktypeMapping == null)
             throw new InvalidOperationException("No zaaktype mapping found. Please configure the zaaktype mapping first.");
+    }
+
+    private async Task<Dictionary<string, Guid>> ValidateAndGetBesluittypeMappingsAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)
+    {
+        var (besluittypeMappingsValid, besluittypeMappings) = await validateBesluittypeMappingsService.ValidateAndGetBesluittypeMappings(detZaaktype);
+
+        return !besluittypeMappingsValid
+            ? throw new InvalidOperationException("Not all DET besluittypen have been mapped to OZ besluittypen. Please configure besluittype mappings first.")
+            : besluittypeMappings;
     }
 }

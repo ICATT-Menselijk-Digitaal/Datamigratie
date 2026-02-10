@@ -33,6 +33,48 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
 
         [JsonPropertyName("archiefstatus")]
         public string? Archiefstatus { get; set; }
+
+        [JsonPropertyName("einddatumGepland")]
+        public string? EinddatumGepland { get; set; }
+
+        [JsonPropertyName("uiterlijkeEinddatumAfdoening")]
+        public string? UiterlijkeEinddatumAfdoening { get; set; }
+
+        [JsonPropertyName("toelichting")]
+        public string? Toelichting { get; set; }
+
+        [JsonPropertyName("archiefactiedatum")]
+        public string? Archiefactiedatum { get; set; }
+
+        [JsonPropertyName("laatsteBetaaldatum")]
+        public string? LaatsteBetaaldatum { get; set; }
+
+        [JsonPropertyName("zaakgeometrie")]
+        public OzZaakgeometrie? Zaakgeometrie { get; set; }
+
+        [JsonPropertyName("communicatiekanaalNaam")]
+        public string? CommunicatiekanaalNaam { get; set; }
+
+        [JsonPropertyName("kenmerken")]
+        public List<OzZaakKenmerk>? Kenmerken { get; set; }
+    }
+
+    public class OzZaakKenmerk
+    {
+        [JsonPropertyName("kenmerk")]
+        public required string Kenmerk { get; set; }
+
+        [JsonPropertyName("bron")]
+        public required string Bron { get; set; }
+    }
+
+    public class OzZaakgeometrie
+    {
+        [JsonPropertyName("type")]
+        public string Type { get; set; } = "Point";
+
+        [JsonPropertyName("coordinates")]
+        public required List<decimal> Coordinates { get; set; }
     }
 
     public class OzZaak

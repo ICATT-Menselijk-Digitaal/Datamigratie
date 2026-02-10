@@ -46,6 +46,9 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 // Migrate all documents with their versions
                 await MigrateDocumentsAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, mapping.DocumentstatusMappings, mapping.DocumentPropertyMappings, token);
 
+                // Migrate all besluiten for the zaak
+                await MigrateBesluitenAsync(detZaak, createdZaak, mapping.Rsin, mapping.BesluittypeMappings, token);
+
                 return MigrateZaakResult.Success(createdZaak.Identificatie, "De zaak is aangemaakt in het doelsysteem");
             }
             catch (HttpRequestException httpEx)
@@ -287,6 +290,78 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
         }
 
         /// <summary>
+        /// Migrates all besluiten for a zaak to OpenZaak.
+        /// </summary>
+        private async Task MigrateBesluitenAsync(DetZaak detZaak, OzZaak createdZaak, string rsin, Dictionary<string, Guid> besluittypeMappings, CancellationToken token)
+        {
+            if (detZaak.Besluiten == null || detZaak.Besluiten.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var detBesluit in detZaak.Besluiten)
+            {
+                try
+                {
+                    var ozBesluitRequest = MapToOzBesluit(detBesluit, createdZaak, rsin, besluittypeMappings);
+                    await _openZaakApiClient.CreateBesluit(ozBesluitRequest);
+                }
+                catch (Exception ex)
+                {
+                    var httpStatusInfo = ex.InnerException is HttpRequestException httpEx && httpEx.StatusCode.HasValue
+                        ? $" | HTTP {(int)httpEx.StatusCode}: {httpEx.Message}"
+                        : ex is HttpRequestException httpExOuter && httpExOuter.StatusCode.HasValue
+                        ? $" | HTTP {(int)httpExOuter.StatusCode}: {httpExOuter.Message}"
+                        : $" | {ex.GetType().Name}: {ex.Message}";
+
+                    throw new Exception(
+                        $"Migratie onderbroken: besluit '{detBesluit.FunctioneleIdentificatie}' kon niet worden gemigreerd{httpStatusInfo}",
+                        ex);
+                }
+            }
+        }
+
+        private CreateOzBesluitRequest MapToOzBesluit(DetBesluit detBesluit, OzZaak createdZaak, string rsin, Dictionary<string, Guid> besluittypeMappings)
+        {
+            // Truncate identificatie to 47 characters + "..." = 50 max (OpenZaak limit)
+            const int MaxIdentificatieLength = 50;
+            var identificatie = TruncateWithDots(detBesluit.FunctioneleIdentificatie, MaxIdentificatieLength);
+
+            // Get the besluittype URI based on the mapping
+            var besluittypeUri = GetBesluittypeUri(detBesluit.Besluittype.Naam, besluittypeMappings, detBesluit.FunctioneleIdentificatie);
+
+            // Use ingangsdatum if available, otherwise fall back to 01-01-0001
+            var ingangsdatum = detBesluit.Ingangsdatum ?? new DateOnly(1, 1, 1);
+
+            return new CreateOzBesluitRequest
+            {
+                Identificatie = identificatie,
+                VerantwoordelijkeOrganisatie = rsin,
+                Besluittype = besluittypeUri,
+                Zaak = createdZaak.Url,
+                Datum = detBesluit.BesluitDatum,
+                Toelichting = detBesluit.Toelichting ?? "",
+                Bestuursorgaan =  "",
+                Ingangsdatum = ingangsdatum,
+                Vervaldatum = detBesluit.Vervaldatum,
+                Publicatiedatum = detBesluit.Publicatiedatum,
+                UiterlijkeReactiedatum = detBesluit.Reactiedatum,
+            };
+        }
+
+        private Uri GetBesluittypeUri(string detBesluittypeNaam, Dictionary<string, Guid> besluittypeMappings, string besluitIdentificatie)
+        {
+            if (!besluittypeMappings.TryGetValue(detBesluittypeNaam, out var ozBesluittypeId))
+            {
+                throw new InvalidOperationException(
+                    $"Besluit '{besluitIdentificatie}' migration failed: No mapping found for DET besluittype '{detBesluittypeNaam}'.");
+            }
+
+            var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
+            return new Uri($"{openZaakBaseUrl}catalogi/api/v1/besluittypen/{ozBesluittypeId}");
+        }
+
+        /// <summary>
         /// Migrates all documents with their versions in the correct order.
         /// First version is created, next versions update the same document (OpenZaak auto-increments version).
         /// </summary>
@@ -374,7 +449,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                             ? $" | HTTP {(int)httpEx.StatusCode}: {httpEx.Message}"
                             : ex is HttpRequestException httpExOuter && httpExOuter.StatusCode.HasValue
                             ? $" | HTTP {(int)httpExOuter.StatusCode}: {httpExOuter.Message}"
-                            : "";
+                            : $" | {ex.GetType().Name}: {ex.Message}";
 
                         throw new Exception(
                             $"Migratie onderbroken: versie {detVersie.Versienummer} van document '{document.Titel}' (bestand: {detVersie.Bestandsnaam}) kon niet worden gemigreerd{httpStatusInfo}",
@@ -386,6 +461,12 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
 
         private CreateOzZaakRequest CreateOzZaakCreationRequest(DetZaak detZaak, Guid ozZaaktypeId, string rsin, Dictionary<bool, VertrouwelijkheidsAanduiding> vertrouwelijkheidMappings)
         {
+            const int MaxZaaknummerLength = 40;
+            if (detZaak.FunctioneleIdentificatie.Length > MaxZaaknummerLength)
+            {
+                throw new InvalidDataException($"Zaak '{detZaak.FunctioneleIdentificatie}' migration failed: The 'zaaknummer' field length ({detZaak.FunctioneleIdentificatie.Length}) exceeds the maximum allowed length of {MaxZaaknummerLength} characters.");
+            }
+
             // First apply data transformation to follow OpenZaak constraints
             var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
             var url = new Uri($"{openZaakBaseUrl}catalogi/api/v1/zaaktypen/{ozZaaktypeId}");
@@ -397,11 +478,37 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             const int MaxOmschrijvingLength = 80;
             var omschrijving = TruncateWithDots(detZaak.Omschrijving, MaxOmschrijvingLength);
 
-            const int MaxZaaknummerLength = 40;
+            const int MaxToelichtingLength = 1000;
+            var toelichting = TruncateWithDots(detZaak.RedenStart, MaxToelichtingLength);
 
-            if (detZaak.FunctioneleIdentificatie.Length > MaxZaaknummerLength)
+            var communicatiekanaalNaam = detZaak.Kanaal?.Naam;
+
+            var einddatumGepland = detZaak.Streefdatum.ToString("yyyy-MM-dd");
+            var uiterlijkeEinddatumAfdoening = detZaak.Fataledatum?.ToString("yyyy-MM-dd");
+            var archiefactiedatum = detZaak.ArchiveerGegevens?.BewaartermijnEinddatum?.ToString("yyyy-MM-dd");
+            var laatsteBetaaldatum = detZaak.Betaalgegevens?.TransactieDatum?.ToString("yyyy-MM-dd");
+
+            List<OzZaakKenmerk>? kenmerken = null;
+            if (!string.IsNullOrWhiteSpace(detZaak.ExterneIdentificatie))
             {
-                throw new InvalidDataException($"Zaak '{detZaak.FunctioneleIdentificatie}' migration failed: The 'zaaknummer' field length ({detZaak.FunctioneleIdentificatie.Length}) exceeds the maximum allowed length of {MaxZaaknummerLength} characters.");
+                kenmerken =
+                [
+                    new OzZaakKenmerk
+                    {
+                        Kenmerk = detZaak.ExterneIdentificatie,
+                        Bron = "e-Suite"
+                    }
+                ];
+            }
+
+            OzZaakgeometrie? zaakgeometrie = null;
+            if (detZaak.Geolocatie?.Type != null && detZaak.Geolocatie?.Point2D != null)
+            {
+                zaakgeometrie = new OzZaakgeometrie
+                {
+                    Type = detZaak.Geolocatie.Type,
+                    Coordinates = detZaak.Geolocatie.Point2D
+                };
             }
 
             var vertrouwelijkheidaanduiding = MapVertrouwelijkheid(detZaak.Vertrouwelijk, vertrouwelijkheidMappings, detZaak.FunctioneleIdentificatie);
@@ -420,7 +527,15 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 Registratiedatum = registratieDatum,
                 Vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
                 Betalingsindicatie = "",
-                Archiefstatus = "nog_te_archiveren"
+                Archiefstatus = "nog_te_archiveren",
+                EinddatumGepland = einddatumGepland,
+                UiterlijkeEinddatumAfdoening = uiterlijkeEinddatumAfdoening,
+                Toelichting = toelichting,
+                Archiefactiedatum = archiefactiedatum,
+                LaatsteBetaaldatum = laatsteBetaaldatum,
+                Zaakgeometrie = zaakgeometrie,
+                CommunicatiekanaalNaam = communicatiekanaalNaam,
+                Kenmerken = kenmerken
             };
 
             return createRequest;
