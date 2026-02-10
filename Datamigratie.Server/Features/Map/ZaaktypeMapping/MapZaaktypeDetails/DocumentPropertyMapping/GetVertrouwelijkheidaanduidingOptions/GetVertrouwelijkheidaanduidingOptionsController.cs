@@ -18,7 +18,7 @@ public class GetVertrouwelijkheidaanduidingOptionsController : ControllerBase
                 Label = FormatLabel(value.ToString())
             })
             .ToList();
-        
+
         return Ok(options);
     }
 
@@ -33,6 +33,7 @@ public class GetVertrouwelijkheidaanduidingOptionsController : ControllerBase
             "vertrouwelijk" => "Vertrouwelijk",
             "geheim" => "Geheim",
             "zeer_geheim" => "Zeer geheim",
+            "confidentieel" => "Confidentieel",
             _ => value
         };
     }
