@@ -8,20 +8,15 @@ namespace Datamigratie.Common.Converters
     /// 'None' is serialized as an empty string, and empty strings are deserialized as 'None'.
     /// All other enum values are serialized/deserialized using their name.
     /// </summary>
-    public class JsonStringEnumWithNullConverter<TEnum> : JsonConverter<TEnum> where TEnum : struct, Enum
+    public class JsonStringEnumWithBlankConverter<TEnum> : JsonConverter<TEnum> where TEnum : struct, Enum
     {
         private const string NoneValue = "Blank";
 
         public override TEnum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TokenType == JsonTokenType.Null)
-            {
-                return Enum.Parse<TEnum>(NoneValue);
-            }
-
             var value = reader.GetString();
 
-            if (string.IsNullOrEmpty(value))
+            if (value == "")
             {
                 return Enum.Parse<TEnum>(NoneValue);
             }

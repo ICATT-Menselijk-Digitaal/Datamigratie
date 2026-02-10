@@ -137,7 +137,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
     /// <summary>
     /// De omschrijving die aangeeft op grond waarvan het besluit is of komt te vervallen.
     /// </summary>
-    [JsonConverter(typeof(JsonStringEnumWithNullConverter<Vervalreden>))]
+    [JsonConverter(typeof(JsonStringEnumWithBlankConverter<Vervalreden>))]
     public enum Vervalreden
     {
         /// <summary>

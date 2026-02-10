@@ -6,7 +6,7 @@ namespace Datamigratie.Tests.Common.Converters
 {
     public class JsonStringEnumWithNullConverterTests
     {
-        [JsonConverter(typeof(JsonStringEnumWithNullConverter<TestEnum>))]
+        [JsonConverter(typeof(JsonStringEnumWithBlankConverter<TestEnum>))]
         private enum TestEnum
         {
             Blank,
