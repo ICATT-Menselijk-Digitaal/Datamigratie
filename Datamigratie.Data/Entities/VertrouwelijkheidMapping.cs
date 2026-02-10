@@ -14,7 +14,7 @@ public class VertrouwelijkheidMapping
 
     [Required]
     public required bool DetVertrouwelijkheid { get; set; }
- 
+
     [Required]
     public required string OzVertrouwelijkheidaanduiding { get; set; }
 }

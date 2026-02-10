@@ -26,7 +26,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
         public required string Startdatum { get; set; }
 
         [JsonPropertyName("vertrouwelijkheidaanduiding")]
-        public string? Vertrouwelijkheidaanduiding { get; set; }
+        public VertrouwelijkheidsAanduiding? Vertrouwelijkheidaanduiding { get; set; }
 
         [JsonPropertyName("betalingsindicatie")]
         public string? Betalingsindicatie { get; set; }

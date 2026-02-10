@@ -1,4 +1,5 @@
 ﻿using Datamigratie.Common.Services.Det;
+using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Data;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Models;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues;
@@ -8,6 +9,7 @@ using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Resultaat;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Status;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.DocumentProperty;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Vertrouwelijkheid;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Besluittype;
 using Datamigratie.Server.Helpers;
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +27,7 @@ public class StartMigrationController(
     IValidateResultaattypeMappingsService validateResultaattypeMappingsService,
     IValidateDocumentstatusMappingsService validateDocumentstatusMappingsService,
     IValidateDocumentPropertyMappingsService validateDocumentPropertyMappingsService,
+    IValidateVertrouwelijkheidMappingsService validateVertrouwelijkheidMappingsService,
     IValidateBesluittypeMappingsService validateBesluittypeMappingsService,
     IDetApiClient detApiClient,
     ILogger<StartMigrationController> logger) : ControllerBase
@@ -46,12 +49,15 @@ public class StartMigrationController(
                 return BadRequest(new { message = "DET Zaaktype not found." });
             }
 
+            await ValidateZaaktypeMappingAsync(detZaaktype);
+
             var rsinMapping = await ValidateAndGetRsinMappingAsync();
 
             var statusMappings = await ValidateAndGetStatusMappingsAsync(detZaaktype);
             var resultaatMappings = await ValidateAndGetResultaattypeMappingsAsync(detZaaktype);
             var documentstatusMappings = await ValidateAndGetDocumentstatusMappingsAsync();
             var documentPropertyMappings = await ValidateAndGetDocumentPropertyMappingsAsync(detZaaktype);
+            var vertrouwelijkheidMappings = await ValidateAndGetVertrouwelijkheidMappingsAsync(detZaaktype);
             var besluittypeMappings = await ValidateAndGetBesluittypeMappingsAsync(detZaaktype);
 
             await backgroundTaskQueue.QueueMigrationAsync(new MigrationQueueItem
@@ -62,6 +68,7 @@ public class StartMigrationController(
                 ResultaatMappings = resultaatMappings,
                 DocumentstatusMappings = documentstatusMappings,
                 DocumentPropertyMappings = documentPropertyMappings,
+                VertrouwelijkheidMappings = vertrouwelijkheidMappings,
                 BesluittypeMappings = besluittypeMappings
             });
         }
@@ -138,6 +145,24 @@ public class StartMigrationController(
         return !documentPropertyMappingsValid
             ? throw new InvalidOperationException("Not all document properties have been mapped. Please configure publicatieniveau and documenttype mappings first.")
             : documentPropertyMappings;
+    }
+
+    private async Task<Dictionary<bool, VertrouwelijkheidsAanduiding>> ValidateAndGetVertrouwelijkheidMappingsAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)
+    {
+        var (vertrouwelijkheidMappingsValid, vertrouwelijkheidMappings) = await validateVertrouwelijkheidMappingsService.ValidateAndGetVertrouwelijkheidMappings(detZaaktype);
+
+        return !vertrouwelijkheidMappingsValid
+            ? throw new InvalidOperationException("Not all vertrouwelijkheid values have been mapped. Please configure vertrouwelijkheid mappings first.")
+            : vertrouwelijkheidMappings;
+    }
+
+    private async Task ValidateZaaktypeMappingAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)
+    {
+        var zaaktypeMapping = await dbContext.Mappings
+            .FirstOrDefaultAsync(m => m.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie);
+
+        if (zaaktypeMapping == null)
+            throw new InvalidOperationException("No zaaktype mapping found. Please configure the zaaktype mapping first.");
     }
 
     private async Task<Dictionary<string, Guid>> ValidateAndGetBesluittypeMappingsAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)

@@ -22,6 +22,7 @@ using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Status;
 using Datamigratie.Server.Features.Map.GlobalMapping.DocumentstatusMapping.Save.Services;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.DocumentProperty;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Vertrouwelijkheid;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Besluittype;
 
 namespace Datamigratie.Server.Config
@@ -54,6 +55,7 @@ namespace Datamigratie.Server.Config
             services.AddScoped<IValidateDocumentPropertyMappingsService, ValidateDocumentPropertyMappingsService>();
             services.AddScoped<IShowDocumentPropertyMappingsService, ShowDocumentPropertyMappingsService>();
             services.AddScoped<ISaveDocumentPropertyMappingsService, SaveDocumentPropertyMappingsService>();
+            services.AddScoped<IValidateVertrouwelijkheidMappingsService, ValidateVertrouwelijkheidMappingsService>();
             services.AddScoped<IValidateBesluittypeMappingsService, ValidateBesluittypeMappingsService>();
 
             services.AddHostedService<StartMigrationBackgroundService>();
@@ -62,7 +64,7 @@ namespace Datamigratie.Server.Config
                 return new MigrationBackgroundTaskQueue(MigrationBackgroundTaskQueueCapacity);
             });
             services.AddSingleton<MigrationWorkerState>();
-            
+
             return services;
 
         }

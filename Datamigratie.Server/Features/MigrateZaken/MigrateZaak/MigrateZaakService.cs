@@ -28,7 +28,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
         {
             try
             {
-                var createZaakRequest = CreateOzZaakCreationRequest(detZaak, mapping.OpenZaaktypeId, mapping.Rsin);
+                var createZaakRequest = CreateOzZaakCreationRequest(detZaak, mapping.OpenZaaktypeId, mapping.Rsin, mapping.VertrouwelijkheidMappings);
 
                 var createdZaak = await _openZaakApiClient.CreateZaak(createZaakRequest);
 
@@ -459,7 +459,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             }
         }
 
-        private CreateOzZaakRequest CreateOzZaakCreationRequest(DetZaak detZaak, Guid ozZaaktypeId, string rsin)
+        private CreateOzZaakRequest CreateOzZaakCreationRequest(DetZaak detZaak, Guid ozZaaktypeId, string rsin, Dictionary<bool, VertrouwelijkheidsAanduiding> vertrouwelijkheidMappings)
         {
             const int MaxZaaknummerLength = 40;
             if (detZaak.FunctioneleIdentificatie.Length > MaxZaaknummerLength)
@@ -511,6 +511,8 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 };
             }
 
+            var vertrouwelijkheidaanduiding = MapVertrouwelijkheid(detZaak.Vertrouwelijk, vertrouwelijkheidMappings, detZaak.FunctioneleIdentificatie);
+
             // Now create the request
             var createRequest = new CreateOzZaakRequest
             {
@@ -522,8 +524,8 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 Startdatum = startDatum,
 
                 //verplichte velden, ookal zeggen de specs van niet
-                Registratiedatum = registratieDatum, //todo moet deze zijn, maar die heeft een raar format. moet custom gedeserialized worden sourceZaak.CreatieDatumTijd
-                Vertrouwelijkheidaanduiding = "openbaar", //hier moet in een latere story nog custom mapping voor komen
+                Registratiedatum = registratieDatum,
+                Vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
                 Betalingsindicatie = "",
                 Archiefstatus = "nog_te_archiveren",
                 EinddatumGepland = einddatumGepland,
@@ -537,6 +539,16 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             };
 
             return createRequest;
+        }
+
+        private static VertrouwelijkheidsAanduiding MapVertrouwelijkheid(bool detVertrouwelijk, Dictionary<bool, VertrouwelijkheidsAanduiding> vertrouwelijkheidMappings, string zaakIdentificatie)
+        {
+            if (!vertrouwelijkheidMappings.TryGetValue(detVertrouwelijk, out var ozVertrouwelijkheidaanduiding))
+            {
+                throw new InvalidOperationException($"Zaak '{zaakIdentificatie}' migration failed: No mapping found for vertrouwelijkheid '{detVertrouwelijk}'.");
+            }
+
+            return ozVertrouwelijkheidaanduiding;
         }
 
         /// <summary>
