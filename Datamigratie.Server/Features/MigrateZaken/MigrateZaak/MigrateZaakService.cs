@@ -341,11 +341,12 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 Zaak = createdZaak.Url,
                 Datum = detBesluit.BesluitDatum,
                 Toelichting = detBesluit.Toelichting ?? "",
-                Bestuursorgaan =  "",
+                Bestuursorgaan = "",
                 Ingangsdatum = ingangsdatum,
                 Vervaldatum = detBesluit.Vervaldatum,
                 Publicatiedatum = detBesluit.Publicatiedatum,
                 UiterlijkeReactiedatum = detBesluit.Reactiedatum,
+                Vervalreden = Vervalreden.Blank
             };
         }
 
@@ -530,7 +531,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 Archiefstatus = "nog_te_archiveren",
                 EinddatumGepland = einddatumGepland,
                 UiterlijkeEinddatumAfdoening = uiterlijkeEinddatumAfdoening,
-                Toelichting = toelichting,
+                Toelichting = toelichting ?? "",
                 Archiefactiedatum = archiefactiedatum,
                 LaatsteBetaaldatum = laatsteBetaaldatum,
                 Zaakgeometrie = zaakgeometrie,
