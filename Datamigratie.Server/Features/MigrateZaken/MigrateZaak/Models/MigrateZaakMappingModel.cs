@@ -8,7 +8,6 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak.Models
                 public Guid OpenZaaktypeId { get; internal set; }
                 public Uri? ResultaattypeUri { get; set; }
                 public Uri? StatustypeUri { get; set; }
-                public Uri? StatustypeUri { get; set; }
 
                 /// <summary>
                 /// Document status mappings: DetDocumentstatusNaam -> OzDocumentstatus (e.g., "in_bewerking", "definitief")
