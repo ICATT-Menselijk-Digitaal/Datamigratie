@@ -41,7 +41,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
         public string? UiterlijkeEinddatumAfdoening { get; set; }
 
         [JsonPropertyName("toelichting")]
-        public string? Toelichting { get; set; }
+        public required string Toelichting { get; set; }
 
         [JsonPropertyName("archiefactiedatum")]
         public string? Archiefactiedatum { get; set; }

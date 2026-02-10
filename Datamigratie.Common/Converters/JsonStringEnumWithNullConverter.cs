@@ -1,27 +1,29 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Datamigratie.Common.Converters
 {
     /// <summary>
-    /// A generic JSON converter for nullable enums that treats null as an empty string.
+    /// A generic JSON converter for enums that have a 'None' value.
+    /// 'None' is serialized as an empty string, and empty strings are deserialized as 'None'.
     /// All other enum values are serialized/deserialized using their name.
     /// </summary>
-    public class JsonStringEnumWithNullConverter<TEnum> : JsonConverter<TEnum?> where TEnum : struct, Enum
+    public class JsonStringEnumWithNullConverter<TEnum> : JsonConverter<TEnum> where TEnum : struct, Enum
     {
-        public override TEnum? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        private const string NoneValue = "Blank";
+
+        public override TEnum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType == JsonTokenType.Null)
             {
-                return null;
+                return Enum.Parse<TEnum>(NoneValue);
             }
 
             var value = reader.GetString();
 
             if (string.IsNullOrEmpty(value))
             {
-                return null;
+                return Enum.Parse<TEnum>(NoneValue);
             }
 
             if (Enum.TryParse<TEnum>(value, out var result))
@@ -32,15 +34,16 @@ namespace Datamigratie.Common.Converters
             throw new JsonException($"Unknown {typeof(TEnum).Name} value: {value}");
         }
 
-        public override void Write(Utf8JsonWriter writer, TEnum? value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, TEnum value, JsonSerializerOptions options)
         {
-            if (value == null)
+            var stringValue = value.ToString();
+            if (stringValue == NoneValue)
             {
                 writer.WriteStringValue("");
             }
             else
             {
-                writer.WriteStringValue(value.Value.ToString());
+                writer.WriteStringValue(stringValue);
             }
         }
     }
