@@ -34,6 +34,7 @@ namespace Datamigratie.Server.Features.SelectDetZaaktypeToMigrate.ShowDetZaaktyp
                 Resultaten = detZaaktypeDetail.Resultaten,
                 Statuses = detZaaktypeDetail.Statussen,
                 Documenttypen = [.. detZaaktypeDetail.Documenttypen.Select(dt => dt.Documenttype)],
+                Besluittypen = [.. detZaaktypeDetail.Besluiten.Select(b => b.Besluittype)],
                 PublicatieNiveauOptions = GetPublicatieNiveauOptions(),
                 DetVertrouwelijkheidOpties = GetVertrouwelijkheidOpties()
             };

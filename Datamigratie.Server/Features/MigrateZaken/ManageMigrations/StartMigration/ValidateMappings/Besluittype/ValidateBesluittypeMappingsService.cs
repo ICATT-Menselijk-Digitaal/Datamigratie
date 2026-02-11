@@ -14,13 +14,12 @@ public class ValidateBesluittypeMappingsService(
 {
     public async Task<(bool IsValid, Dictionary<string, Guid> Mappings)> ValidateAndGetBesluittypeMappings(DetZaaktypeDetail detZaaktype)
     {
-        var activeDetBesluittypen = detZaaktype.Besluiten
-            .Where(b => b.Besluittype.Actief)
+        var detBesluittypen = detZaaktype.Besluiten
             .Select(b => b.Besluittype.Naam)
             .ToList();
 
         // If no active besluittypen, consider it valid
-        if (activeDetBesluittypen.Count == 0)
+        if (detBesluittypen.Count == 0)
         {
             return (true, new Dictionary<string, Guid>());
         }
@@ -38,7 +37,7 @@ public class ValidateBesluittypeMappingsService(
         var mappingDictionary = mappings.ToDictionary(m => m.DetBesluittypeNaam, m => m.OzBesluittypeId);
 
         // checking if all active DET besluittypen are mapped
-        var allMapped = activeDetBesluittypen.All(besluittype => mappingDictionary.ContainsKey(besluittype));
+        var allMapped = detBesluittypen.All(besluittype => mappingDictionary.ContainsKey(besluittype));
 
         return (allMapped, mappingDictionary);
     }

@@ -9,6 +9,8 @@ namespace Datamigratie.Server.Features.SelectDetZaaktypeToMigrate.ShowDetZaaktyp
         public List<DetDocumenttype> Documenttypen { get; set; } = [];
         public List<DetPublicatieNiveau> PublicatieNiveauOptions { get; set; } = [];
         public List<DetVertrouwelijkheid> DetVertrouwelijkheidOpties { get; set; } = [];
+        public List<DetBesluittype> Besluittypen { get; set; } = [];
+
     }
 
     public class DetPublicatieNiveau
