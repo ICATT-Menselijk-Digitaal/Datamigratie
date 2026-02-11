@@ -7,5 +7,6 @@ namespace Datamigratie.Server.Features.SelectDetZaaktypeToMigrate.ShowDetZaaktyp
         public required int ClosedZakenCount { get; set; }
         public List<DetStatus> Statuses { get; set; } = [];
         public List<DetDocumenttype> Documenttypen { get; set; } = [];
+        public List<DetBesluittype> Besluittypen { get; set; } = [];
     }
 }
