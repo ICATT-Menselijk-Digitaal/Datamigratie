@@ -54,10 +54,6 @@ export const detService = {
     ),
   getZaaktypeById: (detZaaktypeId: string): Promise<DETZaaktype> =>
     get<DETZaaktype>(`/api/det/zaaktypen/${detZaaktypeId}`),
-  getAllBesluittypen: (): Promise<DetBesluittype[]> =>
-    get<DetBesluittype[]>(`/api/det/besluittypen`).then((besluittypen) =>
-      besluittypen.sort((a, b) => a.naam.localeCompare(b.naam))
-    ),
   getAllDocumentstatussen: (): Promise<DetDocumentstatus[]> =>
     get<DetDocumentstatus[]>(`/api/det/documentstatussen`)
 };
