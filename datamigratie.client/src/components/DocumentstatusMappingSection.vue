@@ -8,20 +8,24 @@
     :source-items="sourceItems"
     :target-items="targetItems"
     :all-mapped="allMapped"
-    :is-editing="isEditing"
+    :is-editing="isInEditMode"
     :disabled="disabled"
     :loading="loading"
     empty-message="Er zijn geen documentstatussen beschikbaar."
-    target-placeholder="Kies een documentstatus"
-    save-button-text="Documentstatus mappings opslaan"
-    :show-warning="showWarning"
-    warning-message="Niet alle documentstatussen zijn gekoppeld."
+    target-placeholder="- Kies een documentstatus -"
+    save-button-text="Mapping opslaan"
+    cancel-button-text="Annuleren"
+    edit-button-text="Mapping aanpassen"
+    :show-edit-button="true"
+    :show-warning="false"
     @save="handleSave"
+    @cancel="handleCancel"
+    @edit="forceEdit = true"
   />
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import MappingGrid, { type MappingItem, type Mapping } from "@/components/MappingGrid.vue";
 import type { DetDocumentstatus } from "@/services/detService";
 import type { DocumentstatusMappingItem } from "@/types/datamigratie";
@@ -45,7 +49,10 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   (e: "update:documentstatusMappings", value: DocumentstatusMappingItem[]): void;
   (e: "save"): void;
+  (e: "fetchMappings"): void;
 }>();
+
+const forceEdit = ref(false);
 
 const ozDocumentstatussen = [
   { id: "in_bewerking", name: "In bewerking" },
@@ -54,11 +61,14 @@ const ozDocumentstatussen = [
   { id: "gearchiveerd", name: "Gearchiveerd" }
 ];
 
+const isInEditMode = computed(() => {
+  return !props.allMapped || forceEdit.value;
+});
+
 const sourceItems = computed<MappingItem[]>(() => {
   return props.detDocumentstatussen.map((status) => ({
     id: status.naam,
-    name: status.naam,
-    description: status.omschrijving
+    name: status.naam
   }));
 });
 
@@ -88,5 +98,10 @@ const mappingsModel = computed<Mapping[]>({
 
 const handleSave = () => {
   emit("save");
+};
+
+const handleCancel = () => {
+  emit("fetchMappings");
+  forceEdit.value = false;
 };
 </script>

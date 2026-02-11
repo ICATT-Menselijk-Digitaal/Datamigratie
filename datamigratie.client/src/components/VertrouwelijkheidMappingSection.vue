@@ -1,30 +1,38 @@
 <template>
-  <mapping-grid
-    v-model="mappingsModel"
-    title="Vertrouwelijkheid mapping"
+  <collapsible-mapping-section
+    title="Vertrouwelijkheid"
     description="Koppel de e-Suite vertrouwelijkheid waarden aan de Open Zaak vertrouwelijkheidaanduiding."
-    source-label="e-Suite Vertrouwelijk"
-    target-label="Open Zaak Vertrouwelijkheidaanduiding"
-    :source-items="sourceItems"
-    :target-items="targetItems"
-    :all-mapped="allMapped"
-    :is-editing="forceEdit"
-    :disabled="disabled"
-    :loading="isLoading"
-    empty-message="Er zijn geen vertrouwelijkheid opties beschikbaar."
-    target-placeholder="Kies een vertrouwelijkheidaanduiding"
-    save-button-text="Vertrouwelijkheidmappings opslaan"
-    :show-warning="true"
-    warning-message="Niet alle vertrouwelijkheid opties zijn gekoppeld. Migratie kan niet worden gestart."
-    @save="saveMappings"
-    edit-button-text="Vertrouwelijkheidmappings aanpassen"
-    :show-edit-button="true"
-    @edit="forceEdit = true"
-  />
+    :show-warning="!allMapped"
+  >
+    <mapping-grid
+      v-model="mappingsModel"
+      title=""
+      description=""
+      source-label="e-Suite Vertrouwelijk"
+      target-label="Open Zaak Vertrouwelijkheidaanduiding"
+      :source-items="sourceItems"
+      :target-items="targetItems"
+      :all-mapped="allMapped"
+      :is-editing="isInEditMode"
+      :disabled="disabled"
+      :loading="isLoading"
+      empty-message="Er zijn geen vertrouwelijkheid opties beschikbaar."
+      target-placeholder="- Kies een vertrouwelijkheidaanduiding -"
+      save-button-text="Mapping opslaan"
+      cancel-button-text="Annuleren"
+      edit-button-text="Mapping aanpassen"
+      :show-edit-button="true"
+      :show-warning="false"
+      @save="saveMappings"
+      @cancel="handleCancel"
+      @edit="forceEdit = true"
+    />
+  </collapsible-mapping-section>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, watchEffect } from "vue";
+import { ref, computed, watch, onMounted, watchEffect } from "vue";
+import CollapsibleMappingSection from "@/components/CollapsibleMappingSection.vue";
 import MappingGrid, { type MappingItem, type Mapping } from "@/components/MappingGrid.vue";
 import toast from "@/components/toast/toast";
 import { get, post } from "@/utils/fetchWrapper";
@@ -69,6 +77,10 @@ const isLoading = ref(false);
 const forceEdit = ref(false);
 const allMapped = ref<boolean>(false);
 const mappingsModel = ref<Mapping[]>([]);
+
+const isInEditMode = computed(() => {
+  return !allMapped.value || forceEdit.value;
+});
 
 const fetchOzOptions = async () => {
   try {
@@ -129,7 +141,7 @@ const saveMappings = async () => {
     // re-fetch mappings to check for completeness
     await fetchMappings();
 
-    forceEdit.value = !allMapped.value;
+    forceEdit.value = false;
   } catch (error) {
     toast.add({
       text: `Fout bij opslaan van de vertrouwelijkheid mappings - ${error}`,
@@ -139,6 +151,11 @@ const saveMappings = async () => {
   } finally {
     isLoading.value = false;
   }
+};
+
+const handleCancel = () => {
+  fetchMappings();
+  forceEdit.value = false;
 };
 
 // Fetch OZ options once on mount
