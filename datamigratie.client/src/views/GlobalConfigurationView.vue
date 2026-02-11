@@ -284,13 +284,6 @@ onMounted(() => {
 }
 
 .page-title {
-  color: var(--Zwart, #212121);
-  font-family: Avenir;
-  font-size: 32px;
-  font-style: normal;
-  font-weight: 900;
-  line-height: normal;
-  margin: 0;
   align-self: flex-start;
   max-width: 1200px;
   width: 100%;

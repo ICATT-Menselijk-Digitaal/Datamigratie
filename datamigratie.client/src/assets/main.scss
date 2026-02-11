@@ -167,6 +167,35 @@ button[class*="icon"] {
   white-space: pre-wrap;
 }
 
+// Common typography styles
+.page-title {
+  color: var(--Zwart, #212121);
+  font-family: Avenir;
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: normal;
+  margin: 0;
+}
+
+.text-bold-16 {
+  color: var(--Zwart, #212121);
+  font-family: Avenir;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 20px;
+}
+
+.text-regular-16 {
+  color: var(--Zwart, #212121);
+  font-family: Avenir;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 20px;
+}
+
 // Common button styles
 .primary-button {
   display: flex;

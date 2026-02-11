@@ -163,13 +163,6 @@ const canStartMigration = computed(
 
 .page-title {
   align-self: stretch;
-  color: var(--Zwart, #212121);
-  font-family: Avenir;
-  font-size: 32px;
-  font-style: normal;
-  font-weight: 900;
-  line-height: normal;
-  margin: 0;
   margin-bottom: 24px;
 }
 
