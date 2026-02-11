@@ -1,4 +1,5 @@
 ﻿using Datamigratie.Common.Services.OpenZaak;
+using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.ShowOzZaaktypeInfo.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,10 +32,49 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Sh
                 Resultaattypen = ozResultaattypes,
                 Informatieobjecttypen = ozInformatieobjecttypen,
                 Besluittypen = ozBesluittypen,
-                Omschrijving = ozZaaktype.Omschrijving
+                Omschrijving = ozZaaktype.Omschrijving,
+                OzZaakVertrouwelijkheidaanduidingen = GetZaakVertrouwelijkheidaanduidingOptions(),
+                OzDocumentVertrouwelijkheidaanduidingen = GetDocumentVertrouwelijkheidaanduidingOptions()
             };
 
             return enrichedOzZaaktype;
+        }
+
+        private static List<OzZaakVertrouwelijkheidaanduiding> GetZaakVertrouwelijkheidaanduidingOptions()
+        {
+            return Enum.GetValues<VertrouwelijkheidsAanduiding>()
+                .Select(value => new OzZaakVertrouwelijkheidaanduiding
+                {
+                    Value = value.ToString(),
+                    Label = FormatVertrouwelijkheidLabel(value.ToString())
+                })
+                .ToList();
+        }
+
+        private static List<OzDocumentVertrouwelijkheidaanduiding> GetDocumentVertrouwelijkheidaanduidingOptions()
+        {
+            return Enum.GetValues<VertrouwelijkheidsAanduiding>()
+                .Select(value => new OzDocumentVertrouwelijkheidaanduiding
+                {
+                    Value = value.ToString(),
+                    Label = FormatVertrouwelijkheidLabel(value.ToString())
+                })
+                .ToList();
+        }
+
+        private static string FormatVertrouwelijkheidLabel(string value)
+        {
+            return value switch
+            {
+                "openbaar" => "Openbaar",
+                "beperkt_openbaar" => "Beperkt openbaar",
+                "intern" => "Intern",
+                "zaakvertrouwelijk" => "Zaakvertrouwelijk",
+                "vertrouwelijk" => "Vertrouwelijk",
+                "geheim" => "Geheim",
+                "zeer_geheim" => "Zeer geheim",
+                _ => value
+            };
         }
     }
 }

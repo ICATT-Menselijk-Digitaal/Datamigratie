@@ -1,4 +1,5 @@
 ﻿using Datamigratie.Common.Services.Det;
+using Datamigratie.Server.Constants;
 using Datamigratie.Server.Features.SelectDetZaaktypeToMigrate.ShowDetZaaktypeInfo.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,11 +33,43 @@ namespace Datamigratie.Server.Features.SelectDetZaaktypeToMigrate.ShowDetZaaktyp
                 ClosedZakenCount = closedDetZaken,
                 Resultaten = detZaaktypeDetail.Resultaten,
                 Statuses = detZaaktypeDetail.Statussen,
-                Documenttypen = [.. detZaaktypeDetail.Documenttypen.Select(dt => dt.Documenttype)]
+                Documenttypen = [.. detZaaktypeDetail.Documenttypen.Select(dt => dt.Documenttype)],
+                PublicatieNiveauOptions = GetPublicatieNiveauOptions(),
+                DetVertrouwelijkheidOpties = GetVertrouwelijkheidOpties()
             };
 
             return enrichedDetZaaktype;
+        }
 
+        private static List<DetPublicatieNiveau> GetPublicatieNiveauOptions()
+        {
+            return PublicatieNiveauConstants.Values
+                .Select(value => new DetPublicatieNiveau
+                {
+                    Value = value,
+                    Label = FormatPublicatieNiveauLabel(value)
+                })
+                .ToList();
+        }
+
+        private static string FormatPublicatieNiveauLabel(string value)
+        {
+            return value switch
+            {
+                "extern" => "Extern",
+                "intern" => "Intern",
+                "vertrouwelijk" => "Vertrouwelijk",
+                _ => value
+            };
+        }
+
+        private static List<DetVertrouwelijkheid> GetVertrouwelijkheidOpties()
+        {
+            return
+            [
+                new DetVertrouwelijkheid { Value = "true", Label = "Ja (Vertrouwelijk)" },
+                new DetVertrouwelijkheid { Value = "false", Label = "Nee (Niet vertrouwelijk)" }
+            ];
         }
     }
 }

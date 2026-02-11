@@ -25,6 +25,16 @@ export type OzBesluittype = {
   url: string;
 };
 
+export type OzZaakVertrouwelijkheidaanduiding = {
+  value: string;
+  label: string;
+};
+
+export type OzDocumentVertrouwelijkheidaanduiding = {
+  value: string;
+  label: string;
+};
+
 export type OZZaaktype = {
   id: string;
   identificatie: string;
@@ -33,6 +43,8 @@ export type OZZaaktype = {
   resultaattypen?: OzResultaattype[];
   informatieobjecttypen?: OzInformatieobjecttype[];
   besluittypen?: OzBesluittype[];
+  ozZaakVertrouwelijkheidaanduidingen?: OzZaakVertrouwelijkheidaanduiding[];
+  ozDocumentVertrouwelijkheidaanduidingen?: OzDocumentVertrouwelijkheidaanduiding[];
 };
 
 export const ozService = {

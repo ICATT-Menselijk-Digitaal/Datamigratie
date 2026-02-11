@@ -71,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import MappingGrid, { type MappingItem, type Mapping } from "@/components/MappingGrid.vue";
 import type { DETZaaktype } from "@/services/detService";
 import type { OZZaaktype } from "@/services/ozService";
@@ -93,11 +93,6 @@ type DocumentPropertyMappingResponse = {
 
 type SaveDocumentPropertyMappingsRequest = {
   mappings: DocumentPropertyMappingItem[];
-};
-
-type VertrouwelijkheidaanduidingOption = {
-  value: string;
-  label: string;
 };
 
 interface Props {
@@ -122,12 +117,12 @@ const PUBLICATIENIVEAU = "publicatieniveau";
 const DOCUMENTTYPE = "documenttype";
 
 const validPublicatieNiveauMappings = computed(() =>
-  publicatieNiveauOptions.value.map((niveau) => ({
-    sourceId: niveau,
+  (props.detZaaktype.publicatieNiveauOptions ?? []).map((option) => ({
+    sourceId: option.value,
     targetId:
       mappingsFromServer.value.find(
         ({ detPropertyName, detValue }) =>
-          detPropertyName === PUBLICATIENIVEAU && detValue === niveau
+          detPropertyName === PUBLICATIENIVEAU && detValue === option.value
       )?.ozValue || null
   }))
 );
@@ -143,8 +138,6 @@ const validDocumenttypeMappings = computed(
     })) || []
 );
 
-const publicatieNiveauOptions = ref<string[]>([]);
-const vertrouwelijkheidaanduidingOptions = ref<{ value: string; label: string }[]>([]);
 const forceEditPublicatieniveau = ref(false);
 const publicatieniveauIsInEditMode = computed(
   () => forceEditPublicatieniveau.value || !allPublicatieNiveauMapped.value
@@ -198,15 +191,15 @@ const saveMappings = async () => {
 };
 
 const publicatieNiveauSourceItems = computed<MappingItem[]>(() => {
-  return publicatieNiveauOptions.value.map((option) => ({
-    id: option,
-    name: option.charAt(0).toUpperCase() + option.slice(1),
+  return (props.detZaaktype.publicatieNiveauOptions ?? []).map((option) => ({
+    id: option.value,
+    name: option.label,
     description: undefined
   }));
 });
 
 const vertrouwelijkheidaanduidingTargetItems = computed<MappingItem[]>(() => {
-  return vertrouwelijkheidaanduidingOptions.value.map((option) => ({
+  return (props.ozZaaktype.ozDocumentVertrouwelijkheidaanduidingen ?? []).map((option) => ({
     id: option.value,
     name: option.label,
     description: undefined
@@ -314,22 +307,6 @@ watch(validPublicatieNiveauMappings, (value) => {
   publicatieNiveauMappingsModel.value = value;
 });
 
-onMounted(async () => {
-  isLoading.value = true;
-  try {
-    publicatieNiveauOptions.value = await get<string[]>(`/api/det/options/publicatieniveau`);
-    vertrouwelijkheidaanduidingOptions.value = await get<VertrouwelijkheidaanduidingOption[]>(
-      `/api/oz/options/vertrouwelijkheidaanduiding`
-    );
-  } catch (error) {
-    toast.add({
-      text: `Fout bij ophalen van de document mappings opties - ${error}`,
-      type: "error"
-    });
-  } finally {
-    isLoading.value = false;
-  }
-});
 </script>
 
 <style lang="scss" scoped>
