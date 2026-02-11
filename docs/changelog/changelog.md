@@ -25,3 +25,4 @@
 
 - [Migrate Besluit of Zaak](https://dimpact.atlassian.net/browse/DATA-192)
 - [Migrate RSIN](https://dimpact.atlassian.net/browse/DATA-162)
+- [Besluittypen mappings should be per-zaaktype & and remove active filter](https://dimpact.atlassian.net/browse/DATA-334)
