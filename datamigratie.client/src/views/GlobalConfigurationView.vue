@@ -10,7 +10,6 @@
           title="RSIN"
           description="Voer hieronder de RSIN in"
           :show-warning="!rsin"
-          :initially-expanded="true"
         >
           <div class="rsin-section">
             <div class="rsin-row">
@@ -62,7 +61,6 @@
           title="Documentstatussen"
           description="Koppel de e-Suite documentstatussen aan de Open Zaak documentstatussen."
           :show-warning="!allDocumentstatusesMapped"
-          :initially-expanded="true"
         >
           <documentstatus-mapping-section
             :det-documentstatussen="detDocumentstatussen"
@@ -276,10 +274,10 @@ onMounted(() => {
 <style scoped lang="scss">
 .algemeen-view {
   display: flex;
-  width: 1440px;
+  max-width: 1440px;
   min-height: 900px;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 24px;
   background: #fff;
   padding: 24px;

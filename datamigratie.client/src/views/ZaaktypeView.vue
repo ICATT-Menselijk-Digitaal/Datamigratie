@@ -141,11 +141,11 @@ const canStartMigration = computed(
 
 .zaaktype-view {
   display: flex;
-  width: 1440px;
+  max-width: 1440px;
   min-height: 900px;
-  padding-bottom: 40px;
+  padding: 0 24px 40px 24px;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 24px;
   background: #fff;
 }

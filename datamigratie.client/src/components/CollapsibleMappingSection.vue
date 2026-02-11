@@ -41,7 +41,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   description: "",
   showWarning: false,
-  initiallyExpanded: true
+  initiallyExpanded: false
 });
 
 const isExpanded = ref(props.initiallyExpanded);
