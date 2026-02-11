@@ -38,6 +38,7 @@ export type DETZaaktype = {
   statuses?: DetStatus[];
   resultaten?: DetResultaattypen[];
   documenttypen?: DetDocumenttype[];
+  besluittypen?: DetBesluittype[];
 };
 
 export type DetDocumentstatus = {
