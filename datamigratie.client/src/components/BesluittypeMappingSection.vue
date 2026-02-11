@@ -1,30 +1,38 @@
 <template>
-  <mapping-grid
-    v-model="mappingsModel"
-    title="Besluittype mapping"
+  <collapsible-mapping-section
+    title="Besluittype"
     description="Koppel de e-Suite besluittypen aan de Open Zaak besluittypen."
-    source-label="e-Suite Besluittype"
-    target-label="Open Zaak Besluittype"
-    :source-items="sourceBesluittypeItems"
-    :target-items="targetBesluittypeItems"
-    :all-mapped="allMapped"
-    :is-editing="isInEditMode"
-    :disabled="disabled"
-    :loading="isLoading"
-    empty-message="Er zijn geen besluittypen beschikbaar voor dit zaaktype."
-    target-placeholder="Kies een besluittype"
-    save-button-text="Besluittypemappings opslaan"
-    :show-warning="true"
-    warning-message="Niet alle besluittypen zijn gekoppeld. Migratie kan niet worden gestart."
-    @save="saveMappings"
-    edit-button-text="Besluittypemappings aanpassen"
-    :show-edit-button="true"
-    @edit="forceEdit = true"
-  />
+    :show-warning="!allMapped"
+  >
+    <mapping-grid
+      v-model="mappingsModel"
+      title=""
+      description=""
+      source-label="e-Suite Besluittype"
+      target-label="Open Zaak Besluittype"
+      :source-items="sourceBesluittypeItems"
+      :target-items="targetBesluittypeItems"
+      :all-mapped="allMapped"
+      :is-editing="isInEditMode"
+      :disabled="disabled"
+      :loading="isLoading"
+      empty-message="Er zijn geen besluittypen beschikbaar voor dit zaaktype."
+      target-placeholder="- Kies een besluittype -"
+      save-button-text="Mapping opslaan"
+      cancel-button-text="Annuleren"
+      edit-button-text="Mapping aanpassen"
+      :show-edit-button="true"
+      :show-warning="false"
+      @save="saveMappings"
+      @cancel="handleCancel"
+      @edit="forceEdit = true"
+    />
+  </collapsible-mapping-section>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
+import CollapsibleMappingSection from "@/components/CollapsibleMappingSection.vue";
 import MappingGrid, { type MappingItem, type Mapping } from "@/components/MappingGrid.vue";
 import toast from "@/components/toast/toast";
 import type { DetBesluittype, DETZaaktype } from "@/services/detService";
@@ -136,6 +144,11 @@ const saveMappings = async () => {
   } finally {
     isLoading.value = false;
   }
+};
+
+const handleCancel = () => {
+  fetchMappings();
+  forceEdit.value = false;
 };
 
 // trigger fetching mappings whenever the mapping id or target zaaktype changes

@@ -166,3 +166,57 @@ button[class*="icon"] {
 .pre-wrap {
   white-space: pre-wrap;
 }
+
+// Common button styles
+.primary-button {
+  display: flex;
+  padding: 12px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 5px;
+  border: 1px solid var(--link-blue, #0d47a1);
+  background: var(--link-blue, #0d47a1);
+  color: #fff;
+  font-family: Avenir;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-block-end: 0;
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.cancel-button,
+.edit-button {
+  display: flex;
+  padding: 12px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 5px;
+  border: 1px solid var(--link-blue, #0d47a1);
+  background: transparent;
+  color: var(--link-blue, #0d47a1);
+  font-family: Avenir;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-block-end: 0;
+
+  &:hover:not(:disabled) {
+    background: rgba(13, 71, 161, 0.05);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

@@ -25,19 +25,28 @@
 
         <div class="target-item">
           <select
+            v-if="isEditing || !allMapped"
             :value="getMappingForSource(sourceItem.id).targetId || ''"
             @change="updateMapping(sourceItem.id, ($event.target as HTMLSelectElement).value)"
-            :disabled="(!isEditing && allMapped) || disabled"
+            :disabled="disabled"
           >
             <option value="">{{ targetPlaceholder }}</option>
             <option v-for="targetItem in targetItems" :key="targetItem.id" :value="targetItem.id">
               {{ targetItem.name }}
             </option>
           </select>
+          <div v-else class="target-value">
+            {{ getTargetName(getMappingForSource(sourceItem.id).targetId) }}
+          </div>
         </div>
       </div>
       <div v-if="(!allMapped || isEditing) && !disabled" class="mapping-actions">
-        <button type="button" @click="handleSave">{{ saveButtonText }}</button>
+        <button type="button" class="primary-button" @click="handleSave">
+          {{ saveButtonText }}
+        </button>
+        <button type="button" class="cancel-button" @click="handleCancel">
+          {{ cancelButtonText }}
+        </button>
       </div>
 
       <div v-if="showEditButton && allMapped && !isEditing && !disabled" class="mapping-actions">
@@ -81,6 +90,7 @@ interface Props {
   emptyMessage?: string;
   targetPlaceholder?: string;
   saveButtonText?: string;
+  cancelButtonText?: string;
   editButtonText?: string;
   showEditButton?: boolean;
   showWarning?: boolean;
@@ -93,6 +103,7 @@ const props = withDefaults(defineProps<Props>(), {
   emptyMessage: "Er zijn geen items beschikbaar voor dit zaaktype.",
   targetPlaceholder: "Kies een item",
   saveButtonText: "Mappings opslaan",
+  cancelButtonText: "Annuleren",
   editButtonText: "Mappings aanpassen",
   showEditButton: false,
   showWarning: true,
@@ -102,6 +113,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   (e: "update:modelValue", value: Mapping[]): void;
   (e: "save"): void;
+  (e: "cancel"): void;
   (e: "edit"): void;
 }>();
 
@@ -113,6 +125,12 @@ const getMappingForSource = (sourceId: string): Mapping => {
   const newMapping: Mapping = { sourceId, targetId: null };
   emit("update:modelValue", [...props.modelValue, newMapping]);
   return newMapping;
+};
+
+const getTargetName = (targetId: string | null | undefined): string => {
+  if (!targetId) return "";
+  const targetItem = props.targetItems.find((item) => item.id === targetId);
+  return targetItem?.name || "";
 };
 
 const updateMapping = (sourceId: string, targetId: string) => {
@@ -141,6 +159,10 @@ const handleSave = () => {
   emit("save");
 };
 
+const handleCancel = () => {
+  emit("cancel");
+};
+
 const handleEdit = () => {
   emit("edit");
 };
@@ -164,17 +186,28 @@ const handleEdit = () => {
   .mapping-grid {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-default);
+    align-items: flex-start;
+    gap: 0;
+    align-self: stretch;
   }
 
   .mapping-header {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-default);
-    padding: var(--spacing-small);
-    background-color: var(--background-secondary);
+    grid-template-columns: 343px 300px;
+    gap: 40px;
+    padding: 4px;
     font-weight: 600;
-    border-radius: 4px;
+    align-self: stretch;
+
+    div {
+      color: var(--Zwart, #212121);
+      font-family: Avenir;
+      font-size: 20px;
+      font-style: normal;
+      font-weight: 900;
+      line-height: 20px; /* 100% */
+      white-space: nowrap;
+    }
 
     @media (max-width: variables.$breakpoint-md) {
       display: none;
@@ -182,45 +215,134 @@ const handleEdit = () => {
   }
 
   .mapping-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-default);
-    padding: var(--spacing-small);
-    border: 1px solid var(--border);
-    border-radius: 4px;
+    display: flex;
+    padding: 4px;
     align-items: center;
+    gap: 40px;
+    align-self: stretch;
+    height: 52px;
+
+    // zebra striping
+    &:nth-child(even) {
+      background: var(--Accent-background, #f5f7ff);
+    }
+
+    @media (min-width: variables.$breakpoint-md) {
+      display: flex;
+    }
 
     @media (max-width: variables.$breakpoint-md) {
-      grid-template-columns: 1fr;
+      flex-direction: column;
+      align-items: stretch;
+      gap: var(--spacing-default);
+      height: auto;
     }
   }
 
   .source-item {
     display: flex;
+    width: 343px;
     flex-direction: column;
-    gap: var(--spacing-xs, 0.25rem);
+    justify-content: center;
+    align-items: flex-start;
+    gap: 2px;
 
     strong {
-      font-size: 1rem;
+      width: 255px;
+      color: var(--Zwart, #212121);
+      /* Lopende tekst bold */
+      font-family: Avenir;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 800;
+      line-height: 20px; /* 125% */
     }
 
     .item-description {
-      font-size: 0.875rem;
-      color: var(--text-secondary, #666);
+      width: 255px;
+      color: var(--Zwart, #212121);
+      font-family: Avenir;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 20px; /* 142.857% */
+    }
+
+    @media (max-width: variables.$breakpoint-md) {
+      width: 100%;
+
+      strong,
+      .item-description {
+        width: 100%;
+      }
     }
   }
 
   .target-item {
     select {
-      width: 100%;
+      display: flex;
+      width: 300px;
+      height: 44px;
+      min-width: 300px;
+      padding: 12px;
+      align-items: center;
+      border-radius: 5px;
+      border: 1px solid var(--Border, #898ea4);
+      background: #fff;
       margin-block-end: 0;
+
+      /* Dropdown text */
+      flex: 1 0 0;
+      color: var(--Zwart, #212121);
+      /* Lopende tekst */
+      font-family: Avenir;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 20px; /* 125% */
+
+      /* Custom arrow styling */
+      appearance: none;
+      background-image: url("@/assets/arrow-down.svg");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 24px 24px;
+      padding-right: 44px; /* Make room for the arrow */
+
+      @media (max-width: variables.$breakpoint-md) {
+        width: 100%;
+        min-width: auto;
+      }
+    }
+
+    .target-value {
+      display: flex;
+      width: 300px;
+      min-width: 300px;
+      padding: 12px;
+      align-items: center;
+      color: var(--Zwart, #212121);
+      /* Lopende tekst */
+      font-family: Avenir;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 20px; /* 125% */
+
+      @media (max-width: variables.$breakpoint-md) {
+        width: 100%;
+        min-width: auto;
+      }
     }
   }
 
   .mapping-actions {
     display: flex;
-    justify-content: flex-end;
+    align-items: flex-start;
+    gap: 8px;
     margin-block-start: var(--spacing-default);
   }
+
+  // Button styles are defined in main.scss
 }
 </style>

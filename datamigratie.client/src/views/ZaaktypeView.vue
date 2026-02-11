@@ -1,83 +1,87 @@
 <template>
-  <h1>e-Suite zaaktype</h1>
-
-  <zaaktype-mapping-section
-    v-if="detZaaktypeId"
-    :det-zaaktype-id="detZaaktypeId"
-    :disabled="isThisMigrationRunning"
-    v-model:zaaktype-mapping="zaaktypeMapping"
-  />
-
-  <template v-if="zaaktypeMapping">
-    <status-mapping-section
-      :mapping-id="zaaktypeMapping.id"
-      :det-zaaktype="zaaktypeMapping.detZaaktype"
-      :oz-zaaktype="zaaktypeMapping.ozZaaktype"
-      :disabled="isThisMigrationRunning"
-      @update:complete="statusMappingsComplete = $event"
-    />
-
-    <resultaattype-mapping-section
-      :mapping-id="zaaktypeMapping.id"
-      :det-zaaktype="zaaktypeMapping.detZaaktype"
-      :oz-zaaktype="zaaktypeMapping.ozZaaktype"
-      :disabled="isThisMigrationRunning"
-      @update:complete="resultaattypeMappingsComplete = $event"
-    />
-
-    <besluittype-mapping-section
-      :mapping-id="zaaktypeMapping.id"
-      :det-zaaktype="zaaktypeMapping.detZaaktype"
-      :oz-zaaktype="zaaktypeMapping.ozZaaktype"
-      :disabled="isThisMigrationRunning"
-      @update:complete="besluittypeMappingsComplete = $event"
-    />
-
-    <document-property-mapping-section
-      :mapping-id="zaaktypeMapping.id"
-      :det-zaaktype="zaaktypeMapping.detZaaktype"
-      :oz-zaaktype="zaaktypeMapping.ozZaaktype"
-      :disabled="isThisMigrationRunning"
-      @update:complete="documentPropertyMappingsComplete = $event"
-    />
-
-    <vertrouwelijkheid-mapping-section
-      :mapping-id="zaaktypeMapping.id"
-      :disabled="isThisMigrationRunning"
-      @update:complete="vertrouwelijkheidMappingsComplete = $event"
-    />
-
-    <menu class="reset">
-      <li>
-        <router-link
-          :to="{ name: 'detZaaktypes', ...(search && { query: { search } }) }"
-          class="button button-secondary"
-          >&lt; Terug</router-link
-        >
-      </li>
-
-      <template v-if="!error && !isThisMigrationRunning">
-        <li v-if="canStartMigration">
-          <button type="button" @click="startMigration">Start migratie</button>
-        </li>
-      </template>
-    </menu>
-  </template>
-
-  <prompt-modal
-    :dialog="confirmDialog"
-    cancel-text="Nee, niet migreren"
-    confirm-text="Ja, start migratie"
+  <router-link
+    :to="{ name: 'detZaaktypes', ...(search && { query: { search } }) }"
+    class="button button-secondary back-button"
+    >&lt; Terug</router-link
   >
-    <h2>Migratie starten</h2>
 
-    <p>
-      Weet je zeker dat je de migratie van zaken van het e-Suite zaaktype
-      <em>{{ zaaktypeMapping?.detZaaktype?.naam }}</em> wilt starten?
-    </p>
-  </prompt-modal>
+  <div class="zaaktype-view">
+    <div class="content-wrapper">
+      <h1 class="page-title">
+        e-Suite zaaktype "{{ zaaktypeMapping?.detZaaktype?.naam || "..." }}"
+      </h1>
 
-  <migration-history-table v-if="!error" :det-zaaktype-id="detZaaktypeId" />
+      <zaaktype-mapping-section
+        v-if="detZaaktypeId"
+        :det-zaaktype-id="detZaaktypeId"
+        :disabled="isThisMigrationRunning"
+        v-model:zaaktype-mapping="zaaktypeMapping"
+      />
+
+      <template v-if="zaaktypeMapping">
+        <h2 class="mapping-section-title">Mapping</h2>
+
+        <status-mapping-section
+          :mapping-id="zaaktypeMapping.id"
+          :det-zaaktype="zaaktypeMapping.detZaaktype"
+          :oz-zaaktype="zaaktypeMapping.ozZaaktype"
+          :disabled="isThisMigrationRunning"
+          @update:complete="statusMappingsComplete = $event"
+        />
+
+        <resultaattype-mapping-section
+          :mapping-id="zaaktypeMapping.id"
+          :det-zaaktype="zaaktypeMapping.detZaaktype"
+          :oz-zaaktype="zaaktypeMapping.ozZaaktype"
+          :disabled="isThisMigrationRunning"
+          @update:complete="resultaattypeMappingsComplete = $event"
+        />
+
+        <besluittype-mapping-section
+          :mapping-id="zaaktypeMapping.id"
+          :det-zaaktype="zaaktypeMapping.detZaaktype"
+          :oz-zaaktype="zaaktypeMapping.ozZaaktype"
+          :disabled="isThisMigrationRunning"
+          @update:complete="besluittypeMappingsComplete = $event"
+        />
+
+        <document-property-mapping-section
+          :mapping-id="zaaktypeMapping.id"
+          :det-zaaktype="zaaktypeMapping.detZaaktype"
+          :oz-zaaktype="zaaktypeMapping.ozZaaktype"
+          :disabled="isThisMigrationRunning"
+          @update:complete="documentPropertyMappingsComplete = $event"
+        />
+
+        <vertrouwelijkheid-mapping-section
+          :mapping-id="zaaktypeMapping.id"
+          :disabled="isThisMigrationRunning"
+          @update:complete="vertrouwelijkheidMappingsComplete = $event"
+        />
+
+        <menu class="reset" v-if="!error && !isThisMigrationRunning && canStartMigration">
+          <li>
+            <button type="button" @click="startMigration">Start migratie</button>
+          </li>
+        </menu>
+      </template>
+
+      <prompt-modal
+        :dialog="confirmDialog"
+        cancel-text="Nee, niet migreren"
+        confirm-text="Ja, start migratie"
+      >
+        <h2>Migratie starten</h2>
+
+        <p>
+          Weet je zeker dat je de migratie van zaken van het e-Suite zaaktype
+          <em>{{ zaaktypeMapping?.detZaaktype?.naam }}</em> wilt starten?
+        </p>
+      </prompt-modal>
+
+      <migration-history-table v-if="!error" :det-zaaktype-id="detZaaktypeId" />
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -131,6 +135,48 @@ const canStartMigration = computed(
 <style lang="scss" scoped>
 @use "@/assets/variables";
 
+.back-button {
+  margin-bottom: 24px;
+}
+
+.zaaktype-view {
+  display: flex;
+  width: 1440px;
+  min-height: 900px;
+  padding-bottom: 40px;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  background: #fff;
+}
+
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0;
+  align-self: stretch;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.page-title {
+  align-self: stretch;
+  color: var(--Zwart, #212121);
+  font-family: Avenir;
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: normal;
+  margin: 0;
+  margin-bottom: 24px;
+}
+
+:deep(.zaaktype-mapping-section) {
+  margin-bottom: 32px;
+}
+
 .status-mapping {
   margin-block-end: var(--spacing-large);
 
@@ -172,5 +218,17 @@ menu {
       }
     }
   }
+}
+
+.mapping-section-title {
+  align-self: stretch;
+  margin-top: 32px;
+  margin-bottom: 24px;
+  color: var(--Zwart, #212121);
+  font-family: Avenir;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: normal;
 }
 </style>

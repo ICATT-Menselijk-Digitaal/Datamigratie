@@ -40,7 +40,7 @@ const router = createRouter({
       name: "globalConfiguration",
       component: GlobalConfigurationView,
       meta: {
-        title: "Globale configuratie"
+        title: "Algemeen"
       }
     },
     {

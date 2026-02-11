@@ -1,34 +1,83 @@
 <template>
-  <simple-spinner v-if="loading" />
+  <div class="algemeen-view">
+    <simple-spinner v-if="loading" />
 
-  <div v-else>
-    <form @submit.prevent="saveRsinConfiguration">
-      <label for="rsin">RSIN</label>
-      <input
-        type="text"
-        id="rsin"
-        ref="rsinInput"
-        v-model="rsin"
-        maxlength="9"
-        pattern="[0-9]{9}"
-        @input="validateRsin"
-      />
+    <template v-else>
+      <h1 class="page-title">Algemeen</h1>
 
-      <div class="form-actions">
-        <button type="submit">Opslaan</button>
+      <div class="global-configuration">
+        <collapsible-mapping-section
+          title="RSIN"
+          description="Voer hieronder de RSIN in"
+          :show-warning="!rsin"
+          :initially-expanded="true"
+        >
+          <div class="rsin-section">
+            <div class="rsin-row">
+              <div class="rsin-label">RSIN:</div>
+              <div class="rsin-value">
+                <input
+                  v-if="isEditingRsin"
+                  type="text"
+                  id="rsin"
+                  ref="rsinInput"
+                  v-model="rsin"
+                  maxlength="9"
+                  pattern="[0-9]{9}"
+                  @input="validateRsin"
+                />
+                <div v-else class="rsin-display">
+                  <template v-if="rsin">{{ rsin }}</template>
+                  <template v-else>
+                    <span>Geen</span>
+                    <img
+                      src="@/assets/bi-exclamation-circle-fill.svg"
+                      alt="Geen RSIN"
+                      class="warning-icon-inline"
+                    />
+                  </template>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <template v-if="isEditingRsin">
+                <button type="button" class="primary-button" @click="saveRsinConfiguration">
+                  Opslaan
+                </button>
+                <button type="button" class="cancel-button" @click="cancelRsinEdit">
+                  Annuleren
+                </button>
+              </template>
+              <template v-else>
+                <button type="button" class="edit-button" @click="isEditingRsin = true">
+                  RSIN aanpassen
+                </button>
+              </template>
+            </div>
+          </div>
+        </collapsible-mapping-section>
+
+        <collapsible-mapping-section
+          title="Documentstatussen"
+          description="Koppel de e-Suite documentstatussen aan de Open Zaak documentstatussen."
+          :show-warning="!allDocumentstatusesMapped"
+          :initially-expanded="true"
+        >
+          <documentstatus-mapping-section
+            :det-documentstatussen="detDocumentstatussen"
+            :documentstatus-mappings="documentstatusMappings"
+            :all-mapped="allDocumentstatusesMapped"
+            :is-editing="!allDocumentstatusesMapped"
+            :loading="documentstatusLoading"
+            :show-warning="!allDocumentstatusesMapped"
+            @update:documentstatus-mappings="documentstatusMappings = $event"
+            @save="saveDocumentstatusMappings"
+            @fetch-mappings="fetchDocumentstatusMappings"
+          />
+        </collapsible-mapping-section>
       </div>
-    </form>
-
-    <documentstatus-mapping-section
-      :det-documentstatussen="detDocumentstatussen"
-      :documentstatus-mappings="documentstatusMappings"
-      :all-mapped="false"
-      :is-editing="true"
-      :loading="documentstatusLoading"
-      :show-warning="!allDocumentstatusesMapped"
-      @update:documentstatus-mappings="documentstatusMappings = $event"
-      @save="saveDocumentstatusMappings"
-    />
+    </template>
   </div>
 </template>
 
@@ -44,11 +93,14 @@ import type {
 } from "@/types/datamigratie";
 import { detService, type DetDocumentstatus } from "@/services/detService";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
+import CollapsibleMappingSection from "@/components/CollapsibleMappingSection.vue";
 import DocumentstatusMappingSection from "@/components/DocumentstatusMappingSection.vue";
 import toast from "@/components/toast/toast";
 
 const loading = ref(true);
 const rsin = ref("");
+const originalRsin = ref("");
+const isEditingRsin = ref(false);
 const rsinConfiguration = ref<RsinConfiguration>({});
 const rsinInput = useTemplateRef<HTMLInputElement>("rsinInput");
 
@@ -97,6 +149,11 @@ function validateRsin() {
   rsinInput.value.reportValidity();
 }
 
+function cancelRsinEdit() {
+  rsin.value = originalRsin.value;
+  isEditingRsin.value = false;
+}
+
 async function loadConfiguration() {
   loading.value = true;
 
@@ -109,6 +166,8 @@ async function loadConfiguration() {
 
     rsinConfiguration.value = rsinConfig;
     rsin.value = rsinConfig.rsin || "";
+    originalRsin.value = rsinConfig.rsin || "";
+    isEditingRsin.value = !rsinConfig.rsin; // Start in edit mode if no RSIN is set
     if (rsin.value) {
       validateRsin();
     }
@@ -131,6 +190,13 @@ async function loadConfiguration() {
 }
 
 async function saveRsinConfiguration() {
+  if (rsinInput.value) {
+    validateRsin();
+    if (!rsinInput.value.validity.valid) {
+      return;
+    }
+  }
+
   loading.value = true;
 
   try {
@@ -138,6 +204,8 @@ async function saveRsinConfiguration() {
       rsin: rsin.value || undefined
     } as UpdateRsinConfiguration);
     rsinConfiguration.value = updated;
+    originalRsin.value = updated.rsin || "";
+    isEditingRsin.value = false;
     toast.add({ text: "RSIN configuratie succesvol opgeslagen." });
   } catch (error: unknown) {
     toast.add({ text: `Fout bij opslaan van de RSIN - ${error}`, type: "error" });
@@ -171,15 +239,145 @@ async function saveDocumentstatusMappings() {
   }
 }
 
+async function fetchDocumentstatusMappings() {
+  documentstatusLoading.value = true;
+
+  try {
+    const [detStatuses, savedMappings] = await Promise.all([
+      get<DetDocumentstatus[]>(`/api/det/documentstatussen`),
+      get<DocumentstatusMappingResponse[]>(`/api/globalmapping/documentstatuses`)
+    ]);
+
+    detDocumentstatussen.value = detStatuses;
+
+    // initialize mappings from saved data
+    documentstatusMappings.value = detStatuses.map((status: DetDocumentstatus) => {
+      const existingMapping = savedMappings.find((m) => m.detDocumentstatus === status.naam);
+      return {
+        detDocumentstatus: status.naam,
+        ozDocumentstatus: existingMapping?.ozDocumentstatus || null
+      };
+    });
+  } catch (error: unknown) {
+    toast.add({
+      text: `Fout bij laden van documentstatus mappings - ${error}`,
+      type: "error"
+    });
+  } finally {
+    documentstatusLoading.value = false;
+  }
+}
+
 onMounted(() => {
   loadConfiguration();
 });
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+.algemeen-view {
+  display: flex;
+  width: 1440px;
+  min-height: 900px;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  background: #fff;
+  padding: 24px;
+}
+
+.page-title {
+  color: var(--Zwart, #212121);
+  font-family: Avenir;
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: normal;
+  margin: 0;
+  align-self: flex-start;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.global-configuration {
+  display: flex;
+  max-width: 1200px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 8px;
+  align-self: stretch;
+  width: 100%;
+}
+
+.rsin-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rsin-row {
+  display: grid;
+  grid-template-columns: 343px 300px;
+  gap: 16px;
+  align-items: center;
+  height: 52px;
+  padding: 0 16px;
+  background: var(--Accent-background, #f5f7ff);
+}
+
+.rsin-label {
+  color: var(--Zwart, #212121);
+  font-family: Avenir;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.rsin-value {
+  input {
+    width: 100%;
+    margin-block-end: 0;
+    padding: 8px;
+    border: 1px solid var(--border, #898ea4);
+    border-radius: 4px;
+    font-family: Avenir;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 20px;
+  }
+}
+
+.rsin-display {
+  color: var(--Zwart, #212121);
+  font-family: Avenir;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .warning-icon-inline {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    aspect-ratio: 1/1;
+    fill: #fff;
+  }
+}
+
 .form-actions {
   display: flex;
-  justify-content: flex-end;
-  margin-block-start: var(--spacing-default);
+  gap: 8px;
+  margin-top: 0;
+
+  button {
+    margin-block-end: 0;
+  }
+
+  // Button styles are defined in main.scss
 }
 </style>
