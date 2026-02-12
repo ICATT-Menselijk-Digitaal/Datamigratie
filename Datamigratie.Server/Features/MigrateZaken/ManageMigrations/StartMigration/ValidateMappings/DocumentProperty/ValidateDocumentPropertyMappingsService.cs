@@ -24,8 +24,8 @@ public class ValidateDocumentPropertyMappingsService(
             .Where(m => m.DetPropertyName == "publicatieniveau")
             .ToList();
 
-        var missingPublicatieNiveaus = PublicatieNiveauConstants.Values
-            .Where(pn => !publicatieNiveauMappings.Any(m => m.DetValue == pn))
+        var missingPublicatieNiveaus = MappingConstants.PublicatieNiveau.Options
+            .Where(pn => !publicatieNiveauMappings.Any(m => m.DetValue == pn.Value))
             .ToList();
 
         if (missingPublicatieNiveaus.Count != 0)
