@@ -58,20 +58,12 @@ const emit = defineEmits<{
   (e: "update:complete", value: boolean): void;
 }>();
 
-const sourceItems = computed<MappingItem[]>(() =>
-  (props.detZaaktype.detVertrouwelijkheidOpties ?? []).map((option) => ({
-    id: option.value,
-    name: option.label,
-    description: undefined
-  }))
+const sourceItems = computed<MappingItem[]>(
+  () => props.detZaaktype.detVertrouwelijkheidOpties ?? []
 );
 
-const targetItems = computed<MappingItem[]>(() =>
-  (props.ozZaaktype.ozZaakVertrouwelijkheidaanduidingen ?? []).map((option) => ({
-    id: option.value,
-    name: option.label,
-    description: undefined
-  }))
+const targetItems = computed<MappingItem[]>(
+  () => props.ozZaaktype.ozZaakVertrouwelijkheidaanduidingen ?? []
 );
 
 const isLoading = ref(false);

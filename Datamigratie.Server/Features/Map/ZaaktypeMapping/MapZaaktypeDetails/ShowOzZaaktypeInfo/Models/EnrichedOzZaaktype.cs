@@ -1,5 +1,5 @@
-using Datamigratie.Common.Models;
 using Datamigratie.Common.Services.OpenZaak.Models;
+using Datamigratie.Server.Shared.Models;
 
 namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.ShowOzZaaktypeInfo.Models
 {

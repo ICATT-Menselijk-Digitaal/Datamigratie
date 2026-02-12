@@ -115,11 +115,11 @@ const DOCUMENTTYPE = "documenttype";
 
 const validPublicatieNiveauMappings = computed(() =>
   (props.detZaaktype.publicatieNiveauOptions ?? []).map((option) => ({
-    sourceId: option.value,
+    sourceId: option.id,
     targetId:
       mappingsFromServer.value.find(
         ({ detPropertyName, detValue }) =>
-          detPropertyName === PUBLICATIENIVEAU && detValue === option.value
+          detPropertyName === PUBLICATIENIVEAU && detValue === option.id
       )?.ozValue || null
   }))
 );
@@ -187,21 +187,13 @@ const saveMappings = async () => {
   }
 };
 
-const publicatieNiveauSourceItems = computed<MappingItem[]>(() => {
-  return (props.detZaaktype.publicatieNiveauOptions ?? []).map((option) => ({
-    id: option.value,
-    name: option.label,
-    description: undefined
-  }));
-});
+const publicatieNiveauSourceItems = computed<MappingItem[]>(
+  () => props.detZaaktype.publicatieNiveauOptions ?? []
+);
 
-const vertrouwelijkheidaanduidingTargetItems = computed<MappingItem[]>(() => {
-  return (props.ozZaaktype.ozDocumentVertrouwelijkheidaanduidingen ?? []).map((option) => ({
-    id: option.value,
-    name: option.label,
-    description: undefined
-  }));
-});
+const vertrouwelijkheidaanduidingTargetItems = computed<MappingItem[]>(
+  () => props.ozZaaktype.ozDocumentVertrouwelijkheidaanduidingen ?? []
+);
 
 const documenttypeSourceItems = computed<MappingItem[]>(() => {
   if (!props.detZaaktype.documenttypen) return [];

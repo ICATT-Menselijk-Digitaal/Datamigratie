@@ -1,5 +1,5 @@
-using Datamigratie.Common.Models;
 using Datamigratie.Common.Services.Det.Models;
+using Datamigratie.Server.Shared.Models;
 
 namespace Datamigratie.Server.Features.SelectDetZaaktypeToMigrate.ShowDetZaaktypeInfo.Models
 {

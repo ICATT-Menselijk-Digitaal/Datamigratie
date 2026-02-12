@@ -1,5 +1,5 @@
-using Datamigratie.Common.Models;
 using Datamigratie.Common.Services.OpenZaak.Models;
+using Datamigratie.Server.Shared.Models;
 
 namespace Datamigratie.Server.Constants
 {
@@ -9,9 +9,9 @@ namespace Datamigratie.Server.Constants
         {
             public static readonly ZaaktypeOptionItem[] Options =
             [
-                new() { Value = "extern", Label = "Extern" },
-                new() { Value = "intern", Label = "Intern" },
-                new() { Value = "vertrouwelijk", Label = "Vertrouwelijk" }
+                new() { Id = "extern", Name = "Extern" },
+                new() { Id = "intern", Name = "Intern" },
+                new() { Id = "vertrouwelijk", Name = "Vertrouwelijk" }
             ];
         }
 
@@ -19,8 +19,8 @@ namespace Datamigratie.Server.Constants
         {
             public static readonly ZaaktypeOptionItem[] Options =
             [
-                new() { Value = "true", Label = "Ja (Vertrouwelijk)" },
-                new() { Value = "false", Label = "Nee (Niet vertrouwelijk)" }
+                new() { Id = "true", Name = "Ja (Vertrouwelijk)" },
+                new() { Id = "false", Name = "Nee (Niet vertrouwelijk)" }
             ];
         }
 
@@ -29,8 +29,8 @@ namespace Datamigratie.Server.Constants
             public static readonly ZaaktypeOptionItem[] Options = [.. Enum.GetValues<ZaakVertrouwelijkheidaanduiding>()
                 .Select(value => new ZaaktypeOptionItem
                 {
-                    Value = value.ToString(),
-                    Label = FormatLabel(value)
+                    Id = value.ToString(),
+                    Name = FormatLabel(value)
                 })];
 
             private static string FormatLabel(ZaakVertrouwelijkheidaanduiding value)
@@ -55,8 +55,8 @@ namespace Datamigratie.Server.Constants
             public static readonly ZaaktypeOptionItem[] Options = [.. Enum.GetValues<DocumentVertrouwelijkheidaanduiding>()
                 .Select(value => new ZaaktypeOptionItem
                 {
-                    Value = value.ToString(),
-                    Label = FormatLabel(value)
+                    Id = value.ToString(),
+                    Name = FormatLabel(value)
                 })];
 
             private static string FormatLabel(DocumentVertrouwelijkheidaanduiding value)
