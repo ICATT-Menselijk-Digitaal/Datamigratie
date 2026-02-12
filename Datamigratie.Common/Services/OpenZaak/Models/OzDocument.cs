@@ -32,7 +32,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
         public required string Titel { get; init; }
 
         // This is a required field in OpenZaak, but this is not documented in the OZ documentation
-        public required DocumentVertrouwelijkheidsAanduiding Vertrouwelijkheidaanduiding { get; init; }
+        public required DocumentVertrouwelijkheidAanduiding Vertrouwelijkheidaanduiding { get; init; }
 
         public required string Auteur { get; init; }
 
@@ -124,7 +124,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
 
         public string? Omschrijving { get; init; }
 
-        public DocumentVertrouwelijkheidsAanduiding? Vertrouwelijkheidaanduiding { get; init; }
+        public DocumentVertrouwelijkheidAanduiding? Vertrouwelijkheidaanduiding { get; init; }
 
         public DateOnly? BeginGeldigheid { get; init; }
 
@@ -175,8 +175,8 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
     }
 
     // Enums (let op: standaard numeriek zonder JsonStringEnumConverter in web defaults)
-    [JsonConverter(typeof(JsonStringEnumConverter<DocumentVertrouwelijkheidsAanduiding>))]
-    public enum DocumentVertrouwelijkheidsAanduiding
+    [JsonConverter(typeof(JsonStringEnumConverter<DocumentVertrouwelijkheidAanduiding>))]
+    public enum DocumentVertrouwelijkheidAanduiding
     {
         openbaar,
         beperkt_openbaar,

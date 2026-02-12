@@ -41,7 +41,7 @@ namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Q
                 /// Vertrouwelijkheid mappings loaded and validated by StartMigrationController before queuing.
                 /// Dictionary: DetVertrouwelijkheid (true/false) -> OzVertrouwelijkheidaanduiding
                 /// </summary>
-                public required Dictionary<bool, ZaakVertrouwelijkheidsAanduiding> ZaakVertrouwelijkheidMappings { get; set; }
+                public required Dictionary<bool, ZaakVertrouwelijkheidAanduiding> ZaakVertrouwelijkheidMappings { get; set; }
 
                 /// <summary>
                 /// Besluittype mappings loaded and validated by StartMigrationController before queuing.

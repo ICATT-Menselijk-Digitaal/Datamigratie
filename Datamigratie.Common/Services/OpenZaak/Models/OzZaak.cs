@@ -26,7 +26,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
         public required string Startdatum { get; set; }
 
         [JsonPropertyName("vertrouwelijkheidaanduiding")]
-        public ZaakVertrouwelijkheidsAanduiding? Vertrouwelijkheidaanduiding { get; set; }
+        public ZaakVertrouwelijkheidAanduiding? Vertrouwelijkheidaanduiding { get; set; }
 
         [JsonPropertyName("betalingsindicatie")]
         public string? Betalingsindicatie { get; set; }
@@ -128,8 +128,8 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
     }
 
     // Enums (let op: standaard numeriek zonder JsonStringEnumConverter in web defaults)
-    [JsonConverter(typeof(JsonStringEnumConverter<DocumentVertrouwelijkheidsAanduiding>))]
-    public enum ZaakVertrouwelijkheidsAanduiding
+    [JsonConverter(typeof(JsonStringEnumConverter<ZaakVertrouwelijkheidAanduiding>))]
+    public enum ZaakVertrouwelijkheidAanduiding
     {
         openbaar,
         beperkt_openbaar,

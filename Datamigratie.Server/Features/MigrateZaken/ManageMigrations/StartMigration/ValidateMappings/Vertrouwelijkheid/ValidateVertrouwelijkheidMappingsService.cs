@@ -7,13 +7,13 @@ namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigrat
 
 public interface IValidateVertrouwelijkheidMappingsService
 {
-    Task<(bool IsValid, Dictionary<bool, ZaakVertrouwelijkheidsAanduiding> Mappings)> ValidateAndGetVertrouwelijkheidMappings(DetZaaktypeDetail detZaaktype);
+    Task<(bool IsValid, Dictionary<bool, ZaakVertrouwelijkheidAanduiding> Mappings)> ValidateAndGetVertrouwelijkheidMappings(DetZaaktypeDetail detZaaktype);
 }
 
 public class ValidateVertrouwelijkheidMappingsService(
     DatamigratieDbContext context) : IValidateVertrouwelijkheidMappingsService
 {
-    public async Task<(bool IsValid, Dictionary<bool, ZaakVertrouwelijkheidsAanduiding> Mappings)> ValidateAndGetVertrouwelijkheidMappings(DetZaaktypeDetail detZaaktype)
+    public async Task<(bool IsValid, Dictionary<bool, ZaakVertrouwelijkheidAanduiding> Mappings)> ValidateAndGetVertrouwelijkheidMappings(DetZaaktypeDetail detZaaktype)
     {
         var mappings = await context.VertrouwelijkheidMappings
             .Where(m => m.ZaaktypenMapping.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie)
@@ -21,7 +21,7 @@ public class ValidateVertrouwelijkheidMappingsService(
 
         var mappingDictionary = mappings.ToDictionary(
             m => m.DetVertrouwelijkheid,
-            m => Enum.Parse<ZaakVertrouwelijkheidsAanduiding>(m.OzVertrouwelijkheidaanduiding));
+            m => Enum.Parse<ZaakVertrouwelijkheidAanduiding>(m.OzVertrouwelijkheidaanduiding));
 
         // Check if both true and false are mapped
         var allMapped = mappingDictionary.ContainsKey(true) && mappingDictionary.ContainsKey(false);

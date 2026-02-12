@@ -147,7 +147,7 @@ public class StartMigrationController(
             : documentPropertyMappings;
     }
 
-    private async Task<Dictionary<bool, ZaakVertrouwelijkheidsAanduiding>> ValidateAndGetVertrouwelijkheidMappingsAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)
+    private async Task<Dictionary<bool, ZaakVertrouwelijkheidAanduiding>> ValidateAndGetVertrouwelijkheidMappingsAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)
     {
         var (vertrouwelijkheidMappingsValid, vertrouwelijkheidMappings) = await validateVertrouwelijkheidMappingsService.ValidateAndGetVertrouwelijkheidMappings(detZaaktype);
 

@@ -26,10 +26,7 @@
     <div class="documenttype-section">
       <!-- only shown when feature flag is enabled -->
       <div
-        v-if="
-          featureFlags.showDocumenttypeTestHelper &&
-          documenttypeSourceItems.length > 0
-        "
+        v-if="featureFlags.showDocumenttypeTestHelper && documenttypeSourceItems.length > 0"
         class="test-helper"
       >
         <label>
@@ -306,7 +303,6 @@ watch(validDocumenttypeMappings, (value) => {
 watch(validPublicatieNiveauMappings, (value) => {
   publicatieNiveauMappingsModel.value = value;
 });
-
 </script>
 
 <style lang="scss" scoped>
