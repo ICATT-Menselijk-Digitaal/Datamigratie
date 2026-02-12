@@ -1,4 +1,5 @@
 import { get } from "@/utils/fetchWrapper";
+import type { ZaaktypeOptionItem } from "@/types/datamigratie";
 
 export type DetStatus = {
   naam: string;
@@ -29,16 +30,6 @@ export type DetBesluittype = {
   actief: boolean;
 };
 
-export type DetPublicatieNiveau = {
-  value: string;
-  label: string;
-};
-
-export type DetVertrouwelijkheid = {
-  value: string;
-  label: string;
-};
-
 export type DETZaaktype = {
   actief: boolean;
   naam: string;
@@ -48,8 +39,8 @@ export type DETZaaktype = {
   statuses?: DetStatus[];
   resultaten?: DetResultaattypen[];
   documenttypen?: DetDocumenttype[];
-  publicatieNiveauOptions?: DetPublicatieNiveau[];
-  detVertrouwelijkheidOpties?: DetVertrouwelijkheid[];
+  publicatieNiveauOptions?: ZaaktypeOptionItem[];
+  detVertrouwelijkheidOpties?: ZaaktypeOptionItem[];
   besluittypen?: DetBesluittype[];
 };
 

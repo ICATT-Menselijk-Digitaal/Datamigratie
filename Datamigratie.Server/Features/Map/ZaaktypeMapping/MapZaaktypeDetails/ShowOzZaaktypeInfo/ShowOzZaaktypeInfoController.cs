@@ -1,4 +1,5 @@
-﻿using Datamigratie.Common.Services.OpenZaak;
+﻿using Datamigratie.Common.Models;
+using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.ShowOzZaaktypeInfo.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -40,10 +41,10 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Sh
             return enrichedOzZaaktype;
         }
 
-        private static List<OzZaakVertrouwelijkheidaanduiding> GetZaakVertrouwelijkheidaanduidingOptions()
+        private static List<ZaaktypeOptionItem> GetZaakVertrouwelijkheidaanduidingOptions()
         {
             return Enum.GetValues<VertrouwelijkheidsAanduiding>()
-                .Select(value => new OzZaakVertrouwelijkheidaanduiding
+                .Select(value => new ZaaktypeOptionItem
                 {
                     Value = value.ToString(),
                     Label = FormatVertrouwelijkheidLabel(value.ToString())
@@ -51,10 +52,10 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Sh
                 .ToList();
         }
 
-        private static List<OzDocumentVertrouwelijkheidaanduiding> GetDocumentVertrouwelijkheidaanduidingOptions()
+        private static List<ZaaktypeOptionItem> GetDocumentVertrouwelijkheidaanduidingOptions()
         {
             return Enum.GetValues<VertrouwelijkheidsAanduiding>()
-                .Select(value => new OzDocumentVertrouwelijkheidaanduiding
+                .Select(value => new ZaaktypeOptionItem
                 {
                     Value = value.ToString(),
                     Label = FormatVertrouwelijkheidLabel(value.ToString())

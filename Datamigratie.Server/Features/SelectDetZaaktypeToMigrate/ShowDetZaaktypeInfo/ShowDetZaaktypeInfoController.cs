@@ -1,4 +1,5 @@
-﻿using Datamigratie.Common.Services.Det;
+﻿using Datamigratie.Common.Models;
+using Datamigratie.Common.Services.Det;
 using Datamigratie.Server.Constants;
 using Datamigratie.Server.Features.SelectDetZaaktypeToMigrate.ShowDetZaaktypeInfo.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -42,10 +43,10 @@ namespace Datamigratie.Server.Features.SelectDetZaaktypeToMigrate.ShowDetZaaktyp
             return enrichedDetZaaktype;
         }
 
-        private static List<DetPublicatieNiveau> GetPublicatieNiveauOptions()
+        private static List<ZaaktypeOptionItem> GetPublicatieNiveauOptions()
         {
             return PublicatieNiveauConstants.Values
-                .Select(value => new DetPublicatieNiveau
+                .Select(value => new ZaaktypeOptionItem
                 {
                     Value = value,
                     Label = FormatPublicatieNiveauLabel(value)
@@ -64,12 +65,12 @@ namespace Datamigratie.Server.Features.SelectDetZaaktypeToMigrate.ShowDetZaaktyp
             };
         }
 
-        private static List<DetVertrouwelijkheid> GetVertrouwelijkheidOpties()
+        private static List<ZaaktypeOptionItem> GetVertrouwelijkheidOpties()
         {
             return
             [
-                new DetVertrouwelijkheid { Value = "true", Label = "Ja (Vertrouwelijk)" },
-                new DetVertrouwelijkheid { Value = "false", Label = "Nee (Niet vertrouwelijk)" }
+                new ZaaktypeOptionItem { Value = "true", Label = "Ja (Vertrouwelijk)" },
+                new ZaaktypeOptionItem { Value = "false", Label = "Nee (Niet vertrouwelijk)" }
             ];
         }
     }
