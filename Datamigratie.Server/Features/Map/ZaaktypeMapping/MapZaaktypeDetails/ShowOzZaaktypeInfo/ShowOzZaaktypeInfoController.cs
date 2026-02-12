@@ -1,6 +1,5 @@
-﻿using Datamigratie.Common.Models;
-using Datamigratie.Common.Services.OpenZaak;
-using Datamigratie.Common.Services.OpenZaak.Models;
+﻿using Datamigratie.Common.Services.OpenZaak;
+using Datamigratie.Server.Constants;
 using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.ShowOzZaaktypeInfo.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,48 +33,11 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Sh
                 Informatieobjecttypen = ozInformatieobjecttypen,
                 Besluittypen = ozBesluittypen,
                 Omschrijving = ozZaaktype.Omschrijving,
-                OzZaakVertrouwelijkheidaanduidingen = GetZaakVertrouwelijkheidaanduidingOptions(),
-                OzDocumentVertrouwelijkheidaanduidingen = GetDocumentVertrouwelijkheidaanduidingOptions()
+                OzZaakVertrouwelijkheidaanduidingen = [.. MappingConstants.OzVertrouwelijkheidaanduiding.Options],
+                OzDocumentVertrouwelijkheidaanduidingen = [.. MappingConstants.OzVertrouwelijkheidaanduiding.Options]
             };
 
             return enrichedOzZaaktype;
-        }
-
-        private static List<ZaaktypeOptionItem> GetZaakVertrouwelijkheidaanduidingOptions()
-        {
-            return Enum.GetValues<VertrouwelijkheidsAanduiding>()
-                .Select(value => new ZaaktypeOptionItem
-                {
-                    Value = value.ToString(),
-                    Label = FormatVertrouwelijkheidLabel(value.ToString())
-                })
-                .ToList();
-        }
-
-        private static List<ZaaktypeOptionItem> GetDocumentVertrouwelijkheidaanduidingOptions()
-        {
-            return Enum.GetValues<VertrouwelijkheidsAanduiding>()
-                .Select(value => new ZaaktypeOptionItem
-                {
-                    Value = value.ToString(),
-                    Label = FormatVertrouwelijkheidLabel(value.ToString())
-                })
-                .ToList();
-        }
-
-        private static string FormatVertrouwelijkheidLabel(string value)
-        {
-            return value switch
-            {
-                "openbaar" => "Openbaar",
-                "beperkt_openbaar" => "Beperkt openbaar",
-                "intern" => "Intern",
-                "zaakvertrouwelijk" => "Zaakvertrouwelijk",
-                "vertrouwelijk" => "Vertrouwelijk",
-                "geheim" => "Geheim",
-                "zeer_geheim" => "Zeer geheim",
-                _ => value
-            };
         }
     }
 }
