@@ -26,25 +26,25 @@ namespace Datamigratie.Server.Constants
 
         public static class OzZaakVertrouwelijkheidaanduiding
         {
-            public static readonly ZaaktypeOptionItem[] Options = [.. Enum.GetValues<ZaakVertrouwelijkheidAanduiding>()
+            public static readonly ZaaktypeOptionItem[] Options = [.. Enum.GetValues<ZaakVertrouwelijkheidaanduiding>()
                 .Select(value => new ZaaktypeOptionItem
                 {
                     Value = value.ToString(),
                     Label = FormatLabel(value)
                 })];
 
-            private static string FormatLabel(ZaakVertrouwelijkheidAanduiding value)
+            private static string FormatLabel(ZaakVertrouwelijkheidaanduiding value)
             {
                 return value switch
                 {
-                    ZaakVertrouwelijkheidAanduiding.openbaar => "Openbaar",
-                    ZaakVertrouwelijkheidAanduiding.beperkt_openbaar => "Beperkt openbaar",
-                    ZaakVertrouwelijkheidAanduiding.intern => "Intern",
-                    ZaakVertrouwelijkheidAanduiding.zaakvertrouwelijk => "Zaakvertrouwelijk",
-                    ZaakVertrouwelijkheidAanduiding.vertrouwelijk => "Vertrouwelijk",
-                    ZaakVertrouwelijkheidAanduiding.confidentieel => "Confidentieel",
-                    ZaakVertrouwelijkheidAanduiding.geheim => "Geheim",
-                    ZaakVertrouwelijkheidAanduiding.zeer_geheim => "Zeer geheim",
+                    ZaakVertrouwelijkheidaanduiding.openbaar => "Openbaar",
+                    ZaakVertrouwelijkheidaanduiding.beperkt_openbaar => "Beperkt openbaar",
+                    ZaakVertrouwelijkheidaanduiding.intern => "Intern",
+                    ZaakVertrouwelijkheidaanduiding.zaakvertrouwelijk => "Zaakvertrouwelijk",
+                    ZaakVertrouwelijkheidaanduiding.vertrouwelijk => "Vertrouwelijk",
+                    ZaakVertrouwelijkheidaanduiding.confidentieel => "Confidentieel",
+                    ZaakVertrouwelijkheidaanduiding.geheim => "Geheim",
+                    ZaakVertrouwelijkheidaanduiding.zeer_geheim => "Zeer geheim",
                     _ => value.ToString()
                 };
             }
@@ -52,25 +52,25 @@ namespace Datamigratie.Server.Constants
 
         public static class OzDocumentVertrouwelijkheidaanduiding
         {
-            public static readonly ZaaktypeOptionItem[] Options = [.. Enum.GetValues<DocumentVertrouwelijkheidAanduiding>()
+            public static readonly ZaaktypeOptionItem[] Options = [.. Enum.GetValues<DocumentVertrouwelijkheidaanduiding>()
                 .Select(value => new ZaaktypeOptionItem
                 {
                     Value = value.ToString(),
                     Label = FormatLabel(value)
                 })];
 
-            private static string FormatLabel(DocumentVertrouwelijkheidAanduiding value)
+            private static string FormatLabel(DocumentVertrouwelijkheidaanduiding value)
             {
                 return value switch
                 {
-                    DocumentVertrouwelijkheidAanduiding.openbaar => "Openbaar",
-                    DocumentVertrouwelijkheidAanduiding.beperkt_openbaar => "Beperkt openbaar",
-                    DocumentVertrouwelijkheidAanduiding.intern => "Intern",
-                    DocumentVertrouwelijkheidAanduiding.zaakvertrouwelijk => "Zaakvertrouwelijk",
-                    DocumentVertrouwelijkheidAanduiding.vertrouwelijk => "Vertrouwelijk",
-                    DocumentVertrouwelijkheidAanduiding.confidentieel => "Confidentieel",
-                    DocumentVertrouwelijkheidAanduiding.geheim => "Geheim",
-                    DocumentVertrouwelijkheidAanduiding.zeer_geheim => "Zeer geheim",
+                    DocumentVertrouwelijkheidaanduiding.openbaar => "Openbaar",
+                    DocumentVertrouwelijkheidaanduiding.beperkt_openbaar => "Beperkt openbaar",
+                    DocumentVertrouwelijkheidaanduiding.intern => "Intern",
+                    DocumentVertrouwelijkheidaanduiding.zaakvertrouwelijk => "Zaakvertrouwelijk",
+                    DocumentVertrouwelijkheidaanduiding.vertrouwelijk => "Vertrouwelijk",
+                    DocumentVertrouwelijkheidaanduiding.confidentieel => "Confidentieel",
+                    DocumentVertrouwelijkheidaanduiding.geheim => "Geheim",
+                    DocumentVertrouwelijkheidaanduiding.zeer_geheim => "Zeer geheim",
                     _ => value.ToString()
                 };
             }

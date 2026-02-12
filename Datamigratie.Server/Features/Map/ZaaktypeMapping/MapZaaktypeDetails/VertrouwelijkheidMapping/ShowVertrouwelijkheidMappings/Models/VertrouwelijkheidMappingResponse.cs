@@ -5,5 +5,5 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Ve
 public class VertrouwelijkheidMappingResponse
 {
     public required bool DetVertrouwelijkheid { get; set; }
-    public required ZaakVertrouwelijkheidAanduiding OzVertrouwelijkheidaanduiding { get; set; }
+    public required ZaakVertrouwelijkheidaanduiding OzVertrouwelijkheidaanduiding { get; set; }
 }
