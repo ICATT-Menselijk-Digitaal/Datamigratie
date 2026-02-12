@@ -26,7 +26,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
         public required string Startdatum { get; set; }
 
         [JsonPropertyName("vertrouwelijkheidaanduiding")]
-        public VertrouwelijkheidsAanduiding? Vertrouwelijkheidaanduiding { get; set; }
+        public ZaakVertrouwelijkheidsAanduiding? Vertrouwelijkheidaanduiding { get; set; }
 
         [JsonPropertyName("betalingsindicatie")]
         public string? Betalingsindicatie { get; set; }
@@ -125,5 +125,19 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
 
         [JsonPropertyName("invalidParams")]
         public List<OzValidationError>? InvalidParams { get; set; }
+    }
+
+    // Enums (let op: standaard numeriek zonder JsonStringEnumConverter in web defaults)
+    [JsonConverter(typeof(JsonStringEnumConverter<DocumentVertrouwelijkheidsAanduiding>))]
+    public enum ZaakVertrouwelijkheidsAanduiding
+    {
+        openbaar,
+        beperkt_openbaar,
+        intern,
+        zaakvertrouwelijk,
+        vertrouwelijk,
+        confidentieel,
+        geheim,
+        zeer_geheim
     }
 }

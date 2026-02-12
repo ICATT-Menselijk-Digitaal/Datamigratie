@@ -28,7 +28,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
         {
             try
             {
-                var createZaakRequest = CreateOzZaakCreationRequest(detZaak, mapping.OpenZaaktypeId, mapping.Rsin, mapping.VertrouwelijkheidMappings);
+                var createZaakRequest = CreateOzZaakCreationRequest(detZaak, mapping.OpenZaaktypeId, mapping.Rsin, mapping.ZaakVertrouwelijkheidMappings);
 
                 var createdZaak = await _openZaakApiClient.CreateZaak(createZaakRequest);
 
@@ -125,7 +125,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             };
         }
 
-        private static VertrouwelijkheidsAanduiding MapPublicatieNiveau(string? publicatieNiveau, Dictionary<string, Dictionary<string, string>> documentPropertyMappings, string documentTitel)
+        private static DocumentVertrouwelijkheidsAanduiding MapPublicatieNiveau(string? publicatieNiveau, Dictionary<string, Dictionary<string, string>> documentPropertyMappings, string documentTitel)
         {
             if (string.IsNullOrWhiteSpace(publicatieNiveau))
             {
@@ -142,7 +142,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 throw new InvalidOperationException($"Document '{documentTitel}' migration failed: Publicatieniveau '{publicatieNiveau}' has not been mapped to an OpenZaak vertrouwelijkheidaanduiding.");
             }
 
-            if (!Enum.TryParse<VertrouwelijkheidsAanduiding>(mappedValue, true, out var vertrouwelijkheid))
+            if (!Enum.TryParse<DocumentVertrouwelijkheidsAanduiding>(mappedValue, true, out var vertrouwelijkheid))
             {
                 throw new InvalidOperationException($"Document '{documentTitel}' migration failed: Mapped vertrouwelijkheidaanduiding '{mappedValue}' is not a valid value.");
             }
@@ -224,7 +224,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 Informatieobjecttype = informatieObjectType,
                 Taal = "dut",
                 Titel = $"e-Suite zaakgegevens {detZaak.FunctioneleIdentificatie}",
-                Vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar,
+                Vertrouwelijkheidaanduiding = DocumentVertrouwelijkheidsAanduiding.openbaar,
                 Bestandsomvang = pdfBytes.Length,
                 Auteur = "Automatisch gegenereerd bij migratie vanuit e-Suite",
                 Beschrijving = "Automatisch gegenereerd document met basisgegevens van de zaak uit het bronsysteem",
@@ -460,7 +460,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             }
         }
 
-        private CreateOzZaakRequest CreateOzZaakCreationRequest(DetZaak detZaak, Guid ozZaaktypeId, string rsin, Dictionary<bool, VertrouwelijkheidsAanduiding> vertrouwelijkheidMappings)
+        private CreateOzZaakRequest CreateOzZaakCreationRequest(DetZaak detZaak, Guid ozZaaktypeId, string rsin, Dictionary<bool, ZaakVertrouwelijkheidsAanduiding> vertrouwelijkheidMappings)
         {
             const int MaxZaaknummerLength = 40;
             if (detZaak.FunctioneleIdentificatie.Length > MaxZaaknummerLength)
@@ -542,7 +542,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             return createRequest;
         }
 
-        private static VertrouwelijkheidsAanduiding MapVertrouwelijkheid(bool detVertrouwelijk, Dictionary<bool, VertrouwelijkheidsAanduiding> vertrouwelijkheidMappings, string zaakIdentificatie)
+        private static ZaakVertrouwelijkheidsAanduiding MapVertrouwelijkheid(bool detVertrouwelijk, Dictionary<bool, ZaakVertrouwelijkheidsAanduiding> vertrouwelijkheidMappings, string zaakIdentificatie)
         {
             if (!vertrouwelijkheidMappings.TryGetValue(detVertrouwelijk, out var ozVertrouwelijkheidaanduiding))
             {

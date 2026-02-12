@@ -18,7 +18,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak.Models
                 /// <summary>
                 /// Vertrouwelijkheid mappings: DetVertrouwelijkheid (true/false) -> OzVertrouwelijkheidaanduiding
                 /// </summary>
-                public required Dictionary<bool, VertrouwelijkheidsAanduiding> VertrouwelijkheidMappings { get; set; }
+                public required Dictionary<bool, ZaakVertrouwelijkheidsAanduiding> ZaakVertrouwelijkheidMappings { get; set; }
 
                 /// <summary>
                 /// Besluittype mappings: DetBesluittypeNaam -> OzBesluittypeId

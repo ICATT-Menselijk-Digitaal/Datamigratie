@@ -21,7 +21,7 @@ public class ShowVertrouwelijkheidMappingsController(DatamigratieDbContext conte
         var response = mappings.Select(m => new VertrouwelijkheidMappingResponse
         {
             DetVertrouwelijkheid = m.DetVertrouwelijkheid,
-            OzVertrouwelijkheidaanduiding = Enum.Parse<VertrouwelijkheidsAanduiding>(m.OzVertrouwelijkheidaanduiding)
+            OzVertrouwelijkheidaanduiding = Enum.Parse<ZaakVertrouwelijkheidsAanduiding>(m.OzVertrouwelijkheidaanduiding)
         }).ToList();
 
         return Ok(response);

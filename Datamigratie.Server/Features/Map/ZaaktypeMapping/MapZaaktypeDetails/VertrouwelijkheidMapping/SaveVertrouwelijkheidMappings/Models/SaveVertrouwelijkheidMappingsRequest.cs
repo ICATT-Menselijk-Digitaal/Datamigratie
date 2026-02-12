@@ -10,5 +10,5 @@ public class SaveVertrouwelijkheidMappingsRequest
 public class VertrouwelijkheidMappingItem
 {
     public required bool DetVertrouwelijkheid { get; set; }
-    public required VertrouwelijkheidsAanduiding OzVertrouwelijkheidaanduiding { get; set; }
+    public required ZaakVertrouwelijkheidsAanduiding OzVertrouwelijkheidaanduiding { get; set; }
 }

@@ -33,8 +33,8 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Sh
                 Informatieobjecttypen = ozInformatieobjecttypen,
                 Besluittypen = ozBesluittypen,
                 Omschrijving = ozZaaktype.Omschrijving,
-                OzZaakVertrouwelijkheidaanduidingen = [.. MappingConstants.OzVertrouwelijkheidaanduiding.Options],
-                OzDocumentVertrouwelijkheidaanduidingen = [.. MappingConstants.OzVertrouwelijkheidaanduiding.Options]
+                OzZaakVertrouwelijkheidaanduidingen = [.. MappingConstants.OzZaakVertrouwelijkheidsaanduiding.Options],
+                OzDocumentVertrouwelijkheidaanduidingen = [.. MappingConstants.OzDocumentVertrouwelijkheidsaanduiding.Options]
             };
 
             return enrichedOzZaaktype;
