@@ -43,6 +43,8 @@
 
     <vertrouwelijkheid-mapping-section
       :mapping-id="zaaktypeMapping.id"
+      :det-zaaktype="zaaktypeMapping.detZaaktype"
+      :oz-zaaktype="zaaktypeMapping.ozZaaktype"
       :disabled="isThisMigrationRunning"
       @update:complete="vertrouwelijkheidMappingsComplete = $event"
     />

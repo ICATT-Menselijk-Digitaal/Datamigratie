@@ -1,4 +1,5 @@
 ﻿using Datamigratie.Common.Services.OpenZaak;
+using Datamigratie.Server.Constants;
 using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.ShowOzZaaktypeInfo.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,7 +32,9 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Sh
                 Resultaattypen = ozResultaattypes,
                 Informatieobjecttypen = ozInformatieobjecttypen,
                 Besluittypen = ozBesluittypen,
-                Omschrijving = ozZaaktype.Omschrijving
+                Omschrijving = ozZaaktype.Omschrijving,
+                OzZaakVertrouwelijkheidaanduidingen = [.. MappingConstants.OzZaakVertrouwelijkheidaanduiding.Options],
+                OzDocumentVertrouwelijkheidaanduidingen = [.. MappingConstants.OzDocumentVertrouwelijkheidaanduiding.Options]
             };
 
             return enrichedOzZaaktype;

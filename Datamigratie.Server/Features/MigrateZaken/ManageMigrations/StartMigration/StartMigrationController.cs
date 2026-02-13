@@ -68,7 +68,7 @@ public class StartMigrationController(
                 ResultaatMappings = resultaatMappings,
                 DocumentstatusMappings = documentstatusMappings,
                 DocumentPropertyMappings = documentPropertyMappings,
-                VertrouwelijkheidMappings = vertrouwelijkheidMappings,
+                ZaakVertrouwelijkheidMappings = vertrouwelijkheidMappings,
                 BesluittypeMappings = besluittypeMappings
             });
         }
@@ -147,7 +147,7 @@ public class StartMigrationController(
             : documentPropertyMappings;
     }
 
-    private async Task<Dictionary<bool, VertrouwelijkheidsAanduiding>> ValidateAndGetVertrouwelijkheidMappingsAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)
+    private async Task<Dictionary<bool, ZaakVertrouwelijkheidaanduiding>> ValidateAndGetVertrouwelijkheidMappingsAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)
     {
         var (vertrouwelijkheidMappingsValid, vertrouwelijkheidMappings) = await validateVertrouwelijkheidMappingsService.ValidateAndGetVertrouwelijkheidMappings(detZaaktype);
 

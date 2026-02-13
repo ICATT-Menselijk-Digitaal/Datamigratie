@@ -1,4 +1,5 @@
 ﻿using Datamigratie.Common.Services.Det;
+using Datamigratie.Server.Constants;
 using Datamigratie.Server.Features.SelectDetZaaktypeToMigrate.ShowDetZaaktypeInfo.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,7 +9,6 @@ namespace Datamigratie.Server.Features.SelectDetZaaktypeToMigrate.ShowDetZaaktyp
     [Route("api/det/zaaktypen")]
     public class ShowDetZaaktypeInfoController(IDetApiClient detApiClient) : ControllerBase
     {
-
         [HttpGet("{zaaktypeId}")]
         public async Task<ActionResult<EnrichedDetZaaktype>> GetZaaktype(string zaaktypeId)
         {
@@ -33,11 +33,12 @@ namespace Datamigratie.Server.Features.SelectDetZaaktypeToMigrate.ShowDetZaaktyp
                 Resultaten = detZaaktypeDetail.Resultaten,
                 Statuses = detZaaktypeDetail.Statussen,
                 Documenttypen = [.. detZaaktypeDetail.Documenttypen.Select(dt => dt.Documenttype)],
-                Besluittypen = [.. detZaaktypeDetail.Besluiten.Select(b => b.Besluittype)]
+                Besluittypen = [.. detZaaktypeDetail.Besluiten.Select(b => b.Besluittype)],
+                PublicatieNiveauOptions = [.. MappingConstants.PublicatieNiveau.Options],
+                DetVertrouwelijkheidOpties = [.. MappingConstants.DetVertrouwelijkheid.Options]
             };
 
             return enrichedDetZaaktype;
-
         }
     }
 }
