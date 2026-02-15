@@ -10,7 +10,7 @@ Let op: De API variabelen gebruiken dubbele underscores (`__`) voor .NET configu
 | `OpenZaakApi__BaseUrl` | De base url van de API's bij de Open Zaak-instantie, waar naartoe gemigreerd wordt. <details> <summary>Meer informatie </summary> Bijvoorbeeld https://openzaak.example.nl/ </details>                                                             |
 | `OpenZaakApi__ApiUser`            | ClientID van Datamigratie in Open Zaak                                                           |
 | `OpenZaakApi__ApiKey`             | Client Secret van Datamigratie in Open Zaak                                                      |
-| `DetApi__BaseUrl`                 | Base url van het DET API Endpoint <details> <summary>Meer informatie </summary> Bijvoorbeeld https://esuite-data-extractie-gcp2.example.nl/ </details>                                                                              |
+| `DetApi__BaseUrl`                 | De base url van het API Endpoint in de DET <details> <summary>Meer informatie </summary> Bijvoorbeeld https://esuite-data-extractie-gcp2.example.nl/ </details>                                                                              |
 | `DetApi__ApiKey`                  | API Key van Datamigratie in de DET                                                               |
 | `Oidc__Authority`                 | Authority URL van de OIDC provider via welke gebruikers inloggen op Datamigratie                 |
 | `Oidc__ClientId`                  | ClientID van de OIDC provider                                                                    |
@@ -18,7 +18,7 @@ Let op: De API variabelen gebruiken dubbele underscores (`__`) voor .NET configu
 | `Oidc__FunctioneelBeheerderRole`  | Naam van de Rol die beheerfuncties mag uitvoeren in Datamigratie details> <summary>Meer informatie </summary> Bijvoorbeeld DMT-Functioneel-Beheerder</details>                                                                            |
 
 
-## OIDC Configuratie voor UI Inloggen
+## OIDC Configuratie om in te kunnen loggen op de UI
 
 Om in de UI in te kunnen loggen, moet je in de user secrets van het Datamigratie.Server project de benodigde configuratie invullen:
 
