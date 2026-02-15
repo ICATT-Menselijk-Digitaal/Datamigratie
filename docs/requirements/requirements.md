@@ -18,7 +18,7 @@ Datamigratie gebruikt de Data Extraction Tool biedt een API voor data extractie 
 ## Overige software
 
 * Postgres 17.5
-* **Data Extraction Tool (DET)**, 
+
 
 
 
