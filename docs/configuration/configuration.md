@@ -2,23 +2,21 @@
 
 ## Environment Variabelen
 
-De applicatie gebruikt de volgende environment variabelen:
-
-```
-OpenZaakApi__BaseUrl
-OpenZaakApi__ApiUser
-OpenZaakApi__ApiKey
-
-DetApi__BaseUrl
-DetApi__ApiKey
-
-Oidc__Authority
-Oidc__ClientId
-Oidc__ClientSecret
-Oidc__FunctioneelBeheerderRole
-```
-
+De applicatie gebruikt de onderstaande environment variabelen. <br />
 Let op: De API variabelen gebruiken dubbele underscores (`__`) voor .NET configuratie binding.
+
+| Variabele                         | Uitleg                                                                                           |
+| --------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `OpenZaakApi__BaseUrl` | De base url van de API's bij de Open Zaak-instantie, waar naartoe gemigreerd wordt. <details> <summary>Meer informatie </summary> Bijvoorbeeld https://openzaak.example.nl/ </details>                                                             |
+| `OpenZaakApi__ApiUser`            | ClientID van Datamigratie in Open Zaak                                                           |
+| `OpenZaakApi__ApiKey`             | Client Secret van Datamigratie in Open Zaak                                                      |
+| `DetApi__BaseUrl`                 | Base url van het DET API Endpoint <details> <summary>Meer informatie </summary> Bijvoorbeeld https://esuite-data-extractie-gcp2.example.nl/ </details>                                                                              |
+| `DetApi__ApiKey`                  | API Key van Datamigratie in de DET                                                               |
+| `Oidc__Authority`                 | Authority URL van de OIDC provider via welke gebruikers inloggen op Datamigratie                 |
+| `Oidc__ClientId`                  | ClientID van de OIDC provider                                                                    |
+| `Oidc__ClientSecret`              | Client Secret van de OIDC Provider                                                               |
+| `Oidc__FunctioneelBeheerderRole`  | Naam van de Rol die beheerfuncties mag uitvoeren in Datamigratie details> <summary>Meer informatie </summary> Bijvoorbeeld DMT-Functioneel-Beheerder</details>                                                                            |
+
 
 ## OIDC Configuratie voor UI Inloggen
 
@@ -39,7 +37,7 @@ Om in de UI in te kunnen loggen, moet je in de user secrets van het Datamigratie
 
 ### Overzicht
 
-De Datamigratie Tool vereist een geldig RSIN (Rechtspersonen Samenwerkingsverbanden Informatienummer) om migraties uit te kunnen voeren.
+De Datamigratie Tool vereist een geldig RSIN (Rechtspersonen Samenwerkingsverbanden Informatienummer) om migraties uit te kunnen voeren. Dit RSIN voert de Functioneel Beheerder in, in de Configuratie-pagina's van Datamigratie. Zorg ervoor dat je hier hetzelde RSIN configureert als in Open Zaak is geconfigureerd.
 
 ### Technische Details
 
