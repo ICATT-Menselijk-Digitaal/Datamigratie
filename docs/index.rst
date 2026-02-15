@@ -16,6 +16,6 @@ DMT is ontwikkeld door [ICATT.menselijk digitaal](https://www.icatt.nl) in opdra
 
    requirements/index
    installation/index
-   manual/index
    configuration/index
+   manual/index
    changelog/changelog.md
