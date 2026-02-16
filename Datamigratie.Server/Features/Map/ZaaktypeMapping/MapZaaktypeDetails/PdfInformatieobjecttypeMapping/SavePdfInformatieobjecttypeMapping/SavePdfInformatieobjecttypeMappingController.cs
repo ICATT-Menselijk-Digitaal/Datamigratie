@@ -21,11 +21,14 @@ public class SavePdfInformatieobjecttypeMappingController(DatamigratieDbContext 
         if (existingMapping is not null)
             context.PdfInformatieobjecttypeMappings.Remove(existingMapping);
 
-        await context.PdfInformatieobjecttypeMappings.AddAsync(new Data.Entities.PdfInformatieobjecttypeMapping
+        if (request.OzInformatieobjecttypeId is not null)
         {
-            ZaaktypenMappingId = zaaktypenMappingId,
-            OzInformatieobjecttypeId = request.OzInformatieobjecttypeId
-        });
+            await context.PdfInformatieobjecttypeMappings.AddAsync(new Data.Entities.PdfInformatieobjecttypeMapping
+            {
+                ZaaktypenMappingId = zaaktypenMappingId,
+                OzInformatieobjecttypeId = request.OzInformatieobjecttypeId.Value
+            });
+        }
 
         await context.SaveChangesAsync();
 
