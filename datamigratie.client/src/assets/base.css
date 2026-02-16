@@ -513,6 +513,7 @@ select:not([multiple]) {
     5px 5px;
   background-repeat: no-repeat;
   padding-inline-end: 25px;
+  field-sizing: content;
 }
 *[dir="rtl"] select:not([multiple]) {
   background-position: 10px, 15px;
