@@ -179,6 +179,7 @@ function handleCancel() {
 @use "@/assets/variables";
 dl {
   display: grid;
+  align-items: center;
   margin-block-end: var(--spacing-large);
 
   dt,
@@ -244,7 +245,7 @@ dl {
     padding-block: 0;
     display: flex;
     align-items: center;
-    min-height: 3rem;
+    min-height: var(--select-height);
   }
 
   @media (min-width: variables.$breakpoint-md) {

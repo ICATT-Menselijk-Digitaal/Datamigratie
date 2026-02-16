@@ -503,6 +503,7 @@ textarea:not([cols]) {
 
 /* Add arrow to drop-down */
 select:not([multiple]) {
+  padding: var(--spacing-default);
   inline-size: 100%;
   block-size: 100%;
   background-image: url("@/assets/arrow-down.svg");

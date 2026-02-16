@@ -267,8 +267,7 @@ const handleEdit = () => {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 0;
-    align-self: stretch;
+    min-height: var(--select-height);
   }
 
   .mapping-header {
