@@ -27,10 +27,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, watchEffect } from "vue";
+import { ref, computed, watch, watchEffect } from "vue";
 import MappingGrid, { type MappingItem, type Mapping } from "@/components/MappingGrid.vue";
 import toast from "@/components/toast/toast";
 import { get, post } from "@/utils/fetchWrapper";
+import type { OZZaaktype } from "@/services/ozService";
+import type { DETZaaktype } from "@/services/detService";
 
 type VertrouwelijkheidMappingItem = {
   detVertrouwelijkheid: boolean;
@@ -46,13 +48,10 @@ type SaveVertrouwelijkheidMappingsRequest = {
   mappings: VertrouwelijkheidMappingItem[];
 };
 
-type VertrouwelijkheidaanduidingOption = {
-  value: string;
-  label: string;
-};
-
 interface Props {
   mappingId: string;
+  detZaaktype: DETZaaktype;
+  ozZaaktype: OZZaaktype;
   disabled: boolean;
 }
 
@@ -62,12 +61,14 @@ const emit = defineEmits<{
   (e: "update:complete", value: boolean): void;
 }>();
 
-const sourceItems = [
-  { id: "true", name: "Ja (Vertrouwelijk)" },
-  { id: "false", name: "Nee (Niet vertrouwelijk)" }
-];
+const sourceItems = computed<MappingItem[]>(
+  () => props.detZaaktype.detVertrouwelijkheidOpties ?? []
+);
 
-const targetItems = ref<MappingItem[]>([]);
+const targetItems = computed<MappingItem[]>(
+  () => props.ozZaaktype.ozZaakVertrouwelijkheidaanduidingen ?? []
+);
+
 const isLoading = ref(false);
 const forceEdit = ref(false);
 const allMapped = ref<boolean>(false);
@@ -76,24 +77,6 @@ const mappingsModel = ref<Mapping[]>([]);
 const isInEditMode = computed(() => {
   return !allMapped.value || forceEdit.value;
 });
-
-const fetchOzOptions = async () => {
-  try {
-    targetItems.value = (
-      await get<VertrouwelijkheidaanduidingOption[]>("/api/oz/options/vertrouwelijkheidaanduiding")
-    ).map((option) => ({
-      id: option.value,
-      name: option.label,
-      description: undefined
-    }));
-  } catch (error) {
-    toast.add({
-      text: `Fout bij ophalen van de vertrouwelijkheidaanduiding opties - ${error}`,
-      type: "error"
-    });
-    throw error;
-  }
-};
 
 const fetchMappings = async () => {
   isLoading.value = true;
@@ -153,11 +136,6 @@ const handleCancel = () => {
   forceEdit.value = false;
 };
 
-// Fetch OZ options once on mount
-onMounted(() => {
-  fetchOzOptions();
-});
-
 // Trigger fetching mappings and set the form in edit/view mode whenever the mapping id changes
 watch(
   () => props.mappingId,
@@ -170,7 +148,7 @@ watch(
 
 watchEffect(() => {
   // the mapping is complete when all source items are present in the mapping and have a target value
-  const isMappingComplete = sourceItems.every((m) => {
+  const isMappingComplete = sourceItems.value.every((m) => {
     const mappedSourceItem = mappingsModel.value.find(
       (mapping) => mapping.sourceId.toString() === m.id
     );

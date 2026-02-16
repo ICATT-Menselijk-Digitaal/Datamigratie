@@ -53,11 +53,13 @@
           @update:complete="documentPropertyMappingsComplete = $event"
         />
 
-        <vertrouwelijkheid-mapping-section
-          :mapping-id="zaaktypeMapping.id"
-          :disabled="isThisMigrationRunning"
-          @update:complete="vertrouwelijkheidMappingsComplete = $event"
-        />
+    <vertrouwelijkheid-mapping-section
+      :mapping-id="zaaktypeMapping.id"
+      :det-zaaktype="zaaktypeMapping.detZaaktype"
+      :oz-zaaktype="zaaktypeMapping.ozZaaktype"
+      :disabled="isThisMigrationRunning"
+      @update:complete="vertrouwelijkheidMappingsComplete = $event"
+    />
 
         <menu class="reset" v-if="!error && !isThisMigrationRunning && canStartMigration">
           <li>

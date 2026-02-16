@@ -1,4 +1,5 @@
 import { get } from "@/utils/fetchWrapper";
+import type { ZaaktypeOptionItem } from "@/types/datamigratie";
 
 export type OzStatustype = {
   uuid: string;
@@ -33,6 +34,8 @@ export type OZZaaktype = {
   resultaattypen?: OzResultaattype[];
   informatieobjecttypen?: OzInformatieobjecttype[];
   besluittypen?: OzBesluittype[];
+  ozZaakVertrouwelijkheidaanduidingen?: ZaaktypeOptionItem[];
+  ozDocumentVertrouwelijkheidaanduidingen?: ZaaktypeOptionItem[];
 };
 
 export const ozService = {

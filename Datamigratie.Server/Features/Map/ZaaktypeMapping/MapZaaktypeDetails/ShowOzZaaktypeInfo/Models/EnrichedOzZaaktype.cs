@@ -1,4 +1,5 @@
-﻿using Datamigratie.Common.Services.OpenZaak.Models;
+using Datamigratie.Common.Services.OpenZaak.Models;
+using Datamigratie.Server.Shared.Models;
 
 namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.ShowOzZaaktypeInfo.Models
 {
@@ -11,5 +12,9 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Sh
         public List<OzInformatieobjecttype> Informatieobjecttypen { get; set; } = [];
 
         public List<OzBesluittype> Besluittypen { get; set; } = [];
+
+        public List<ZaaktypeOptionItem> OzZaakVertrouwelijkheidaanduidingen { get; set; } = [];
+
+        public List<ZaaktypeOptionItem> OzDocumentVertrouwelijkheidaanduidingen { get; set; } = [];
     }
 }
