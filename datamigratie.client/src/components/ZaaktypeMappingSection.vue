@@ -17,11 +17,11 @@
       <dt>Aantal gesloten zaken:</dt>
       <dd>{{ detZaaktype?.closedZakenCount }}</dd>
 
-      <dt id="mapping">Koppeling OZ zaaktype:</dt>
-      <dd v-if="!isEditing" class="mapping-display">
+      <dt id="mapping" class="accentuate">Koppeling OZ zaaktype:</dt>
+      <dd v-if="!isEditing" class="mapping-display accentuate">
         {{ model?.ozZaaktype.identificatie }}
       </dd>
-      <dd v-else class="mapping-controls">
+      <dd v-else class="mapping-controls accentuate">
         <select name="ozZaaktypeId" aria-labelledby="mapping" v-model="selectedZaaktypeId" required>
           <option v-if="!selectedZaaktypeId" value="">Kies Open Zaak zaaktype</option>
           <option v-for="{ id, identificatie, omschrijving } in ozZaaktypes" :value="id" :key="id">
@@ -179,16 +179,18 @@ function handleCancel() {
 @use "@/assets/variables";
 dl {
   display: grid;
-  gap: var(--spacing-default);
   margin-block-end: var(--spacing-large);
 
+  dt,
+  dd {
+    padding-block-end: var(--spacing-default);
+  }
+
   dt {
+    padding-inline-start: var(--spacing-small);
+    padding-inline-end: var(--spacing-large);
     color: var(--text);
     font-weight: 600;
-
-    &[id] {
-      align-self: center;
-    }
   }
 
   dd {
@@ -235,6 +237,14 @@ dl {
   select {
     min-inline-size: var(--section-width-small);
     margin-block-end: 0;
+  }
+
+  .accentuate {
+    background-color: var(--accent-bg);
+    padding-block: 0;
+    display: flex;
+    align-items: center;
+    min-height: 3rem;
   }
 
   @media (min-width: variables.$breakpoint-md) {
