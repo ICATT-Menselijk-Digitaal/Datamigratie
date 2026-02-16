@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.PdfInformatieobjecttypeMapping.ShowPdfInformatieobjecttypeMapping;
 
 [ApiController]
-[Route("api/mappings/{zaaktypenMappingId:guid}/pdf-informatieobjecttype")]
+[Route("api/mappings/{zaaktypenMappingId:guid}/informatieobjecttype")]
 public class ShowPdfInformatieobjecttypeMappingController(DatamigratieDbContext context) : ControllerBase
 {
     [HttpGet]
