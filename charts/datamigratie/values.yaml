@@ -84,15 +84,6 @@ resources:
   #   cpu: 100m
   #   memory: 128Mi
 
-apiConnections:
-  openZaakApi:
-    baseUrl: ""
-    apiKey: ""
-    apiUser: ""
-  detApi:
-    baseUrl: ""
-    apiKey: ""
-
 autoscaling:
   enabled: false
   minReplicas: 1
@@ -142,6 +133,15 @@ settings:
     nameClaimType: ""
     roleClaimType: ""
     emailClaimType: ""
+
+  apiConnections:
+    openZaakApi:
+      baseUrl: ""
+      apiKey: ""
+      apiUser: ""
+    detApi:
+      baseUrl: ""
+      apiKey: ""
 
 postgresql:
   enabled: false
