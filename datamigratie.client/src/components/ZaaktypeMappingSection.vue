@@ -19,14 +19,6 @@
     <dt id="mapping">Koppeling OZ zaaktype:</dt>
     <dd v-if="!isEditing && !!model?.ozZaaktype" class="mapping-display">
       {{ model.ozZaaktype.identificatie }}
-      <button
-        type="button"
-        class="secondary mapping-edit-button"
-        @click="isEditing = true"
-        v-if="!disabled"
-      >
-        Mapping aanpassen
-      </button>
     </dd>
     <dd v-else class="mapping-controls">
       <form @submit.prevent="submit">
@@ -40,6 +32,14 @@
       </form>
     </dd>
   </dl>
+  <button
+    type="button"
+    class="secondary mapping-edit-button"
+    @click="isEditing = true"
+    v-if="!disabled"
+  >
+    Koppeling aanpassen
+  </button>
   <zaaktype-change-confirmation-modal
     :dialog="confirmOzZaaktypeChangeDialog"
     warning-text="Als je het Open Zaak zaaktype wijzigt, worden alle bestaande mappings verwijderd."
