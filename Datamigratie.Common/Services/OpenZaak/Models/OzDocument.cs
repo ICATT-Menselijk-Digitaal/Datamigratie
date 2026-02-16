@@ -31,10 +31,12 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
 
         public required string Titel { get; init; }
 
-        public required VertrouwelijkheidsAanduiding Vertrouwelijkheidaanduiding { get; init; }
+        // This is a required field in OpenZaak, but this is not documented in the OZ documentation
+        public required DocumentVertrouwelijkheidaanduiding Vertrouwelijkheidaanduiding { get; init; }
 
         public required string Auteur { get; init; }
 
+        // This is a required field in OpenZaak, but this is not documented in the OZ documentation
         public required DocumentStatus Status { get; init; }
 
         /// MIME type, bijv. application/pdf
@@ -54,9 +56,11 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
 
         public long? Bestandsomvang { get; init; }
 
+        // This is a required field in OpenZaak (can be whitespace), but this is not documented in the OZ documentation
         public required string Link { get; init; }
 
-        public string? Beschrijving { get; init; }
+        // This is a required field in OpenZaak (can be whitespace), but this is not documented in the OZ documentation
+        public required string Beschrijving { get; init; }
 
         // Date-only (YYYY-MM-DD)
         public DateOnly? Ontvangstdatum { get; init; }
@@ -65,7 +69,8 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
 
         public bool? IndicatieGebruiksrecht { get; init; }
 
-        public string? Verschijningsvorm { get; init; }
+        // This is a required field in OpenZaak (can be whitespace), but this is not documented in the OZ documentation
+        public required string Verschijningsvorm { get; init; }
 
         public Ondertekening? Ondertekening { get; init; }
 
@@ -78,6 +83,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
 
         public List<Bestandsdeel>? Bestandsdelen { get; init; }
 
+        // This is a required field in OpenZaak (can be empty), but this is not documented in the OZ documentation
         public required List<string> Trefwoorden { get; init; }
 
         [JsonPropertyName("_expand")]
@@ -118,7 +124,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
 
         public string? Omschrijving { get; init; }
 
-        public VertrouwelijkheidsAanduiding? Vertrouwelijkheidaanduiding { get; init; }
+        public DocumentVertrouwelijkheidaanduiding? Vertrouwelijkheidaanduiding { get; init; }
 
         public DateOnly? BeginGeldigheid { get; init; }
 
@@ -169,14 +175,15 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
     }
 
     // Enums (let op: standaard numeriek zonder JsonStringEnumConverter in web defaults)
-    [JsonConverter(typeof(JsonStringEnumConverter<VertrouwelijkheidsAanduiding>))]
-    public enum VertrouwelijkheidsAanduiding
+    [JsonConverter(typeof(JsonStringEnumConverter<DocumentVertrouwelijkheidaanduiding>))]
+    public enum DocumentVertrouwelijkheidaanduiding
     {
         openbaar,
         beperkt_openbaar,
         intern,
         zaakvertrouwelijk,
         vertrouwelijk,
+        confidentieel,
         geheim,
         zeer_geheim
     }

@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Datamigratie.Server.Controllers
 {
-    public record AppVersion(string? Version, string? Revision, string? ReleaseVariable, string? SecretVariable);
+    public record AppVersion(string? Version, string? Revision, bool EnableTestHelpers);
 
     [ApiController]
     public class AppVersionController : ControllerBase
@@ -22,11 +22,12 @@ namespace Datamigratie.Server.Controllers
                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
                 .InformationalVersion?.Split('+') ?? [];
             
+            var enableTestHelpers = _configuration.GetValue<bool>("FeatureFlags:EnableTestHelpers", false);
+            
             var appVersion = new AppVersion(
                 parts.ElementAtOrDefault(0) ?? "0.0.0",
                 parts.ElementAtOrDefault(1) ?? "dev",
-                _configuration["RELEASE_VARIABLE"] ?? "Not configured",
-                _configuration["SECRET_VARIABLE"] ?? "Not configured"
+                enableTestHelpers
             );
                 
             return new OkObjectResult(appVersion);

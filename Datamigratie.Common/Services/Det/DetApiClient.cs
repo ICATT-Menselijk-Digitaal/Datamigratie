@@ -1,7 +1,6 @@
 ﻿using System.Net.Http.Json;
 using System.Runtime.Serialization;
 using Datamigratie.Common.Services.Det.Models;
-using Datamigratie.Common.Services.Shared;
 using Microsoft.Extensions.Logging;
 
 namespace Datamigratie.Common.Services.Det
@@ -16,10 +15,14 @@ namespace Datamigratie.Common.Services.Det
 
         Task<DetZaaktype?> GetZaaktype(string zaaktypeName);
 
+        Task<DetZaaktypeDetail?> GetZaaktypeDetail(string zaaktypeName);
+
         Task GetDocumentInhoudAsync(long id, Func<Stream, CancellationToken, Task> handleInhoud, CancellationToken token);
+
+        Task<List<DetDocumentstatus>> GetAllDocumentstatussen();
     }
 
-    public class DetApiClient(HttpClient httpClient, ILogger<DetApiClient> logger) : PagedApiClient(httpClient), IDetApiClient
+    public class DetApiClient(HttpClient httpClient, ILogger<DetApiClient> logger) : DetPagedApiClient(httpClient), IDetApiClient
     {
         private const int DefaultStartingPage = 0;
 
@@ -66,6 +69,39 @@ namespace Datamigratie.Common.Services.Det
             catch (HttpRequestException ex)
             {
                 _logger.LogError(ex, "An error occurred while getting zaaktype '{ZaaktypeName}' from endpoint {Endpoint}", SanitizeForLogging(id), SanitizeForLogging(endpoint));
+                throw;
+            }
+
+        }
+
+        /// <summary>
+        /// Gets a specific zaaktype with full details including statuses by its name.
+        /// Endpoint: /zaaktypen/{name}
+        /// </summary>
+        /// <returns>A DetZaaktypeDetail object with statuses, or null if not found</returns>
+        public async Task<DetZaaktypeDetail?> GetZaaktypeDetail(string id)
+        {
+            _logger.LogInformation("Fetching zaaktype detail with statuses for name: {ZaaktypeName}", SanitizeForLogging(id));
+
+            var endpoint = $"zaaktypen/{id}";
+            try
+            {
+                var response = await _httpClient.GetAsync(endpoint);
+
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    return null;
+                }
+
+                response.EnsureSuccessStatusCode();
+
+                return await response.Content.ReadFromJsonAsync<DetZaaktypeDetail>()
+                    ?? throw new SerializationException("Unexpected null response");
+
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting zaaktype detail '{ZaaktypeName}' from endpoint {Endpoint}", SanitizeForLogging(id), SanitizeForLogging(endpoint));
                 throw;
             }
 
@@ -119,12 +155,22 @@ namespace Datamigratie.Common.Services.Det
             await handleInhoud(contentStream, token);
         }
 
+        /// <summary>
+        /// Gets all document statuses.
+        /// Endpoint: /documentstatussen
+        /// </summary>
+        /// <returns>A list of all DetDocumentstatus objects across all pages.</returns>
+        public async Task<List<DetDocumentstatus>> GetAllDocumentstatussen()
+        {
+            _logger.LogInformation("Fetching all documentstatussen.");
+            var pagedDocumentstatussen = await GetAllPagedData<DetDocumentstatus>("documentstatussen");
+            return pagedDocumentstatussen.Results;
+        }
+
         protected override int GetDefaultStartingPage()
         {
             return DefaultStartingPage;
         }
-
-
 
         private static string SanitizeForLogging(string input) => input.Replace("\r", "").Replace("\n", "");
     }

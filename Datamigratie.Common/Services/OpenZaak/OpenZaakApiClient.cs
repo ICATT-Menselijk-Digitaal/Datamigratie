@@ -4,7 +4,6 @@ using System.Runtime.Serialization;
 using System.Text.Json.Nodes;
 using Datamigratie.Common.Helpers;
 using Datamigratie.Common.Services.OpenZaak.Models;
-using Datamigratie.Common.Services.Shared;
 
 namespace Datamigratie.Common.Services.OpenZaak
 {
@@ -14,11 +13,25 @@ namespace Datamigratie.Common.Services.OpenZaak
 
         Task<OzZaaktype?> GetZaaktype(Guid zaaktypeId);
 
+        Task<List<OzResultaattype>> GetResultaattypenForZaaktype(Uri zaaktypeUri);
+
+        Task<List<OzStatustype>> GetStatustypesForZaaktype(Uri zaaktypeUri);
+
+        Task<List<OzBesluittype>> GetBesluittypenForZaaktype(Uri zaaktypeUri);
+
         Task<OzZaak> CreateZaak(CreateOzZaakRequest request);
+
+        Task<OzResultaat> CreateResultaat(CreateOzResultaatRequest request);
+
+        Task<OzStatus> CreateStatus(CreateOzStatusRequest request);
+
+        Task<OzBesluit> CreateBesluit(CreateOzBesluitRequest request);
 
         Task<OzZaak?> GetZaakByIdentificatie(string zaakNummer);
 
         Task<List<Uri>> GetInformatieobjecttypenUrlsForZaaktype(Uri zaaktypeUri);
+
+        Task<List<OzInformatieobjecttype>> GetInformatieobjecttypenForZaaktype(Uri zaaktypeUri);
 
         Task<OzDocument> CreateDocument(OzDocument document);
 
@@ -35,7 +48,7 @@ namespace Datamigratie.Common.Services.OpenZaak
         Task UploadBestand(OzDocument document, Stream content, CancellationToken token);
     }
 
-    public class OpenZaakClient : PagedApiClient, IOpenZaakApiClient
+    public class OpenZaakClient : OzPagedApiClient, IOpenZaakApiClient
     {
         private const int DefaultStartingPage = 1;
 
@@ -74,6 +87,39 @@ namespace Datamigratie.Common.Services.OpenZaak
                 ?? throw new SerializationException("Unexpected null response");
         }
 
+        /// <summary>
+        /// Gets all statustypes for a specific zaaktype.
+        /// </summary>
+        /// <returns>A list of statustypes for the zaaktype</returns>
+        public async Task<List<OzStatustype>> GetStatustypesForZaaktype(Uri zaaktypeUri)
+        {
+            var endpoint = $"catalogi/api/v1/statustypen?zaaktype={Uri.EscapeDataString(zaaktypeUri.ToString())}";
+            var pagedStatustypes = await GetAllPagedData<OzStatustype>(endpoint);
+            return pagedStatustypes.Results;
+        }
+
+        /// <summary>
+        /// Gets all resultaattypen for a specific zaaktype.
+        /// </summary>
+        /// <returns>A list of resultaattypen for the zaaktype</returns>
+        public async Task<List<OzResultaattype>> GetResultaattypenForZaaktype(Uri zaaktypeUri)
+        {
+            var endpoint = $"catalogi/api/v1/resultaattypen?zaaktype={Uri.EscapeDataString(zaaktypeUri.ToString())}";
+            var pagedResultaattypen = await GetAllPagedData<OzResultaattype>(endpoint);
+            return pagedResultaattypen.Results;
+        }
+
+        /// <summary>
+        /// Gets all besluittypen for a specific zaaktype.
+        /// </summary>
+        /// <returns>A list of besluittypen for the zaaktype</returns>
+        public async Task<List<OzBesluittype>> GetBesluittypenForZaaktype(Uri zaaktypeUri)
+        {
+            var endpoint = $"catalogi/api/v1/besluittypen?zaaktypen={Uri.EscapeDataString(zaaktypeUri.ToString())}";
+            var pagedBesluittypen = await GetAllPagedData<OzBesluittype>(endpoint);
+            return pagedBesluittypen.Results;
+        }
+
         public async Task<OzZaak?> GetZaakByIdentificatie(string zaakNummer)
         {
             // uses icontains filter on identificatie field because the search is case-sensitive otherwise
@@ -104,6 +150,56 @@ namespace Datamigratie.Common.Services.OpenZaak
             await response.HandleOpenZaakErrorsAsync();
             return await response.Content.ReadFromJsonAsync<OzZaak>()!
                 ?? throw new SerializationException("Unexpected null response"); ;
+        }
+
+        /// <summary>
+        /// Creates a new resultaat for a zaak in OpenZaak
+        /// </summary>
+        /// <param name="request">The resultaat creation request</param>
+        /// <returns>The created resultaat</returns>
+        /// <exception cref="HttpRequestException">Thrown when OpenZaak returns validation errors or other HTTP errors</exception>
+        public async Task<OzResultaat> CreateResultaat(CreateOzResultaatRequest request)
+        {
+            var endpoint = "zaken/api/v1/resultaten";
+
+            using var response = await _httpClient.PostAsJsonAsync(endpoint, request);
+            await response.HandleOpenZaakErrorsAsync();
+            return await response.Content.ReadFromJsonAsync<OzResultaat>()
+                ?? throw new SerializationException("Unexpected null response");
+        }
+
+        /// <summary>
+        /// Creates a status for a zaak in OpenZaak.
+        /// </summary>
+        /// <param name="request">The status creation request</param>
+        /// <returns>The created status</returns>
+        /// <exception cref="HttpRequestException">Thrown when OpenZaak returns validation errors or other HTTP errors</exception>
+        public async Task<OzStatus> CreateStatus(CreateOzStatusRequest request)
+        {
+            var endpoint = "zaken/api/v1/statussen";
+
+            using var content = JsonContent.Create(request);
+
+            using var response = await _httpClient.PostAsync(endpoint, content);
+            await response.HandleOpenZaakErrorsAsync();
+            return await response.Content.ReadFromJsonAsync<OzStatus>()
+                ?? throw new SerializationException("Unexpected null response");
+        }
+
+        /// <summary>
+        /// Creates a besluit for a zaak in OpenZaak.
+        /// </summary>
+        /// <param name="request">The besluit creation request</param>
+        /// <returns>The created besluit</returns>
+        /// <exception cref="HttpRequestException">Thrown when OpenZaak returns validation errors or other HTTP errors</exception>
+        public async Task<OzBesluit> CreateBesluit(CreateOzBesluitRequest request)
+        {
+            var endpoint = "besluiten/api/v1/besluiten";
+
+            using var response = await _httpClient.PostAsJsonAsync(endpoint, request);
+            await response.HandleOpenZaakErrorsAsync();
+            return await response.Content.ReadFromJsonAsync<OzBesluit>()
+                ?? throw new SerializationException("Unexpected null response");
         }
 
         public async Task<OzDocument> CreateDocument(OzDocument document)
@@ -177,10 +273,42 @@ namespace Datamigratie.Common.Services.OpenZaak
             return result.Results?.Select(x => x?["informatieobjecttype"]?.GetValue<string>()).OfType<string>().Select(url => new Uri(url)).ToList() ?? [];
         }
 
+        public async Task<List<OzInformatieobjecttype>> GetInformatieobjecttypenForZaaktype(Uri zaaktypeUri)
+        {
+            var informatieobjecttypenUrls = await GetInformatieobjecttypenUrlsForZaaktype(zaaktypeUri);
+            
+            if (informatieobjecttypenUrls.Count == 0)
+            {
+                return [];
+            }
+
+            var informatieobjecttypen = new List<OzInformatieobjecttype>();
+            foreach (var url in informatieobjecttypenUrls)
+            {
+                var response = await _httpClient.GetAsync(url);
+                
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    continue;
+                }
+
+                await response.HandleOpenZaakErrorsAsync();
+                
+                var informatieobjecttype = await response.Content.ReadFromJsonAsync<OzInformatieobjecttype>();
+                if (informatieobjecttype != null)
+                {
+                    informatieobjecttypen.Add(informatieobjecttype);
+                }
+            }
+
+            return informatieobjecttypen;
+        }
+
         public async Task UploadBestand(OzDocument document, Stream inputStream, CancellationToken token)
         {
             ArgumentNullException.ThrowIfNull(document.Bestandsdelen);
             ArgumentException.ThrowIfNullOrWhiteSpace(document.Lock);
+            ArgumentException.ThrowIfNullOrWhiteSpace(document.Bestandsnaam);
 
             foreach (var bestandsDeel in document.Bestandsdelen.OrderBy(x => x.Volgnummer))
             {

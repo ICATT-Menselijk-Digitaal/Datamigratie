@@ -22,7 +22,7 @@ namespace Datamigratie.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Datamigratie.Data.Entities.GlobalConfiguration", b =>
+            modelBuilder.Entity("Datamigratie.Data.Entities.BesluittypeMapping", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -30,16 +30,78 @@ namespace Datamigratie.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Rsin")
-                        .HasMaxLength(9)
-                        .HasColumnType("character varying(9)");
+                    b.Property<string>("DetBesluittypeNaam")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<Guid>("OzBesluittypeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ZaaktypenMappingId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.ToTable("GlobalConfigurations");
+                    b.HasIndex("ZaaktypenMappingId", "DetBesluittypeNaam")
+                        .IsUnique()
+                        .HasDatabaseName("IX_BesluittypeMapping_ZaaktypenMappingId_DetBesluittypeNaam_Unique");
+
+                    b.ToTable("BesluittypeMappings");
+                });
+
+            modelBuilder.Entity("Datamigratie.Data.Entities.DocumentPropertyMapping", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("DetPropertyName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DetValue")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("OzValue")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ZaaktypenMappingId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ZaaktypenMappingId", "DetPropertyName", "DetValue")
+                        .IsUnique()
+                        .HasDatabaseName("IX_DocumentPropertyMapping_ZaaktypenMappingId_DetPropertyName_DetValue_Unique");
+
+                    b.ToTable("DocumentPropertyMappings");
+                });
+
+            modelBuilder.Entity("Datamigratie.Data.Entities.DocumentstatusMapping", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DetDocumentstatus")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("OzDocumentstatus")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DetDocumentstatus")
+                        .IsUnique()
+                        .HasDatabaseName("IX_DocumentstatusMapping_DetDocumentstatus_Unique");
+
+                    b.ToTable("DocumentstatusMappings");
                 });
 
             modelBuilder.Entity("Datamigratie.Data.Entities.Migration", b =>
@@ -137,6 +199,100 @@ namespace Datamigratie.Data.Migrations
                     b.ToTable("MigrationRecords");
                 });
 
+            modelBuilder.Entity("Datamigratie.Data.Entities.ResultaattypeMapping", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("DetResultaattypeNaam")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OzResultaattypeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ZaaktypenMappingId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ZaaktypenMappingId", "DetResultaattypeNaam")
+                        .IsUnique()
+                        .HasDatabaseName("IX_ResultaattypeMapping_ZaaktypenMappingId_DetResultaattypeNaam_Unique");
+
+                    b.ToTable("ResultaattypeMappings");
+                });
+
+            modelBuilder.Entity("Datamigratie.Data.Entities.RsinConfiguration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Rsin")
+                        .HasMaxLength(9)
+                        .HasColumnType("character varying(9)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RsinConfigurations");
+                });
+
+            modelBuilder.Entity("Datamigratie.Data.Entities.StatusMapping", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DetStatusNaam")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OzStatustypeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ZaaktypenMappingId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ZaaktypenMappingId", "DetStatusNaam")
+                        .IsUnique()
+                        .HasDatabaseName("IX_StatusMapping_ZaaktypenMappingId_DetStatusNaam_Unique");
+
+                    b.ToTable("StatusMappings");
+                });
+
+            modelBuilder.Entity("Datamigratie.Data.Entities.VertrouwelijkheidMapping", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("DetVertrouwelijkheid")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("OzVertrouwelijkheidaanduiding")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ZaaktypenMappingId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ZaaktypenMappingId", "DetVertrouwelijkheid")
+                        .IsUnique()
+                        .HasDatabaseName("IX_VertrouwelijkheidMapping_ZaaktypenMappingId_DetVertrouwelijkheid_Unique");
+
+                    b.ToTable("VertrouwelijkheidMappings");
+                });
+
             modelBuilder.Entity("Datamigratie.Data.Entities.ZaaktypenMapping", b =>
                 {
                     b.Property<Guid>("Id")
@@ -159,6 +315,28 @@ namespace Datamigratie.Data.Migrations
                     b.ToTable("Mappings");
                 });
 
+            modelBuilder.Entity("Datamigratie.Data.Entities.BesluittypeMapping", b =>
+                {
+                    b.HasOne("Datamigratie.Data.Entities.ZaaktypenMapping", "ZaaktypenMapping")
+                        .WithMany()
+                        .HasForeignKey("ZaaktypenMappingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ZaaktypenMapping");
+                });
+
+            modelBuilder.Entity("Datamigratie.Data.Entities.DocumentPropertyMapping", b =>
+                {
+                    b.HasOne("Datamigratie.Data.Entities.ZaaktypenMapping", "ZaaktypenMapping")
+                        .WithMany()
+                        .HasForeignKey("ZaaktypenMappingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ZaaktypenMapping");
+                });
+
             modelBuilder.Entity("Datamigratie.Data.Entities.MigrationRecord", b =>
                 {
                     b.HasOne("Datamigratie.Data.Entities.Migration", "Migration")
@@ -168,6 +346,39 @@ namespace Datamigratie.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Migration");
+                });
+
+            modelBuilder.Entity("Datamigratie.Data.Entities.ResultaattypeMapping", b =>
+                {
+                    b.HasOne("Datamigratie.Data.Entities.ZaaktypenMapping", "ZaaktypenMapping")
+                        .WithMany()
+                        .HasForeignKey("ZaaktypenMappingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ZaaktypenMapping");
+                });
+
+            modelBuilder.Entity("Datamigratie.Data.Entities.StatusMapping", b =>
+                {
+                    b.HasOne("Datamigratie.Data.Entities.ZaaktypenMapping", "ZaaktypenMapping")
+                        .WithMany()
+                        .HasForeignKey("ZaaktypenMappingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ZaaktypenMapping");
+                });
+
+            modelBuilder.Entity("Datamigratie.Data.Entities.VertrouwelijkheidMapping", b =>
+                {
+                    b.HasOne("Datamigratie.Data.Entities.ZaaktypenMapping", "ZaaktypenMapping")
+                        .WithMany()
+                        .HasForeignKey("ZaaktypenMappingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ZaaktypenMapping");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,4 +1,34 @@
 import { get } from "@/utils/fetchWrapper";
+import type { ZaaktypeOptionItem } from "@/types/datamigratie";
+
+export type DetStatus = {
+  naam: string;
+  omschrijving: string;
+  actief: boolean;
+  eind: boolean;
+};
+
+export type DetResultaat = {
+  naam: string;
+  actief: boolean;
+  omschrijving?: string;
+};
+
+export type DetResultaattypen = {
+  resultaat: DetResultaat;
+};
+
+export type DetDocumenttype = {
+  naam: string;
+  omschrijving?: string;
+  actief: boolean;
+};
+
+export type DetBesluittype = {
+  naam: string;
+  omschrijving?: string;
+  actief: boolean;
+};
 
 export type DETZaaktype = {
   actief: boolean;
@@ -6,6 +36,18 @@ export type DETZaaktype = {
   omschrijving: string;
   functioneleIdentificatie: string;
   closedZakenCount?: number;
+  statuses?: DetStatus[];
+  resultaten?: DetResultaattypen[];
+  documenttypen?: DetDocumenttype[];
+  publicatieNiveauOptions?: ZaaktypeOptionItem[];
+  detVertrouwelijkheidOpties?: ZaaktypeOptionItem[];
+  besluittypen?: DetBesluittype[];
+};
+
+export type DetDocumentstatus = {
+  actief: boolean;
+  naam: string;
+  omschrijving?: string;
 };
 
 export const detService = {
@@ -14,5 +56,7 @@ export const detService = {
       detZaaktypes.sort((a, b) => a.naam.localeCompare(b.naam))
     ),
   getZaaktypeById: (detZaaktypeId: string): Promise<DETZaaktype> =>
-    get<DETZaaktype>(`/api/det/zaaktypen/${detZaaktypeId}`)
+    get<DETZaaktype>(`/api/det/zaaktypen/${detZaaktypeId}`),
+  getAllDocumentstatussen: (): Promise<DetDocumentstatus[]> =>
+    get<DetDocumentstatus[]>(`/api/det/documentstatussen`)
 };
