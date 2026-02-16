@@ -1,9 +1,5 @@
 <template>
-  <details
-    v-if="collapsible"
-    class="mapping-section mapping-section--collapsible"
-    :open="initiallyExpanded"
-  >
+  <details class="mapping-section mapping-section--collapsible" :open="initiallyExpanded">
     <summary class="mapping-header-collapsible">
       <h2>{{ title }}</h2>
       <img
@@ -76,68 +72,6 @@
       </div>
     </div>
   </details>
-
-  <section v-else class="mapping-section">
-    <h2>{{ title }}</h2>
-    <p>{{ description }}</p>
-
-    <slot name="extra-content"></slot>
-
-    <simple-spinner v-if="loading" />
-
-    <div v-else-if="sourceItems.length === 0">
-      <p>{{ emptyMessage }}</p>
-    </div>
-
-    <div v-else class="mapping-grid">
-      <div class="mapping-header">
-        <div>{{ sourceLabel }}</div>
-        <div>{{ targetLabel }}</div>
-      </div>
-
-      <div v-for="sourceItem in sourceItems" :key="sourceItem.id" class="mapping-row">
-        <div class="source-item">
-          <strong>{{ sourceItem.name }}</strong>
-          <span v-if="sourceItem.description" class="item-description">{{
-            sourceItem.description
-          }}</span>
-        </div>
-
-        <div class="target-item">
-          <select
-            v-if="isEditing || !allMapped"
-            :value="getMappingForSource(sourceItem.id).targetId || ''"
-            @change="updateMapping(sourceItem.id, ($event.target as HTMLSelectElement).value)"
-            :disabled="disabled"
-          >
-            <option value="">{{ targetPlaceholder }}</option>
-            <option v-for="targetItem in targetItems" :key="targetItem.id" :value="targetItem.id">
-              {{ targetItem.name }}
-            </option>
-          </select>
-          <div v-else class="target-value">
-            {{ getTargetName(getMappingForSource(sourceItem.id).targetId) }}
-          </div>
-        </div>
-      </div>
-      <div v-if="(!allMapped || isEditing) && !disabled" class="mapping-actions">
-        <button type="button" class="primary-button" @click="handleSave">
-          {{ saveButtonText }}
-        </button>
-        <button type="button" class="cancel-button" @click="handleCancel">
-          {{ cancelButtonText }}
-        </button>
-      </div>
-
-      <div v-if="showEditButton && allMapped && !isEditing && !disabled" class="mapping-actions">
-        <button type="button" class="secondary" @click="handleEdit">{{ editButtonText }}</button>
-      </div>
-
-      <alert-inline v-if="!allMapped && showWarning" type="warning">
-        {{ warningMessage }}
-      </alert-inline>
-    </div>
-  </section>
 </template>
 
 <script setup lang="ts">
@@ -175,7 +109,6 @@ interface Props {
   showEditButton?: boolean;
   showWarning?: boolean;
   warningMessage?: string;
-  collapsible?: boolean;
   initiallyExpanded?: boolean;
   showCollapseWarning?: boolean;
 }
@@ -191,7 +124,6 @@ const props = withDefaults(defineProps<Props>(), {
   showEditButton: false,
   showWarning: true,
   warningMessage: "Niet alle items zijn gekoppeld. Migratie kan niet worden gestart.",
-  collapsible: false,
   initiallyExpanded: false,
   showCollapseWarning: false
 });
