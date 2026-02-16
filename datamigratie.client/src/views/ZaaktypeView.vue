@@ -1,11 +1,11 @@
 <template>
   <router-link
     :to="{ name: 'detZaaktypes', ...(search && { query: { search } }) }"
-    class="button button-secondary back-button"
+    class="button button-secondary"
     >&lt; Terug</router-link
   >
 
-  <h1 class="page-title">e-Suite zaaktype "{{ zaaktypeMapping?.detZaaktype?.naam || "..." }}"</h1>
+  <h2>e-Suite zaaktype "{{ zaaktypeMapping?.detZaaktype?.naam || "..." }}"</h2>
 
   <zaaktype-mapping-section
     v-if="detZaaktypeId"
@@ -15,7 +15,7 @@
   />
 
   <template v-if="zaaktypeMapping">
-    <h2 class="mapping-section-title">Mapping</h2>
+    <h3>Mapping</h3>
 
     <status-mapping-section
       :mapping-id="zaaktypeMapping.id"
@@ -130,10 +130,6 @@ const canStartMigration = computed(
 
 <style lang="scss" scoped>
 @use "@/assets/variables";
-
-.back-button {
-  margin-bottom: var(--spacing-large);
-}
 
 .page-title {
   align-self: stretch;

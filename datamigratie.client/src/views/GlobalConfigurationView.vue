@@ -1,87 +1,85 @@
 <template>
-  <div class="algemeen-view">
-    <simple-spinner v-if="loading" />
+  <simple-spinner v-if="loading" />
 
-    <template v-else>
-      <h1 class="page-title">Algemeen</h1>
+  <template v-else>
+    <h2>Algemeen</h2>
 
-      <div class="global-configuration">
-        <details class="rsin-collapsible-section" open>
-          <summary class="section-header">
-            <h2>RSIN</h2>
-            <img
-              v-if="!rsin"
-              src="@/assets/bi-exclamation-circle-fill.svg"
-              alt="Niet compleet"
-              class="warning-icon"
-            />
-            <img src="@/assets/arrow-drop-down.svg" alt="Toggle" class="toggle-icon" />
-          </summary>
+    <div class="global-configuration">
+      <details class="rsin-collapsible-section" open>
+        <summary class="section-header">
+          <h2>RSIN</h2>
+          <img
+            v-if="!rsin"
+            src="@/assets/bi-exclamation-circle-fill.svg"
+            alt="Niet compleet"
+            class="warning-icon"
+          />
+          <img src="@/assets/arrow-drop-down.svg" alt="Toggle" class="toggle-icon" />
+        </summary>
 
-          <div class="section-content">
-            <p>Voer hieronder de RSIN in</p>
+        <div class="section-content">
+          <p>Voer hieronder de RSIN in</p>
 
-            <div class="rsin-section">
-              <div class="rsin-row">
-                <div class="rsin-label">RSIN:</div>
-                <div class="rsin-value">
-                  <input
-                    v-if="isEditingRsin"
-                    type="text"
-                    id="rsin"
-                    ref="rsinInput"
-                    v-model="rsin"
-                    maxlength="9"
-                    pattern="[0-9]{9}"
-                    @input="validateRsin"
-                  />
-                  <div v-else class="rsin-display">
-                    <template v-if="rsin">{{ rsin }}</template>
-                    <template v-else>
-                      <span>Geen</span>
-                      <img
-                        src="@/assets/bi-exclamation-circle-fill.svg"
-                        alt="Geen RSIN"
-                        class="warning-icon-inline"
-                      />
-                    </template>
-                  </div>
+          <div class="rsin-section">
+            <div class="rsin-row">
+              <div class="rsin-label">RSIN:</div>
+              <div class="rsin-value">
+                <input
+                  v-if="isEditingRsin"
+                  type="text"
+                  id="rsin"
+                  ref="rsinInput"
+                  v-model="rsin"
+                  maxlength="9"
+                  pattern="[0-9]{9}"
+                  @input="validateRsin"
+                />
+                <div v-else class="rsin-display">
+                  <template v-if="rsin">{{ rsin }}</template>
+                  <template v-else>
+                    <span>Geen</span>
+                    <img
+                      src="@/assets/bi-exclamation-circle-fill.svg"
+                      alt="Geen RSIN"
+                      class="warning-icon-inline"
+                    />
+                  </template>
                 </div>
               </div>
+            </div>
 
-              <div class="form-actions">
-                <template v-if="isEditingRsin">
-                  <button type="button" class="primary-button" @click="saveRsinConfiguration">
-                    Opslaan
-                  </button>
-                  <button type="button" class="cancel-button" @click="cancelRsinEdit">
-                    Annuleren
-                  </button>
-                </template>
-                <template v-else>
-                  <button type="button" class="edit-button" @click="isEditingRsin = true">
-                    RSIN aanpassen
-                  </button>
-                </template>
-              </div>
+            <div class="form-actions">
+              <template v-if="isEditingRsin">
+                <button type="button" class="primary-button" @click="saveRsinConfiguration">
+                  Opslaan
+                </button>
+                <button type="button" class="cancel-button" @click="cancelRsinEdit">
+                  Annuleren
+                </button>
+              </template>
+              <template v-else>
+                <button type="button" class="edit-button" @click="isEditingRsin = true">
+                  RSIN aanpassen
+                </button>
+              </template>
             </div>
           </div>
-        </details>
+        </div>
+      </details>
 
-        <documentstatus-mapping-section
-          :det-documentstatussen="detDocumentstatussen"
-          :documentstatus-mappings="documentstatusMappings"
-          :all-mapped="allDocumentstatusesMapped"
-          :is-editing="!allDocumentstatusesMapped"
-          :loading="documentstatusLoading"
-          :show-warning="!allDocumentstatusesMapped"
-          @update:documentstatus-mappings="documentstatusMappings = $event"
-          @save="saveDocumentstatusMappings"
-          @fetch-mappings="fetchDocumentstatusMappings"
-        />
-      </div>
-    </template>
-  </div>
+      <documentstatus-mapping-section
+        :det-documentstatussen="detDocumentstatussen"
+        :documentstatus-mappings="documentstatusMappings"
+        :all-mapped="allDocumentstatusesMapped"
+        :is-editing="!allDocumentstatusesMapped"
+        :loading="documentstatusLoading"
+        :show-warning="!allDocumentstatusesMapped"
+        @update:documentstatus-mappings="documentstatusMappings = $event"
+        @save="saveDocumentstatusMappings"
+        @fetch-mappings="fetchDocumentstatusMappings"
+      />
+    </div>
+  </template>
 </template>
 
 <script setup lang="ts">
@@ -276,23 +274,6 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-.algemeen-view {
-  display: flex;
-  max-width: 90rem;
-  min-height: 56.25rem;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--spacing-large);
-  background: var(--bg);
-  padding: var(--spacing-large);
-}
-
-.page-title {
-  align-self: flex-start;
-  max-width: 75rem;
-  width: 100%;
-}
-
 .global-configuration {
   display: flex;
   max-width: 75rem;
