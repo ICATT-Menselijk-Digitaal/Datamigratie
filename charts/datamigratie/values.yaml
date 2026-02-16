@@ -93,15 +93,6 @@ apiConnections:
     baseUrl: ""
     apiKey: ""
 
-oidc:
-  authority: ""
-  clientId: ""
-  clientSecret: ""
-  functioneelBeheerderRole: ""
-  nameClaimType: ""
-  roleClaimType: ""
-  emailClaimType: ""
-
 autoscaling:
   enabled: false
   minReplicas: 1
@@ -142,6 +133,15 @@ settings:
     forwardedHeadersEnabled: true
     environment: ""
     httpPorts: ""
+
+  oidc:
+    authority: ""
+    clientId: ""
+    clientSecret: ""
+    functioneelBeheerderRole: ""
+    nameClaimType: ""
+    roleClaimType: ""
+    emailClaimType: ""
 
 postgresql:
   enabled: false
