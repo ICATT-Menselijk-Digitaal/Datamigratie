@@ -2,14 +2,13 @@
   <form @submit.prevent="handleSave">
     <details class="mapping-section mapping-section--collapsible" :open="initiallyExpanded">
       <summary class="mapping-header-collapsible">
-        <h2>{{ title }}</h2>
+        <span>{{ title }}</span>
         <img
           v-if="showCollapseWarning"
           src="@/assets/bi-exclamation-circle-fill.svg"
           alt="Niet compleet"
           class="warning-icon"
         />
-        <img src="@/assets/arrow-drop-down.svg" alt="Toggle" class="toggle-icon" />
       </summary>
       <div class="mapping-content">
         <p v-if="description">{{ description }}</p>
@@ -52,10 +51,10 @@
             </div>
           </div>
           <div v-if="(!allMapped || isEditing) && !disabled" class="mapping-actions">
-            <button type="submit" class="primary-button">
+            <button type="submit">
               {{ saveButtonText }}
             </button>
-            <button type="button" class="cancel-button" @click="handleCancel">
+            <button type="button" class="secondary" @click="handleCancel">
               {{ cancelButtonText }}
             </button>
           </div>
@@ -192,46 +191,26 @@ const handleEdit = () => {
 @use "@/assets/variables";
 
 .mapping-section {
-  margin-block-end: var(--spacing-large);
+  display: flex;
+  padding: var(--spacing-default);
+  flex-direction: column;
+  background: none;
+  margin-block-end: var(--spacing-small);
 
-  h2 {
-    font-size: 1.5rem;
-    margin-block-end: var(--spacing-small);
+  &[open] summary::after {
+    transform: rotate(180deg);
   }
 
   p {
-    margin-block-end: var(--spacing-default);
+    margin-block: var(--spacing-small);
   }
 
-  &--collapsible {
+  summary {
+    margin: 0;
+    padding: 0;
     display: flex;
-    padding: var(--spacing-default);
-    flex-direction: column;
-    align-items: flex-start;
-    align-self: stretch;
-    border-radius: var(--standard-border-radius);
-    border: 1px solid var(--border);
-    background: var(--bg);
-    margin-block-end: var(--spacing-small);
-
-    p {
-      margin: 0 0 var(--spacing-small) 0;
-    }
-
-    &[open] .mapping-header-collapsible .toggle-icon {
-      transform: rotate(180deg);
-    }
-  }
-
-  .mapping-header-collapsible {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    padding: var(--spacing-extrasmall) var(--spacing-small);
     cursor: pointer;
-    text-align: left;
     gap: var(--spacing-small);
-    margin-bottom: 0.125rem;
     list-style: none;
 
     &::-webkit-details-marker {
@@ -251,7 +230,12 @@ const handleEdit = () => {
       height: 1em;
     }
 
-    .toggle-icon {
+    &::after {
+      content: "";
+      display: inline-block;
+      background-color: currentcolor;
+      mask-image: url("@/assets/arrow-down.svg");
+      mask-repeat: no-repeat;
       width: 1.5em;
       height: 1.5em;
       margin-left: auto;
@@ -259,32 +243,37 @@ const handleEdit = () => {
     }
   }
 
-  .mapping-content {
-    width: 100%;
+  .mapping-grid {
+    display: grid;
+    column-gap: var(--spacing-large);
+    grid-template-columns: 1fr 1fr;
+    margin-block: var(--spacing-default);
+
+    @media (max-width: variables.$breakpoint-md) {
+      grid-template-columns: 1fr;
+      gap: var(--spacing-default);
+    }
   }
 
-  .mapping-grid {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+  .mapping-header,
+  .mapping-row {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: 1 / -1;
+    align-items: center;
     min-height: var(--select-height);
+
+    @media (max-width: variables.$breakpoint-md) {
+      gap: var(--spacing-extrasmall);
+    }
   }
 
   .mapping-header {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-large);
-    padding: var(--spacing-extrasmall);
+    padding-block-end: var(--spacing-default);
     font-weight: 600;
-    align-self: stretch;
 
-    div {
-      color: var(--text);
-      font-family: var(--sans-font);
-      font-size: var(--font-large);
-      font-weight: 900;
-      white-space: nowrap;
-    }
+    font-size: var(--font-large);
+    white-space: nowrap;
 
     @media (max-width: variables.$breakpoint-md) {
       display: none;
@@ -292,79 +281,20 @@ const handleEdit = () => {
   }
 
   .mapping-row {
-    display: flex;
     padding: var(--spacing-extrasmall);
-    align-items: center;
-    gap: var(--spacing-large);
-    align-self: stretch;
-    min-height: 3.25rem;
 
     &:nth-child(even) {
       background: var(--accent-bg);
-    }
-
-    @media (min-width: variables.$breakpoint-md) {
-      display: flex;
-    }
-
-    @media (max-width: variables.$breakpoint-md) {
-      flex-direction: column;
-      align-items: stretch;
-      gap: var(--spacing-default);
-      height: auto;
     }
   }
 
   .source-item {
     display: flex;
-    flex: 1;
     flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 0.125rem;
-
-    strong {
-      color: var(--text);
-      font-family: var(--sans-font);
-      font-size: var(--font-medium);
-      font-weight: 800;
-    }
+    gap: var(--spacing-extrasmall);
 
     .item-description {
       font-size: var(--font-small);
-    }
-
-    @media (max-width: variables.$breakpoint-md) {
-      width: 100%;
-    }
-  }
-
-  .target-item {
-    select {
-      display: flex;
-      flex: 1;
-      min-width: 15rem;
-      padding: var(--spacing-default);
-
-      @media (max-width: variables.$breakpoint-md) {
-        width: 100%;
-        min-width: auto;
-      }
-    }
-
-    .target-value {
-      display: flex;
-      flex: 1;
-      min-width: 15rem;
-      padding: var(--spacing-default);
-      align-items: center;
-      color: var(--text);
-      font-family: var(--sans-font);
-
-      @media (max-width: variables.$breakpoint-md) {
-        width: 100%;
-        min-width: auto;
-      }
     }
   }
 
