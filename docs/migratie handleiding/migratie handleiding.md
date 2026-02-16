@@ -8,6 +8,21 @@ Datamigratie is een applicatie voor het migreren van Zaak-data uit de e-Suite na
 
 
 
+### Gebruikersflow
+
+1. **Algemene Configuratie invoeren:**
+   - De Datamigratie Tool vereist een geldig 9-cijferig RSIN (Rechtspersonen Samenwerkingsverbanden Informatienummer) om migraties uit te kunnen voeren. Deze kan men invoeren in de Configuratie-pagina van Datamigratie.
+   - Documentstatus mapping ...
+   - 
+2. **Zaaktype Mappings aanmaken:**
+   - ...
+
+3. **Migratie starten:**
+   - Bij het starten van een migratie wordt de algmene en de zaaktypemapping gevalideerd.
+   - Als het mapping ontbreekt of ongeldig is, wordt de migratie geblokkeerd
+
+
+
 # Validatie
 
 Tijdens de migratie worden zaken gevalideerd voordat ze worden gemigreerd naar OpenZaak. 
