@@ -74,7 +74,7 @@ const fetchMapping = async () => {
   isLoading.value = true;
   try {
     const response = await get<PdfInformatieobjecttypeMappingResponse | null>(
-      `/api/mappings/${props.mappingId}/pdf-informatieobjecttype`
+      `/api/mappings/${props.mappingId}/informatieobjecttype`
     );
 
     selectedInformatieobjecttypeId.value = response?.ozInformatieobjecttypeId ?? "";
@@ -92,7 +92,7 @@ const fetchMapping = async () => {
 const saveMapping = async () => {
   isLoading.value = true;
   try {
-    await post(`/api/mappings/${props.mappingId}/pdf-informatieobjecttype`, {
+    await post(`/api/mappings/${props.mappingId}/informatieobjecttype`, {
       ozInformatieobjecttypeId: selectedInformatieobjecttypeId.value || null
     });
 
