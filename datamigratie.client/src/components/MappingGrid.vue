@@ -367,24 +367,6 @@ const handleEdit = () => {
       flex: 1;
       min-width: 15rem;
       padding: var(--spacing-default);
-      align-items: center;
-      border-radius: var(--standard-border-radius);
-      border: 1px solid var(--border);
-      background-color: var(--bg);
-      margin-block-end: 0;
-      color: var(--text);
-      font-family: var(--sans-font);
-      font-size: var(--font-medium);
-      font-weight: 400;
-      line-height: 1.25;
-
-      /* Custom arrow styling */
-      appearance: none;
-      background-image: url("@/assets/arrow-down.svg");
-      background-repeat: no-repeat;
-      background-position: right var(--spacing-default) center;
-      background-size: 1.5rem 1.5rem;
-      padding-right: 2.75rem;
 
       @media (max-width: variables.$breakpoint-md) {
         width: 100%;
