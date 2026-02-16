@@ -10,7 +10,7 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Pd
 public class ShowPdfInformatieobjecttypeMappingController(DatamigratieDbContext context) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<PdfInformatieobjecttypeMappingResponse?>> GetPdfInformatieobjecttypeMapping(
+    public async Task<ActionResult<PdfInformatieobjecttypeMappingResponse>> GetPdfInformatieobjecttypeMapping(
         [FromRoute] Guid zaaktypenMappingId)
     {
         var mapping = await context.PdfInformatieobjecttypeMappings
@@ -18,7 +18,7 @@ public class ShowPdfInformatieobjecttypeMappingController(DatamigratieDbContext 
             .FirstOrDefaultAsync();
 
         if (mapping is null)
-            return Ok(null);
+            return NotFound();
 
         return Ok(new PdfInformatieobjecttypeMappingResponse
         {
