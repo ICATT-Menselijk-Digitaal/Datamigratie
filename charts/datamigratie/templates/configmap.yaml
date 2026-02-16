@@ -18,14 +18,14 @@ data:
   OpenZaakApi__ApiUser: {{ .Values.apiConnections.openZaakApi.apiUser | quote }}
   DetApi__BaseUrl: {{ .Values.apiConnections.detApi.baseUrl | quote }}
 
-  {{- if .Values.oidc.authority }}
-  Oidc__Authority: {{ .Values.oidc.authority }}
-  Oidc__ClientId: {{ .Values.oidc.clientId }}
-  Oidc__FunctioneelBeheerderRole: {{ .Values.oidc.functioneelBeheerderRole }}
-  Oidc__NameClaimType: {{ .Values.oidc.nameClaimType }}
-  Oidc__RoleClaimType: {{ .Values.oidc.roleClaimType }}
-  Oidc__EmailClaimType: {{ .Values.oidc.emailClaimType }}
+  {{- if .Values.settings.oidc.authority }}
+  Oidc__Authority: {{ .Values.settings.oidc.authority }}
+  Oidc__ClientId: {{ .Values.settings.oidc.clientId }}
+  Oidc__FunctioneelBeheerderRole: {{ .Values.settings.oidc.functioneelBeheerderRole }}
+  Oidc__NameClaimType: {{ .Values.settings.oidc.nameClaimType }}
+  Oidc__RoleClaimType: {{ .Values.settings.oidc.roleClaimType }}
+  Oidc__EmailClaimType: {{ .Values.settings.oidc.emailClaimType }}
   {{- end }}
 
   # Feature Flags
-  FeatureFlags__EnableTestHelpers: {{ .Values.featureFlags.enableTestHelpers | toString | quote }}
+  FeatureFlags__EnableTestHelpers: {{ .Values.settings.featureFlags.enableTestHelpers | toString | quote }}
