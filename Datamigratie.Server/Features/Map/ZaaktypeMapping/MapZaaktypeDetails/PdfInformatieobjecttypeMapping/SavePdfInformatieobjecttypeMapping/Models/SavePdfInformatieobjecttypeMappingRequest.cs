@@ -2,5 +2,5 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Pd
 
 public class SavePdfInformatieobjecttypeMappingRequest
 {
-    public required Guid OzInformatieobjecttypeId { get; set; }
+    public Guid? OzInformatieobjecttypeId { get; set; }
 }
