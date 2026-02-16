@@ -1,38 +1,33 @@
 <template>
-  <collapsible-mapping-section
+  <mapping-grid
+    v-model="mappingsModel"
     title="Resultaattype"
     description="Koppel de e-Suite resultaattypen aan de Open Zaak resultaattypen."
-    :show-warning="!allMapped"
-  >
-    <mapping-grid
-      v-model="mappingsModel"
-      title=""
-      description=""
-      source-label="e-Suite Resultaattype"
-      target-label="Open Zaak Resultaattype"
-      :source-items="sourceResultaattypeItems"
-      :target-items="targetResultaattypeItems"
-      :all-mapped="allMapped"
-      :is-editing="isInEditMode"
-      :disabled="disabled"
-      :loading="isLoading"
-      empty-message="Er zijn geen resultaattypen beschikbaar voor dit zaaktype."
-      target-placeholder="- Kies een resultaattype -"
-      save-button-text="Mapping opslaan"
-      cancel-button-text="Annuleren"
-      edit-button-text="Mapping aanpassen"
-      :show-edit-button="true"
-      :show-warning="false"
-      @save="saveMappings"
-      @cancel="handleCancel"
-      @edit="forceEdit = true"
-    />
-  </collapsible-mapping-section>
+    source-label="e-Suite Resultaattype"
+    target-label="Open Zaak Resultaattype"
+    :source-items="sourceResultaattypeItems"
+    :target-items="targetResultaattypeItems"
+    :all-mapped="allMapped"
+    :is-editing="isInEditMode"
+    :disabled="disabled"
+    :loading="isLoading"
+    empty-message="Er zijn geen resultaattypen beschikbaar voor dit zaaktype."
+    target-placeholder="- Kies een resultaattype -"
+    save-button-text="Mapping opslaan"
+    cancel-button-text="Annuleren"
+    edit-button-text="Mapping aanpassen"
+    :show-edit-button="true"
+    :show-warning="false"
+    :collapsible="true"
+    :show-collapse-warning="!allMapped"
+    @save="saveMappings"
+    @cancel="handleCancel"
+    @edit="forceEdit = true"
+  />
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import CollapsibleMappingSection from "@/components/CollapsibleMappingSection.vue";
 import MappingGrid, { type MappingItem, type Mapping } from "@/components/MappingGrid.vue";
 import toast from "@/components/toast/toast";
 import type { DETZaaktype } from "@/services/detService";

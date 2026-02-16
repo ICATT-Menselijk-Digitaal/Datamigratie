@@ -1,87 +1,80 @@
 <template>
   <div class="document-property-mapping-section">
-    <collapsible-mapping-section
+    <mapping-grid
+      v-model="publicatieNiveauMappingsModel"
       title="Publicatieniveau"
       description="Koppel de e-Suite publicatieniveaus voor documenten aan de Open Zaak vertrouwelijkheidaanduiding."
-      :show-warning="!allPublicatieNiveauMapped"
-    >
-      <mapping-grid
-        v-model="publicatieNiveauMappingsModel"
-        title=""
-        description=""
-        source-label="e-Suite Publicatieniveau"
-        target-label="Open Zaak Vertrouwelijkheidaanduiding"
-        :source-items="publicatieNiveauSourceItems"
-        :target-items="vertrouwelijkheidaanduidingTargetItems"
-        :all-mapped="allPublicatieNiveauMapped"
-        :is-editing="publicatieniveauIsInEditMode"
-        :disabled="disabled"
-        :loading="isLoading"
-        empty-message="Er zijn geen publicatieniveaus beschikbaar."
-        target-placeholder="- Kies een vertrouwelijkheidaanduiding -"
-        save-button-text="Mapping opslaan"
-        cancel-button-text="Annuleren"
-        edit-button-text="Mapping aanpassen"
-        :show-edit-button="true"
-        :show-warning="false"
-        @save="handleSavePublicatieNiveau"
-        @cancel="handleCancelPublicatieNiveau"
-        @edit="forceEditPublicatieniveau = true"
-      />
-    </collapsible-mapping-section>
+      source-label="e-Suite Publicatieniveau"
+      target-label="Open Zaak Vertrouwelijkheidaanduiding"
+      :source-items="publicatieNiveauSourceItems"
+      :target-items="vertrouwelijkheidaanduidingTargetItems"
+      :all-mapped="allPublicatieNiveauMapped"
+      :is-editing="publicatieniveauIsInEditMode"
+      :disabled="disabled"
+      :loading="isLoading"
+      empty-message="Er zijn geen publicatieniveaus beschikbaar."
+      target-placeholder="- Kies een vertrouwelijkheidaanduiding -"
+      save-button-text="Mapping opslaan"
+      cancel-button-text="Annuleren"
+      edit-button-text="Mapping aanpassen"
+      :show-edit-button="true"
+      :show-warning="false"
+      :collapsible="true"
+      :show-collapse-warning="!allPublicatieNiveauMapped"
+      @save="handleSavePublicatieNiveau"
+      @cancel="handleCancelPublicatieNiveau"
+      @edit="forceEditPublicatieniveau = true"
+    />
 
-    <collapsible-mapping-section
+    <mapping-grid
+      v-model="documenttypeMappingsModel"
       title="Documenttype"
       description="Koppel de e-Suite documenttypes aan de Open Zaak informatieobjecttypes."
-      :show-warning="!allDocumenttypeMapped"
+      source-label="e-Suite Documenttype"
+      target-label="Open Zaak Informatieobjecttype"
+      :source-items="documenttypeSourceItems"
+      :target-items="informatieobjecttypeTargetItems"
+      :all-mapped="allDocumenttypeMapped"
+      :is-editing="documenttypeIsInEditMode"
+      :disabled="disabled"
+      :loading="isLoading"
+      empty-message="Er zijn geen documenttypes beschikbaar."
+      target-placeholder="- Kies een informatieobjecttype -"
+      save-button-text="Mapping opslaan"
+      cancel-button-text="Annuleren"
+      edit-button-text="Mapping aanpassen"
+      :show-edit-button="true"
+      :show-warning="false"
+      :collapsible="true"
+      :show-collapse-warning="!allDocumenttypeMapped"
+      @save="handleSaveDocumenttype"
+      @cancel="handleCancelDocumenttype"
+      @edit="forceEditDocumenttype = true"
     >
-      <!-- only shown when feature flag is enabled -->
-      <div
-        v-if="featureFlags.showDocumenttypeTestHelper && documenttypeSourceItems.length > 0"
-        class="test-helper"
-      >
-        <label>
-          <input
-            type="checkbox"
-            :disabled="!documenttypeIsInEditMode"
-            @change="fillRandomDocumenttypeMappings($event)"
-          />
-          <span style="color: #e74c3c; font-weight: bold"
-            >for testing: check to autofill with random selections</span
-          >
-        </label>
-      </div>
-
-      <mapping-grid
-        v-model="documenttypeMappingsModel"
-        title=""
-        description=""
-        source-label="e-Suite Documenttype"
-        target-label="Open Zaak Informatieobjecttype"
-        :source-items="documenttypeSourceItems"
-        :target-items="informatieobjecttypeTargetItems"
-        :all-mapped="allDocumenttypeMapped"
-        :is-editing="documenttypeIsInEditMode"
-        :disabled="disabled"
-        :loading="isLoading"
-        empty-message="Er zijn geen documenttypes beschikbaar."
-        target-placeholder="- Kies een informatieobjecttype -"
-        save-button-text="Mapping opslaan"
-        cancel-button-text="Annuleren"
-        edit-button-text="Mapping aanpassen"
-        :show-edit-button="true"
-        :show-warning="false"
-        @save="handleSaveDocumenttype"
-        @cancel="handleCancelDocumenttype"
-        @edit="forceEditDocumenttype = true"
-      />
-    </collapsible-mapping-section>
+      <template #extra-content>
+        <!-- only shown when feature flag is enabled -->
+        <div
+          v-if="featureFlags.showDocumenttypeTestHelper && documenttypeSourceItems.length > 0"
+          class="test-helper"
+        >
+          <label>
+            <input
+              type="checkbox"
+              :disabled="!documenttypeIsInEditMode"
+              @change="fillRandomDocumenttypeMappings($event)"
+            />
+            <span style="color: #e74c3c; font-weight: bold"
+              >for testing: check to autofill with random selections</span
+            >
+          </label>
+        </div>
+      </template>
+    </mapping-grid>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
-import CollapsibleMappingSection from "@/components/CollapsibleMappingSection.vue";
 import MappingGrid, { type MappingItem, type Mapping } from "@/components/MappingGrid.vue";
 import type { DETZaaktype } from "@/services/detService";
 import type { OZZaaktype } from "@/services/ozService";
@@ -356,7 +349,7 @@ onMounted(async () => {
 .document-property-mapping-section {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--spacing-small);
   align-self: stretch;
   width: 100%;
 
@@ -368,7 +361,7 @@ onMounted(async () => {
   // Add margin-bottom only to the last collapsible section
   // to maintain proper spacing with the next section (Vertrouwelijkheid)
   :deep(.collapsible-mapping-section:last-child) {
-    margin-block-end: 8px;
+    margin-block-end: var(--spacing-small);
   }
 }
 
@@ -377,7 +370,7 @@ onMounted(async () => {
   background-color: var(--marked);
   border: 2px dashed var(--accent);
   border-radius: var(--radius-default);
-  margin-bottom: 12px;
+  margin-bottom: var(--spacing-default);
 
   label {
     display: flex;

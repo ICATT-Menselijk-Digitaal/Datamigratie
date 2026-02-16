@@ -1,7 +1,87 @@
 <template>
-  <section class="mapping-section">
+  <details
+    v-if="collapsible"
+    class="mapping-section mapping-section--collapsible"
+    :open="initiallyExpanded"
+  >
+    <summary class="mapping-header-collapsible">
+      <h2>{{ title }}</h2>
+      <img
+        v-if="showCollapseWarning"
+        src="@/assets/bi-exclamation-circle-fill.svg"
+        alt="Niet compleet"
+        class="warning-icon"
+      />
+      <img src="@/assets/arrow-drop-down.svg" alt="Toggle" class="toggle-icon" />
+    </summary>
+
+    <div class="mapping-content">
+      <p v-if="description">{{ description }}</p>
+
+      <slot name="extra-content"></slot>
+
+      <simple-spinner v-if="loading" />
+
+      <div v-else-if="sourceItems.length === 0">
+        <p>{{ emptyMessage }}</p>
+      </div>
+
+      <div v-else class="mapping-grid">
+        <div class="mapping-header">
+          <div>{{ sourceLabel }}</div>
+          <div>{{ targetLabel }}</div>
+        </div>
+
+        <div v-for="sourceItem in sourceItems" :key="sourceItem.id" class="mapping-row">
+          <div class="source-item">
+            <strong>{{ sourceItem.name }}</strong>
+            <span v-if="sourceItem.description" class="item-description">{{
+              sourceItem.description
+            }}</span>
+          </div>
+
+          <div class="target-item">
+            <select
+              v-if="isEditing || !allMapped"
+              :value="getMappingForSource(sourceItem.id).targetId || ''"
+              @change="updateMapping(sourceItem.id, ($event.target as HTMLSelectElement).value)"
+              :disabled="disabled"
+            >
+              <option value="">{{ targetPlaceholder }}</option>
+              <option v-for="targetItem in targetItems" :key="targetItem.id" :value="targetItem.id">
+                {{ targetItem.name }}
+              </option>
+            </select>
+            <div v-else class="target-value">
+              {{ getTargetName(getMappingForSource(sourceItem.id).targetId) }}
+            </div>
+          </div>
+        </div>
+        <div v-if="(!allMapped || isEditing) && !disabled" class="mapping-actions">
+          <button type="button" class="primary-button" @click="handleSave">
+            {{ saveButtonText }}
+          </button>
+          <button type="button" class="cancel-button" @click="handleCancel">
+            {{ cancelButtonText }}
+          </button>
+        </div>
+
+        <div v-if="showEditButton && allMapped && !isEditing && !disabled" class="mapping-actions">
+          <button type="button" class="secondary" @click="handleEdit">{{ editButtonText }}</button>
+        </div>
+
+        <alert-inline v-if="!allMapped && showWarning" type="warning">
+          {{ warningMessage }}
+        </alert-inline>
+      </div>
+    </div>
+  </details>
+
+  <section v-else class="mapping-section">
     <h2>{{ title }}</h2>
     <p>{{ description }}</p>
+
+    <slot name="extra-content"></slot>
 
     <simple-spinner v-if="loading" />
 
@@ -95,6 +175,9 @@ interface Props {
   showEditButton?: boolean;
   showWarning?: boolean;
   warningMessage?: string;
+  collapsible?: boolean;
+  initiallyExpanded?: boolean;
+  showCollapseWarning?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -107,7 +190,10 @@ const props = withDefaults(defineProps<Props>(), {
   editButtonText: "Mappings aanpassen",
   showEditButton: false,
   showWarning: true,
-  warningMessage: "Niet alle items zijn gekoppeld. Migratie kan niet worden gestart."
+  warningMessage: "Niet alle items zijn gekoppeld. Migratie kan niet worden gestart.",
+  collapsible: false,
+  initiallyExpanded: false,
+  showCollapseWarning: false
 });
 
 const emit = defineEmits<{
@@ -183,6 +269,81 @@ const handleEdit = () => {
     margin-block-end: var(--spacing-default);
   }
 
+  &--collapsible {
+    display: flex;
+    padding: var(--spacing-default);
+    flex-direction: column;
+    align-items: flex-start;
+    align-self: stretch;
+    border-radius: var(--standard-border-radius);
+    border: 1px solid var(--border);
+    background: var(--bg);
+    margin-block-end: var(--spacing-small);
+
+    h2 {
+      margin: 0;
+      color: var(--text);
+      font-family: var(--sans-font);
+      font-size: var(--font-medium);
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    p {
+      align-self: stretch;
+      margin: 0 0 var(--spacing-default) 0;
+      color: var(--text);
+      font-family: var(--sans-font);
+      font-size: var(--font-medium);
+      font-weight: 400;
+      line-height: 1.25;
+    }
+
+    &[open] .mapping-header-collapsible .toggle-icon {
+      transform: rotate(180deg);
+    }
+  }
+
+  .mapping-header-collapsible {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: var(--spacing-extrasmall) var(--spacing-small);
+    cursor: pointer;
+    text-align: left;
+    gap: var(--spacing-small);
+    margin-bottom: 0.125rem;
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &::marker {
+      display: none;
+    }
+
+    &:hover {
+      opacity: 0.8;
+    }
+
+    .warning-icon {
+      width: 1em;
+      height: 1em;
+    }
+
+    .toggle-icon {
+      width: 1.5em;
+      height: 1.5em;
+      margin-left: auto;
+      transition: transform 0.3s ease;
+    }
+  }
+
+  .mapping-content {
+    width: 100%;
+  }
+
   .mapping-grid {
     display: flex;
     flex-direction: column;
@@ -193,19 +354,18 @@ const handleEdit = () => {
 
   .mapping-header {
     display: grid;
-    grid-template-columns: 343px 300px;
-    gap: 40px;
-    padding: 4px;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-large);
+    padding: var(--spacing-extrasmall);
     font-weight: 600;
     align-self: stretch;
 
     div {
-      color: var(--Zwart, #212121);
-      font-family: Avenir;
-      font-size: 20px;
-      font-style: normal;
+      color: var(--text);
+      font-family: var(--sans-font);
+      font-size: var(--font-large);
       font-weight: 900;
-      line-height: 20px; /* 100% */
+      line-height: 1.25;
       white-space: nowrap;
     }
 
@@ -216,15 +376,14 @@ const handleEdit = () => {
 
   .mapping-row {
     display: flex;
-    padding: 4px;
+    padding: var(--spacing-extrasmall);
     align-items: center;
-    gap: 40px;
+    gap: var(--spacing-large);
     align-self: stretch;
-    height: 52px;
+    min-height: 3.25rem;
 
-    // zebra striping
     &:nth-child(even) {
-      background: var(--Accent-background, #f5f7ff);
+      background: var(--accent-bg);
     }
 
     @media (min-width: variables.$breakpoint-md) {
@@ -241,73 +400,57 @@ const handleEdit = () => {
 
   .source-item {
     display: flex;
-    width: 343px;
+    flex: 1;
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
-    gap: 2px;
+    gap: 0.125rem;
 
     strong {
-      width: 255px;
-      color: var(--Zwart, #212121);
-      /* Lopende tekst bold */
-      font-family: Avenir;
-      font-size: 16px;
-      font-style: normal;
+      color: var(--text);
+      font-family: var(--sans-font);
+      font-size: var(--font-medium);
       font-weight: 800;
-      line-height: 20px; /* 125% */
+      line-height: 1.25;
     }
 
     .item-description {
-      width: 255px;
-      color: var(--Zwart, #212121);
-      font-family: Avenir;
-      font-size: 14px;
-      font-style: normal;
+      color: var(--text);
+      font-family: var(--sans-font);
+      font-size: var(--font-small);
       font-weight: 400;
-      line-height: 20px; /* 142.857% */
+      line-height: 1.4;
     }
 
     @media (max-width: variables.$breakpoint-md) {
       width: 100%;
-
-      strong,
-      .item-description {
-        width: 100%;
-      }
     }
   }
 
   .target-item {
     select {
       display: flex;
-      width: 300px;
-      height: 44px;
-      min-width: 300px;
-      padding: 12px;
+      flex: 1;
+      min-width: 15rem;
+      padding: var(--spacing-default);
       align-items: center;
-      border-radius: 5px;
-      border: 1px solid var(--Border, #898ea4);
-      background: #fff;
+      border-radius: var(--standard-border-radius);
+      border: 1px solid var(--border);
+      background-color: var(--bg);
       margin-block-end: 0;
-
-      /* Dropdown text */
-      flex: 1 0 0;
-      color: var(--Zwart, #212121);
-      /* Lopende tekst */
-      font-family: Avenir;
-      font-size: 16px;
-      font-style: normal;
+      color: var(--text);
+      font-family: var(--sans-font);
+      font-size: var(--font-medium);
       font-weight: 400;
-      line-height: 20px; /* 125% */
+      line-height: 1.25;
 
       /* Custom arrow styling */
       appearance: none;
       background-image: url("@/assets/arrow-down.svg");
       background-repeat: no-repeat;
-      background-position: right 12px center;
-      background-size: 24px 24px;
-      padding-right: 44px; /* Make room for the arrow */
+      background-position: right var(--spacing-default) center;
+      background-size: 1.5rem 1.5rem;
+      padding-right: 2.75rem;
 
       @media (max-width: variables.$breakpoint-md) {
         width: 100%;
@@ -317,17 +460,15 @@ const handleEdit = () => {
 
     .target-value {
       display: flex;
-      width: 300px;
-      min-width: 300px;
-      padding: 12px;
+      flex: 1;
+      min-width: 15rem;
+      padding: var(--spacing-default);
       align-items: center;
-      color: var(--Zwart, #212121);
-      /* Lopende tekst */
-      font-family: Avenir;
-      font-size: 16px;
-      font-style: normal;
+      color: var(--text);
+      font-family: var(--sans-font);
+      font-size: var(--font-medium);
       font-weight: 400;
-      line-height: 20px; /* 125% */
+      line-height: 1.25;
 
       @media (max-width: variables.$breakpoint-md) {
         width: 100%;
@@ -339,7 +480,7 @@ const handleEdit = () => {
   .mapping-actions {
     display: flex;
     align-items: flex-start;
-    gap: 8px;
+    gap: var(--spacing-small);
     margin-block-start: var(--spacing-default);
   }
 

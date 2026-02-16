@@ -6,74 +6,79 @@
       <h1 class="page-title">Algemeen</h1>
 
       <div class="global-configuration">
-        <collapsible-mapping-section
-          title="RSIN"
-          description="Voer hieronder de RSIN in"
-          :show-warning="!rsin"
-        >
-          <div class="rsin-section">
-            <div class="rsin-row">
-              <div class="rsin-label">RSIN:</div>
-              <div class="rsin-value">
-                <input
-                  v-if="isEditingRsin"
-                  type="text"
-                  id="rsin"
-                  ref="rsinInput"
-                  v-model="rsin"
-                  maxlength="9"
-                  pattern="[0-9]{9}"
-                  @input="validateRsin"
-                />
-                <div v-else class="rsin-display">
-                  <template v-if="rsin">{{ rsin }}</template>
-                  <template v-else>
-                    <span>Geen</span>
-                    <img
-                      src="@/assets/bi-exclamation-circle-fill.svg"
-                      alt="Geen RSIN"
-                      class="warning-icon-inline"
-                    />
-                  </template>
+        <details class="rsin-collapsible-section" open>
+          <summary class="section-header">
+            <h2>RSIN</h2>
+            <img
+              v-if="!rsin"
+              src="@/assets/bi-exclamation-circle-fill.svg"
+              alt="Niet compleet"
+              class="warning-icon"
+            />
+            <img src="@/assets/arrow-drop-down.svg" alt="Toggle" class="toggle-icon" />
+          </summary>
+
+          <div class="section-content">
+            <p>Voer hieronder de RSIN in</p>
+
+            <div class="rsin-section">
+              <div class="rsin-row">
+                <div class="rsin-label">RSIN:</div>
+                <div class="rsin-value">
+                  <input
+                    v-if="isEditingRsin"
+                    type="text"
+                    id="rsin"
+                    ref="rsinInput"
+                    v-model="rsin"
+                    maxlength="9"
+                    pattern="[0-9]{9}"
+                    @input="validateRsin"
+                  />
+                  <div v-else class="rsin-display">
+                    <template v-if="rsin">{{ rsin }}</template>
+                    <template v-else>
+                      <span>Geen</span>
+                      <img
+                        src="@/assets/bi-exclamation-circle-fill.svg"
+                        alt="Geen RSIN"
+                        class="warning-icon-inline"
+                      />
+                    </template>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div class="form-actions">
-              <template v-if="isEditingRsin">
-                <button type="button" class="primary-button" @click="saveRsinConfiguration">
-                  Opslaan
-                </button>
-                <button type="button" class="cancel-button" @click="cancelRsinEdit">
-                  Annuleren
-                </button>
-              </template>
-              <template v-else>
-                <button type="button" class="edit-button" @click="isEditingRsin = true">
-                  RSIN aanpassen
-                </button>
-              </template>
+              <div class="form-actions">
+                <template v-if="isEditingRsin">
+                  <button type="button" class="primary-button" @click="saveRsinConfiguration">
+                    Opslaan
+                  </button>
+                  <button type="button" class="cancel-button" @click="cancelRsinEdit">
+                    Annuleren
+                  </button>
+                </template>
+                <template v-else>
+                  <button type="button" class="edit-button" @click="isEditingRsin = true">
+                    RSIN aanpassen
+                  </button>
+                </template>
+              </div>
             </div>
           </div>
-        </collapsible-mapping-section>
+        </details>
 
-        <collapsible-mapping-section
-          title="Documentstatussen"
-          description="Koppel de e-Suite documentstatussen aan de Open Zaak documentstatussen."
+        <documentstatus-mapping-section
+          :det-documentstatussen="detDocumentstatussen"
+          :documentstatus-mappings="documentstatusMappings"
+          :all-mapped="allDocumentstatusesMapped"
+          :is-editing="!allDocumentstatusesMapped"
+          :loading="documentstatusLoading"
           :show-warning="!allDocumentstatusesMapped"
-        >
-          <documentstatus-mapping-section
-            :det-documentstatussen="detDocumentstatussen"
-            :documentstatus-mappings="documentstatusMappings"
-            :all-mapped="allDocumentstatusesMapped"
-            :is-editing="!allDocumentstatusesMapped"
-            :loading="documentstatusLoading"
-            :show-warning="!allDocumentstatusesMapped"
-            @update:documentstatus-mappings="documentstatusMappings = $event"
-            @save="saveDocumentstatusMappings"
-            @fetch-mappings="fetchDocumentstatusMappings"
-          />
-        </collapsible-mapping-section>
+          @update:documentstatus-mappings="documentstatusMappings = $event"
+          @save="saveDocumentstatusMappings"
+          @fetch-mappings="fetchDocumentstatusMappings"
+        />
       </div>
     </template>
   </div>
@@ -91,7 +96,6 @@ import type {
 } from "@/types/datamigratie";
 import { detService, type DetDocumentstatus } from "@/services/detService";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
-import CollapsibleMappingSection from "@/components/CollapsibleMappingSection.vue";
 import DocumentstatusMappingSection from "@/components/DocumentstatusMappingSection.vue";
 import toast from "@/components/toast/toast";
 
@@ -274,55 +278,129 @@ onMounted(() => {
 <style scoped lang="scss">
 .algemeen-view {
   display: flex;
-  max-width: 1440px;
-  min-height: 900px;
+  max-width: 90rem;
+  min-height: 56.25rem;
   flex-direction: column;
   align-items: flex-start;
-  gap: 24px;
-  background: #fff;
-  padding: 24px;
+  gap: var(--spacing-large);
+  background: var(--bg);
+  padding: var(--spacing-large);
 }
 
 .page-title {
   align-self: flex-start;
-  max-width: 1200px;
+  max-width: 75rem;
   width: 100%;
 }
 
 .global-configuration {
   display: flex;
-  max-width: 1200px;
+  max-width: 75rem;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  gap: 8px;
+  gap: var(--spacing-small);
   align-self: stretch;
   width: 100%;
+}
+
+.rsin-collapsible-section {
+  display: flex;
+  padding: var(--spacing-default);
+  flex-direction: column;
+  align-items: flex-start;
+  align-self: stretch;
+  border-radius: var(--standard-border-radius);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  margin-block-end: var(--spacing-small);
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: var(--spacing-extrasmall) var(--spacing-small);
+    cursor: pointer;
+    text-align: left;
+    gap: var(--spacing-small);
+    margin-bottom: 0.125rem;
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &::marker {
+      display: none;
+    }
+
+    &:hover {
+      opacity: 0.8;
+    }
+
+    h2 {
+      margin: 0;
+      color: var(--text);
+      font-family: var(--sans-font);
+      font-size: var(--font-medium);
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .warning-icon {
+      width: 1em;
+      height: 1em;
+    }
+
+    .toggle-icon {
+      width: 1.5em;
+      height: 1.5em;
+      margin-left: auto;
+      transition: transform 0.3s ease;
+    }
+  }
+
+  &[open] .section-header .toggle-icon {
+    transform: rotate(180deg);
+  }
+
+  .section-content {
+    width: 100%;
+
+    p {
+      align-self: stretch;
+      margin: 0 0 var(--spacing-default) 0;
+      color: var(--text);
+      font-family: var(--sans-font);
+      font-size: var(--font-medium);
+      font-weight: 400;
+      line-height: 1.25;
+    }
+  }
 }
 
 .rsin-section {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--spacing-default);
 }
 
 .rsin-row {
   display: grid;
-  grid-template-columns: 343px 300px;
-  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-default);
   align-items: center;
-  height: 52px;
-  padding: 0 16px;
-  background: var(--Accent-background, #f5f7ff);
+  min-height: 3.25rem;
+  padding: 0 var(--spacing-default);
+  background: var(--accent-bg);
 }
 
 .rsin-label {
-  color: var(--Zwart, #212121);
-  font-family: Avenir;
-  font-size: 16px;
-  font-style: normal;
+  color: var(--text);
+  font-family: var(--sans-font);
+  font-size: var(--font-medium);
   font-weight: 800;
-  line-height: 20px;
+  line-height: 1.25;
   white-space: nowrap;
 }
 
@@ -330,39 +408,37 @@ onMounted(() => {
   input {
     width: 100%;
     margin-block-end: 0;
-    padding: 8px;
-    border: 1px solid var(--border, #898ea4);
-    border-radius: 4px;
-    font-family: Avenir;
-    font-size: 16px;
+    padding: var(--spacing-small);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-default);
+    font-family: var(--sans-font);
+    font-size: var(--font-medium);
     font-weight: 400;
-    line-height: 20px;
+    line-height: 1.25;
   }
 }
 
 .rsin-display {
-  color: var(--Zwart, #212121);
-  font-family: Avenir;
-  font-size: 16px;
-  font-style: normal;
+  color: var(--text);
+  font-family: var(--sans-font);
+  font-size: var(--font-medium);
   font-weight: 400;
-  line-height: 20px;
+  line-height: 1.25;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--spacing-small);
 
   .warning-icon-inline {
-    width: 16px;
-    height: 16px;
+    width: 1em;
+    height: 1em;
     flex-shrink: 0;
     aspect-ratio: 1/1;
-    fill: #fff;
   }
 }
 
 .form-actions {
   display: flex;
-  gap: 8px;
+  gap: var(--spacing-small);
   margin-top: 0;
 
   button {

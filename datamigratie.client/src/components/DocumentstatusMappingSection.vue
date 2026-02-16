@@ -1,7 +1,7 @@
 <template>
   <mapping-grid
     v-model="mappingsModel"
-    title="Documentstatus mapping"
+    title="Documentstatussen"
     description="Koppel de e-Suite documentstatussen aan de Open Zaak documentstatussen."
     source-label="e-Suite Documentstatus"
     target-label="Open Zaak Documentstatus"
@@ -18,6 +18,8 @@
     edit-button-text="Mapping aanpassen"
     :show-edit-button="true"
     :show-warning="false"
+    :collapsible="true"
+    :show-collapse-warning="!allMapped"
     @save="handleSave"
     @cancel="handleCancel"
     @edit="forceEdit = true"

@@ -136,38 +136,37 @@ const canStartMigration = computed(
 @use "@/assets/variables";
 
 .back-button {
-  margin-bottom: 24px;
+  margin-bottom: var(--spacing-large);
 }
 
 .zaaktype-view {
   display: flex;
-  max-width: 1440px;
-  min-height: 900px;
-  padding: 0 24px 40px 24px;
+  max-width: 90rem;
+  min-height: 56.25rem;
+  padding: 0 var(--spacing-large) var(--spacing-large) var(--spacing-large);
   flex-direction: column;
   align-items: flex-start;
-  gap: 24px;
-  background: #fff;
+  gap: var(--spacing-large);
+  background: var(--bg);
 }
 
 .content-wrapper {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: flex-start;
   gap: 0;
   align-self: stretch;
-  max-width: 1200px;
+  max-width: 75rem;
   width: 100%;
 }
 
 .page-title {
   align-self: stretch;
-  margin-bottom: 24px;
+  margin-bottom: var(--spacing-large);
 }
 
 :deep(.zaaktype-mapping-section) {
-  margin-bottom: 32px;
+  margin-bottom: var(--spacing-large);
 }
 
 .status-mapping {
@@ -215,12 +214,11 @@ menu {
 
 .mapping-section-title {
   align-self: stretch;
-  margin-top: 32px;
-  margin-bottom: 24px;
-  color: var(--Zwart, #212121);
-  font-family: Avenir;
-  font-size: 24px;
-  font-style: normal;
+  margin-top: var(--spacing-large);
+  margin-bottom: var(--spacing-large);
+  color: var(--text);
+  font-family: var(--sans-font);
+  font-size: 1.5rem;
   font-weight: 900;
   line-height: normal;
 }

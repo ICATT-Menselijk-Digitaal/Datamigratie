@@ -1,38 +1,33 @@
 <template>
-  <collapsible-mapping-section
+  <mapping-grid
+    v-model="mappingsModel"
     title="Status"
     description="Koppel de e-Suite statussen aan de Open Zaak statustypes."
-    :show-warning="!allMapped"
-  >
-    <mapping-grid
-      v-model="mappingsModel"
-      title=""
-      description=""
-      source-label="e-Suite Status"
-      target-label="Open Zaak Statustype"
-      :source-items="sourceStatusItems"
-      :target-items="targetStatusItems"
-      :all-mapped="allMapped"
-      :is-editing="isInEditMode"
-      :disabled="disabled"
-      :loading="isLoading"
-      empty-message="Er zijn geen statussen beschikbaar voor dit zaaktype."
-      target-placeholder="- Kies een statustype -"
-      save-button-text="Mapping opslaan"
-      cancel-button-text="Annuleren"
-      :show-warning="false"
-      @save="saveMappings"
-      @cancel="handleCancel"
-      edit-button-text="Mapping aanpassen"
-      :show-edit-button="true"
-      @edit="forceEdit = true"
-    />
-  </collapsible-mapping-section>
+    source-label="e-Suite Status"
+    target-label="Open Zaak Statustype"
+    :source-items="sourceStatusItems"
+    :target-items="targetStatusItems"
+    :all-mapped="allMapped"
+    :is-editing="isInEditMode"
+    :disabled="disabled"
+    :loading="isLoading"
+    empty-message="Er zijn geen statussen beschikbaar voor dit zaaktype."
+    target-placeholder="- Kies een statustype -"
+    save-button-text="Mapping opslaan"
+    cancel-button-text="Annuleren"
+    :show-warning="false"
+    :collapsible="true"
+    :show-collapse-warning="!allMapped"
+    @save="saveMappings"
+    @cancel="handleCancel"
+    edit-button-text="Mapping aanpassen"
+    :show-edit-button="true"
+    @edit="forceEdit = true"
+  />
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import CollapsibleMappingSection from "@/components/CollapsibleMappingSection.vue";
 import MappingGrid, { type MappingItem, type Mapping } from "@/components/MappingGrid.vue";
 import toast from "@/components/toast/toast";
 import type { DETZaaktype } from "@/services/detService";

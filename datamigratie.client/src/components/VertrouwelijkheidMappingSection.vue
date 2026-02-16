@@ -1,38 +1,33 @@
 <template>
-  <collapsible-mapping-section
+  <mapping-grid
+    v-model="mappingsModel"
     title="Vertrouwelijkheid"
     description="Koppel de e-Suite vertrouwelijkheid waarden aan de Open Zaak vertrouwelijkheidaanduiding."
-    :show-warning="!allMapped"
-  >
-    <mapping-grid
-      v-model="mappingsModel"
-      title=""
-      description=""
-      source-label="e-Suite Vertrouwelijk"
-      target-label="Open Zaak Vertrouwelijkheidaanduiding"
-      :source-items="sourceItems"
-      :target-items="targetItems"
-      :all-mapped="allMapped"
-      :is-editing="isInEditMode"
-      :disabled="disabled"
-      :loading="isLoading"
-      empty-message="Er zijn geen vertrouwelijkheid opties beschikbaar."
-      target-placeholder="- Kies een vertrouwelijkheidaanduiding -"
-      save-button-text="Mapping opslaan"
-      cancel-button-text="Annuleren"
-      edit-button-text="Mapping aanpassen"
-      :show-edit-button="true"
-      :show-warning="false"
-      @save="saveMappings"
-      @cancel="handleCancel"
-      @edit="forceEdit = true"
-    />
-  </collapsible-mapping-section>
+    source-label="e-Suite Vertrouwelijk"
+    target-label="Open Zaak Vertrouwelijkheidaanduiding"
+    :source-items="sourceItems"
+    :target-items="targetItems"
+    :all-mapped="allMapped"
+    :is-editing="isInEditMode"
+    :disabled="disabled"
+    :loading="isLoading"
+    empty-message="Er zijn geen vertrouwelijkheid opties beschikbaar."
+    target-placeholder="- Kies een vertrouwelijkheidaanduiding -"
+    save-button-text="Mapping opslaan"
+    cancel-button-text="Annuleren"
+    edit-button-text="Mapping aanpassen"
+    :show-edit-button="true"
+    :show-warning="false"
+    :collapsible="true"
+    :show-collapse-warning="!allMapped"
+    @save="saveMappings"
+    @cancel="handleCancel"
+    @edit="forceEdit = true"
+  />
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, watchEffect } from "vue";
-import CollapsibleMappingSection from "@/components/CollapsibleMappingSection.vue";
 import MappingGrid, { type MappingItem, type Mapping } from "@/components/MappingGrid.vue";
 import toast from "@/components/toast/toast";
 import { get, post } from "@/utils/fetchWrapper";
