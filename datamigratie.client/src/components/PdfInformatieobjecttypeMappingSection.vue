@@ -15,17 +15,13 @@
         :disabled="(!isEditing && isMapped) || disabled"
       >
         <option value="">Kies een informatieobjecttype</option>
-        <option
-          v-for="iot in informatieobjecttypen"
-          :key="iot.id"
-          :value="iot.id"
-        >
+        <option v-for="iot in informatieobjecttypen" :key="iot.id" :value="iot.id">
           {{ iot.omschrijving }}
         </option>
       </select>
 
       <div v-if="(!isMapped || isEditing) && !disabled" class="mapping-actions">
-        <button type="button" :disabled="!isMapped" @click="saveMapping">Informatieobjecttype opslaan</button>
+        <button type="button" @click="saveMapping">Informatieobjecttype opslaan</button>
       </div>
 
       <div v-if="isMapped && !isEditing && !disabled" class="mapping-actions">
@@ -97,10 +93,12 @@ const saveMapping = async () => {
   isLoading.value = true;
   try {
     await post(`/api/mappings/${props.mappingId}/pdf-informatieobjecttype`, {
-      ozInformatieobjecttypeId: selectedInformatieobjecttypeId.value
+      ozInformatieobjecttypeId: selectedInformatieobjecttypeId.value || null
     });
 
-    toast.add({ text: "Het informatieobjecttype voor de gegenereerde PDF is succesvol opgeslagen." });
+    toast.add({
+      text: "Het informatieobjecttype voor de gegenereerde PDF is succesvol opgeslagen."
+    });
 
     await fetchMapping();
 
