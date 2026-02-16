@@ -24,5 +24,10 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak.Models
                 /// Besluittype mappings: DetBesluittypeNaam -> OzBesluittypeId
                 /// </summary>
                 public required Dictionary<string, Guid> BesluittypeMappings { get; set; }
+
+                /// <summary>
+                /// The OZ informatieobjecttype ID to assign to the generated PDF document.
+                /// </summary>
+                public required Guid PdfInformatieobjecttypeId { get; set; }
         }
 }

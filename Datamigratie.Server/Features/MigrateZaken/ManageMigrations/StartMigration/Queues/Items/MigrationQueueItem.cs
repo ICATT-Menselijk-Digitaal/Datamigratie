@@ -48,5 +48,11 @@ namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Q
                 /// Dictionary: DetBesluittypeNaam -> OzBesluittypeId
                 /// </summary>
                 public required Dictionary<string, Guid> BesluittypeMappings { get; set; }
+
+                /// <summary>
+                /// PDF informatieobjecttype mapping loaded and validated by StartMigrationController before queuing.
+                /// The OZ informatieobjecttype ID to assign to the generated PDF document.
+                /// </summary>
+                public required Guid PdfInformatieobjecttypeId { get; set; }
         }
 }

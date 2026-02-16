@@ -132,6 +132,14 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
                 .IsUnique()
                 .HasDatabaseName("IX_VertrouwelijkheidMapping_ZaaktypenMappingId_DetVertrouwelijkheid_Unique");
         });
+
+        modelBuilder.Entity<PdfInformatieobjecttypeMapping>(entity =>
+        {
+            // Unique constraint: One zaaktype can only have one informatieobjecttype for the generated PDF
+            entity.HasIndex(e => e.ZaaktypenMappingId)
+                .IsUnique()
+                .HasDatabaseName("IX_PdfInformatieobjecttypeMapping_ZaaktypenMappingId_Unique");
+        });
     }
 
     public DbSet<ZaaktypenMapping> Mappings { get; set; }
@@ -144,4 +152,5 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
     public DbSet<DocumentPropertyMapping> DocumentPropertyMappings { get; set; }
     public DbSet<DocumentstatusMapping> DocumentstatusMappings { get; set; }
     public DbSet<VertrouwelijkheidMapping> VertrouwelijkheidMappings { get; set; }
+    public DbSet<PdfInformatieobjecttypeMapping> PdfInformatieobjecttypeMappings { get; set; }
 }
