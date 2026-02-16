@@ -40,20 +40,20 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
         modelBuilder.Entity<Migration>(entity =>
         {
             entity.HasKey(e => e.Id);
-            
+
             entity.Property(e => e.DetZaaktypeId)
                 .IsRequired();
-            
+
             entity.Property(e => e.Status)
                 .IsRequired()
                 .HasConversion<string>();
-            
+
             entity.Property(e => e.CreatedAt)
                 .IsRequired();
-            
+
             entity.Property(e => e.LastUpdated)
                 .IsRequired();
-            
+
             entity.Property(e => e.ErrorMessage)
                 .HasMaxLength(1000);
 
@@ -135,7 +135,6 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
 
         modelBuilder.Entity<PdfInformatieobjecttypeMapping>(entity =>
         {
-            // Unique constraint: One zaaktype can only have one informatieobjecttype for the generated PDF
             entity.HasIndex(e => e.ZaaktypenMappingId)
                 .IsUnique()
                 .HasDatabaseName("IX_PdfInformatieobjecttypeMapping_ZaaktypenMappingId_Unique");
