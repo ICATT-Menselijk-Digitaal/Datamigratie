@@ -1,42 +1,47 @@
 <template>
   <simple-spinner v-if="isLoading" />
-  <dl v-else-if="detZaaktype">
-    <dt>Naam:</dt>
-    <dd>{{ detZaaktype.naam }}</dd>
+  <form @submit.prevent="submit" v-else-if="detZaaktype">
+    <dl>
+      <dt>Naam:</dt>
+      <dd>{{ detZaaktype.naam }}</dd>
 
-    <dt>Omschrijving:</dt>
-    <dd>{{ detZaaktype.omschrijving }}</dd>
+      <dt>Omschrijving:</dt>
+      <dd>{{ detZaaktype.omschrijving }}</dd>
 
-    <dt>Functionele identificatie:</dt>
-    <dd>{{ detZaaktype.functioneleIdentificatie }}</dd>
+      <dt>Functionele identificatie:</dt>
+      <dd>{{ detZaaktype.functioneleIdentificatie }}</dd>
 
-    <dt>Actief:</dt>
-    <dd>{{ detZaaktype.actief ? "Ja" : "Nee" }}</dd>
+      <dt>Actief:</dt>
+      <dd>{{ detZaaktype.actief ? "Ja" : "Nee" }}</dd>
 
-    <dt>Aantal gesloten zaken:</dt>
-    <dd>{{ detZaaktype?.closedZakenCount }}</dd>
+      <dt>Aantal gesloten zaken:</dt>
+      <dd>{{ detZaaktype?.closedZakenCount }}</dd>
 
-    <dt id="mapping">Koppeling OZ zaaktype:</dt>
-    <dd v-if="!isEditing && !!model?.ozZaaktype" class="mapping-display">
-      {{ model.ozZaaktype.identificatie }}
-    </dd>
-    <dd v-else class="mapping-controls">
-      <form @submit.prevent="submit">
+      <dt id="mapping">Koppeling OZ zaaktype:</dt>
+      <dd v-if="!isEditing" class="mapping-display">
+        {{ model?.ozZaaktype.identificatie }}
+      </dd>
+      <dd v-else class="mapping-controls">
         <select name="ozZaaktypeId" aria-labelledby="mapping" v-model="selectedZaaktypeId" required>
           <option v-if="!selectedZaaktypeId" value="">Kies Open Zaak zaaktype</option>
           <option v-for="{ id, identificatie, omschrijving } in ozZaaktypes" :value="id" :key="id">
             {{ identificatie }} – {{ omschrijving }}
           </option>
         </select>
-        <button type="submit" class="mapping-save-button">Mapping opslaan</button>
-      </form>
-    </dd>
-  </dl>
+      </dd>
+    </dl>
+    <ul class="reset form-buttons" v-if="!disabled && isEditing">
+      <li><button type="submit" class="mapping-save-button">Koppeling opslaan</button></li>
+      <li>
+        <button @click="handleCancel" type="button" class="secondary">Annuleren</button>
+      </li>
+    </ul>
+  </form>
   <button
     type="button"
     class="secondary mapping-edit-button"
     @click="isEditing = true"
-    v-if="!disabled"
+    v-if="!disabled && !isEditing"
   >
     Koppeling aanpassen
   </button>
@@ -163,6 +168,11 @@ watch(
 onMounted(async () => {
   ozZaaktypes.value = await ozService.getAllZaaktypes();
 });
+
+function handleCancel() {
+  isEditing.value = false;
+  selectedZaaktypeId.value = zaaktypeMapping.value?.ozZaaktypeId ?? "";
+}
 </script>
 
 <style scoped lang="scss">
@@ -236,5 +246,10 @@ dl {
       }
     }
   }
+}
+
+.form-buttons {
+  display: flex;
+  gap: var(--spacing-small);
 }
 </style>
