@@ -14,8 +14,8 @@ DMT is ontwikkeld door `ICATT.menselijk digitaal <https://www.icatt.nl>`__ in op
    :maxdepth: 2
    :hidden:
 
-   requirements/index
-   installation/index
-   configuration/index
-   manual/index
+   vereisten/vereisten.md
+   installatie/installatie.md
+   configuratie/configuratie.md
+   handleiding/handleiding.md
    changelog/changelog.md
