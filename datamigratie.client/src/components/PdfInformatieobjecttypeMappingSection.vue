@@ -43,7 +43,7 @@ import { ref, computed, watch } from "vue";
 import AlertInline from "@/components/AlertInline.vue";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
 import toast from "@/components/toast/toast";
-import { get, post } from "@/utils/fetchWrapper";
+import { get, post, swallow404 } from "@/utils/fetchWrapper";
 import type { OZZaaktype } from "@/services/ozService";
 
 type PdfInformatieobjecttypeMappingResponse = {
@@ -73,9 +73,9 @@ const isMapped = computed(() => selectedInformatieobjecttypeId.value !== "");
 const fetchMapping = async () => {
   isLoading.value = true;
   try {
-    const response = await get<PdfInformatieobjecttypeMappingResponse | null>(
+    const response = await get<PdfInformatieobjecttypeMappingResponse>(
       `/api/mappings/${props.mappingId}/informatieobjecttype`
-    );
+    ).catch(swallow404);
 
     selectedInformatieobjecttypeId.value = response?.ozInformatieobjecttypeId ?? "";
   } catch (error) {
