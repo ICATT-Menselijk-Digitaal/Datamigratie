@@ -209,6 +209,7 @@ const handleEdit = () => {
     margin: 0;
     padding: 0;
     display: flex;
+    align-items: center;
     cursor: pointer;
     gap: var(--spacing-small);
     list-style: none;
