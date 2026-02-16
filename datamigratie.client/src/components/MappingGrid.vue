@@ -214,23 +214,8 @@ const handleEdit = () => {
     background: var(--bg);
     margin-block-end: var(--spacing-small);
 
-    h2 {
-      margin: 0;
-      color: var(--text);
-      font-family: var(--sans-font);
-      font-size: var(--font-medium);
-      font-weight: 800;
-      line-height: 1.25;
-    }
-
     p {
-      align-self: stretch;
-      margin: 0 0 var(--spacing-default) 0;
-      color: var(--text);
-      font-family: var(--sans-font);
-      font-size: var(--font-medium);
-      font-weight: 400;
-      line-height: 1.25;
+      margin: 0 0 var(--spacing-small) 0;
     }
 
     &[open] .mapping-header-collapsible .toggle-icon {
@@ -299,7 +284,6 @@ const handleEdit = () => {
       font-family: var(--sans-font);
       font-size: var(--font-large);
       font-weight: 900;
-      line-height: 1.25;
       white-space: nowrap;
     }
 
@@ -345,15 +329,10 @@ const handleEdit = () => {
       font-family: var(--sans-font);
       font-size: var(--font-medium);
       font-weight: 800;
-      line-height: 1.25;
     }
 
     .item-description {
-      color: var(--text);
-      font-family: var(--sans-font);
       font-size: var(--font-small);
-      font-weight: 400;
-      line-height: 1.4;
     }
 
     @media (max-width: variables.$breakpoint-md) {
@@ -382,9 +361,6 @@ const handleEdit = () => {
       align-items: center;
       color: var(--text);
       font-family: var(--sans-font);
-      font-size: var(--font-medium);
-      font-weight: 400;
-      line-height: 1.25;
 
       @media (max-width: variables.$breakpoint-md) {
         width: 100%;

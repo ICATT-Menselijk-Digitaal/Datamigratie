@@ -83,7 +83,7 @@ html {
 body {
   color: var(--text);
   background-color: var(--bg);
-  line-height: 1.2;
+  line-height: 1.25rem;
   margin: 0;
 }
 
@@ -503,7 +503,6 @@ textarea:not([cols]) {
 
 /* Add arrow to drop-down */
 select:not([multiple]) {
-  content: "";
   inline-size: 100%;
   block-size: 100%;
   background-image: url("@/assets/arrow-down.svg");

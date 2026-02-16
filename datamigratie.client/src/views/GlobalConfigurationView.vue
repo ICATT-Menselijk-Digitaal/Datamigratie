@@ -325,7 +325,6 @@ onMounted(() => {
       font-family: var(--sans-font);
       font-size: var(--font-medium);
       font-weight: 800;
-      line-height: 1.25;
     }
 
     .warning-icon {
@@ -355,7 +354,6 @@ onMounted(() => {
       font-family: var(--sans-font);
       font-size: var(--font-medium);
       font-weight: 400;
-      line-height: 1.25;
     }
   }
 }
@@ -381,7 +379,6 @@ onMounted(() => {
   font-family: var(--sans-font);
   font-size: var(--font-medium);
   font-weight: 800;
-  line-height: 1.25;
   white-space: nowrap;
 }
 
@@ -395,7 +392,6 @@ onMounted(() => {
     font-family: var(--sans-font);
     font-size: var(--font-medium);
     font-weight: 400;
-    line-height: 1.25;
   }
 }
 
@@ -404,7 +400,6 @@ onMounted(() => {
   font-family: var(--sans-font);
   font-size: var(--font-medium);
   font-weight: 400;
-  line-height: 1.25;
   display: flex;
   align-items: center;
   gap: var(--spacing-small);
