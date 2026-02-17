@@ -102,6 +102,13 @@ form dl {
   }
 }
 
+.form-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-small);
+  margin-block-start: var(--spacing-default);
+}
+
 details {
   background: none;
 }

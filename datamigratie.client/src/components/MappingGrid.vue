@@ -262,13 +262,6 @@ const handleEdit = () => {
     }
   }
 
-  .mapping-actions {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--spacing-small);
-    margin-block-start: var(--spacing-default);
-  }
-
   // Button styles are defined in main.scss
 }
 </style>
