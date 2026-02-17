@@ -9,7 +9,7 @@ Voor het deployen van de applicatie met Helm:
 3. Installeer met Helm:
 
 ```bash
-helm install datamigratie ./charts/datamigratie -f jouw-values.yaml
+helm install jouw-release-naam-voor-datamigratie oci://ghcr.io/icatt-menselijk-digitaal/datamigratie -f jouw-values.yaml
 ```
 
 
