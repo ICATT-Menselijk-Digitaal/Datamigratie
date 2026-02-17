@@ -180,19 +180,18 @@ const handleEdit = () => {
 
 <style lang="scss" scoped>
 @use "@/assets/variables";
+summary {
+  .warning-icon {
+    width: 1em;
+    height: 1em;
+  }
+}
 
 .mapping-section {
   margin-block-end: var(--spacing-small);
 
   p {
     margin-block: var(--spacing-small);
-  }
-
-  summary {
-    .warning-icon {
-      width: 1em;
-      height: 1em;
-    }
   }
 
   .mapping-grid {
