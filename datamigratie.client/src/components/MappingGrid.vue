@@ -224,7 +224,6 @@ summary {
   }
 
   .mapping-header {
-    padding-block-end: var(--spacing-default);
     font-weight: 600;
 
     font-size: var(--font-large);
@@ -249,7 +248,7 @@ summary {
 // same padding as select
 .target-value,
 .mapping-header > :nth-child(2) {
-  padding-inline-start: var(--input-padding);
+  padding: var(--input-padding);
   border: 1px transparent solid;
 }
 
