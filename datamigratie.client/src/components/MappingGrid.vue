@@ -1,54 +1,70 @@
 <template>
-  <section class="mapping-section">
-    <h2>{{ title }}</h2>
-    <p>{{ description }}</p>
-
-    <simple-spinner v-if="loading" />
-
-    <div v-else-if="sourceItems.length === 0">
-      <p>{{ emptyMessage }}</p>
-    </div>
-
-    <div v-else class="mapping-grid">
-      <div class="mapping-header">
-        <div>{{ sourceLabel }}</div>
-        <div>{{ targetLabel }}</div>
+  <form @submit.prevent="handleSave">
+    <details class="mapping-section mapping-section--collapsible" :open="initiallyExpanded">
+      <summary class="mapping-header-collapsible">
+        <span>{{ title }}</span>
+        <img
+          v-if="showCollapseWarning"
+          src="@/assets/bi-exclamation-circle-fill.svg"
+          alt="Niet compleet"
+          class="warning-icon"
+        />
+      </summary>
+      <p v-if="description">{{ description }}</p>
+      <slot name="extra-content"></slot>
+      <simple-spinner v-if="loading" />
+      <div v-else-if="sourceItems.length === 0">
+        <p>{{ emptyMessage }}</p>
       </div>
-
-      <div v-for="sourceItem in sourceItems" :key="sourceItem.id" class="mapping-row">
-        <div class="source-item">
-          <strong>{{ sourceItem.name }}</strong>
-          <span v-if="sourceItem.description" class="item-description">{{
-            sourceItem.description
-          }}</span>
+      <div v-else class="mapping-grid">
+        <div class="mapping-header">
+          <div>{{ sourceLabel }}</div>
+          <div>{{ targetLabel }}</div>
+        </div>
+        <div v-for="sourceItem in sourceItems" :key="sourceItem.id" class="mapping-row">
+          <div class="source-item">
+            <strong>{{ sourceItem.name }}</strong>
+            <span v-if="sourceItem.description" class="item-description">{{
+              sourceItem.description
+            }}</span>
+          </div>
+          <div class="target-item">
+            <select
+              v-if="isEditing || !allMapped"
+              :value="getMappingForSource(sourceItem.id).targetId || ''"
+              @change="updateMapping(sourceItem.id, ($event.target as HTMLSelectElement).value)"
+              :disabled="disabled"
+            >
+              <option value="">{{ targetPlaceholder }}</option>
+              <option v-for="targetItem in targetItems" :key="targetItem.id" :value="targetItem.id">
+                {{ targetItem.name }}
+              </option>
+            </select>
+            <div v-else class="target-value">
+              {{ getTargetName(getMappingForSource(sourceItem.id).targetId) }}
+            </div>
+          </div>
         </div>
 
-        <div class="target-item">
-          <select
-            :value="getMappingForSource(sourceItem.id).targetId || ''"
-            @change="updateMapping(sourceItem.id, ($event.target as HTMLSelectElement).value)"
-            :disabled="(!isEditing && allMapped) || disabled"
-          >
-            <option value="">{{ targetPlaceholder }}</option>
-            <option v-for="targetItem in targetItems" :key="targetItem.id" :value="targetItem.id">
-              {{ targetItem.name }}
-            </option>
-          </select>
-        </div>
+        <alert-inline v-if="!allMapped && showWarning" type="warning">
+          {{ warningMessage }}
+        </alert-inline>
       </div>
-      <div v-if="(!allMapped || isEditing) && !disabled" class="mapping-actions">
-        <button type="button" @click="handleSave">{{ saveButtonText }}</button>
+      <div v-if="(!allMapped || isEditing) && !disabled" class="form-actions">
+        <button type="submit">
+          {{ saveButtonText }}
+        </button>
+        <button type="button" class="secondary" @click="handleCancel">
+          {{ cancelButtonText }}
+        </button>
       </div>
-
-      <div v-if="showEditButton && allMapped && !isEditing && !disabled" class="mapping-actions">
-        <button type="button" class="secondary" @click="handleEdit">{{ editButtonText }}</button>
+      <div v-if="showEditButton && allMapped && !isEditing && !disabled" class="form-actions">
+        <button type="button" class="secondary" @click="handleEdit">
+          {{ editButtonText }}
+        </button>
       </div>
-
-      <alert-inline v-if="!allMapped && showWarning" type="warning">
-        {{ warningMessage }}
-      </alert-inline>
-    </div>
-  </section>
+    </details>
+  </form>
 </template>
 
 <script setup lang="ts">
@@ -81,10 +97,13 @@ interface Props {
   emptyMessage?: string;
   targetPlaceholder?: string;
   saveButtonText?: string;
+  cancelButtonText?: string;
   editButtonText?: string;
   showEditButton?: boolean;
   showWarning?: boolean;
   warningMessage?: string;
+  initiallyExpanded?: boolean;
+  showCollapseWarning?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -93,15 +112,19 @@ const props = withDefaults(defineProps<Props>(), {
   emptyMessage: "Er zijn geen items beschikbaar voor dit zaaktype.",
   targetPlaceholder: "Kies een item",
   saveButtonText: "Mappings opslaan",
+  cancelButtonText: "Annuleren",
   editButtonText: "Mappings aanpassen",
   showEditButton: false,
   showWarning: true,
-  warningMessage: "Niet alle items zijn gekoppeld. Migratie kan niet worden gestart."
+  warningMessage: "Niet alle items zijn gekoppeld. Migratie kan niet worden gestart.",
+  initiallyExpanded: false,
+  showCollapseWarning: false
 });
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: Mapping[]): void;
   (e: "save"): void;
+  (e: "cancel"): void;
   (e: "edit"): void;
 }>();
 
@@ -113,6 +136,12 @@ const getMappingForSource = (sourceId: string): Mapping => {
   const newMapping: Mapping = { sourceId, targetId: null };
   emit("update:modelValue", [...props.modelValue, newMapping]);
   return newMapping;
+};
+
+const getTargetName = (targetId: string | null | undefined): string => {
+  if (!targetId) return "";
+  const targetItem = props.targetItems.find((item) => item.id === targetId);
+  return targetItem?.name || "";
 };
 
 const updateMapping = (sourceId: string, targetId: string) => {
@@ -141,6 +170,10 @@ const handleSave = () => {
   emit("save");
 };
 
+const handleCancel = () => {
+  emit("cancel");
+};
+
 const handleEdit = () => {
   emit("edit");
 };
@@ -148,79 +181,84 @@ const handleEdit = () => {
 
 <style lang="scss" scoped>
 @use "@/assets/variables";
+summary {
+  .warning-icon {
+    width: 1em;
+    height: 1em;
+  }
+}
 
 .mapping-section {
-  margin-block-end: var(--spacing-large);
-
-  h2 {
-    font-size: 1.5rem;
-    margin-block-end: var(--spacing-small);
-  }
+  margin-block-end: var(--spacing-small);
 
   p {
-    margin-block-end: var(--spacing-default);
+    margin-block: var(--spacing-small);
   }
 
   .mapping-grid {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-default);
+    display: grid;
+    column-gap: var(--spacing-large);
+    grid-template-columns: 1fr 1fr;
+    margin-block-start: var(--spacing-default);
+
+    @media (max-width: variables.$breakpoint-md) {
+      grid-template-columns: 1fr;
+      gap: var(--spacing-default);
+    }
+  }
+
+  .mapping-header,
+  .mapping-row {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: 1 / -1;
+    align-items: center;
+    padding: var(--spacing-extrasmall);
+
+    &:nth-child(even) {
+      background: var(--accent-bg);
+    }
+
+    @media (max-width: variables.$breakpoint-md) {
+      gap: var(--spacing-extrasmall);
+    }
   }
 
   .mapping-header {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-default);
-    padding: var(--spacing-small);
-    background-color: var(--background-secondary);
     font-weight: 600;
-    border-radius: 4px;
+
+    font-size: var(--font-large);
+    white-space: nowrap;
 
     @media (max-width: variables.$breakpoint-md) {
       display: none;
     }
   }
 
-  .mapping-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-default);
-    padding: var(--spacing-small);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    align-items: center;
-
-    @media (max-width: variables.$breakpoint-md) {
-      grid-template-columns: 1fr;
-    }
-  }
-
   .source-item {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xs, 0.25rem);
-
-    strong {
-      font-size: 1rem;
-    }
+    gap: var(--spacing-extrasmall);
 
     .item-description {
-      font-size: 0.875rem;
-      color: var(--text-secondary, #666);
+      font-size: var(--font-small);
     }
-  }
-
-  .target-item {
-    select {
-      width: 100%;
-      margin-block-end: 0;
-    }
-  }
-
-  .mapping-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-block-start: var(--spacing-default);
   }
 }
+
+// same padding as select
+.target-value,
+.mapping-header > :nth-child(2) {
+  padding: var(--input-padding);
+  border: 1px transparent solid;
+}
+
+.form-actions {
+  padding-block: var(--spacing-small);
+  position: sticky;
+  bottom: 0;
+  --transparent-bg: rgb(from var(--bg) r g b / 0);
+  background-image: linear-gradient(to top, var(--bg) 0%, var(--bg) 66%, var(--transparent-bg));
+}
+// Button styles are defined in main.scss
 </style>

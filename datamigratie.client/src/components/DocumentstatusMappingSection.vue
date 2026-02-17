@@ -1,27 +1,33 @@
 <template>
   <mapping-grid
     v-model="mappingsModel"
-    title="Documentstatus mapping"
+    title="Documentstatussen"
     description="Koppel de e-Suite documentstatussen aan de Open Zaak documentstatussen."
     source-label="e-Suite Documentstatus"
     target-label="Open Zaak Documentstatus"
     :source-items="sourceItems"
     :target-items="targetItems"
     :all-mapped="allMapped"
-    :is-editing="isEditing"
+    :is-editing="isInEditMode"
     :disabled="disabled"
     :loading="loading"
     empty-message="Er zijn geen documentstatussen beschikbaar."
-    target-placeholder="Kies een documentstatus"
-    save-button-text="Documentstatus mappings opslaan"
-    :show-warning="showWarning"
-    warning-message="Niet alle documentstatussen zijn gekoppeld."
+    target-placeholder="- Kies een documentstatus -"
+    save-button-text="Mapping opslaan"
+    cancel-button-text="Annuleren"
+    edit-button-text="Mapping aanpassen"
+    :show-edit-button="true"
+    :show-warning="false"
+    :collapsible="true"
+    :show-collapse-warning="!allMapped"
     @save="handleSave"
+    @cancel="handleCancel"
+    @edit="forceEdit = true"
   />
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import MappingGrid, { type MappingItem, type Mapping } from "@/components/MappingGrid.vue";
 import type { DetDocumentstatus } from "@/services/detService";
 import type { DocumentstatusMappingItem } from "@/types/datamigratie";
@@ -30,7 +36,6 @@ interface Props {
   detDocumentstatussen: DetDocumentstatus[];
   documentstatusMappings: DocumentstatusMappingItem[];
   allMapped: boolean;
-  isEditing: boolean;
   disabled?: boolean;
   loading?: boolean;
   showWarning?: boolean;
@@ -43,9 +48,11 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  (e: "update:documentstatusMappings", value: DocumentstatusMappingItem[]): void;
-  (e: "save"): void;
+  (e: "save", mappings: DocumentstatusMappingItem[]): void;
 }>();
+
+const forceEdit = ref(false);
+const localMappings = ref<DocumentstatusMappingItem[]>([]);
 
 const ozDocumentstatussen = [
   { id: "in_bewerking", name: "In bewerking" },
@@ -54,11 +61,14 @@ const ozDocumentstatussen = [
   { id: "gearchiveerd", name: "Gearchiveerd" }
 ];
 
+const isInEditMode = computed(() => {
+  return !props.allMapped || forceEdit.value;
+});
+
 const sourceItems = computed<MappingItem[]>(() => {
   return props.detDocumentstatussen.map((status) => ({
     id: status.naam,
-    name: status.naam,
-    description: status.omschrijving
+    name: status.naam
   }));
 });
 
@@ -72,21 +82,35 @@ const targetItems = computed<MappingItem[]>(() => {
 
 const mappingsModel = computed<Mapping[]>({
   get: () => {
-    return props.documentstatusMappings.map((m) => ({
+    return localMappings.value.map((m) => ({
       sourceId: m.detDocumentstatus,
       targetId: m.ozDocumentstatus
     }));
   },
   set: (newMappings: Mapping[]) => {
-    const updated = newMappings.map((m) => ({
+    localMappings.value = newMappings.map((m) => ({
       detDocumentstatus: m.sourceId,
       ozDocumentstatus: m.targetId
     }));
-    emit("update:documentstatusMappings", updated);
   }
 });
 
 const handleSave = () => {
-  emit("save");
+  emit("save", localMappings.value);
+  forceEdit.value = false;
 };
+
+const handleCancel = () => {
+  // server state
+  localMappings.value = JSON.parse(JSON.stringify(props.documentstatusMappings));
+  forceEdit.value = false;
+};
+
+watch(
+  () => props.documentstatusMappings,
+  (newMappings) => {
+    localMappings.value = JSON.parse(JSON.stringify(newMappings));
+  },
+  { immediate: true, deep: true }
+);
 </script>

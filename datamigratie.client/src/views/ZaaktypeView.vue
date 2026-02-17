@@ -1,5 +1,15 @@
 <template>
-  <h1>e-Suite zaaktype</h1>
+  <router-link
+    :to="{ name: 'detZaaktypes', ...(search && { query: { search } }) }"
+    class="button button-secondary"
+    >&lt; Terug</router-link
+  >
+
+  <h2>e-Suite zaaktype "{{ zaaktypeMapping?.detZaaktype?.naam || "..." }}"</h2>
+
+  <alert-inline v-if="!isGeneralConfigLoading && !isGeneralConfigComplete" type="warning">
+    Let op: de migratie kan pas worden gestart als alle gegevens bij "Algemeen" ook zijn ingevuld.
+  </alert-inline>
 
   <zaaktype-mapping-section
     v-if="detZaaktypeId"
@@ -9,6 +19,8 @@
   />
 
   <template v-if="zaaktypeMapping">
+    <h3>Mapping</h3>
+
     <status-mapping-section
       :mapping-id="zaaktypeMapping.id"
       :det-zaaktype="zaaktypeMapping.detZaaktype"
@@ -49,20 +61,10 @@
       @update:complete="vertrouwelijkheidMappingsComplete = $event"
     />
 
-    <menu class="reset">
+    <menu class="reset" v-if="!error && !isThisMigrationRunning && canStartMigration">
       <li>
-        <router-link
-          :to="{ name: 'detZaaktypes', ...(search && { query: { search } }) }"
-          class="button button-secondary"
-          >&lt; Terug</router-link
-        >
+        <button type="button" @click="startMigration">Start migratie</button>
       </li>
-
-      <template v-if="!error && !isThisMigrationRunning">
-        <li v-if="canStartMigration">
-          <button type="button" @click="startMigration">Start migratie</button>
-        </li>
-      </template>
     </menu>
   </template>
 
@@ -83,9 +85,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import PromptModal from "@/components/PromptModal.vue";
+import AlertInline from "@/components/AlertInline.vue";
 import StatusMappingSection from "@/components/StatusMappingSection.vue";
 import BesluittypeMappingSection from "@/components/BesluittypeMappingSection.vue";
 import { useMigrationControl } from "@/composables/use-migration-control";
@@ -97,6 +100,7 @@ import ZaaktypeMappingSection, {
   type ZaaktypeMappingModel
 } from "@/components/ZaaktypeMappingSection.vue";
 import { useMigration } from "@/composables/migration-store";
+import { useGeneralConfig } from "@/composables/use-general-config";
 import { MigrationStatus } from "@/types/datamigratie";
 const { detZaaktypeId } = defineProps<{ detZaaktypeId: string }>();
 
@@ -115,6 +119,16 @@ const { error, migration } = useMigration();
 const { isThisMigrationRunning, confirmDialog, startMigration } = useMigrationControl(
   () => detZaaktypeId
 );
+
+const {
+  isGeneralConfigComplete,
+  checkGeneralConfig,
+  loading: isGeneralConfigLoading
+} = useGeneralConfig();
+
+onMounted(() => {
+  checkGeneralConfig();
+});
 
 const allIsComplete = computed(
   () =>
