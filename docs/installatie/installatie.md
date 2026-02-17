@@ -4,8 +4,9 @@
 
 Voor het deployen van de applicatie met Helm:
 
-1. Kopieer `charts/datamigratie/values.yaml` naar je eigen values bestand
+1. Kopieer [`charts/datamigratie/values.yaml`](https://github.com/ICATT-Menselijk-Digitaal/Datamigratie/blob/main/charts/datamigratie/values.yaml) naar je eigen values bestand
 2. Pas de waardes aan voor jouw omgeving (API keys, database, etc.)
+3. Waardes die al goed staan kan je weglaten
 3. Installeer met Helm:
 
 ```bash
