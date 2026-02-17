@@ -7,7 +7,7 @@
 
   <h2>e-Suite zaaktype "{{ zaaktypeMapping?.detZaaktype?.naam || "..." }}"</h2>
 
-  <alert-inline v-if="!isGeneralConfigComplete" type="warning">
+  <alert-inline v-if="!isGeneralConfigLoading && !isGeneralConfigComplete" type="warning">
     Let op: de migratie kan pas worden gestart als alle gegevens bij "Algemeen" ook zijn ingevuld.
   </alert-inline>
 
@@ -120,7 +120,11 @@ const { isThisMigrationRunning, confirmDialog, startMigration } = useMigrationCo
   () => detZaaktypeId
 );
 
-const { isGeneralConfigComplete, checkGeneralConfig } = useGeneralConfig();
+const {
+  isGeneralConfigComplete,
+  checkGeneralConfig,
+  loading: isGeneralConfigLoading
+} = useGeneralConfig();
 
 onMounted(() => {
   checkGeneralConfig();
