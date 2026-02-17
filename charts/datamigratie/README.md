@@ -1,6 +1,6 @@
 # datamigratie
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.0](https://img.shields.io/badge/AppVersion-0.0.0-informational?style=flat-square)
+![Version: 0.0.0](https://img.shields.io/badge/Version-0.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.0](https://img.shields.io/badge/AppVersion-0.0.0-informational?style=flat-square)
 
 A Helm chart for the Datamigratie Component
 
@@ -94,6 +94,14 @@ A Helm chart for the Datamigratie Component
 | settings.database.password | string | `""` |  |
 | settings.database.port | int | `5432` |  |
 | settings.database.username | string | `""` |  |
+| settings.featureFlags.enableTestHelpers | bool | `false` |  |
+| settings.oidc.authority | string | `""` |  |
+| settings.oidc.clientId | string | `""` |  |
+| settings.oidc.clientSecret | string | `""` |  |
+| settings.oidc.emailClaimType | string | `""` |  |
+| settings.oidc.functioneelBeheerderRole | string | `""` |  |
+| settings.oidc.nameClaimType | string | `""` |  |
+| settings.oidc.roleClaimType | string | `""` |  |
 | tolerations | list | `[]` |  |
 
 ----------------------------------------------
