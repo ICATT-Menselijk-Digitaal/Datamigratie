@@ -14,9 +14,9 @@ data:
   {{- end }}
 
   # API Connections
-  OpenZaakApi__BaseUrl: {{ .Values.apiConnections.openZaakApi.baseUrl | quote }}
-  OpenZaakApi__ApiUser: {{ .Values.apiConnections.openZaakApi.apiUser | quote }}
-  DetApi__BaseUrl: {{ .Values.apiConnections.detApi.baseUrl | quote }}
+  OpenZaakApi__BaseUrl: {{ .Values.settings.apiConnections.openZaakApi.baseUrl | quote }}
+  OpenZaakApi__ApiUser: {{ .Values.settings.apiConnections.openZaakApi.apiUser | quote }}
+  DetApi__BaseUrl: {{ .Values.settings.apiConnections.detApi.baseUrl | quote }}
 
   {{- if .Values.settings.oidc.authority }}
   Oidc__Authority: {{ .Values.settings.oidc.authority }}
