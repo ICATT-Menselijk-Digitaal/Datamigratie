@@ -7,6 +7,10 @@
 
   <h2>e-Suite zaaktype "{{ zaaktypeMapping?.detZaaktype?.naam || "..." }}"</h2>
 
+  <alert-inline v-if="!isGeneralConfigComplete" type="warning">
+    Let op: de migratie kan pas worden gestart als alle gegevens bij "Algemeen" ook zijn ingevuld.
+  </alert-inline>
+
   <zaaktype-mapping-section
     v-if="detZaaktypeId"
     :det-zaaktype-id="detZaaktypeId"
@@ -81,9 +85,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import PromptModal from "@/components/PromptModal.vue";
+import AlertInline from "@/components/AlertInline.vue";
 import StatusMappingSection from "@/components/StatusMappingSection.vue";
 import BesluittypeMappingSection from "@/components/BesluittypeMappingSection.vue";
 import { useMigrationControl } from "@/composables/use-migration-control";
@@ -95,6 +100,7 @@ import ZaaktypeMappingSection, {
   type ZaaktypeMappingModel
 } from "@/components/ZaaktypeMappingSection.vue";
 import { useMigration } from "@/composables/migration-store";
+import { useGeneralConfig } from "@/composables/use-general-config";
 import { MigrationStatus } from "@/types/datamigratie";
 const { detZaaktypeId } = defineProps<{ detZaaktypeId: string }>();
 
@@ -113,6 +119,12 @@ const { error, migration } = useMigration();
 const { isThisMigrationRunning, confirmDialog, startMigration } = useMigrationControl(
   () => detZaaktypeId
 );
+
+const { isGeneralConfigComplete, checkGeneralConfig } = useGeneralConfig();
+
+onMounted(() => {
+  checkGeneralConfig();
+});
 
 const allIsComplete = computed(
   () =>

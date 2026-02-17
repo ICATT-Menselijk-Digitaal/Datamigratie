@@ -63,7 +63,6 @@
       :show-warning="!allDocumentstatusesMapped"
       @update:documentstatus-mappings="documentstatusMappings = $event"
       @save="saveDocumentstatusMappings"
-      @fetch-mappings="fetchDocumentstatusMappings"
     />
   </template>
 </template>
@@ -218,35 +217,6 @@ async function saveDocumentstatusMappings() {
   } catch (error: unknown) {
     toast.add({
       text: `Fout bij opslaan van de documentstatus mappings - ${error}`,
-      type: "error"
-    });
-  } finally {
-    documentstatusLoading.value = false;
-  }
-}
-
-async function fetchDocumentstatusMappings() {
-  documentstatusLoading.value = true;
-
-  try {
-    const [detStatuses, savedMappings] = await Promise.all([
-      get<DetDocumentstatus[]>(`/api/det/documentstatussen`),
-      get<DocumentstatusMappingResponse[]>(`/api/globalmapping/documentstatuses`)
-    ]);
-
-    detDocumentstatussen.value = detStatuses;
-
-    // initialize mappings from saved data
-    documentstatusMappings.value = detStatuses.map((status: DetDocumentstatus) => {
-      const existingMapping = savedMappings.find((m) => m.detDocumentstatus === status.naam);
-      return {
-        detDocumentstatus: status.naam,
-        ozDocumentstatus: existingMapping?.ozDocumentstatus || null
-      };
-    });
-  } catch (error: unknown) {
-    toast.add({
-      text: `Fout bij laden van documentstatus mappings - ${error}`,
       type: "error"
     });
   } finally {
