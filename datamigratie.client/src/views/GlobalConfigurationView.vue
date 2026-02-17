@@ -56,12 +56,10 @@
 
     <documentstatus-mapping-section
       :det-documentstatussen="detDocumentstatussen"
-      :documentstatus-mappings="documentstatusMappings"
+      :documentstatus-mappings="documentstatusMappingsFromServer"
       :all-mapped="allDocumentstatusesMapped"
-      :is-editing="!allDocumentstatusesMapped"
       :loading="documentstatusLoading"
       :show-warning="!allDocumentstatusesMapped"
-      @update:documentstatus-mappings="documentstatusMappings = $event"
       @save="saveDocumentstatusMappings"
     />
   </template>
@@ -90,13 +88,15 @@ const rsinConfiguration = ref<RsinConfiguration>({});
 const rsinInput = useTemplateRef<HTMLInputElement>("rsinInput");
 
 const detDocumentstatussen = ref<DetDocumentstatus[]>([]);
-const documentstatusMappings = ref<DocumentstatusMappingItem[]>([]);
+const documentstatusMappingsFromServer = ref<DocumentstatusMappingItem[]>([]);
 const documentstatusLoading = ref(false);
 
 const allDocumentstatusesMapped = computed(() => {
   if (detDocumentstatussen.value.length === 0) return true;
   return detDocumentstatussen.value.every((status) => {
-    const mapping = documentstatusMappings.value.find((m) => m.detDocumentstatus === status.naam);
+    const mapping = documentstatusMappingsFromServer.value.find(
+      (m) => m.detDocumentstatus === status.naam
+    );
     return mapping && mapping.ozDocumentstatus;
   });
 });
@@ -160,7 +160,7 @@ async function loadConfiguration() {
     detDocumentstatussen.value = detStatuses;
 
     // Initialize mappings from saved data
-    documentstatusMappings.value = detStatuses.map((status: DetDocumentstatus) => {
+    documentstatusMappingsFromServer.value = detStatuses.map((status: DetDocumentstatus) => {
       const existingMapping = savedMappings.find((m) => m.detDocumentstatus === status.naam);
       return {
         detDocumentstatus: status.naam,
@@ -199,11 +199,11 @@ async function saveRsinConfiguration() {
   }
 }
 
-async function saveDocumentstatusMappings() {
+async function saveDocumentstatusMappings(mappings: DocumentstatusMappingItem[]) {
   documentstatusLoading.value = true;
 
   try {
-    const mappingsToSave = documentstatusMappings.value
+    const mappingsToSave = mappings
       .filter((m) => m.ozDocumentstatus)
       .map((m) => ({
         detDocumentstatus: m.detDocumentstatus,
@@ -213,12 +213,16 @@ async function saveDocumentstatusMappings() {
     await put<DocumentstatusMappingResponse[]>(`/api/globalmapping/documentstatuses`, {
       mappings: mappingsToSave
     } as SaveDocumentstatusMappingsRequest);
+
     toast.add({ text: "Documentstatus mappings succesvol opgeslagen." });
+
+    documentstatusMappingsFromServer.value = mappings;
   } catch (error: unknown) {
     toast.add({
       text: `Fout bij opslaan van de documentstatus mappings - ${error}`,
       type: "error"
     });
+    throw error;
   } finally {
     documentstatusLoading.value = false;
   }
