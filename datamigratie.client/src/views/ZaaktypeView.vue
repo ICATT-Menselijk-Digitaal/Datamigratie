@@ -131,15 +131,6 @@ const canStartMigration = computed(
 <style lang="scss" scoped>
 @use "@/assets/variables";
 
-.page-title {
-  align-self: stretch;
-  margin-bottom: var(--spacing-large);
-}
-
-:deep(.zaaktype-mapping-section) {
-  margin-bottom: var(--spacing-large);
-}
-
 .status-mapping {
   margin-block-end: var(--spacing-large);
 
@@ -181,16 +172,5 @@ menu {
       }
     }
   }
-}
-
-.mapping-section-title {
-  align-self: stretch;
-  margin-top: var(--spacing-large);
-  margin-bottom: var(--spacing-large);
-  color: var(--text);
-  font-family: var(--sans-font);
-  font-size: 1.5rem;
-  font-weight: 900;
-  line-height: normal;
 }
 </style>
