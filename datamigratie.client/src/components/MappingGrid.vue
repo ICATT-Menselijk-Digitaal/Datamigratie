@@ -262,4 +262,8 @@ const handleEdit = () => {
   }
   // Button styles are defined in main.scss
 }
+
+.form-actions {
+  margin-block-start: var(--spacing-default);
+}
 </style>
