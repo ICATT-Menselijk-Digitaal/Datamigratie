@@ -45,22 +45,23 @@
             </div>
           </div>
         </div>
-        <div v-if="(!allMapped || isEditing) && !disabled" class="form-actions">
-          <button type="submit">
-            {{ saveButtonText }}
-          </button>
-          <button type="button" class="secondary" @click="handleCancel">
-            {{ cancelButtonText }}
-          </button>
-        </div>
-        <div v-if="showEditButton && allMapped && !isEditing && !disabled" class="form-actions">
-          <button type="button" class="secondary" @click="handleEdit">
-            {{ editButtonText }}
-          </button>
-        </div>
+
         <alert-inline v-if="!allMapped && showWarning" type="warning">
           {{ warningMessage }}
         </alert-inline>
+      </div>
+      <div v-if="(!allMapped || isEditing) && !disabled" class="form-actions">
+        <button type="submit">
+          {{ saveButtonText }}
+        </button>
+        <button type="button" class="secondary" @click="handleCancel">
+          {{ cancelButtonText }}
+        </button>
+      </div>
+      <div v-if="showEditButton && allMapped && !isEditing && !disabled" class="form-actions">
+        <button type="button" class="secondary" @click="handleEdit">
+          {{ editButtonText }}
+        </button>
       </div>
     </details>
   </form>
@@ -253,7 +254,11 @@ summary {
 }
 
 .form-actions {
-  margin-block-start: var(--spacing-default);
+  padding-block: var(--spacing-small);
+  position: sticky;
+  bottom: 0;
+  --transparent-bg: rgb(from var(--bg) r g b / 0);
+  background-image: linear-gradient(to top, var(--bg) 0%, var(--bg) 66%, var(--transparent-bg));
 }
 // Button styles are defined in main.scss
 </style>
