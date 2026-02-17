@@ -212,17 +212,14 @@ summary {
     grid-template-columns: subgrid;
     grid-column: 1 / -1;
     align-items: center;
-
-    @media (max-width: variables.$breakpoint-md) {
-      gap: var(--spacing-extrasmall);
-    }
-  }
-
-  .mapping-row {
     padding: var(--spacing-extrasmall);
 
     &:nth-child(even) {
       background: var(--accent-bg);
+    }
+
+    @media (max-width: variables.$breakpoint-md) {
+      gap: var(--spacing-extrasmall);
     }
   }
 
@@ -236,11 +233,6 @@ summary {
     @media (max-width: variables.$breakpoint-md) {
       display: none;
     }
-
-    > :nth-child(2) {
-      padding-inline-start: var(--input-padding);
-      border: 1px transparent solid;
-    }
   }
 
   .source-item {
@@ -252,15 +244,17 @@ summary {
       font-size: var(--font-small);
     }
   }
+}
 
-  .target-value {
-    padding: var(--input-padding);
-    border: 1px transparent solid;
-  }
-  // Button styles are defined in main.scss
+// same padding as select
+.target-value,
+.mapping-header > :nth-child(2) {
+  padding-inline-start: var(--input-padding);
+  border: 1px transparent solid;
 }
 
 .form-actions {
   margin-block-start: var(--spacing-default);
 }
+// Button styles are defined in main.scss
 </style>
