@@ -267,7 +267,6 @@ details {
 .rsin-grid {
   margin-block: var(--spacing-default);
   display: flex;
-  min-height: var(--select-height);
   align-items: center;
   background-color: var(--accent-bg);
   gap: 8rem;
@@ -282,6 +281,8 @@ details {
   dd {
     display: flex;
     align-items: center;
+    padding: var(--input-padding);
+    border: 1px transparent solid;
   }
 
   * {

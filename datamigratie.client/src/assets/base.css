@@ -25,6 +25,7 @@
   --danger-text: var(--bg);
   --danger-hover: #ee4444;
   --success: #89cf5e;
+  --input-padding: 0.75rem;
 }
 
 /* Dark theme */
@@ -238,7 +239,7 @@ label[type="button"] {
   border: 1px solid var(--accent);
   background-color: var(--accent);
   color: var(--accent-text);
-  padding: 0.75rem;
+  padding: var(--input-padding);
   text-decoration: none;
   line-height: normal;
 }
@@ -481,11 +482,12 @@ button,
 .button {
   font-size: inherit;
   font-family: inherit;
-  padding: 0.75rem;
+  padding: var(--input-padding);
   border-radius: var(--standard-border-radius);
   box-shadow: none;
   max-width: 100%;
   display: inline-block;
+  line-height: inherit;
 }
 textarea,
 select,
@@ -509,7 +511,6 @@ select:not([multiple]) {
   background-repeat: no-repeat;
   background-position: right var(--spacing-default) center;
   background-size: 1.5rem 1.5rem;
-  padding-right: 2.75rem;
   field-sizing: content;
 
   @media (prefers-color-scheme: dark) {

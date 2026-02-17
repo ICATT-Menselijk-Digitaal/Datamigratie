@@ -215,7 +215,6 @@ const handleEdit = () => {
     grid-template-columns: subgrid;
     grid-column: 1 / -1;
     align-items: center;
-    min-height: var(--select-height);
 
     @media (max-width: variables.$breakpoint-md) {
       gap: var(--spacing-extrasmall);
@@ -231,6 +230,11 @@ const handleEdit = () => {
 
     @media (max-width: variables.$breakpoint-md) {
       display: none;
+    }
+
+    > :nth-child(2) {
+      padding-inline-start: var(--input-padding);
+      border: 1px transparent solid;
     }
   }
 
@@ -252,6 +256,10 @@ const handleEdit = () => {
     }
   }
 
+  .target-value {
+    padding: var(--input-padding);
+    border: 1px transparent solid;
+  }
   // Button styles are defined in main.scss
 }
 </style>

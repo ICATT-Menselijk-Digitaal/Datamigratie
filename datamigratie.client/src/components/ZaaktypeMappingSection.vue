@@ -179,7 +179,6 @@ function handleCancel() {
 @use "@/assets/variables";
 dl {
   display: grid;
-  align-items: center;
   margin-block-end: var(--spacing-large);
 
   dt,
@@ -202,6 +201,8 @@ dl {
       gap: var(--spacing-default);
       align-items: center;
       flex-wrap: wrap;
+      padding: var(--input-padding);
+      border: 1px transparent solid;
 
       .mapping-edit-button {
         white-space: nowrap;
@@ -245,7 +246,6 @@ dl {
     padding-block: 0;
     display: flex;
     align-items: center;
-    min-height: var(--select-height);
   }
 
   @media (min-width: variables.$breakpoint-md) {
