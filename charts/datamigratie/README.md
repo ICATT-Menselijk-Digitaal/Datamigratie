@@ -17,11 +17,6 @@ A Helm chart for the Datamigratie Component
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` |  |
-| apiConnections.detApi.apiKey | string | `""` |  |
-| apiConnections.detApi.baseUrl | string | `""` |  |
-| apiConnections.openZaakApi.apiKey | string | `""` |  |
-| apiConnections.openZaakApi.apiUser | string | `""` |  |
-| apiConnections.openZaakApi.baseUrl | string | `""` |  |
 | autoscaling.enabled | bool | `false` |  |
 | autoscaling.maxReplicas | int | `100` |  |
 | autoscaling.minReplicas | int | `1` |  |
@@ -85,6 +80,11 @@ A Helm chart for the Datamigratie Component
 | serviceAccount.automountServiceAccountToken | bool | `true` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `""` |  |
+| settings.apiConnections.detApi.apiKey | string | `""` |  |
+| settings.apiConnections.detApi.baseUrl | string | `""` |  |
+| settings.apiConnections.openZaakApi.apiKey | string | `""` |  |
+| settings.apiConnections.openZaakApi.apiUser | string | `""` |  |
+| settings.apiConnections.openZaakApi.baseUrl | string | `""` |  |
 | settings.apiKeys | list | `[]` |  |
 | settings.aspnetcore.environment | string | `""` |  |
 | settings.aspnetcore.forwardedHeadersEnabled | bool | `true` |  |
