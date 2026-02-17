@@ -1,57 +1,53 @@
 <template>
   <router-link
     :to="{ name: 'detZaaktypes', ...(search && { query: { search } }) }"
-    class="button button-secondary back-button"
+    class="button button-secondary"
     >&lt; Terug</router-link
   >
 
-  <div class="zaaktype-view">
-    <div class="content-wrapper">
-      <h1 class="page-title">
-        e-Suite zaaktype "{{ zaaktypeMapping?.detZaaktype?.naam || "..." }}"
-      </h1>
+  <h2>e-Suite zaaktype "{{ zaaktypeMapping?.detZaaktype?.naam || "..." }}"</h2>
 
-      <zaaktype-mapping-section
-        v-if="detZaaktypeId"
-        :det-zaaktype-id="detZaaktypeId"
-        :disabled="isThisMigrationRunning"
-        v-model:zaaktype-mapping="zaaktypeMapping"
-      />
+  <zaaktype-mapping-section
+    v-if="detZaaktypeId"
+    :det-zaaktype-id="detZaaktypeId"
+    :disabled="isThisMigrationRunning"
+    v-model:zaaktype-mapping="zaaktypeMapping"
+  />
 
-      <template v-if="zaaktypeMapping">
-        <h2 class="mapping-section-title">Mapping</h2>
+  <template v-if="zaaktypeMapping">
+    <h3>Mapping</h3>
 
-        <status-mapping-section
-          :mapping-id="zaaktypeMapping.id"
-          :det-zaaktype="zaaktypeMapping.detZaaktype"
-          :oz-zaaktype="zaaktypeMapping.ozZaaktype"
-          :disabled="isThisMigrationRunning"
-          @update:complete="statusMappingsComplete = $event"
-        />
+    <status-mapping-section
+      :mapping-id="zaaktypeMapping.id"
+      :det-zaaktype="zaaktypeMapping.detZaaktype"
+      :oz-zaaktype="zaaktypeMapping.ozZaaktype"
+      :disabled="isThisMigrationRunning"
+      @update:complete="statusMappingsComplete = $event"
+    />
 
-        <resultaattype-mapping-section
-          :mapping-id="zaaktypeMapping.id"
-          :det-zaaktype="zaaktypeMapping.detZaaktype"
-          :oz-zaaktype="zaaktypeMapping.ozZaaktype"
-          :disabled="isThisMigrationRunning"
-          @update:complete="resultaattypeMappingsComplete = $event"
-        />
+    <resultaattype-mapping-section
+      :mapping-id="zaaktypeMapping.id"
+      :det-zaaktype="zaaktypeMapping.detZaaktype"
+      :oz-zaaktype="zaaktypeMapping.ozZaaktype"
+      :disabled="isThisMigrationRunning"
+      @update:complete="resultaattypeMappingsComplete = $event"
+    />
 
-        <besluittype-mapping-section
-          :mapping-id="zaaktypeMapping.id"
-          :det-zaaktype="zaaktypeMapping.detZaaktype"
-          :oz-zaaktype="zaaktypeMapping.ozZaaktype"
-          :disabled="isThisMigrationRunning"
-          @update:complete="besluittypeMappingsComplete = $event"
-        />
+    <besluittype-mapping-section
+      :mapping-id="zaaktypeMapping.id"
+      :det-zaaktype="zaaktypeMapping.detZaaktype"
+      :oz-zaaktype="zaaktypeMapping.ozZaaktype"
+      :disabled="isThisMigrationRunning"
+      @update:complete="besluittypeMappingsComplete = $event"
+    />
 
-        <document-property-mapping-section
-          :mapping-id="zaaktypeMapping.id"
-          :det-zaaktype="zaaktypeMapping.detZaaktype"
-          :oz-zaaktype="zaaktypeMapping.ozZaaktype"
-          :disabled="isThisMigrationRunning"
-          @update:complete="documentPropertyMappingsComplete = $event"
-        />
+    <document-property-mapping-section
+      :mapping-id="zaaktypeMapping.id"
+      :det-zaaktype="zaaktypeMapping.detZaaktype"
+      :oz-zaaktype="zaaktypeMapping.ozZaaktype"
+      :disabled="isThisMigrationRunning"
+      @update:complete="documentPropertyMappingsComplete = $event"
+    />
 
     <vertrouwelijkheid-mapping-section
       :mapping-id="zaaktypeMapping.id"
@@ -61,29 +57,27 @@
       @update:complete="vertrouwelijkheidMappingsComplete = $event"
     />
 
-        <menu class="reset" v-if="!error && !isThisMigrationRunning && canStartMigration">
-          <li>
-            <button type="button" @click="startMigration">Start migratie</button>
-          </li>
-        </menu>
-      </template>
+    <menu class="reset" v-if="!error && !isThisMigrationRunning && canStartMigration">
+      <li>
+        <button type="button" @click="startMigration">Start migratie</button>
+      </li>
+    </menu>
+  </template>
 
-      <prompt-modal
-        :dialog="confirmDialog"
-        cancel-text="Nee, niet migreren"
-        confirm-text="Ja, start migratie"
-      >
-        <h2>Migratie starten</h2>
+  <prompt-modal
+    :dialog="confirmDialog"
+    cancel-text="Nee, niet migreren"
+    confirm-text="Ja, start migratie"
+  >
+    <h2>Migratie starten</h2>
 
-        <p>
-          Weet je zeker dat je de migratie van zaken van het e-Suite zaaktype
-          <em>{{ zaaktypeMapping?.detZaaktype?.naam }}</em> wilt starten?
-        </p>
-      </prompt-modal>
+    <p>
+      Weet je zeker dat je de migratie van zaken van het e-Suite zaaktype
+      <em>{{ zaaktypeMapping?.detZaaktype?.naam }}</em> wilt starten?
+    </p>
+  </prompt-modal>
 
-      <migration-history-table v-if="!error" :det-zaaktype-id="detZaaktypeId" />
-    </div>
-  </div>
+  <migration-history-table v-if="!error" :det-zaaktype-id="detZaaktypeId" />
 </template>
 
 <script setup lang="ts">
@@ -137,40 +131,6 @@ const canStartMigration = computed(
 <style lang="scss" scoped>
 @use "@/assets/variables";
 
-.back-button {
-  margin-bottom: var(--spacing-large);
-}
-
-.zaaktype-view {
-  display: flex;
-  max-width: 90rem;
-  min-height: 56.25rem;
-  padding: 0 var(--spacing-large) var(--spacing-large) var(--spacing-large);
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--spacing-large);
-  background: var(--bg);
-}
-
-.content-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0;
-  align-self: stretch;
-  max-width: 75rem;
-  width: 100%;
-}
-
-.page-title {
-  align-self: stretch;
-  margin-bottom: var(--spacing-large);
-}
-
-:deep(.zaaktype-mapping-section) {
-  margin-bottom: var(--spacing-large);
-}
-
 .status-mapping {
   margin-block-end: var(--spacing-large);
 
@@ -212,16 +172,5 @@ menu {
       }
     }
   }
-}
-
-.mapping-section-title {
-  align-self: stretch;
-  margin-top: var(--spacing-large);
-  margin-bottom: var(--spacing-large);
-  color: var(--text);
-  font-family: var(--sans-font);
-  font-size: 1.5rem;
-  font-weight: 900;
-  line-height: normal;
 }
 </style>

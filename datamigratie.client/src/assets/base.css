@@ -25,6 +25,7 @@
   --danger-text: var(--bg);
   --danger-hover: #ee4444;
   --success: #89cf5e;
+  --input-padding: 0.75rem;
 }
 
 /* Dark theme */
@@ -83,8 +84,7 @@ html {
 body {
   color: var(--text);
   background-color: var(--bg);
-  font-size: 1.15rem;
-  line-height: 1.2;
+  line-height: 1.25rem;
   margin: 0;
 }
 
@@ -146,19 +146,21 @@ main {
 h1,
 .heading-1 {
   display: block;
-  font-size: 3rem;
-  font-weight: bold;
-  margin-block: 1rem;
+  font-size: 2rem;
+  margin-block: 0.75rem;
 }
 
 h2 {
-  font-size: 2.6rem;
-  margin-top: 3rem;
+  font-size: 2rem;
+  margin-block: 1.5rem;
+  &:first-child {
+    margin-block-start: 0;
+  }
 }
 
 h3 {
-  font-size: 2rem;
-  margin-top: 3rem;
+  font-size: 1.5rem;
+  margin-top: 2rem;
 }
 
 h4 {
@@ -237,7 +239,7 @@ label[type="button"] {
   border: 1px solid var(--accent);
   background-color: var(--accent);
   color: var(--accent-text);
-  padding: 0.5rem 0.9rem;
+  padding: var(--input-padding);
   text-decoration: none;
   line-height: normal;
 }
@@ -480,12 +482,12 @@ button,
 .button {
   font-size: inherit;
   font-family: inherit;
-  padding: 0.5rem;
-  margin-bottom: 0.5rem;
+  padding: var(--input-padding);
   border-radius: var(--standard-border-radius);
   box-shadow: none;
   max-width: 100%;
   display: inline-block;
+  line-height: inherit;
 }
 textarea,
 select,
@@ -503,18 +505,17 @@ textarea:not([cols]) {
 
 /* Add arrow to drop-down */
 select:not([multiple]) {
-  background-image:
-    linear-gradient(45deg, transparent 49%, var(--text) 51%),
-    linear-gradient(135deg, var(--text) 51%, transparent 49%);
-  background-position: calc(100% - 15px), calc(100% - 10px);
-  background-size:
-    5px 5px,
-    5px 5px;
+  inline-size: 100%;
+  block-size: 100%;
+  background-image: url("@/assets/arrow-down.svg");
   background-repeat: no-repeat;
-  padding-inline-end: 25px;
-}
-*[dir="rtl"] select:not([multiple]) {
-  background-position: 10px, 15px;
+  background-position: right var(--spacing-default) center;
+  background-size: 1.5rem 1.5rem;
+  field-sizing: content;
+
+  @media (prefers-color-scheme: dark) {
+    background-image: url("@/assets/arrow-down-white.svg");
+  }
 }
 
 /* checkbox and radio button style */

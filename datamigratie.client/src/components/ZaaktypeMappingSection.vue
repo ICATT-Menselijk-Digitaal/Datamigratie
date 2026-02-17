@@ -1,77 +1,55 @@
 <template>
-  <div class="zaaktype-mapping-section">
-    <simple-spinner v-if="isLoading" />
-    <table v-else-if="detZaaktype" class="zaaktype-properties">
-      <tbody>
-        <tr>
-          <th>Naam:</th>
-          <td>{{ detZaaktype.naam }}</td>
-        </tr>
+  <simple-spinner v-if="isLoading" />
+  <form @submit.prevent="submit" v-else-if="detZaaktype">
+    <dl>
+      <dt>Naam:</dt>
+      <dd>{{ detZaaktype.naam }}</dd>
 
-        <tr>
-          <th>Omschrijving:</th>
-          <td>{{ detZaaktype.omschrijving }}</td>
-        </tr>
+      <dt>Omschrijving:</dt>
+      <dd>{{ detZaaktype.omschrijving }}</dd>
 
-        <tr>
-          <th>Functionele identificatie:</th>
-          <td>{{ detZaaktype.functioneleIdentificatie }}</td>
-        </tr>
+      <dt>Functionele identificatie:</dt>
+      <dd>{{ detZaaktype.functioneleIdentificatie }}</dd>
 
-        <tr>
-          <th>Actief:</th>
-          <td>{{ detZaaktype.actief ? "Ja" : "Nee" }}</td>
-        </tr>
+      <dt>Actief:</dt>
+      <dd>{{ detZaaktype.actief ? "Ja" : "Nee" }}</dd>
 
-        <tr>
-          <th>Aantal gesloten zaken:</th>
-          <td>{{ detZaaktype?.closedZakenCount }}</td>
-        </tr>
+      <dt>Aantal gesloten zaken:</dt>
+      <dd>{{ detZaaktype?.closedZakenCount }}</dd>
 
-        <tr class="mapping-row">
-          <th id="mapping">Koppeling OZ zaaktype:</th>
-          <td v-if="!isEditing && !!model?.ozZaaktype" class="mapping-display">
-            {{ model.ozZaaktype.identificatie }}
-          </td>
-          <td v-else class="mapping-controls">
-            <select
-              name="ozZaaktypeId"
-              aria-labelledby="mapping"
-              v-model="selectedZaaktypeId"
-              required
-            >
-              <option v-if="!selectedZaaktypeId" value="">- Kies een zaaktype -</option>
-              <option
-                v-for="{ id, identificatie, omschrijving } in ozZaaktypes"
-                :value="id"
-                :key="id"
-              >
-                {{ identificatie }} – {{ omschrijving }}
-              </option>
-            </select>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="koppeling-actions">
-      <template v-if="!isEditing && model?.ozZaaktype">
-        <button type="button" class="edit-button" @click="isEditing = true" :disabled="disabled">
-          Koppeling aanpassen
-        </button>
-      </template>
-      <template v-else>
-        <button type="button" class="primary-button" @click="submit">Koppeling opslaan</button>
-        <button type="button" class="cancel-button" @click="handleCancel">Annuleren</button>
-      </template>
-    </div>
-
-    <zaaktype-change-confirmation-modal
-      :dialog="confirmOzZaaktypeChangeDialog"
-      warning-text="Als je het Open Zaak zaaktype wijzigt, worden alle bestaande mappings verwijderd."
-      description-text="Je moet de mappings opnieuw configureren voor het nieuwe zaaktype."
-    />
-  </div>
+      <dt id="mapping" class="accentuate">Koppeling OZ zaaktype:</dt>
+      <dd v-if="!isEditing" class="mapping-display accentuate">
+        {{ model?.ozZaaktype.identificatie }}
+      </dd>
+      <dd v-else class="mapping-controls accentuate">
+        <select name="ozZaaktypeId" aria-labelledby="mapping" v-model="selectedZaaktypeId" required>
+          <option v-if="!selectedZaaktypeId" value="">Kies Open Zaak zaaktype</option>
+          <option v-for="{ id, identificatie, omschrijving } in ozZaaktypes" :value="id" :key="id">
+            {{ identificatie }} – {{ omschrijving }}
+          </option>
+        </select>
+      </dd>
+    </dl>
+    <ul class="reset form-buttons" v-if="!disabled && isEditing">
+      <li><button type="submit" class="mapping-save-button">Koppeling opslaan</button></li>
+      <li>
+        <button @click="handleCancel" type="button" class="secondary">Annuleren</button>
+      </li>
+    </ul>
+  </form>
+  <button
+    type="button"
+    class="secondary mapping-edit-button"
+    @click="isEditing = true"
+    v-if="!disabled && !isEditing"
+  >
+    Koppeling aanpassen
+  </button>
+  <zaaktype-change-confirmation-modal
+    :dialog="confirmOzZaaktypeChangeDialog"
+    warning-text="Als je het Open Zaak zaaktype wijzigt, worden alle bestaande mappings verwijderd."
+    description-text="Je moet de mappings opnieuw configureren voor het nieuwe zaaktype."
+  />
 </template>
 
 <script setup lang="ts">
@@ -111,14 +89,6 @@ const detZaaktype = ref<DETZaaktype>();
 const confirmOzZaaktypeChangeDialog = useConfirmDialog();
 
 const fetchMapping = (id: string) => get<ZaaktypeMapping>(`/api/mapping/${id}`).catch(swallow404);
-
-function handleCancel() {
-  // Reset to the saved value
-  if (zaaktypeMapping.value?.ozZaaktypeId) {
-    selectedZaaktypeId.value = zaaktypeMapping.value.ozZaaktypeId;
-  }
-  isEditing.value = false;
-}
 
 async function submit() {
   // no selected value, shouldn't happen because it is required in the form
@@ -186,8 +156,7 @@ watch(
           ozZaaktype: await ozService.getZaaktypeById(ozZaaktypeId),
           detZaaktype
         };
-      } catch {
-        // Silently handle errors when fetching OZ zaaktype
+      } catch (error) {
       } finally {
         isLoading.value = false;
       }
@@ -199,88 +168,99 @@ watch(
 onMounted(async () => {
   ozZaaktypes.value = await ozService.getAllZaaktypes();
 });
+
+function handleCancel() {
+  isEditing.value = false;
+  selectedZaaktypeId.value = zaaktypeMapping.value?.ozZaaktypeId ?? "";
+}
 </script>
 
 <style scoped lang="scss">
 @use "@/assets/variables";
+dl {
+  display: grid;
+  margin-block-end: var(--spacing-large);
 
-.zaaktype-mapping-section {
-  width: 100%;
-}
+  dt,
+  dd {
+    padding-block-end: var(--spacing-default);
+  }
 
-.zaaktype-properties {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  margin-block-end: 0;
+  dt {
+    padding-inline-start: var(--spacing-small);
+    padding-inline-end: var(--spacing-large);
+    color: var(--text);
+    font-weight: 600;
+  }
 
-  tbody tr {
-    background: white;
+  dd {
+    margin-inline: 0;
 
-    &:not(:last-child) {
-      border-bottom: 1px solid var(--border, #e0e0e0);
+    &.mapping-display {
+      display: flex;
+      gap: var(--spacing-default);
+      align-items: center;
+      flex-wrap: wrap;
+      padding: var(--input-padding);
+      border: 1px transparent solid;
+
+      .mapping-edit-button {
+        white-space: nowrap;
+        margin-block-end: 0;
+      }
+    }
+
+    &.mapping-controls {
+      display: flex;
+      gap: var(--spacing-default);
+      align-items: center;
+      flex-wrap: wrap;
+
+      select {
+        flex: 1;
+        min-width: 200px;
+        max-width: 100%;
+
+        option {
+          white-space: normal;
+          overflow-wrap: break-word;
+          word-wrap: break-word;
+          padding: var(--spacing-small);
+        }
+      }
+
+      .mapping-save-button {
+        white-space: nowrap;
+        margin-block-end: 0;
+      }
     }
   }
 
-  th,
-  td {
-    padding: 8px;
-    text-align: left;
-    border: none;
-    vertical-align: middle;
-    background: inherit;
-  }
-
-  th {
-    color: var(--Zwart, #212121);
-    font-family: Avenir;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 800;
-    line-height: 20px;
-    white-space: nowrap;
-  }
-
-  td {
-    color: var(--Zwart, #212121);
-    font-family: Avenir;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 20px;
-  }
-
-  // only the last row gets the colored background
-  tbody tr.mapping-row {
-    background: var(--Accent-background, #f5f7ff);
-
-    th,
-    td {
-      height: 52px;
-    }
-  }
-
-  .mapping-controls {
-    select {
-      flex: 1;
-      min-width: 200px;
-      max-width: 100%;
-      margin-block-end: 0;
-    }
-  }
-}
-
-.koppeling-actions {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 8px;
-  margin-top: 16px;
-
-  button {
+  select {
+    min-inline-size: var(--section-width-small);
     margin-block-end: 0;
   }
 
-  // Button styles are defined in main.scss
+  .accentuate {
+    background-color: var(--accent-bg);
+    padding-block: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  @media (min-width: variables.$breakpoint-md) {
+    & {
+      grid-template-columns: max-content 1fr;
+
+      dd {
+        grid-column: 2;
+      }
+    }
+  }
+}
+
+.form-buttons {
+  display: flex;
+  gap: var(--spacing-small);
 }
 </style>

@@ -15,7 +15,7 @@
 
   --header-height: 6rem;
   --text-margin: 1.5rem;
-  --line-height-default: 1.2;
+  --line-height-default: 1.25rem;
 
   // other
   --radius-default: 0.4rem;
@@ -28,7 +28,7 @@
   --outline-offset: 3px;
 
   --font-bold: 600;
-  --font-small: 0.75rem;
+  --font-small: 0.875rem;
   --font-medium: 1rem;
   --font-large: 1.25rem;
   --font-extralarge: 2rem;
@@ -100,10 +100,58 @@ form dl {
   }
 }
 
+.form-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-small);
+}
+
 details {
-  summary {
-    word-break: break-word;
+  background: none;
+  padding: var(--spacing-default);
+}
+
+summary {
+  word-break: break-word;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  gap: var(--spacing-small);
+  list-style: none;
+
+  &::-webkit-details-marker {
+    display: none;
   }
+
+  &::marker {
+    display: none;
+  }
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &::after {
+    content: "";
+    display: inline-block;
+    background-color: currentcolor;
+    mask-image: url("@/assets/arrow-down.svg");
+    mask-repeat: no-repeat;
+    width: 1.5em;
+    height: 1.5em;
+    margin-left: auto;
+    transition: transform 0.3s ease;
+  }
+}
+
+summary + * {
+  margin-block: var(--spacing-small);
+}
+
+details[open] > summary::after {
+  transform: rotate(180deg);
 }
 
 .form-group-button {
@@ -165,88 +213,4 @@ button[class*="icon"] {
 
 .pre-wrap {
   white-space: pre-wrap;
-}
-
-// Common typography styles
-.page-title {
-  color: var(--text);
-  font-family: var(--sans-font);
-  font-size: var(--font-extralarge);
-  font-style: normal;
-  font-weight: 900;
-  line-height: normal;
-  margin: 0;
-}
-
-.text-bold-16 {
-  color: var(--text);
-  font-family: var(--sans-font);
-  font-size: var(--font-medium);
-  font-style: normal;
-  font-weight: 800;
-  line-height: 1.25;
-}
-
-.text-regular-16 {
-  color: var(--text);
-  font-family: var(--sans-font);
-  font-size: var(--font-medium);
-  font-style: normal;
-  font-weight: 400;
-  line-height: 1.25;
-}
-
-// Common button styles
-.primary-button {
-  display: flex;
-  padding: var(--spacing-default);
-  justify-content: center;
-  align-items: center;
-  gap: var(--spacing-small);
-  border-radius: var(--standard-border-radius);
-  border: 1px solid var(--accent);
-  background: var(--accent);
-  color: var(--accent-text);
-  font-family: var(--sans-font);
-  font-size: var(--font-small);
-  font-weight: 800;
-  cursor: pointer;
-  margin-block-end: 0;
-
-  &:hover:not(:disabled) {
-    background: var(--accent-hover);
-    border-color: var(--accent-hover);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-}
-
-.cancel-button,
-.edit-button {
-  display: flex;
-  padding: var(--spacing-default);
-  justify-content: center;
-  align-items: center;
-  gap: var(--spacing-small);
-  border-radius: var(--standard-border-radius);
-  border: 1px solid var(--accent);
-  background: transparent;
-  color: var(--accent);
-  font-family: var(--sans-font);
-  font-size: var(--font-small);
-  font-weight: 800;
-  cursor: pointer;
-  margin-block-end: 0;
-
-  &:hover:not(:disabled) {
-    background: var(--accent-bg);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
 }
