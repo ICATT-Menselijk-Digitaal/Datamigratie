@@ -182,8 +182,6 @@ const handleEdit = () => {
 @use "@/assets/variables";
 
 .mapping-section {
-  display: flex;
-  flex-direction: column;
   margin-block-end: var(--spacing-small);
 
   p {
