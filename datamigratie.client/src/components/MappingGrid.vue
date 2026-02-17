@@ -194,53 +194,16 @@ const handleEdit = () => {
   display: flex;
   padding: var(--spacing-default);
   flex-direction: column;
-  background: none;
   margin-block-end: var(--spacing-small);
-
-  &[open] summary::after {
-    transform: rotate(180deg);
-  }
 
   p {
     margin-block: var(--spacing-small);
   }
 
   summary {
-    margin: 0;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    gap: var(--spacing-small);
-    list-style: none;
-
-    &::-webkit-details-marker {
-      display: none;
-    }
-
-    &::marker {
-      display: none;
-    }
-
-    &:hover {
-      opacity: 0.8;
-    }
-
     .warning-icon {
       width: 1em;
       height: 1em;
-    }
-
-    &::after {
-      content: "";
-      display: inline-block;
-      background-color: currentcolor;
-      mask-image: url("@/assets/arrow-down.svg");
-      mask-repeat: no-repeat;
-      width: 1.5em;
-      height: 1.5em;
-      margin-left: auto;
-      transition: transform 0.3s ease;
     }
   }
 
