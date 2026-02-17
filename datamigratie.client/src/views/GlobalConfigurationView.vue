@@ -4,81 +4,67 @@
   <template v-else>
     <h2>Algemeen</h2>
 
-    <div class="global-configuration">
-      <details class="rsin-collapsible-section" open>
-        <summary class="section-header">
-          <h2>RSIN</h2>
-          <img
-            v-if="!rsin"
-            src="@/assets/bi-exclamation-circle-fill.svg"
-            alt="Niet compleet"
-            class="warning-icon"
+    <details>
+      <summary>
+        <span>RSIN</span>
+        <img
+          v-if="!rsin"
+          src="@/assets/bi-exclamation-circle-fill.svg"
+          alt="Niet compleet"
+          class="warning-icon"
+        />
+      </summary>
+
+      <p>Voer hieronder de RSIN in</p>
+
+      <form v-if="isEditingRsin" @submit.prevent="saveRsinConfiguration">
+        <div class="rsin-grid">
+          <label for="rsin">RSIN</label>
+          <input
+            type="text"
+            id="rsin"
+            ref="rsinInput"
+            v-model="rsin"
+            maxlength="9"
+            pattern="[0-9]{9}"
+            @input="validateRsin"
           />
-          <img src="@/assets/arrow-drop-down.svg" alt="Toggle" class="toggle-icon" />
-        </summary>
-
-        <div class="section-content">
-          <p>Voer hieronder de RSIN in</p>
-
-          <div class="rsin-section">
-            <div class="rsin-row">
-              <div class="rsin-label">RSIN:</div>
-              <div class="rsin-value">
-                <input
-                  v-if="isEditingRsin"
-                  type="text"
-                  id="rsin"
-                  ref="rsinInput"
-                  v-model="rsin"
-                  maxlength="9"
-                  pattern="[0-9]{9}"
-                  @input="validateRsin"
-                />
-                <div v-else class="rsin-display">
-                  <template v-if="rsin">{{ rsin }}</template>
-                  <template v-else>
-                    <span>Geen</span>
-                    <img
-                      src="@/assets/bi-exclamation-circle-fill.svg"
-                      alt="Geen RSIN"
-                      class="warning-icon-inline"
-                    />
-                  </template>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-actions">
-              <template v-if="isEditingRsin">
-                <button type="button" class="primary-button" @click="saveRsinConfiguration">
-                  Opslaan
-                </button>
-                <button type="button" class="cancel-button" @click="cancelRsinEdit">
-                  Annuleren
-                </button>
-              </template>
-              <template v-else>
-                <button type="button" class="edit-button" @click="isEditingRsin = true">
-                  RSIN aanpassen
-                </button>
-              </template>
-            </div>
-          </div>
         </div>
-      </details>
+        <div class="form-actions">
+          <button type="submit" class="primary-button">Opslaan</button>
+          <button type="button" class="secondary" @click="cancelRsinEdit">Annuleren</button>
+        </div>
+      </form>
+      <template v-else>
+        <dl class="rsin-grid">
+          <dt>RSIN</dt>
+          <dd>
+            {{ rsin || "Geen"
+            }}<img
+              src="@/assets/bi-exclamation-circle-fill.svg"
+              v-if="!rsin"
+              alt="Geen RSIN"
+              class="warning-icon-inline"
+            />
+          </dd>
+        </dl>
+        <button type="button" class="secondary" @click="isEditingRsin = true">
+          RSIN aanpassen
+        </button>
+      </template>
+    </details>
 
-      <documentstatus-mapping-section
-        :det-documentstatussen="detDocumentstatussen"
-        :documentstatus-mappings="documentstatusMappings"
-        :all-mapped="allDocumentstatusesMapped"
-        :is-editing="!allDocumentstatusesMapped"
-        :loading="documentstatusLoading"
-        :show-warning="!allDocumentstatusesMapped"
-        @update:documentstatus-mappings="documentstatusMappings = $event"
-        @save="saveDocumentstatusMappings"
-        @fetch-mappings="fetchDocumentstatusMappings"
-      />
-    </div>
+    <documentstatus-mapping-section
+      :det-documentstatussen="detDocumentstatussen"
+      :documentstatus-mappings="documentstatusMappings"
+      :all-mapped="allDocumentstatusesMapped"
+      :is-editing="!allDocumentstatusesMapped"
+      :loading="documentstatusLoading"
+      :show-warning="!allDocumentstatusesMapped"
+      @update:documentstatus-mappings="documentstatusMappings = $event"
+      @save="saveDocumentstatusMappings"
+      @fetch-mappings="fetchDocumentstatusMappings"
+    />
   </template>
 </template>
 
@@ -274,153 +260,36 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-.global-configuration {
-  display: flex;
-  max-width: 75rem;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  gap: var(--spacing-small);
-  align-self: stretch;
-  width: 100%;
+details {
+  padding-block-end: var(--spacing-default);
 }
 
-.rsin-collapsible-section {
+.rsin-grid {
+  margin-block: var(--spacing-default);
   display: flex;
-  padding: var(--spacing-default);
-  flex-direction: column;
-  align-items: flex-start;
-  align-self: stretch;
-  border-radius: var(--standard-border-radius);
-  border: 1px solid var(--border);
-  background: var(--bg);
-  margin-block-end: var(--spacing-small);
+  min-height: var(--select-height);
+  align-items: center;
+  background-color: var(--accent-bg);
+  gap: 8rem;
 
-  .section-header {
+  dt,
+  label {
+    color: inherit;
+    font-weight: bold;
+    padding-inline-start: var(--spacing-small);
+  }
+
+  dd {
     display: flex;
     align-items: center;
-    width: 100%;
-    padding: var(--spacing-extrasmall) var(--spacing-small);
-    cursor: pointer;
-    text-align: left;
-    gap: var(--spacing-small);
-    margin-bottom: 0.125rem;
-    list-style: none;
-
-    &::-webkit-details-marker {
-      display: none;
-    }
-
-    &::marker {
-      display: none;
-    }
-
-    &:hover {
-      opacity: 0.8;
-    }
-
-    h2 {
-      margin: 0;
-      color: var(--text);
-      font-family: var(--sans-font);
-      font-size: var(--font-medium);
-      font-weight: 800;
-    }
-
-    .warning-icon {
-      width: 1em;
-      height: 1em;
-    }
-
-    .toggle-icon {
-      width: 1.5em;
-      height: 1.5em;
-      margin-left: auto;
-      transition: transform 0.3s ease;
-    }
   }
 
-  &[open] .section-header .toggle-icon {
-    transform: rotate(180deg);
-  }
-
-  .section-content {
-    width: 100%;
-
-    p {
-      align-self: stretch;
-      margin: 0 0 var(--spacing-default) 0;
-      color: var(--text);
-      font-family: var(--sans-font);
-      font-size: var(--font-medium);
-      font-weight: 400;
-    }
+  * {
+    margin: 0;
   }
 }
 
-.rsin-section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-default);
-}
-
-.rsin-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-default);
-  align-items: center;
-  min-height: 3.25rem;
-  padding: 0 var(--spacing-default);
-  background: var(--accent-bg);
-}
-
-.rsin-label {
-  color: var(--text);
-  font-family: var(--sans-font);
-  font-size: var(--font-medium);
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.rsin-value {
-  input {
-    width: 100%;
-    margin-block-end: 0;
-    padding: var(--spacing-small);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-default);
-    font-family: var(--sans-font);
-    font-size: var(--font-medium);
-    font-weight: 400;
-  }
-}
-
-.rsin-display {
-  color: var(--text);
-  font-family: var(--sans-font);
-  font-size: var(--font-medium);
-  font-weight: 400;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-small);
-
-  .warning-icon-inline {
-    width: 1em;
-    height: 1em;
-    flex-shrink: 0;
-    aspect-ratio: 1/1;
-  }
-}
-
-.form-actions {
-  display: flex;
-  gap: var(--spacing-small);
-  margin-top: 0;
-
-  button {
-    margin-block-end: 0;
-  }
-
-  // Button styles are defined in main.scss
+.warning-icon-inline {
+  margin-inline-start: 1ch;
 }
 </style>

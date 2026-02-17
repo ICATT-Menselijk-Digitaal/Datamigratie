@@ -183,7 +183,6 @@ const handleEdit = () => {
 
 .mapping-section {
   display: flex;
-  padding: var(--spacing-default);
   flex-direction: column;
   margin-block-end: var(--spacing-small);
 
@@ -202,7 +201,7 @@ const handleEdit = () => {
     display: grid;
     column-gap: var(--spacing-large);
     grid-template-columns: 1fr 1fr;
-    margin-block: var(--spacing-default);
+    margin-block-start: var(--spacing-default);
 
     @media (max-width: variables.$breakpoint-md) {
       grid-template-columns: 1fr;

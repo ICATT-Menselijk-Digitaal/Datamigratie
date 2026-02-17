@@ -106,11 +106,11 @@ form dl {
   display: flex;
   align-items: flex-start;
   gap: var(--spacing-small);
-  margin-block-start: var(--spacing-default);
 }
 
 details {
   background: none;
+  padding: var(--spacing-default);
 }
 
 summary {
@@ -146,6 +146,10 @@ summary {
     margin-left: auto;
     transition: transform 0.3s ease;
   }
+}
+
+summary + * {
+  margin-block: var(--spacing-small);
 }
 
 details[open] > summary::after {
