@@ -219,6 +219,14 @@ const handleEdit = () => {
     }
   }
 
+  .mapping-row {
+    padding: var(--spacing-extrasmall);
+
+    &:nth-child(even) {
+      background: var(--accent-bg);
+    }
+  }
+
   .mapping-header {
     padding-block-end: var(--spacing-default);
     font-weight: 600;
@@ -233,14 +241,6 @@ const handleEdit = () => {
     > :nth-child(2) {
       padding-inline-start: var(--input-padding);
       border: 1px transparent solid;
-    }
-  }
-
-  .mapping-row {
-    padding: var(--spacing-extrasmall);
-
-    &:nth-child(even) {
-      background: var(--accent-bg);
     }
   }
 
