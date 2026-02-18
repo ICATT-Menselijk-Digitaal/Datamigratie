@@ -140,8 +140,8 @@ const forceEdit = ref<boolean | null>(null);
 const isEditing = computed(() => {
   // when user has explicitly set edit state
   if (forceEdit.value !== null) return forceEdit.value;
-  // otherwise start in edit mode if not all mapped
-  return !props.allMapped;
+  // otherwise start in read-only mode
+  return false;
 });
 
 const getMappingForSource = (sourceId: string): Mapping => {
