@@ -8,7 +8,6 @@
     :source-items="sourceItems"
     :target-items="targetItems"
     :all-mapped="allMapped"
-    :is-editing="isInEditMode"
     :disabled="disabled"
     :loading="loading"
     empty-message="Er zijn geen documentstatussen beschikbaar."
@@ -22,7 +21,6 @@
     :show-collapse-warning="!allMapped"
     @save="handleSave"
     @cancel="handleCancel"
-    @edit="forceEdit = true"
   />
 </template>
 
@@ -51,7 +49,6 @@ const emit = defineEmits<{
   (e: "save", mappings: DocumentstatusMappingItem[]): void;
 }>();
 
-const forceEdit = ref(false);
 const localMappings = ref<DocumentstatusMappingItem[]>([]);
 
 const ozDocumentstatussen = [
@@ -60,10 +57,6 @@ const ozDocumentstatussen = [
   { id: "definitief", name: "Definitief" },
   { id: "gearchiveerd", name: "Gearchiveerd" }
 ];
-
-const isInEditMode = computed(() => {
-  return !props.allMapped || forceEdit.value;
-});
 
 const sourceItems = computed<MappingItem[]>(() => {
   return props.detDocumentstatussen.map((status) => ({
@@ -97,13 +90,11 @@ const mappingsModel = computed<Mapping[]>({
 
 const handleSave = () => {
   emit("save", localMappings.value);
-  forceEdit.value = false;
 };
 
 const handleCancel = () => {
-  // server state
+  // reset to server state
   localMappings.value = JSON.parse(JSON.stringify(props.documentstatusMappings));
-  forceEdit.value = false;
 };
 
 watch(

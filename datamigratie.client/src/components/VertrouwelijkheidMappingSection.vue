@@ -8,7 +8,6 @@
     :source-items="sourceItems"
     :target-items="targetItems"
     :all-mapped="allMapped"
-    :is-editing="isInEditMode"
     :disabled="disabled"
     :loading="isLoading"
     empty-message="Er zijn geen vertrouwelijkheid opties beschikbaar."
@@ -22,7 +21,6 @@
     :show-collapse-warning="!allMapped"
     @save="saveMappings"
     @cancel="handleCancel"
-    @edit="forceEdit = true"
   />
 </template>
 
@@ -70,13 +68,8 @@ const targetItems = computed<MappingItem[]>(
 );
 
 const isLoading = ref(false);
-const forceEdit = ref(false);
 const allMapped = ref<boolean>(false);
 const mappingsModel = ref<Mapping[]>([]);
-
-const isInEditMode = computed(() => {
-  return !allMapped.value || forceEdit.value;
-});
 
 const fetchMappings = async () => {
   isLoading.value = true;
@@ -118,8 +111,6 @@ const saveMappings = async () => {
 
     // re-fetch mappings to check for completeness
     await fetchMappings();
-
-    forceEdit.value = false;
   } catch (error) {
     toast.add({
       text: `Fout bij opslaan van de vertrouwelijkheid mappings - ${error}`,
@@ -133,15 +124,13 @@ const saveMappings = async () => {
 
 const handleCancel = () => {
   fetchMappings();
-  forceEdit.value = false;
 };
 
-// Trigger fetching mappings and set the form in edit/view mode whenever the mapping id changes
+// Trigger fetching mappings whenever the mapping id changes
 watch(
   () => props.mappingId,
   async () => {
     await fetchMappings();
-    forceEdit.value = !allMapped.value;
   },
   { immediate: true }
 );
@@ -158,6 +147,6 @@ watchEffect(() => {
   });
 
   allMapped.value = isMappingComplete;
-  emit("update:complete", isMappingComplete && !forceEdit.value);
+  emit("update:complete", isMappingComplete && allMapped.value);
 });
 </script>

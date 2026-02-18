@@ -9,7 +9,6 @@
       :source-items="publicatieNiveauSourceItems"
       :target-items="vertrouwelijkheidaanduidingTargetItems"
       :all-mapped="allPublicatieNiveauMapped"
-      :is-editing="publicatieniveauIsInEditMode"
       :disabled="disabled"
       :loading="isLoading"
       empty-message="Er zijn geen publicatieniveaus beschikbaar."
@@ -23,7 +22,6 @@
       :show-collapse-warning="!allPublicatieNiveauMapped"
       @save="handleSavePublicatieNiveau"
       @cancel="handleCancelPublicatieNiveau"
-      @edit="forceEditPublicatieniveau = true"
     />
 
     <mapping-grid
@@ -35,7 +33,6 @@
       :source-items="documenttypeSourceItems"
       :target-items="informatieobjecttypeTargetItems"
       :all-mapped="allDocumenttypeMapped"
-      :is-editing="documenttypeIsInEditMode"
       :disabled="disabled"
       :loading="isLoading"
       empty-message="Er zijn geen documenttypes beschikbaar."
@@ -49,7 +46,6 @@
       :show-collapse-warning="!allDocumenttypeMapped"
       @save="handleSaveDocumenttype"
       @cancel="handleCancelDocumenttype"
-      @edit="forceEditDocumenttype = true"
     >
       <template #extra-content>
         <!-- only shown when feature flag is enabled -->
@@ -58,11 +54,7 @@
           class="test-helper"
         >
           <label>
-            <input
-              type="checkbox"
-              :disabled="!documenttypeIsInEditMode"
-              @change="fillRandomDocumenttypeMappings($event)"
-            />
+            <input type="checkbox" @change="fillRandomDocumenttypeMappings($event)" />
             <span style="color: #e74c3c; font-weight: bold"
               >for testing: check to autofill with random selections</span
             >
@@ -141,15 +133,6 @@ const validDocumenttypeMappings = computed(
     })) || []
 );
 
-const forceEditPublicatieniveau = ref(false);
-const publicatieniveauIsInEditMode = computed(
-  () => forceEditPublicatieniveau.value || !allPublicatieNiveauMapped.value
-);
-
-const forceEditDocumenttype = ref(false);
-const documenttypeIsInEditMode = computed(
-  () => forceEditDocumenttype.value || !allDocumenttypeMapped.value
-);
 const isLoading = ref(false);
 
 const fetchMappings = async () => {
@@ -234,9 +217,7 @@ const allDocumenttypeMapped = computed(
     validDocumenttypeMappings.value.every(({ targetId }) => targetId)
 );
 
-const isComplete = computed(
-  () => !publicatieniveauIsInEditMode.value && !documenttypeIsInEditMode.value
-);
+const isComplete = computed(() => allPublicatieNiveauMapped.value && allDocumenttypeMapped.value);
 
 watch(isComplete, (value) => {
   emit("update:complete", value);
@@ -249,22 +230,18 @@ const documenttypeMappingsModel = ref<Mapping[]>([]);
 
 const handleSavePublicatieNiveau = async () => {
   await saveMappings();
-  forceEditPublicatieniveau.value = false;
 };
 
 const handleCancelPublicatieNiveau = () => {
   fetchMappings();
-  forceEditPublicatieniveau.value = false;
 };
 
 const handleSaveDocumenttype = async () => {
   await saveMappings();
-  forceEditDocumenttype.value = false;
 };
 
 const handleCancelDocumenttype = () => {
   fetchMappings();
-  forceEditDocumenttype.value = false;
 };
 
 // fills documenttype mappings with random selections (when VITE_ENABLE_TEST_HELPERS=true)
