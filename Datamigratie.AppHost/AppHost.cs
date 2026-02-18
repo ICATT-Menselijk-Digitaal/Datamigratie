@@ -3,12 +3,13 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 var detApiKey = builder.AddParameter("DetApiKey", "super-secret", true);
 
-var postgres = builder.AddPostgres("postgres")
+var postgres = builder.AddPostgres("postgis")
     .WithDataVolume()
     .WithHostPort(63214)
     .WithPgAdmin(x => x.WithHostPort(63215).WithLifetime(ContainerLifetime.Persistent))
     .WithLifetime(ContainerLifetime.Persistent)
-    .WithImage("postgis/postgis");
+    .WithImage("postgis/postgis")
+    .WithImageTag("17-3.6-alpine");
 
 var redis = builder.AddRedis("redis").WithLifetime(ContainerLifetime.Persistent);
 
