@@ -1,7 +1,7 @@
 <template>
   <mapping-grid
     v-model="mappingsModel"
-    title="Besluittype mapping"
+    title="Besluittype"
     description="Koppel de e-Suite besluittypen aan de Open Zaak besluittypen."
     source-label="e-Suite Besluittype"
     target-label="Open Zaak Besluittype"
@@ -12,13 +12,16 @@
     :disabled="disabled"
     :loading="isLoading"
     empty-message="Er zijn geen besluittypen beschikbaar voor dit zaaktype."
-    target-placeholder="Kies een besluittype"
-    save-button-text="Besluittypemappings opslaan"
-    :show-warning="true"
-    warning-message="Niet alle besluittypen zijn gekoppeld. Migratie kan niet worden gestart."
-    @save="saveMappings"
-    edit-button-text="Besluittypemappings aanpassen"
+    target-placeholder="- Kies een besluittype -"
+    save-button-text="Mapping opslaan"
+    cancel-button-text="Annuleren"
+    edit-button-text="Mapping aanpassen"
     :show-edit-button="true"
+    :show-warning="false"
+    :collapsible="true"
+    :show-collapse-warning="!allMapped"
+    @save="saveMappings"
+    @cancel="handleCancel"
     @edit="forceEdit = true"
   />
 </template>
@@ -136,6 +139,11 @@ const saveMappings = async () => {
   } finally {
     isLoading.value = false;
   }
+};
+
+const handleCancel = () => {
+  fetchMappings();
+  forceEdit.value = false;
 };
 
 // trigger fetching mappings whenever the mapping id or target zaaktype changes
