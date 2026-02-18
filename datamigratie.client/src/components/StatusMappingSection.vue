@@ -8,7 +8,6 @@
     :source-items="sourceStatusItems"
     :target-items="targetStatusItems"
     :all-mapped="allMapped"
-    :is-editing="isInEditMode"
     :disabled="disabled"
     :loading="isLoading"
     empty-message="Er zijn geen statussen beschikbaar voor dit zaaktype."
@@ -22,7 +21,6 @@
     @cancel="handleCancel"
     edit-button-text="Mapping aanpassen"
     :show-edit-button="true"
-    @edit="forceEdit = true"
   />
 </template>
 
@@ -72,14 +70,12 @@ const validMappings = computed(
 );
 
 const isLoading = ref(false);
-const forceEdit = ref(false);
-const isInEditMode = computed(() => forceEdit.value || !allMapped.value);
 
 const allMapped = computed(() => {
   return validMappings.value.length > 0 && validMappings.value.every((m) => m.targetId);
 });
 
-const isComplete = computed(() => !isInEditMode.value);
+const isComplete = computed(() => allMapped.value);
 
 const sourceStatusItems = computed<MappingItem[]>(() => {
   if (!props.detZaaktype.statuses) return [];
@@ -133,8 +129,6 @@ const saveMappings = async () => {
 
     // re-fetch mappings to check for completeness
     await fetchMappings();
-
-    forceEdit.value = false;
   } catch (error) {
     toast.add({ text: `Fout bij opslaan van de status mappings - ${error}`, type: "error" });
     throw error;
@@ -145,7 +139,6 @@ const saveMappings = async () => {
 
 const handleCancel = () => {
   fetchMappings();
-  forceEdit.value = false;
 };
 
 // trigger fetching mappings whenever the mapping id or target zaaktype changes
