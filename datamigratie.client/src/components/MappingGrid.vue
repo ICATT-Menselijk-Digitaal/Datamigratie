@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import AlertInline from "@/components/AlertInline.vue";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
 
@@ -135,14 +135,7 @@ const emit = defineEmits<{
 }>();
 
 // for edit state management
-const forceEdit = ref<boolean | null>(null);
-
-const isEditing = computed(() => {
-  // when user has explicitly set edit state
-  if (forceEdit.value !== null) return forceEdit.value;
-  // otherwise start in read-only mode
-  return false;
-});
+const isEditing = ref(false);
 
 const getMappingForSource = (sourceId: string): Mapping => {
   const existing = props.modelValue.find((m) => m.sourceId === sourceId);
@@ -184,16 +177,16 @@ const updateMapping = (sourceId: string, targetId: string) => {
 
 const handleSave = () => {
   emit("save");
-  forceEdit.value = null;
+  isEditing.value = false;
 };
 
 const handleCancel = () => {
-  forceEdit.value = false;
+  isEditing.value = false;
   emit("cancel");
 };
 
 const handleEdit = () => {
-  forceEdit.value = true;
+  isEditing.value = true;
   emit("edit");
 };
 </script>
