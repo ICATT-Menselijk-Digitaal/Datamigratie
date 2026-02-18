@@ -30,7 +30,7 @@
           </div>
           <div class="target-item">
             <select
-              v-if="isEditing || !allMapped"
+              v-if="isEditing"
               :value="getMappingForSource(sourceItem.id).targetId || ''"
               @change="updateMapping(sourceItem.id, ($event.target as HTMLSelectElement).value)"
               :disabled="disabled"
@@ -41,7 +41,13 @@
               </option>
             </select>
             <div v-else class="target-value">
-              {{ getTargetName(getMappingForSource(sourceItem.id).targetId) }}
+              <template v-if="getMappingForSource(sourceItem.id).targetId">
+                {{ getTargetName(getMappingForSource(sourceItem.id).targetId) }}
+              </template>
+              <template v-else>
+                <span>Geen</span>
+                <img src="@/assets/bi-exclamation-circle-fill.svg" alt="Niet gekoppeld" />
+              </template>
             </div>
           </div>
         </div>
@@ -50,7 +56,7 @@
           {{ warningMessage }}
         </alert-inline>
       </div>
-      <div v-if="(!allMapped || isEditing) && !disabled" class="form-actions">
+      <div v-if="isEditing && !disabled" class="form-actions">
         <button type="submit">
           {{ saveButtonText }}
         </button>
@@ -58,7 +64,7 @@
           {{ cancelButtonText }}
         </button>
       </div>
-      <div v-if="showEditButton && allMapped && !isEditing && !disabled" class="form-actions">
+      <div v-if="showEditButton && !isEditing && !disabled" class="form-actions">
         <button type="button" class="secondary" @click="handleEdit">
           {{ editButtonText }}
         </button>
@@ -68,6 +74,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import AlertInline from "@/components/AlertInline.vue";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
 
@@ -91,7 +98,6 @@ interface Props {
   targetItems: MappingItem[];
   modelValue: Mapping[];
   allMapped: boolean;
-  isEditing: boolean;
   disabled?: boolean;
   loading?: boolean;
   emptyMessage?: string;
@@ -127,6 +133,9 @@ const emit = defineEmits<{
   (e: "cancel"): void;
   (e: "edit"): void;
 }>();
+
+// for edit state management
+const isEditing = ref(false);
 
 const getMappingForSource = (sourceId: string): Mapping => {
   const existing = props.modelValue.find((m) => m.sourceId === sourceId);
@@ -168,13 +177,16 @@ const updateMapping = (sourceId: string, targetId: string) => {
 
 const handleSave = () => {
   emit("save");
+  isEditing.value = false;
 };
 
 const handleCancel = () => {
+  isEditing.value = false;
   emit("cancel");
 };
 
 const handleEdit = () => {
+  isEditing.value = true;
   emit("edit");
 };
 </script>
@@ -251,6 +263,9 @@ summary {
 .mapping-header > :nth-child(2) {
   padding: var(--input-padding);
   border: 1px transparent solid;
+  display: flex;
+  align-items: center;
+  gap: 0.5ch;
 }
 
 .form-actions {
