@@ -75,6 +75,13 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
 
         private static OzDocument MapToOzDocument(DetDocument item, DetDocumentVersie versie, Uri informatieObjectType, string rsin, Dictionary<string, string> documentstatusMappings, Dictionary<string, Dictionary<string, string>> documentPropertyMappings)
         {
+            // If kenmerk is longer than 40, fail the migration
+            const int MaxIdentificatieLength = 40;
+            if (item.Kenmerk?.Length > MaxIdentificatieLength)
+            {
+                throw new InvalidDataException($"Document '{item.Titel}' migration failed: The 'kenmerk' field length ({item.Kenmerk.Length}) exceeds the maximum allowed length of {MaxIdentificatieLength} characters.");
+            }
+
             // Apply data transformations
             const int MaxTitelLength = 200; // 197 + "..."
             var titel = TruncateWithDots(item.Titel, MaxTitelLength);
@@ -84,15 +91,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
 
             beschrijving ??= "";
 
-            var verschijningsvorm = item?.DocumentVorm?.Naam ?? "";
-
-            const int MaxIdentificatieLength = 40;
-
-            // If kenmerk is longer than 40, fail the migration
-            if (item.Kenmerk?.Length > MaxIdentificatieLength)
-            {
-                throw new InvalidDataException($"Document '{item.Titel}' migration failed: The 'kenmerk' field length ({item.Kenmerk.Length}) exceeds the maximum allowed length of {MaxIdentificatieLength} characters.");
-            }
+            var verschijningsvorm = item.DocumentVorm?.Naam ?? "";
 
             // Map the document status from DET to OpenZaak
             var ozDocumentStatus = GetOzDocumentStatus(item, documentstatusMappings);
@@ -103,6 +102,18 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
 
             var taal = item.Taal?.FunctioneelId.ToLower() ?? "dut";
             var auteur = versie.Auteur ?? "Auteur_onbekend";
+
+            // Map ondertekening if available
+            Ondertekening? ondertekening = null;
+            if (versie.Ondertekeningen?.Count > 0)
+            {
+                var eersteOndertekening = versie.Ondertekeningen.OrderByDescending(o => o.OndertekenDatum).First();
+                ondertekening = new Ondertekening
+                {
+                    Datum = eersteOndertekening.OndertekenDatum,
+                    Wijze = "digitaal"
+                };
+            }
 
             return new OzDocument
             {
@@ -121,7 +132,8 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 Status = ozDocumentStatus,
                 Verschijningsvorm = verschijningsvorm,
                 Link = "",
-                Trefwoorden = []
+                Trefwoorden = [],
+                Ondertekening = ondertekening
             };
         }
 

@@ -67,6 +67,12 @@ namespace Datamigratie.Common.Services.Det.Models
         public long? Documentgrootte { get; set; }
         public string? Auteur { get; set; }
         public required DateOnly Creatiedatum { get; set; }
+        public List<DetOndertekening>? Ondertekeningen { get; set; }
+    }
+
+    public class DetOndertekening
+    {
+        public DateOnly OndertekenDatum { get; set; }
     }
 
     public class DetBetaalgegevens
@@ -110,7 +116,7 @@ namespace Datamigratie.Common.Services.Det.Models
         public string? Omschrijving { get; set; }
         public bool Actief { get; set; }
     }
-  
+
     public class DetGeolocatie
     {
         public string? Type { get; set; }
