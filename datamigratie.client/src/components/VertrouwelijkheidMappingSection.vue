@@ -1,30 +1,33 @@
 <template>
   <mapping-grid
     v-model="mappingsModel"
-    title="Vertrouwelijkheid mapping"
+    title="Vertrouwelijkheid"
     description="Koppel de e-Suite vertrouwelijkheid waarden aan de Open Zaak vertrouwelijkheidaanduiding."
     source-label="e-Suite Vertrouwelijk"
     target-label="Open Zaak Vertrouwelijkheidaanduiding"
     :source-items="sourceItems"
     :target-items="targetItems"
     :all-mapped="allMapped"
-    :is-editing="forceEdit"
+    :is-editing="isInEditMode"
     :disabled="disabled"
     :loading="isLoading"
     empty-message="Er zijn geen vertrouwelijkheid opties beschikbaar."
-    target-placeholder="Kies een vertrouwelijkheidaanduiding"
-    save-button-text="Vertrouwelijkheidmappings opslaan"
-    :show-warning="true"
-    warning-message="Niet alle vertrouwelijkheid opties zijn gekoppeld. Migratie kan niet worden gestart."
-    @save="saveMappings"
-    edit-button-text="Vertrouwelijkheidmappings aanpassen"
+    target-placeholder="- Kies een vertrouwelijkheidaanduiding -"
+    save-button-text="Mapping opslaan"
+    cancel-button-text="Annuleren"
+    edit-button-text="Mapping aanpassen"
     :show-edit-button="true"
+    :show-warning="false"
+    :collapsible="true"
+    :show-collapse-warning="!allMapped"
+    @save="saveMappings"
+    @cancel="handleCancel"
     @edit="forceEdit = true"
   />
 </template>
 
 <script setup lang="ts">
-import { ref, watch, watchEffect, computed } from "vue";
+import { ref, computed, watch, watchEffect } from "vue";
 import MappingGrid, { type MappingItem, type Mapping } from "@/components/MappingGrid.vue";
 import toast from "@/components/toast/toast";
 import { get, post } from "@/utils/fetchWrapper";
@@ -71,6 +74,10 @@ const forceEdit = ref(false);
 const allMapped = ref<boolean>(false);
 const mappingsModel = ref<Mapping[]>([]);
 
+const isInEditMode = computed(() => {
+  return !allMapped.value || forceEdit.value;
+});
+
 const fetchMappings = async () => {
   isLoading.value = true;
   try {
@@ -112,7 +119,7 @@ const saveMappings = async () => {
     // re-fetch mappings to check for completeness
     await fetchMappings();
 
-    forceEdit.value = !allMapped.value;
+    forceEdit.value = false;
   } catch (error) {
     toast.add({
       text: `Fout bij opslaan van de vertrouwelijkheid mappings - ${error}`,
@@ -122,6 +129,11 @@ const saveMappings = async () => {
   } finally {
     isLoading.value = false;
   }
+};
+
+const handleCancel = () => {
+  fetchMappings();
+  forceEdit.value = false;
 };
 
 // Trigger fetching mappings and set the form in edit/view mode whenever the mapping id changes

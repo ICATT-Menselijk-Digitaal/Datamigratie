@@ -2,7 +2,7 @@
   <div class="document-property-mapping-section">
     <mapping-grid
       v-model="publicatieNiveauMappingsModel"
-      title="Document publicatieniveau mapping"
+      title="Publicatieniveau"
       description="Koppel de e-Suite publicatieniveaus voor documenten aan de Open Zaak vertrouwelijkheidaanduiding."
       source-label="e-Suite Publicatieniveau"
       target-label="Open Zaak Vertrouwelijkheidaanduiding"
@@ -13,57 +13,63 @@
       :disabled="disabled"
       :loading="isLoading"
       empty-message="Er zijn geen publicatieniveaus beschikbaar."
-      target-placeholder="Kies een vertrouwelijkheidaanduiding"
-      save-button-text="Publicatieniveau mappings opslaan"
-      edit-button-text="Publicatieniveau mappings aanpassen"
+      target-placeholder="- Kies een vertrouwelijkheidaanduiding -"
+      save-button-text="Mapping opslaan"
+      cancel-button-text="Annuleren"
+      edit-button-text="Mapping aanpassen"
       :show-edit-button="true"
-      :show-warning="true"
-      warning-message="Niet alle publicatieniveaus zijn gekoppeld."
+      :show-warning="false"
+      :collapsible="true"
+      :show-collapse-warning="!allPublicatieNiveauMapped"
       @save="handleSavePublicatieNiveau"
+      @cancel="handleCancelPublicatieNiveau"
       @edit="forceEditPublicatieniveau = true"
     />
 
-    <div class="documenttype-section">
-      <!-- only shown when feature flag is enabled -->
-      <div
-        v-if="featureFlags.showDocumenttypeTestHelper && documenttypeSourceItems.length > 0"
-        class="test-helper"
-      >
-        <label>
-          <input
-            type="checkbox"
-            :disabled="!documenttypeIsInEditMode"
-            @change="fillRandomDocumenttypeMappings($event)"
-          />
-          <span style="color: #e74c3c; font-weight: bold"
-            >for testing: check to autofill with random selections</span
-          >
-        </label>
-      </div>
-
-      <mapping-grid
-        v-model="documenttypeMappingsModel"
-        title="Documenttype mapping"
-        description="Koppel de e-Suite documenttypes aan de Open Zaak informatieobjecttypes."
-        source-label="e-Suite Documenttype"
-        target-label="Open Zaak Informatieobjecttype"
-        :source-items="documenttypeSourceItems"
-        :target-items="informatieobjecttypeTargetItems"
-        :all-mapped="allDocumenttypeMapped"
-        :is-editing="documenttypeIsInEditMode"
-        :disabled="disabled"
-        :loading="isLoading"
-        empty-message="Er zijn geen documenttypes beschikbaar."
-        target-placeholder="Kies een informatieobjecttype"
-        save-button-text="Documenttype mappings opslaan"
-        edit-button-text="Documenttype mappings aanpassen"
-        :show-edit-button="true"
-        :show-warning="true"
-        warning-message="Niet alle documenttypes zijn gekoppeld."
-        @save="handleSaveDocumenttype"
-        @edit="forceEditDocumenttype = true"
-      />
-    </div>
+    <mapping-grid
+      v-model="documenttypeMappingsModel"
+      title="Documenttype"
+      description="Koppel de e-Suite documenttypes aan de Open Zaak informatieobjecttypes."
+      source-label="e-Suite Documenttype"
+      target-label="Open Zaak Informatieobjecttype"
+      :source-items="documenttypeSourceItems"
+      :target-items="informatieobjecttypeTargetItems"
+      :all-mapped="allDocumenttypeMapped"
+      :is-editing="documenttypeIsInEditMode"
+      :disabled="disabled"
+      :loading="isLoading"
+      empty-message="Er zijn geen documenttypes beschikbaar."
+      target-placeholder="- Kies een informatieobjecttype -"
+      save-button-text="Mapping opslaan"
+      cancel-button-text="Annuleren"
+      edit-button-text="Mapping aanpassen"
+      :show-edit-button="true"
+      :show-warning="false"
+      :collapsible="true"
+      :show-collapse-warning="!allDocumenttypeMapped"
+      @save="handleSaveDocumenttype"
+      @cancel="handleCancelDocumenttype"
+      @edit="forceEditDocumenttype = true"
+    >
+      <template #extra-content>
+        <!-- only shown when feature flag is enabled -->
+        <div
+          v-if="featureFlags.showDocumenttypeTestHelper && documenttypeSourceItems.length > 0"
+          class="test-helper"
+        >
+          <label>
+            <input
+              type="checkbox"
+              :disabled="!documenttypeIsInEditMode"
+              @change="fillRandomDocumenttypeMappings($event)"
+            />
+            <span style="color: #e74c3c; font-weight: bold"
+              >for testing: check to autofill with random selections</span
+            >
+          </label>
+        </div>
+      </template>
+    </mapping-grid>
   </div>
 </template>
 
@@ -246,8 +252,18 @@ const handleSavePublicatieNiveau = async () => {
   forceEditPublicatieniveau.value = false;
 };
 
+const handleCancelPublicatieNiveau = () => {
+  fetchMappings();
+  forceEditPublicatieniveau.value = false;
+};
+
 const handleSaveDocumenttype = async () => {
   await saveMappings();
+  forceEditDocumenttype.value = false;
+};
+
+const handleCancelDocumenttype = () => {
+  fetchMappings();
   forceEditDocumenttype.value = false;
 };
 
@@ -301,13 +317,20 @@ watch(validPublicatieNiveauMappings, (value) => {
 .document-property-mapping-section {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-large);
-}
+  gap: var(--spacing-small);
+  align-self: stretch;
+  width: 100%;
 
-.documenttype-section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-default);
+  // Remove bottom margin from nested collapsible sections since parent has gap
+  :deep(.collapsible-mapping-section) {
+    margin-block-end: 0;
+  }
+
+  // Add margin-bottom only to the last collapsible section
+  // to maintain proper spacing with the next section (Vertrouwelijkheid)
+  :deep(.collapsible-mapping-section:last-child) {
+    margin-block-end: var(--spacing-small);
+  }
 }
 
 .test-helper {
@@ -315,6 +338,7 @@ watch(validPublicatieNiveauMappings, (value) => {
   background-color: var(--marked);
   border: 2px dashed var(--accent);
   border-radius: var(--radius-default);
+  margin-bottom: var(--spacing-default);
 
   label {
     display: flex;
