@@ -107,10 +107,10 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             Ondertekening? ondertekening = null;
             if (versie.Ondertekeningen?.Count > 0)
             {
-                var eersteOndertekening = versie.Ondertekeningen.OrderByDescending(o => o.OndertekenDatum).First();
+                var laasteOndertekening = versie.Ondertekeningen.OrderByDescending(o => o.OndertekenDatum).First();
                 ondertekening = new Ondertekening
                 {
-                    Datum = eersteOndertekening.OndertekenDatum,
+                    Datum = laasteOndertekening.OndertekenDatum,
                     Wijze = "digitaal"
                 };
             }
