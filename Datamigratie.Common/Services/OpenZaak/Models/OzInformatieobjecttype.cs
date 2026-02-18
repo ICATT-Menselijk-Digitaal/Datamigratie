@@ -16,12 +16,12 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
                 _url = value;
                 if (!string.IsNullOrEmpty(value))
                 {
-                    Uuid = OzUrlToGuidConverter.ExtractUuidFromUrl(value);
+                    Id = OzUrlToGuidConverter.ExtractUuidFromUrl(value);
                 }
             }
         }
 
-        public Guid Uuid { get; private set; } = Guid.Empty;
+        public Guid Id { get; private set; } = Guid.Empty;
 
         [JsonPropertyName("omschrijving")]
         public required string Omschrijving { get; set; }

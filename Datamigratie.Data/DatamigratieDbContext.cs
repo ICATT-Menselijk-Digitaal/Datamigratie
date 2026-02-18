@@ -40,20 +40,20 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
         modelBuilder.Entity<Migration>(entity =>
         {
             entity.HasKey(e => e.Id);
-            
+
             entity.Property(e => e.DetZaaktypeId)
                 .IsRequired();
-            
+
             entity.Property(e => e.Status)
                 .IsRequired()
                 .HasConversion<string>();
-            
+
             entity.Property(e => e.CreatedAt)
                 .IsRequired();
-            
+
             entity.Property(e => e.LastUpdated)
                 .IsRequired();
-            
+
             entity.Property(e => e.ErrorMessage)
                 .HasMaxLength(1000);
 
@@ -132,6 +132,13 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
                 .IsUnique()
                 .HasDatabaseName("IX_VertrouwelijkheidMapping_ZaaktypenMappingId_DetVertrouwelijkheid_Unique");
         });
+
+        modelBuilder.Entity<PdfInformatieobjecttypeMapping>(entity =>
+        {
+            entity.HasIndex(e => e.ZaaktypenMappingId)
+                .IsUnique()
+                .HasDatabaseName("IX_PdfInformatieobjecttypeMapping_ZaaktypenMappingId_Unique");
+        });
     }
 
     public DbSet<ZaaktypenMapping> Mappings { get; set; }
@@ -144,4 +151,5 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
     public DbSet<DocumentPropertyMapping> DocumentPropertyMappings { get; set; }
     public DbSet<DocumentstatusMapping> DocumentstatusMappings { get; set; }
     public DbSet<VertrouwelijkheidMapping> VertrouwelijkheidMappings { get; set; }
+    public DbSet<PdfInformatieobjecttypeMapping> PdfInformatieobjecttypeMappings { get; set; }
 }
