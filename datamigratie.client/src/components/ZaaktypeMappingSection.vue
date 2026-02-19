@@ -78,6 +78,10 @@ const model = defineModel<ZaaktypeMappingModel | undefined>("zaaktypeMapping", {
   required: true
 });
 
+const emit = defineEmits<{
+  (e: "update:detZaaktypeNaam", naam: string): void;
+}>();
+
 const isLoading = ref(false);
 const isEditing = ref(false);
 
@@ -134,6 +138,7 @@ watch(
     isLoading.value = true;
     try {
       detZaaktype.value = await detService.getZaaktypeById(id);
+      emit("update:detZaaktypeNaam", detZaaktype.value.naam);
       zaaktypeMapping.value = await fetchMapping(id);
     } catch (error) {
       toast.add({ text: `Fout bij ophalen van de zaaktype mapping - ${error}`, type: "error" });
@@ -201,7 +206,8 @@ dl {
       gap: var(--spacing-default);
       align-items: center;
       flex-wrap: wrap;
-      padding: var(--input-padding);
+      padding-block: var(--input-padding);
+      padding-inline-end: var(--input-padding);
       border: 1px transparent solid;
 
       .mapping-edit-button {
