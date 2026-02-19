@@ -111,7 +111,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 ondertekening = new Ondertekening
                 {
                     Datum = laasteOndertekening.OndertekenDatum,
-                    Wijze = "digitaal"
+                    Soort = "digitaal"
                 };
             }
 

@@ -72,6 +72,7 @@ namespace Datamigratie.Common.Services.Det.Models
 
     public class DetOndertekening
     {
+        [JsonConverter(typeof(DetDateOnlyConverter))]
         public DateOnly OndertekenDatum { get; set; }
     }
 
