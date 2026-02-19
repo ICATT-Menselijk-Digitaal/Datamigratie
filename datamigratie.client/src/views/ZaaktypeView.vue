@@ -5,7 +5,7 @@
     >&lt; Terug</router-link
   >
 
-  <h2>e-Suite zaaktype "{{ zaaktypeMapping?.detZaaktype?.naam || "..." }}"</h2>
+  <h2>e-Suite zaaktype "{{ detZaaktypeNaam || "..." }}"</h2>
 
   <alert-inline v-if="!isGeneralConfigLoading && !isGeneralConfigComplete" type="warning">
     Let op: de migratie kan pas worden gestart als alle gegevens bij "Algemeen" ook zijn ingevuld.
@@ -16,6 +16,7 @@
     :det-zaaktype-id="detZaaktypeId"
     :disabled="isThisMigrationRunning"
     v-model:zaaktype-mapping="zaaktypeMapping"
+    @update:det-zaaktype-naam="detZaaktypeNaam = $event"
   />
 
   <template v-if="zaaktypeMapping">
@@ -116,6 +117,7 @@ const route = useRoute();
 const search = computed(() => String(route.query.search || "").trim());
 
 const zaaktypeMapping = ref<ZaaktypeMappingModel>();
+const detZaaktypeNaam = ref<string>("");
 
 const statusMappingsComplete = ref(false);
 const resultaattypeMappingsComplete = ref(false);
