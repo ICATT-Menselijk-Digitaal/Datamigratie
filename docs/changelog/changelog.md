@@ -12,7 +12,10 @@
 - [Migrate Besluit of Zaak](https://dimpact.atlassian.net/browse/DATA-192)
 - [Migrate RSIN](https://dimpact.atlassian.net/browse/DATA-162)
 - [Besluittypen mappings should be per-zaaktype & and remove active filter](https://dimpact.atlassian.net/browse/DATA-334)
-  
+- [Store e-Suite data as document in OpenZaak](https://dimpact.atlassian.net/browse/DATA-102)
+- [Mapping & migration Document properties per Zaaktype](https://dimpact.atlassian.net/browse/DATA-111)
+- [Configuration of 'Besluittype' per Zaaktype](https://dimpact.atlassian.net/browse/DATA-191)
+- [Migrate simple Zaak properties](https://dimpact.atlassian.net/browse/DATA-254)
 
 ### v0.0.1
 
@@ -29,4 +32,3 @@
 - [Migration of non-configurable additional Document properties from the e-Suite to OpenZaak)](https://dimpact.atlassian.net/browse/DATA-112)
 - [Global configuration of RSIN](https://dimpact.atlassian.net/browse/DATA-139)
 - [Migration log overview migration-level](https://dimpact.atlassian.net/browse/DATA-17)
-
