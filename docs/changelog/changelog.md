@@ -16,6 +16,8 @@
 - [Mapping & migration Document properties per Zaaktype](https://dimpact.atlassian.net/browse/DATA-111)
 - [Configuration of 'Besluittype' per Zaaktype](https://dimpact.atlassian.net/browse/DATA-191)
 - [Migrate simple Zaak properties](https://dimpact.atlassian.net/browse/DATA-254)
+- [Mapping & migration of generated PDF property](https://dimpact.atlassian.net/browse/DATA-183)
+- [Implement UI changes](https://dimpact.atlassian.net/browse/DATA-256)
 
 ### v0.0.1
 
