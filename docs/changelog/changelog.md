@@ -15,6 +15,7 @@
 - [Configuration of 'Besluittype' per Zaaktype](https://dimpact.atlassian.net/browse/DATA-191)
 - [Mapping & migration Document properties per Zaaktype](https://dimpact.atlassian.net/browse/DATA-111)
 - [Looping through all pages from API responses from OpenZaak is broken](https://dimpact.atlassian.net/browse/DATA-227)
+- [Migrate Status of Zaak](https://dimpact.atlassian.net/browse/DATA-132)
 
 
 ## v0.0.1
