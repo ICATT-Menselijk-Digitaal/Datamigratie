@@ -94,8 +94,8 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
 
     public sealed class Ondertekening
     {
-        /// Wijze van ondertekening (bv. nat, elektronisch)
-        public string? Wijze { get; init; }
+        /// Soort van ondertekening ("digitaal")
+        public string? Soort { get; init; }
 
         // Date-only (YYYY-MM-DD)
         public DateOnly? Datum { get; init; }
