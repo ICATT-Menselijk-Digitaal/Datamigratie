@@ -1,8 +1,6 @@
 # Changelog
 
-## Latest version
-
-### New features
+## v0.1.0
 
 - [Make linking of a Zaaktype less error-prone](https://dimpact.atlassian.net/browse/DATA-89)
 - [Fill and migrate required meta-data for generated PDF](https://dimpact.atlassian.net/browse/DATA-163)
@@ -12,14 +10,16 @@
 - [Migrate Besluit of Zaak](https://dimpact.atlassian.net/browse/DATA-192)
 - [Migrate RSIN](https://dimpact.atlassian.net/browse/DATA-162)
 - [Besluittypen mappings should be per-zaaktype & and remove active filter](https://dimpact.atlassian.net/browse/DATA-334)
-- [Store e-Suite data as document in OpenZaak](https://dimpact.atlassian.net/browse/DATA-102)
-- [Mapping & migration Document properties per Zaaktype](https://dimpact.atlassian.net/browse/DATA-111)
-- [Configuration of 'Besluittype' per Zaaktype](https://dimpact.atlassian.net/browse/DATA-191)
 - [Migrate simple Zaak properties](https://dimpact.atlassian.net/browse/DATA-254)
-- [Mapping & migration of generated PDF property](https://dimpact.atlassian.net/browse/DATA-183)
-- [Implement UI changes](https://dimpact.atlassian.net/browse/DATA-256)
+- [Documenttype in Besluit is not present in Zaaktype](https://dimpact.atlassian.net/browse/DATA-328)
+- [Configuration of 'Besluittype' per Zaaktype](https://dimpact.atlassian.net/browse/DATA-191)
+- [Mapping & migration Document properties per Zaaktype](https://dimpact.atlassian.net/browse/DATA-111)
+- [Looping through all pages from API responses from OpenZaak is broken](https://dimpact.atlassian.net/browse/DATA-227)
+- [Migrate Status of Zaak](https://dimpact.atlassian.net/browse/DATA-132)
+- [Configure Resultaat mapping per Zaaktype](https://dimpact.atlassian.net/browse/DATA-18)
+- [Configure Status mapping per Zaaktype](https://dimpact.atlassian.net/browse/DATA-107)
 
-### v0.0.1
+## v0.0.1
 
 - [Migratiemanagement: Zaaktype selecteren uit DET](https://dimpact.atlassian.net/browse/DATA-21)
 - [Migratiemanagement: Zaaktype mappings beheren](https://dimpact.atlassian.net/browse/DATA-20)
@@ -34,3 +34,4 @@
 - [Migration of non-configurable additional Document properties from the e-Suite to OpenZaak)](https://dimpact.atlassian.net/browse/DATA-112)
 - [Global configuration of RSIN](https://dimpact.atlassian.net/browse/DATA-139)
 - [Migration log overview migration-level](https://dimpact.atlassian.net/browse/DATA-17)
+
