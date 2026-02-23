@@ -14,6 +14,7 @@
 - [Documenttype in Besluit is not present in Zaaktype](https://dimpact.atlassian.net/browse/DATA-328)
 - [Configuration of 'Besluittype' per Zaaktype](https://dimpact.atlassian.net/browse/DATA-191)
 - [Mapping & migration Document properties per Zaaktype](https://dimpact.atlassian.net/browse/DATA-111)
+- [Looping through all pages from API responses from OpenZaak is broken](https://dimpact.atlassian.net/browse/DATA-227)
 
 
 ## v0.0.1
