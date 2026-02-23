@@ -1,8 +1,6 @@
 # Changelog
 
-## Latest version
-
-### New features
+## v0.1.0
 
 - [Make linking of a Zaaktype less error-prone](https://dimpact.atlassian.net/browse/DATA-89)
 - [Fill and migrate required meta-data for generated PDF](https://dimpact.atlassian.net/browse/DATA-163)
@@ -14,7 +12,7 @@
 - [Besluittypen mappings should be per-zaaktype & and remove active filter](https://dimpact.atlassian.net/browse/DATA-334)
   
 
-### v0.0.1
+## v0.0.1
 
 - [Migratiemanagement: Zaaktype selecteren uit DET](https://dimpact.atlassian.net/browse/DATA-21)
 - [Migratiemanagement: Zaaktype mappings beheren](https://dimpact.atlassian.net/browse/DATA-20)
