@@ -32,7 +32,7 @@ public sealed class ZaakFaker
     public Zaak GenerateZaak(Zaaktype zaaktype)
     {
         _zaakCounter++;
-        var zaakFunctioneleIdentificatie = $"{zaaktype.Identificatie ?? zaaktype.Omschrijving}-{DateTime.Now.Year}-{_zaakCounter:D6}";
+        var zaakFunctioneleIdentificatie = $"{zaaktype.Identificatie ?? zaaktype.Omschrijving}-{_zaakCounter:D6}-TEST";
         var creatieDatum = _faker.Date.Between(DateTime.Now.AddYears(-2), DateTime.Now);
         var doorlooptijdDagen = ParseIsoDurationToDays(zaaktype.Doorlooptijd) ?? 30;
         var streefdatum = DateOnly.FromDateTime(creatieDatum.AddDays(doorlooptijdDagen));
@@ -293,7 +293,7 @@ public sealed class ZaakFaker
             $"{zaaktype.Omschrijving} - {_faker.PickRandom(DutchDataSets.Plaatsnamen)}",
             $"Behandeling {zaaktype.Omschrijving.ToLowerInvariant()}"
         };
-        return _faker.PickRandom(templates);
+        return $"{_faker.PickRandom(templates)}-TEST";
     }
 
     private ArchiveerGegevens GenerateArchiveerGegevens(DateOnly einddatum)
@@ -532,7 +532,7 @@ public sealed class ZaakFaker
         return verplichteDocs.Concat(optioneleDocs)
             .Select((d, i) =>
             {
-                var docId = $"DOC-{DateTime.Now.Year}-{_zaakCounter:D6}-{i + 1:D3}";
+                var docId = $"DOC-{_zaakCounter:D6}-{i + 1:D3}-TEST";
                 var creatieDatumTijd = startDatum.AddDays(_faker.Random.Int(0, 10)).AddHours(_faker.Random.Int(8, 17));
                 var auteur = _faker.PickRandom(DutchDataSets.Medewerkers);
                 var formaat = _faker.PickRandom(DutchDataSets.DocumentFormaten);
@@ -555,7 +555,7 @@ public sealed class ZaakFaker
                     Compressed = false,
                     Auteur = auteur,
                     Afzender = richting == DocumentRichting.Inkomend ? _faker.Name.FullName() : null,
-                    Documentgrootte = _faker.Random.Long(10000, 5000000)
+                    Documentgrootte = _faker.Random.Long(10000, 50000)
                 };
                 _documentInhoudRegistry[documentInhoudID] = zaakFunctioneleIdentificatie;
 
@@ -576,8 +576,8 @@ public sealed class ZaakFaker
                         Omschrijving = "Document is definitief",
                         Actief = true
                     },
-                    Titel = $"{docNaam} - {_faker.Lorem.Words(2).Aggregate((a, b) => $"{a} {b}")}",
-                    Kenmerk = _faker.Random.Bool(0.3f) ? $"KNM-{_faker.Random.AlphaNumeric(8).ToUpperInvariant()}" : null,
+                    Titel = $"{docNaam} - {_faker.Lorem.Words(2).Aggregate((a, b) => $"{a} {b}")}-TEST",
+                    Kenmerk = _faker.Random.Bool(0.3f) ? $"KNM-{_faker.Random.AlphaNumeric(8).ToUpperInvariant()}-TEST" : null,
                     CreatieDatumTijd = creatieDatumTijd,
                     WijzigDatumTijd = _faker.Random.Bool(0.4f) ? creatieDatumTijd.AddDays(_faker.Random.Int(1, 5)) : null,
                     Publicatieniveau = publicatieniveau,
@@ -838,7 +838,7 @@ public sealed class ZaakFaker
 
             return new Besluit
             {
-                FunctioneleIdentificatie = $"BESL-{DateTime.Now.Year}-{_zaakCounter:D6}",
+                FunctioneleIdentificatie = $"BESL-{_zaakCounter:D6}-TEST",
                 Besluittype = new Besluittype
                 {
                     Naam = besluittype.Naam,
