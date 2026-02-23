@@ -2,7 +2,7 @@
 
 ## Current Version
 
-- [Migrate additional document property](Migrate additional document property)
+- [Migrate additional document property](https://dimpact.atlassian.net/browse/DATA-272)
 - [Implement UI changes](https://dimpact.atlassian.net/browse/DATA-256)
 
 ## v0.1.0
