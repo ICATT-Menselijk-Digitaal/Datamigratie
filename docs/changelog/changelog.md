@@ -39,5 +39,4 @@
 - [Migration of non-configurable additional Document properties from the e-Suite to OpenZaak)](https://dimpact.atlassian.net/browse/DATA-112)
 - [Global configuration of RSIN](https://dimpact.atlassian.net/browse/DATA-139)
 - [Migration log overview migration-level](https://dimpact.atlassian.net/browse/DATA-17)
-- [Store e-Suite data as document in OpenZaak](https://dimpact.atlassian.net/browse/DATA-102)
 
