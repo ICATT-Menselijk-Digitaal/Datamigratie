@@ -12,6 +12,8 @@
 - [Besluittypen mappings should be per-zaaktype & and remove active filter](https://dimpact.atlassian.net/browse/DATA-334)
 - [Migrate simple Zaak properties](https://dimpact.atlassian.net/browse/DATA-254)
 - [Documenttype in Besluit is not present in Zaaktype](https://dimpact.atlassian.net/browse/DATA-328)
+- [Configuration of 'Besluittype' per Zaaktype](https://dimpact.atlassian.net/browse/DATA-191)
+
   
 
 ## v0.0.1
