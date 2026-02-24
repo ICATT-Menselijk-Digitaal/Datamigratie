@@ -25,17 +25,35 @@ public static class TestFileGenerator
 
         return mimeType switch
         {
-            "text/plain" => MakeTxt(stream, title),
-            "application/pdf" => MakeMinimalPdf(stream, title),
-            "image/png" => SkiaFileGenerator.MakePng(stream, title),
-            "image/jpeg" => SkiaFileGenerator.MakeJpeg(stream, title),
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => MakeMinimalDocx(stream, title),
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => MakeMinimalXlsx(stream, title),
+            "text/plain" => MakeTxt(stream, title, size),
+            "application/pdf" => MakeMinimalPdf(stream, title, size),
+            "image/png" => MakePaddedAsync(stream, size, s => SkiaFileGenerator.MakePng(s, title)),
+            "image/jpeg" => MakePaddedAsync(stream, size, s => SkiaFileGenerator.MakeJpeg(s, title)),
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => MakePaddedAsync(stream, size, s => MakeMinimalDocx(s, title)),
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => MakePaddedAsync(stream, size, s => MakeMinimalXlsx(s, title)),
             _ => throw new NotSupportedException($"Unsupported mimetype: {mimeType}")
         };
     }
 
-    private static async Task MakeTxt(Stream stream, string title)
+    /// <summary>
+    /// Generates binary content (png/jpeg/docx/xlsx) into a temp buffer, then copies it to the
+    /// output stream and pads with zero bytes to reach the declared size.
+    /// This ensures Content-Length matches what was promised in Documentgrootte.
+    /// </summary>
+    private static async Task MakePaddedAsync(Stream stream, long size, Func<Stream, Task> generator)
+    {
+        await using var tempBuffer = new MemoryStream();
+        await generator(tempBuffer);
+        tempBuffer.Seek(0, SeekOrigin.Begin);
+        await tempBuffer.CopyToAsync(stream);
+        var remaining = size - tempBuffer.Length;
+        if (remaining > 0)
+        {
+            await WritePaddingAsync(stream, remaining);
+        }
+    }
+
+    private static async Task MakeTxt(Stream stream, string title, long size)
     {
         using var owner = MemoryPool<byte>.Shared.Rent();
 
@@ -43,27 +61,26 @@ public static class TestFileGenerator
         {title}
         Datum: {DateTime.Now:yyyy-MM-dd}
         Kenmerk: TEST-{Guid.NewGuid():N}
-        
+
         Dit is automatisch gegenereerde testdata.
         """, out var written);
 
         await stream.WriteAsync(owner.Memory.Slice(0, written));
+
+        var remaining = size - written;
+        if (remaining > 0)
+        {
+            await WritePaddingAsync(stream, remaining);
+        }
     }
 
     // Let op: dit is een minimale PDF die in veel viewers opent (voldoende voor tests)
-    private static async Task MakeMinimalPdf(Stream stream, string title)
+    private static async Task MakeMinimalPdf(Stream stream, string title, long size)
     {
         using var owner = MemoryPool<byte>.Shared.Rent();
 
-        // Super-minimale PDF (1 pagina). Niet fancy, maar valide genoeg voor veel testdoeleinden.
-        // Als je 100% robuustheid wilt: gebruik een PDF library (QuestPDF/PdfSharp), maar dit werkt vaak prima.
         var text = $"{title} - testpdf";
-        // Escape parentheses
         text = text.Replace("(", "\\(").Replace(")", "\\)");
-
-        // Voor “echte” xref offsets zouden we moeten rekenen; veel parsers eisen dat.
-        // Daarom: als jouw tooling streng is, pak Niveau B met een echte PDF lib.
-        // (Ik geef hieronder ook een betere optie met QuestPDF.)
 
         Utf8.TryWrite(owner.Memory.Span, $"""
         %PDF-1.4
@@ -76,7 +93,7 @@ public static class TestFileGenerator
         5 0 obj<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>endobj
         xref
         0 6
-        0000000000 65535 f 
+        0000000000 65535 f
         trailer<< /Root 1 0 R /Size 6 >>
         startxref
         0
@@ -84,6 +101,28 @@ public static class TestFileGenerator
         """, out var bytesWritten);
 
         await stream.WriteAsync(owner.Memory.Slice(0, bytesWritten));
+
+        var remaining = size - bytesWritten;
+        if (remaining > 0)
+        {
+            await WritePaddingAsync(stream, remaining);
+        }
+    }
+
+    /// <summary>
+    /// Writes <paramref name="count"/> zero bytes to <paramref name="stream"/> in chunks,
+    /// so that the total bytes written matches the declared Documentgrootte.
+    /// </summary>
+    private static async Task WritePaddingAsync(Stream stream, long count)
+    {
+        const int ChunkSize = 81920;
+        var chunk = new byte[Math.Min(ChunkSize, count)];
+        while (count > 0)
+        {
+            var toWrite = (int)Math.Min(chunk.Length, count);
+            await stream.WriteAsync(chunk.AsMemory(0, toWrite));
+            count -= toWrite;
+        }
     }
 
     // Minimal DOCX: een zip met de minimale Office Open XML onderdelen

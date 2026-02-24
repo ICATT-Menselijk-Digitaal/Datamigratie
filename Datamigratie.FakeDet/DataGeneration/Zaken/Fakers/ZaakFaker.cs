@@ -89,7 +89,10 @@ public sealed class ZaakFaker
             Startdatum = DateOnly.FromDateTime(creatieDatum),
             Streefdatum = streefdatum,
             Fataledatum = streefdatum.AddDays(14),
-            Einddatum = isAfgerond ? streefdatum.AddDays(_faker.Random.Int(-10, 5)) : null,
+            Einddatum = isAfgerond ? DateOnly.FromDayNumber(Math.Min(
+    streefdatum.AddDays(_faker.Random.Int(-10, 5)).DayNumber,
+    DateOnly.FromDateTime(DateTime.Now).DayNumber))
+: null,
             ZaakStatus = new Zaakstatus
             {
                 Naam = huidigeStatus?.Omschrijving ?? "Intake afgerond",
@@ -579,7 +582,7 @@ public sealed class ZaakFaker
                         Actief = true
                     },
                     Titel = $"{docNaam} - {_faker.Lorem.Words(2).Aggregate((a, b) => $"{a} {b}")}{TestSuffix}",
-                    Kenmerk = _faker.Random.Bool(0.3f) ? $"KNM-{_faker.Random.AlphaNumeric(8).ToUpperInvariant()}{TestSuffix}" : null,
+                    Kenmerk = $"KNM-{_faker.Random.AlphaNumeric(8).ToUpperInvariant()}-{TestSuffix}",
                     CreatieDatumTijd = creatieDatumTijd,
                     WijzigDatumTijd = _faker.Random.Bool(0.4f) ? creatieDatumTijd.AddDays(_faker.Random.Int(1, 5)) : null,
                     Publicatieniveau = publicatieniveau,

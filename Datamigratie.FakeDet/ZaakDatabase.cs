@@ -1,14 +1,15 @@
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 using Datamigratie.Common.Services.Det.Models;
 
 namespace Datamigratie.FakeDet;
+
 public class ZaakDatabase(IConfiguration configuration)
 {
     public const int PageSize = 100;
 
-    private readonly string _outputPath = configuration["ZAKEN_PATH"] is  {} p && !string.IsNullOrWhiteSpace(p) ? p : Path.GetFullPath("output");
+    private readonly string _outputPath = configuration["ZAKEN_PATH"] is { } p && !string.IsNullOrWhiteSpace(p) ? p : Path.GetFullPath("output");
 
     public async Task<int> GetZakenCountByZaaktype(string zaaktype)
     {
@@ -42,7 +43,6 @@ public class ZaakDatabase(IConfiguration configuration)
         var path = Path.Combine(_outputPath, encoded + ".zip");
         return path;
     }
-
     public async Task<DetZaak?> GetZaak(string functioneleIdentificatie)
     {
         var encoded = Uri.EscapeDataString(functioneleIdentificatie);
@@ -54,13 +54,13 @@ public class ZaakDatabase(IConfiguration configuration)
             var type = span[lastIndexOf..^4];
             return encoded.StartsWith(type);
         });
-        if(string.IsNullOrWhiteSpace(match)) return null;
+        if (string.IsNullOrWhiteSpace(match)) return null;
 
         await using var stream = File.OpenRead(match);
         await using var zip = await ZipArchive.CreateAsync(stream, ZipArchiveMode.Read, false, Encoding.UTF8);
-        var entry = zip.GetEntry($"{encoded}.json");
-        if(entry is null) return null;
-        
+        var entry = zip.GetEntry($"{functioneleIdentificatie}.json");
+        if (entry is null) return null;
+
         await using var openedEntry = await entry.OpenAsync();
         return await JsonSerializer.DeserializeAsync<DetZaak>(openedEntry, JsonSerializerOptions.Web);
     }
@@ -71,8 +71,8 @@ public class ZaakDatabase(IConfiguration configuration)
         await using var stream = File.OpenRead(path);
         await using var zip = await ZipArchive.CreateAsync(stream, ZipArchiveMode.Read, false, Encoding.UTF8);
         var entry = zip.Entries[0];
-        await using var openedEntry =  await entry.OpenAsync();
-        var result = await  JsonSerializer.DeserializeAsync<Dictionary<long, string>>(openedEntry, JsonSerializerOptions.Web);
+        await using var openedEntry = await entry.OpenAsync();
+        var result = await JsonSerializer.DeserializeAsync<Dictionary<long, string>>(openedEntry, JsonSerializerOptions.Web);
         return result ?? new();
     }
 
