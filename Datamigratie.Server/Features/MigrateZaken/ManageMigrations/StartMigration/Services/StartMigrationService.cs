@@ -30,11 +30,11 @@ public class StartMigrationService(
     MigrationWorkerState workerState,
     IOptions<OpenZaakApiOptions> openZaakOptions) : IStartMigrationService
 {
-    private static readonly Meter s_meter = new("Datamigratie.Server");
+    private static readonly Meter Meter = new("Datamigratie.Server");
 
     // Duration of a full migration run (all zaken for one zaaktype)
-    private static readonly Histogram<double> s_migrationDurationHistogram =
-        s_meter.CreateHistogram<double>("migration.duration", "ms", "Duration of a full migration run");
+    private static readonly Histogram<double> MigrationDurationHistogram =
+        Meter.CreateHistogram<double>("migration.duration", "ms", "Duration of a full migration run");
 
     private const int MaxErrorMessageLength = 1000;
     private readonly OpenZaakApiOptions _openZaakApiOptions = openZaakOptions.Value;
@@ -68,7 +68,7 @@ public class StartMigrationService(
         var migrationSw = Stopwatch.StartNew();
         await ExecuteMigration(migration, closedZaken, zaakTypeMapping.Id, zaakTypeMapping.OzZaaktypeId, migrationQueueItem.RsinMapping!, migrationQueueItem.StatusMappings, migrationQueueItem.ResultaatMappings, migrationQueueItem.DocumentstatusMappings, migrationQueueItem.DocumentPropertyMappings, migrationQueueItem.VertrouwelijkheidMappings, migrationQueueItem.BesluittypeMappings, stoppingToken);
         migrationSw.Stop();
-        s_migrationDurationHistogram.Record(migrationSw.Elapsed.TotalMilliseconds);
+        MigrationDurationHistogram.Record(migrationSw.Elapsed.TotalMilliseconds);
         await CompleteMigrationAsync(migration);
     }
     private async Task ExecuteMigration(Data.Entities.Migration migration, List<DetZaakMinimal> zaken, Guid zaaktypenMappingId, Guid openZaaktypeId, RsinMapping rsinMapping, Dictionary<string, Guid> statusMappings, Dictionary<string, Guid> resultaatMappings, Dictionary<string, string> documentstatusMappings, Dictionary<string, Dictionary<string, string>> documentPropertyMappings, Dictionary<bool, VertrouwelijkheidsAanduiding> vertrouwelijkheidMappings, Dictionary<string, Guid> besluittypeMappings, CancellationToken ct)
