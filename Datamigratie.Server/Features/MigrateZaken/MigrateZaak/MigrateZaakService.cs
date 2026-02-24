@@ -23,26 +23,26 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
         IOptions<OpenZaakApiOptions> options,
         IZaakgegevensPdfGenerator pdfGenerator) : IMigrateZaakService
     {
-        private static readonly ActivitySource s_activitySource = new("Datamigratie.Server");
-        private static readonly Meter s_meter = new("Datamigratie.Server");
+        private static readonly ActivitySource ActivitySource = new("Datamigratie.Server");
+        private static readonly Meter Meter = new("Datamigratie.Server");
 
         // End-to-end duration of a single zaak migration, tagged result=succeeded|failed
-        private static readonly Histogram<double> s_zaakDurationHistogram =
-            s_meter.CreateHistogram<double>("migration.zaak.duration", "ms", "End-to-end duration of migrating a single zaak");
+        private static readonly Histogram<double> ZaakDurationHistogram =
+            Meter.CreateHistogram<double>("migration.zaak.duration", "ms", "End-to-end duration of migrating a single zaak");
 
         // Number of documents and total versions per zaak — context for duration outliers
-        private static readonly Histogram<int> s_zaakDocumentCountHistogram =
-            s_meter.CreateHistogram<int>("migration.zaak.document.count", "{document}", "Number of documents per zaak");
+        private static readonly Histogram<int> ZaakDocumentCountHistogram =
+            Meter.CreateHistogram<int>("migration.zaak.document.count", "{document}", "Number of documents per zaak");
 
-        private static readonly Histogram<int> s_zaakDocumentVersionCountHistogram =
-            s_meter.CreateHistogram<int>("migration.zaak.document.version.count", "{version}", "Total document versions per zaak");
+        private static readonly Histogram<int> ZaakDocumentVersionCountHistogram =
+            Meter.CreateHistogram<int>("migration.zaak.document.version.count", "{version}", "Total document versions per zaak");
 
         private readonly OpenZaakApiOptions _openZaakApiOptions = options.Value;
         private readonly IOpenZaakApiClient _openZaakApiClient = openZaakApiClient;
 
         public async Task<MigrateZaakResult> MigrateZaak(DetZaak detZaak, MigrateZaakMappingModel mapping, CancellationToken token = default)
         {
-            using var activity = s_activitySource.StartActivity("MigrateZaak", ActivityKind.Internal);
+            using var activity = ActivitySource.StartActivity("MigrateZaak", ActivityKind.Internal);
             activity?.SetTag("zaak.identificatie", detZaak.FunctioneleIdentificatie);
             var sw = Stopwatch.StartNew();
 
@@ -51,7 +51,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 var createZaakRequest = CreateOzZaakCreationRequest(detZaak, mapping.OpenZaaktypeId, mapping.Rsin, mapping.VertrouwelijkheidMappings);
 
                 OzZaak createdZaak;
-                using (s_activitySource.StartActivity("CreateZaak"))
+                using (ActivitySource.StartActivity("CreateZaak"))
                 {
                     createdZaak = await _openZaakApiClient.CreateZaak(createZaakRequest);
                 }
@@ -82,9 +82,9 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 var versionCount = detZaak.Documenten?.Sum(d => d.DocumentVersies.Count) ?? 0;
                 var besluitCount = detZaak.Besluiten?.Count ?? 0;
 
-                s_zaakDurationHistogram.Record(sw.Elapsed.TotalMilliseconds, new TagList { { "result", "succeeded" } });
-                s_zaakDocumentCountHistogram.Record(documentCount);
-                s_zaakDocumentVersionCountHistogram.Record(versionCount);
+                ZaakDurationHistogram.Record(sw.Elapsed.TotalMilliseconds, new TagList { { "result", "succeeded" } });
+                ZaakDocumentCountHistogram.Record(documentCount);
+                ZaakDocumentVersionCountHistogram.Record(versionCount);
 
                 activity?.SetTag("zaak.result", "succeeded");
                 activity?.SetTag("zaak.duration_ms", sw.Elapsed.TotalMilliseconds);
@@ -97,7 +97,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             catch (HttpRequestException httpEx)
             {
                 sw.Stop();
-                s_zaakDurationHistogram.Record(sw.Elapsed.TotalMilliseconds, new TagList { { "result", "failed" } });
+                ZaakDurationHistogram.Record(sw.Elapsed.TotalMilliseconds, new TagList { { "result", "failed" } });
                 activity?.SetTag("zaak.result", "failed");
                 activity?.SetTag("zaak.duration_ms", sw.Elapsed.TotalMilliseconds);
                 activity?.SetStatus(ActivityStatusCode.Error, httpEx.Message);
@@ -111,7 +111,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             catch (Exception ex)
             {
                 sw.Stop();
-                s_zaakDurationHistogram.Record(sw.Elapsed.TotalMilliseconds, new TagList { { "result", "failed" } });
+                ZaakDurationHistogram.Record(sw.Elapsed.TotalMilliseconds, new TagList { { "result", "failed" } });
                 activity?.SetTag("zaak.result", "failed");
                 activity?.SetTag("zaak.duration_ms", sw.Elapsed.TotalMilliseconds);
                 activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
@@ -267,10 +267,10 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
 
         private async Task UploadZaakgegevensPdfAsync(DetZaak detZaak, OzZaak createdZaak, Uri informatieObjectType, string rsin, CancellationToken token)
         {
-            using var activity = s_activitySource.StartActivity("UploadZaakgegevensPdf");
+            using var activity = ActivitySource.StartActivity("UploadZaakgegevensPdf");
 
             byte[] pdfBytes;
-            using (s_activitySource.StartActivity("GenerateZaakgegevensPdf"))
+            using (ActivitySource.StartActivity("GenerateZaakgegevensPdf"))
             {
                 pdfBytes = pdfGenerator.GenerateZaakgegevensPdf(detZaak);
             }
@@ -309,7 +309,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
 
         private async Task MigrateResultaatAsync(DetZaak detZaak, OzZaak createdZaak, MigrateZaakMappingModel mapping, CancellationToken token)
         {
-            using var activity = s_activitySource.StartActivity("MigrateResultaat");
+            using var activity = ActivitySource.StartActivity("MigrateResultaat");
 
             if (mapping.ResultaattypeUri == null)
             {
@@ -329,7 +329,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
 
         private async Task MigrateStatusAsync(DetZaak detZaak, OzZaak createdZaak, MigrateZaakMappingModel mapping, CancellationToken token)
         {
-            using var activity = s_activitySource.StartActivity("MigrateStatus");
+            using var activity = ActivitySource.StartActivity("MigrateStatus");
 
             if (mapping.StatustypeUri == null)
             {
@@ -359,7 +359,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
         /// </summary>
         private async Task MigrateBesluitenAsync(DetZaak detZaak, OzZaak createdZaak, string rsin, Dictionary<string, Guid> besluittypeMappings, CancellationToken token)
         {
-            using var activity = s_activitySource.StartActivity("MigrateBesluiten");
+            using var activity = ActivitySource.StartActivity("MigrateBesluiten");
 
             if (detZaak.Besluiten == null || detZaak.Besluiten.Count == 0)
             {
@@ -435,7 +435,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
         /// </summary>
         private async Task MigrateDocumentsAsync(DetZaak detZaak, OzZaak createdZaak, Uri informatieObjectType, string rsin, Dictionary<string, string> documentstatusMappings, Dictionary<string, Dictionary<string, string>> documentPropertyMappings, CancellationToken token)
         {
-            using var activity = s_activitySource.StartActivity("MigrateDocuments");
+            using var activity = ActivitySource.StartActivity("MigrateDocuments");
             activity?.SetTag("zaak.document_count", detZaak?.Documenten?.Count ?? 0);
 
             foreach (var document in detZaak?.Documenten ?? [])
