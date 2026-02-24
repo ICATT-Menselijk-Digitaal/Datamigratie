@@ -1,4 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.Metrics;
 using Datamigratie.Common.Config;
 using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
@@ -21,16 +23,38 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
         IOptions<OpenZaakApiOptions> options,
         IZaakgegevensPdfGenerator pdfGenerator) : IMigrateZaakService
     {
+        private static readonly ActivitySource s_activitySource = new("Datamigratie.Server");
+        private static readonly Meter s_meter = new("Datamigratie.Server");
+
+        // End-to-end duration of a single zaak migration, tagged result=succeeded|failed
+        private static readonly Histogram<double> s_zaakDurationHistogram =
+            s_meter.CreateHistogram<double>("migration.zaak.duration", "ms", "End-to-end duration of migrating a single zaak");
+
+        // Number of documents and total versions per zaak — context for duration outliers
+        private static readonly Histogram<int> s_zaakDocumentCountHistogram =
+            s_meter.CreateHistogram<int>("migration.zaak.document.count", "{document}", "Number of documents per zaak");
+
+        private static readonly Histogram<int> s_zaakDocumentVersionCountHistogram =
+            s_meter.CreateHistogram<int>("migration.zaak.document.version.count", "{version}", "Total document versions per zaak");
+
         private readonly OpenZaakApiOptions _openZaakApiOptions = options.Value;
         private readonly IOpenZaakApiClient _openZaakApiClient = openZaakApiClient;
 
         public async Task<MigrateZaakResult> MigrateZaak(DetZaak detZaak, MigrateZaakMappingModel mapping, CancellationToken token = default)
         {
+            using var activity = s_activitySource.StartActivity("MigrateZaak", ActivityKind.Internal);
+            activity?.SetTag("zaak.identificatie", detZaak.FunctioneleIdentificatie);
+            var sw = Stopwatch.StartNew();
+
             try
             {
                 var createZaakRequest = CreateOzZaakCreationRequest(detZaak, mapping.OpenZaaktypeId, mapping.Rsin, mapping.VertrouwelijkheidMappings);
 
-                var createdZaak = await _openZaakApiClient.CreateZaak(createZaakRequest);
+                OzZaak createdZaak;
+                using (s_activitySource.StartActivity("CreateZaak"))
+                {
+                    createdZaak = await _openZaakApiClient.CreateZaak(createZaakRequest);
+                }
 
                 var informatieObjectTypen = await _openZaakApiClient.GetInformatieobjecttypenUrlsForZaaktype(createdZaak.Zaaktype);
                 var firstInformatieObjectType = informatieObjectTypen.First();
@@ -48,13 +72,36 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                     // Migrate all documents with their versions
                     await MigrateDocumentsAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, mapping.DocumentstatusMappings, mapping.DocumentPropertyMappings, token);
                 }
+
                 // Migrate all besluiten for the zaak
                 await MigrateBesluitenAsync(detZaak, createdZaak, mapping.Rsin, mapping.BesluittypeMappings, token);
+
+                sw.Stop();
+
+                var documentCount = detZaak.Documenten?.Count ?? 0;
+                var versionCount = detZaak.Documenten?.Sum(d => d.DocumentVersies.Count) ?? 0;
+                var besluitCount = detZaak.Besluiten?.Count ?? 0;
+
+                s_zaakDurationHistogram.Record(sw.Elapsed.TotalMilliseconds, new TagList { { "result", "succeeded" } });
+                s_zaakDocumentCountHistogram.Record(documentCount);
+                s_zaakDocumentVersionCountHistogram.Record(versionCount);
+
+                activity?.SetTag("zaak.result", "succeeded");
+                activity?.SetTag("zaak.duration_ms", sw.Elapsed.TotalMilliseconds);
+                activity?.SetTag("zaak.document.count", documentCount);
+                activity?.SetTag("zaak.document.version.count", versionCount);
+                activity?.SetTag("zaak.besluit.count", besluitCount);
 
                 return MigrateZaakResult.Success(createdZaak.Identificatie, "De zaak is aangemaakt in het doelsysteem");
             }
             catch (HttpRequestException httpEx)
             {
+                sw.Stop();
+                s_zaakDurationHistogram.Record(sw.Elapsed.TotalMilliseconds, new TagList { { "result", "failed" } });
+                activity?.SetTag("zaak.result", "failed");
+                activity?.SetTag("zaak.duration_ms", sw.Elapsed.TotalMilliseconds);
+                activity?.SetStatus(ActivityStatusCode.Error, httpEx.Message);
+
                 return MigrateZaakResult.Failed(
                     detZaak.FunctioneleIdentificatie,
                     "De zaak kon niet worden aangemaakt in het doelsysteem.",
@@ -63,6 +110,12 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             }
             catch (Exception ex)
             {
+                sw.Stop();
+                s_zaakDurationHistogram.Record(sw.Elapsed.TotalMilliseconds, new TagList { { "result", "failed" } });
+                activity?.SetTag("zaak.result", "failed");
+                activity?.SetTag("zaak.duration_ms", sw.Elapsed.TotalMilliseconds);
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+
                 var statusCode = ex.InnerException is HttpRequestException innerHttpEx
                     ? (int?)innerHttpEx.StatusCode ?? StatusCodes.Status500InternalServerError
                     : StatusCodes.Status500InternalServerError;
@@ -111,7 +164,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 Bestandsnaam = versie.Bestandsnaam,
                 Bronorganisatie = rsin,
                 Formaat = versie.Mimetype,
-                Identificatie = item.Kenmerk,
+                Identificatie = item.Kenmerk ?? "",
                 Informatieobjecttype = informatieobjecttype,
                 Taal = taal,
                 Titel = titel,
@@ -214,7 +267,13 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
 
         private async Task UploadZaakgegevensPdfAsync(DetZaak detZaak, OzZaak createdZaak, Uri informatieObjectType, string rsin, CancellationToken token)
         {
-            var pdfBytes = pdfGenerator.GenerateZaakgegevensPdf(detZaak);
+            using var activity = s_activitySource.StartActivity("UploadZaakgegevensPdf");
+
+            byte[] pdfBytes;
+            using (s_activitySource.StartActivity("GenerateZaakgegevensPdf"))
+            {
+                pdfBytes = pdfGenerator.GenerateZaakgegevensPdf(detZaak);
+            }
             var fileName = $"zaakgegevens_{detZaak.FunctioneleIdentificatie}.pdf";
 
             var ozDocument = new OzDocument
@@ -222,7 +281,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 Bestandsnaam = fileName,
                 Bronorganisatie = rsin,
                 Formaat = "application/pdf",
-                Identificatie = $"zaakgegevens-{detZaak.FunctioneleIdentificatie}",
+                Identificatie = $"{detZaak.FunctioneleIdentificatie}",
                 Informatieobjecttype = informatieObjectType,
                 Taal = "dut",
                 Titel = $"e-Suite zaakgegevens {detZaak.FunctioneleIdentificatie}",
@@ -250,6 +309,8 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
 
         private async Task MigrateResultaatAsync(DetZaak detZaak, OzZaak createdZaak, MigrateZaakMappingModel mapping, CancellationToken token)
         {
+            using var activity = s_activitySource.StartActivity("MigrateResultaat");
+
             if (mapping.ResultaattypeUri == null)
             {
                 return;
@@ -268,6 +329,8 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
 
         private async Task MigrateStatusAsync(DetZaak detZaak, OzZaak createdZaak, MigrateZaakMappingModel mapping, CancellationToken token)
         {
+            using var activity = s_activitySource.StartActivity("MigrateStatus");
+
             if (mapping.StatustypeUri == null)
             {
                 return;
@@ -296,6 +359,8 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
         /// </summary>
         private async Task MigrateBesluitenAsync(DetZaak detZaak, OzZaak createdZaak, string rsin, Dictionary<string, Guid> besluittypeMappings, CancellationToken token)
         {
+            using var activity = s_activitySource.StartActivity("MigrateBesluiten");
+
             if (detZaak.Besluiten == null || detZaak.Besluiten.Count == 0)
             {
                 return;
@@ -370,19 +435,19 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
         /// </summary>
         private async Task MigrateDocumentsAsync(DetZaak detZaak, OzZaak createdZaak, Uri informatieObjectType, string rsin, Dictionary<string, string> documentstatusMappings, Dictionary<string, Dictionary<string, string>> documentPropertyMappings, CancellationToken token)
         {
+            using var activity = s_activitySource.StartActivity("MigrateDocuments");
+            activity?.SetTag("zaak.document_count", detZaak?.Documenten?.Count ?? 0);
+
             foreach (var document in detZaak?.Documenten ?? [])
             {
                 var sortedVersions = document.DocumentVersies.OrderBy(v => v.Versienummer).ToList();
 
-
                 OzDocument? mainDocument = null;
-
 
                 for (var i = 0; i < sortedVersions.Count; i++)
                 {
                     var detVersie = sortedVersions[i];
                     var isFirstVersion = i == 0;
-
 
                     try
                     {
@@ -406,7 +471,6 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                                 },
                                 token);
 
-
                             mainDocument = capturedDocument;
                         }
                         else
@@ -426,7 +490,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                             // update document to create new version
                             var updatedDocument = await _openZaakApiClient.UpdateDocument(mainDocument.Id, ozDocument);
 
-                            // after an update the document contains outdated bestandsdelen information. 
+                            // after an update the document contains outdated bestandsdelen information.
                             // we need to GET a document again in order to get the latest bestandsdelen
                             var refreshedDocument = await _openZaakApiClient.GetDocument(mainDocument.Id);
 
@@ -445,6 +509,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
 
                             await _openZaakApiClient.UnlockDocument(mainDocument.Id, lockToken, token);
                         }
+
                     }
                     catch (Exception ex)
                     {
