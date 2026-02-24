@@ -33,14 +33,14 @@ var group = app.MapGroup("/").AddEndpointFilter(async (context, next) =>
     return await next(context);
 });
 
-app.MapGet("zaaktypen", FakeDetEndpoints.GetAllZaaktypen);
-app.MapGet("zaaktypen/{zaaktypeName}", FakeDetEndpoints.GetZaaktype);
-app.MapGet("zaken", FakeDetEndpoints.GetZakenByZaaktype);
-app.MapGet("zaken/{zaaknummer}", FakeDetEndpoints.GetZaak);
-app.MapGet("documenten/inhoud/{id}", FakeDetEndpoints.DownloadBestand);
-app.MapGet("documentstatussen", FakeDetEndpoints.GetAllDocumentStatussen);
-app.MapDelete("zaken", (ZakenGenerator generator) => generator.Delete());
-app.MapPost("zaken", async (ZakenGenerator generator, [FromBody] int? count) => await generator.Generate(count));
+group.MapGet("zaaktypen", FakeDetEndpoints.GetAllZaaktypen);
+group.MapGet("zaaktypen/{zaaktypeName}", FakeDetEndpoints.GetZaaktype);
+group.MapGet("zaken", FakeDetEndpoints.GetZakenByZaaktype);
+group.MapGet("zaken/{zaaknummer}", FakeDetEndpoints.GetZaak);
+group.MapGet("documenten/inhoud/{id}", FakeDetEndpoints.DownloadBestand);
+group.MapGet("documentstatussen", FakeDetEndpoints.GetAllDocumentStatussen);
+group.MapDelete("zaken", (ZakenGenerator generator) => generator.Delete());
+group.MapPost("zaken", async (ZakenGenerator generator, [FromBody] int? count) => await generator.Generate(count));
 
 await app.Services.GetRequiredService<ZakenGenerator>().Generate();
 
