@@ -120,7 +120,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 Bestandsnaam = versie.Bestandsnaam,
                 Bronorganisatie = rsin,
                 Formaat = versie.Mimetype,
-                Identificatie = item.Kenmerk,
+                Identificatie = item.Kenmerk ?? "",
                 Informatieobjecttype = informatieobjecttype,
                 Taal = taal,
                 Titel = titel,
