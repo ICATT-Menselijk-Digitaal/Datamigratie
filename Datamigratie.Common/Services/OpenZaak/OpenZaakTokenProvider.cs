@@ -24,8 +24,8 @@ namespace Datamigratie.Common.Services.OpenZaak
                 IssuedAt = timeNow,
                 // nbf and expires required or else it is automatically added by the library with a default value
                 // this keeps time consistent and adds our leeway
-                NotBefore = timeNow, 
-                Expires = timeNow.AddHours(1), 
+                NotBefore = timeNow,
+                Expires = timeNow.AddDays(1),
                 Issuer = clientId,
                 Claims = claims,
                 Subject = new ClaimsIdentity(),
