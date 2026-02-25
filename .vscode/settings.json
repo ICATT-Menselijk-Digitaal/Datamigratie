@@ -1,4 +1,6 @@
 {
+  "dotnet.enableWorkspaceBasedDevelopment": true,
+  "dotnet.automaticallyCreateSolutionInWorkspace": false,
   "stylelint.validate": ["css", "postcss", "scss", "vue"],
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit"
