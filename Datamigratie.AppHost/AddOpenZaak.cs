@@ -36,7 +36,9 @@ public static class AddOpenZaakExtensions
             .WithEnvironment("OPENZAAK_SUPERUSER_EMAIL", "admin@localhost")
             .WithEnvironment("DISABLE_2FA", "true")
             .WithEnvironment("ENVIRONMENT", "dev")
-            .WithEnvironment("NOTIFICATIONS_DISABLED", "True");
+            .WithEnvironment("NOTIFICATIONS_DISABLED", "True")
+            .WithVolume("openzaak-private-media", "/app/private-media")
+            .WithVolume("openzaak-media", "/app/media");
     }
 
     public static IResourceBuilder<OpenZaakResource> WithReference(this IResourceBuilder<OpenZaakResource> builder, IResourceBuilder<PostgresDatabaseResource> database)
