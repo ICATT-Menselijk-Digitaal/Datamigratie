@@ -76,6 +76,7 @@ public static class AddOpenZaakExtensions
             .WithHttpEndpoint(port: port, targetPort: 80)
             .WithEnvironment("OPEN_ZAAK_REFERENCE", openzaak.GetEndpoint("http"))
             .WithBindMount("nginx/templates/default.conf.template", "/etc/nginx/templates/default.conf.template")
+            .WithVolume("openzaak-private-media", "/private-media")
             .WaitFor(openzaak)
             .WithParentRelationship(openzaak);
 
