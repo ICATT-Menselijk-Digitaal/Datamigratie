@@ -72,6 +72,36 @@ The trace below is representative of a zaak with one 10 MB document.
 
 ---
 
+# OpenTelemetry Metrics Added
+
+Custom metrics and traces were added to the `Datamigratie.Server` meter/activity source to enable performance monitoring via the Aspire dashboard (and future Azure Monitor integration).
+
+## Metrics
+
+| Metric name | Type | Unit | Tags | Description |
+| --- | --- | --- | --- | --- |
+| `migration.duration` | Histogram | ms | — | Duration of a full migration run (all zaken for one zaaktype) |
+| `migration.zaak.duration` | Histogram | ms | `result` = `succeeded` \| `failed` | End-to-end duration of migrating a single zaak |
+| `migration.zaak.document.count` | Histogram | {document} | — | Number of documents per zaak |
+| `migration.zaak.document.version.count` | Histogram | {version} | Total number of document versions per zaak |
+
+## Traces (activity spans)
+
+| Span name | Scope | Tags set |
+| --- | --- | --- |
+| `MigrateZaak` | Per zaak | `zaak.identificatie`, `zaak.result`, `zaak.duration_ms`, `zaak.document.count`, `zaak.document.version.count`, `zaak.besluit.count` |
+| `CreateZaak` | Per zaak | — |
+| `MigrateResultaat` | Per zaak | — |
+| `MigrateStatus` | Per zaak | — |
+| `UploadZaakgegevensPdf` | Per zaak | — |
+| `GenerateZaakgegevensPdf` | Per zaak | — |
+| `MigrateDocuments` | Per zaak | `zaak.document_count` |
+| `MigrateBesluiten` | Per zaak | — |
+
+The meter and activity source are both named `"Datamigratie.Server"`. The meter is registered in `ServiceDefaults` via `AddMeter("Datamigratie.Server")` alongside the existing ASP.NET Core, HTTP client, and runtime instrumentation.
+
+---
+
 # Errors Encountered During Performance Testing
 
 ## Validatiefout: `identificatie-niet-uniek`
