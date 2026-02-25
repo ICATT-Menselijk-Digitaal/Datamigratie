@@ -83,8 +83,8 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 var besluitCount = detZaak.Besluiten?.Count ?? 0;
 
                 ZaakDurationHistogram.Record(sw.Elapsed.TotalMilliseconds, new TagList { { "result", "succeeded" } });
-                ZaakDocumentCountHistogram.Record(documentCount);
-                ZaakDocumentVersionCountHistogram.Record(versionCount);
+                ZaakDocumentCountHistogram.Record(documentCount, new TagList { { "has_documents", documentCount > 0 } });
+                ZaakDocumentVersionCountHistogram.Record(versionCount, new TagList { { "has_documents", documentCount > 0 } });
 
                 activity?.SetTag("zaak.result", "succeeded");
                 activity?.SetTag("zaak.duration_ms", sw.Elapsed.TotalMilliseconds);
@@ -281,7 +281,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 Bestandsnaam = fileName,
                 Bronorganisatie = rsin,
                 Formaat = "application/pdf",
-                Identificatie = $"zaakgegevens-{detZaak.FunctioneleIdentificatie}",
+                Identificatie = $"{detZaak.FunctioneleIdentificatie}",
                 Informatieobjecttype = informatieObjectType,
                 Taal = "dut",
                 Titel = $"e-Suite zaakgegevens {detZaak.FunctioneleIdentificatie}",
