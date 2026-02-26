@@ -45,24 +45,18 @@ public class ZaakDatabase(IConfiguration configuration)
     }
     public async Task<DetZaak?> GetZaak(string functioneleIdentificatie)
     {
-        var encoded = Uri.EscapeDataString(functioneleIdentificatie);
-        var files = GetAllZipFiles();
-        var match = files.FirstOrDefault(x =>
+        var entryName = $"{functioneleIdentificatie}.json";
+        foreach (var file in GetAllZipFiles())
         {
-            var span = x.AsSpan();
-            var lastIndexOf = span.LastIndexOf(Path.DirectorySeparatorChar) + 1;
-            var type = span[lastIndexOf..^4];
-            return encoded.StartsWith(type);
-        });
-        if (string.IsNullOrWhiteSpace(match)) return null;
+            await using var stream = File.OpenRead(file);
+            await using var zip = await ZipArchive.CreateAsync(stream, ZipArchiveMode.Read, false, Encoding.UTF8);
+            var entry = zip.GetEntry(entryName);
+            if (entry is null) continue;
 
-        await using var stream = File.OpenRead(match);
-        await using var zip = await ZipArchive.CreateAsync(stream, ZipArchiveMode.Read, false, Encoding.UTF8);
-        var entry = zip.GetEntry($"{functioneleIdentificatie}.json");
-        if (entry is null) return null;
-
-        await using var openedEntry = await entry.OpenAsync();
-        return await JsonSerializer.DeserializeAsync<DetZaak>(openedEntry, JsonSerializerOptions.Web);
+            await using var openedEntry = await entry.OpenAsync();
+            return await JsonSerializer.DeserializeAsync<DetZaak>(openedEntry, JsonSerializerOptions.Web);
+        }
+        return null;
     }
 
     public async Task<IReadOnlyDictionary<long, string>> GetDocumentDictionary()

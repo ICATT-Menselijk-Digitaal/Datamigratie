@@ -34,7 +34,7 @@ public sealed class ZaakFaker
     public Zaak GenerateZaak(Zaaktype zaaktype)
     {
         _zaakCounter++;
-        var zaakFunctioneleIdentificatie = $"{zaaktype.Identificatie ?? zaaktype.Omschrijving}-{_zaakCounter:D6}{TestSuffix}";
+        var zaakFunctioneleIdentificatie = $"Z-{_zaakCounter:D6}{TestSuffix}";
         var creatieDatum = _faker.Date.Between(DateTime.Now.AddYears(-2), DateTime.Now);
         var doorlooptijdDagen = ParseIsoDurationToDays(zaaktype.Doorlooptijd) ?? 30;
         var streefdatum = DateOnly.FromDateTime(creatieDatum.AddDays(doorlooptijdDagen));
