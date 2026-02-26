@@ -4,6 +4,7 @@ using System.Runtime.Serialization;
 using System.Text.Json.Nodes;
 using Datamigratie.Common.Helpers;
 using Datamigratie.Common.Services.OpenZaak.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Datamigratie.Common.Services.OpenZaak
 {
@@ -27,7 +28,17 @@ namespace Datamigratie.Common.Services.OpenZaak
 
         Task<OzBesluit> CreateBesluit(CreateOzBesluitRequest request);
 
+        Task DeleteZaak(Guid zaakId);
+
+        Task DeleteBesluit(Guid besluitId);
+
+        Task DeleteDocument(Guid documentId);
+
         Task<OzZaak?> GetZaakByIdentificatie(string zaakNummer);
+
+        Task<List<OzBesluit>> GetBesluitenForZaak(Uri zaakUrl);
+
+        Task<List<OzZaakInformatieobject>> GetZaakInformatieobjectenForZaak(Uri zaakUrl);
 
         Task<List<Uri>> GetInformatieobjecttypenUrlsForZaaktype(Uri zaaktypeUri);
 
@@ -53,10 +64,12 @@ namespace Datamigratie.Common.Services.OpenZaak
         private const int DefaultStartingPage = 1;
 
         private readonly HttpClient _httpClient;
+        private readonly ILogger<OpenZaakClient> _logger;
 
-        public OpenZaakClient(HttpClient httpClient) : base(httpClient)
+        public OpenZaakClient(HttpClient httpClient, ILogger<OpenZaakClient> logger) : base(httpClient)
         {
             _httpClient = httpClient;
+            _logger = logger;
         }
 
         /// <summary>
@@ -131,6 +144,82 @@ namespace Datamigratie.Common.Services.OpenZaak
             );
 
             return zaak;
+        }
+
+        /// <summary>
+        /// Deletes a zaak from OpenZaak
+        /// </summary>
+        /// <param name="zaakId">The UUID of the zaak to delete</param>
+        /// <exception cref="HttpRequestException">Thrown when OpenZaak returns errors</exception>
+        public async Task DeleteZaak(Guid zaakId)
+        {
+            var endpoint = $"zaken/api/v1/zaken/{zaakId}";
+            _logger.LogWarning("Deleting zaak: {ZaakId}", zaakId);
+            var response = await _httpClient.DeleteAsync(endpoint);
+            _logger.LogWarning("Delete zaak response: {StatusCode}", response.StatusCode);
+            await response.HandleOpenZaakErrorsAsync();
+        }
+
+        /// <summary>
+        /// Deletes a besluit from OpenZaak
+        /// </summary>
+        /// <param name="besluitId">The UUID of the besluit to delete</param>
+        /// <exception cref="HttpRequestException">Thrown when OpenZaak returns errors</exception>
+        public async Task DeleteBesluit(Guid besluitId)
+        {
+            var endpoint = $"besluiten/api/v1/besluiten/{besluitId}";
+            _logger.LogWarning("Deleting besluit: {BesluitId}", besluitId);
+            var response = await _httpClient.DeleteAsync(endpoint);
+            _logger.LogWarning("Delete besluit response: {StatusCode}", response.StatusCode);
+            await response.HandleOpenZaakErrorsAsync();
+        }
+
+        /// <summary>
+        /// Deletes a document (EnkelvoudigInformatieobject) from OpenZaak by its UUID
+        /// </summary>
+        /// <param name="documentId">The UUID of the document to delete</param>
+        /// <exception cref="HttpRequestException">Thrown when OpenZaak returns errors</exception>
+        public async Task DeleteDocument(Guid documentId)
+        {
+            var endpoint = $"documenten/api/v1/enkelvoudiginformatieobjecten/{documentId}";
+            _logger.LogWarning("Deleting document by ID: {DocumentId}", documentId);
+            var response = await _httpClient.DeleteAsync(endpoint);
+            _logger.LogWarning("Delete document response: {StatusCode}", response.StatusCode);
+            await response.HandleOpenZaakErrorsAsync();
+        }
+
+        /// <summary>
+        /// Gets all besluiten for a specific zaak
+        /// </summary>
+        /// <param name="zaakUrl">The URL of the zaak</param>
+        /// <returns>List of besluiten for the zaak</returns>
+        public async Task<List<OzBesluit>> GetBesluitenForZaak(Uri zaakUrl)
+        {
+            _logger.LogWarning("Getting besluiten for zaak: {ZaakUrl}", zaakUrl);
+            var endpoint = $"besluiten/api/v1/besluiten?zaak={Uri.EscapeDataString(zaakUrl.ToString())}";
+            var pagedBesluiten = await GetAllPagedData<OzBesluit>(endpoint);
+            _logger.LogWarning("Found {Count} besluiten for zaak", pagedBesluiten.Results.Count);
+            return pagedBesluiten.Results;
+        }
+
+        /// <summary>
+        /// Gets all ZaakInformatieobject links for a specific zaak
+        /// </summary>
+        /// <param name="zaakUrl">The URL of the zaak</param>
+        /// <returns>List of ZaakInformatieobject links for the zaak</returns>
+        public async Task<List<OzZaakInformatieobject>> GetZaakInformatieobjectenForZaak(Uri zaakUrl)
+        {
+            _logger.LogWarning("Getting ZaakInformatieobjecten for zaak: {ZaakUrl}", zaakUrl);
+            var endpoint = $"zaken/api/v1/zaakinformatieobjecten?zaak={Uri.EscapeDataString(zaakUrl.ToString())}";
+
+            var response = await _httpClient.GetAsync(endpoint);
+            await response.HandleOpenZaakErrorsAsync();
+
+            var zaakInformatieobjecten = await response.Content.ReadFromJsonAsync<List<OzZaakInformatieobject>>()
+                ?? throw new SerializationException("Unexpected null response");
+
+            _logger.LogWarning("Found {Count} ZaakInformatieobjecten for zaak", zaakInformatieobjecten.Count);
+            return zaakInformatieobjecten;
         }
 
         /// <summary>
@@ -240,11 +329,11 @@ namespace Datamigratie.Common.Services.OpenZaak
             var url = $"documenten/api/v1/enkelvoudiginformatieobjecten/{id}/lock";
             using var response = await _httpClient.PostAsJsonAsync(url, new JsonObject(), cancellationToken: token);
             await response.HandleOpenZaakErrorsAsync(token: token);
-            
+
             var lockResponse = await response.Content.ReadFromJsonAsync<JsonObject>(cancellationToken: token)
                 ?? throw new SerializationException("Unexpected null response from lock endpoint");
-            
-            return lockResponse["lock"]?.GetValue<string>() 
+
+            return lockResponse["lock"]?.GetValue<string>()
                 ?? throw new SerializationException("Lock token not found in response");
         }
 
@@ -276,7 +365,7 @@ namespace Datamigratie.Common.Services.OpenZaak
         public async Task<List<OzInformatieobjecttype>> GetInformatieobjecttypenForZaaktype(Uri zaaktypeUri)
         {
             var informatieobjecttypenUrls = await GetInformatieobjecttypenUrlsForZaaktype(zaaktypeUri);
-            
+
             if (informatieobjecttypenUrls.Count == 0)
             {
                 return [];
@@ -286,14 +375,14 @@ namespace Datamigratie.Common.Services.OpenZaak
             foreach (var url in informatieobjecttypenUrls)
             {
                 var response = await _httpClient.GetAsync(url);
-                
+
                 if (response.StatusCode == HttpStatusCode.NotFound)
                 {
                     continue;
                 }
 
                 await response.HandleOpenZaakErrorsAsync();
-                
+
                 var informatieobjecttype = await response.Content.ReadFromJsonAsync<OzInformatieobjecttype>();
                 if (informatieobjecttype != null)
                 {
