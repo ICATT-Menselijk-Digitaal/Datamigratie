@@ -13,6 +13,8 @@ namespace Datamigratie.Common.Extensions
         {
             services.Configure<OpenZaakApiOptions>(configuration.GetSection("OpenZaakApi"));
 
+            // services.AddTransient<OpenZaakAuthHandler>();
+
             services.AddHttpClient<IDetApiClient, DetApiClient>(client =>
             {
                 var detApiBaseUrl = configuration.GetValue<string>("DetApi:BaseUrl") ?? throw new Exception("DetApi:BaseUrl configuration value is missing");
@@ -29,7 +31,10 @@ namespace Datamigratie.Common.Extensions
 
                 client.BaseAddress = new Uri(openZaakApiBaseUrl);
                 ApplyHeadersWithAuth(client.DefaultRequestHeaders, openZaakApiUser, openZaakApiKey);
+
             });
+            //.AddHttpMessageHandler<OpenZaakAuthHandler>();
+
             return services;
         }
 
