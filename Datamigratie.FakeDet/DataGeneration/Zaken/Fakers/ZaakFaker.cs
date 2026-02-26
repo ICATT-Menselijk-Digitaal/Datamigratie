@@ -582,7 +582,7 @@ public sealed class ZaakFaker
                         Actief = true
                     },
                     Titel = $"{docNaam} - {_faker.Lorem.Words(2).Aggregate((a, b) => $"{a} {b}")}{TestSuffix}",
-                    Kenmerk = $"KNM-{_faker.Random.AlphaNumeric(8).ToUpperInvariant()}-{TestSuffix}",
+                    Kenmerk = $"KNM-{_faker.Random.AlphaNumeric(8).ToUpperInvariant()}{TestSuffix}",
                     CreatieDatumTijd = creatieDatumTijd,
                     WijzigDatumTijd = _faker.Random.Bool(0.4f) ? creatieDatumTijd.AddDays(_faker.Random.Int(1, 5)) : null,
                     Publicatieniveau = publicatieniveau,
