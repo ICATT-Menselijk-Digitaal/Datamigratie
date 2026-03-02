@@ -154,7 +154,6 @@ namespace Datamigratie.Common.Services.OpenZaak
         public async Task DeleteZaak(Guid zaakId)
         {
             var endpoint = $"zaken/api/v1/zaken/{zaakId}";
-            _logger.LogWarning("Deleting zaak: {ZaakId}", zaakId);
             var response = await _httpClient.DeleteAsync(endpoint);
             _logger.LogWarning("Delete zaak response: {StatusCode}", response.StatusCode);
             await response.HandleOpenZaakErrorsAsync();
@@ -168,7 +167,6 @@ namespace Datamigratie.Common.Services.OpenZaak
         public async Task DeleteBesluit(Guid besluitId)
         {
             var endpoint = $"besluiten/api/v1/besluiten/{besluitId}";
-            _logger.LogWarning("Deleting besluit: {BesluitId}", besluitId);
             var response = await _httpClient.DeleteAsync(endpoint);
             _logger.LogWarning("Delete besluit response: {StatusCode}", response.StatusCode);
             await response.HandleOpenZaakErrorsAsync();
@@ -182,7 +180,6 @@ namespace Datamigratie.Common.Services.OpenZaak
         public async Task DeleteDocument(Guid documentId)
         {
             var endpoint = $"documenten/api/v1/enkelvoudiginformatieobjecten/{documentId}";
-            _logger.LogWarning("Deleting document by ID: {DocumentId}", documentId);
             var response = await _httpClient.DeleteAsync(endpoint);
             _logger.LogWarning("Delete document response: {StatusCode}", response.StatusCode);
             await response.HandleOpenZaakErrorsAsync();
@@ -195,10 +192,8 @@ namespace Datamigratie.Common.Services.OpenZaak
         /// <returns>List of besluiten for the zaak</returns>
         public async Task<List<OzBesluit>> GetBesluitenForZaak(Uri zaakUrl)
         {
-            _logger.LogWarning("Getting besluiten for zaak: {ZaakUrl}", zaakUrl);
             var endpoint = $"besluiten/api/v1/besluiten?zaak={Uri.EscapeDataString(zaakUrl.ToString())}";
             var pagedBesluiten = await GetAllPagedData<OzBesluit>(endpoint);
-            _logger.LogWarning("Found {Count} besluiten for zaak", pagedBesluiten.Results.Count);
             return pagedBesluiten.Results;
         }
 
@@ -209,7 +204,6 @@ namespace Datamigratie.Common.Services.OpenZaak
         /// <returns>List of ZaakInformatieobject links for the zaak</returns>
         public async Task<List<OzZaakInformatieobject>> GetZaakInformatieobjectenForZaak(Uri zaakUrl)
         {
-            _logger.LogWarning("Getting ZaakInformatieobjecten for zaak: {ZaakUrl}", zaakUrl);
             var endpoint = $"zaken/api/v1/zaakinformatieobjecten?zaak={Uri.EscapeDataString(zaakUrl.ToString())}";
 
             var response = await _httpClient.GetAsync(endpoint);
@@ -218,7 +212,6 @@ namespace Datamigratie.Common.Services.OpenZaak
             var zaakInformatieobjecten = await response.Content.ReadFromJsonAsync<List<OzZaakInformatieobject>>()
                 ?? throw new SerializationException("Unexpected null response");
 
-            _logger.LogWarning("Found {Count} ZaakInformatieobjecten for zaak", zaakInformatieobjecten.Count);
             return zaakInformatieobjecten;
         }
 
