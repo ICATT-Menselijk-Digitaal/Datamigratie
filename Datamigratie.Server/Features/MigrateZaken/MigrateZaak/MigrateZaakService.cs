@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Metrics;
 using Datamigratie.Common.Config;
+using Datamigratie.Common.Helpers;
 using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak;
@@ -48,7 +49,14 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
 
             try
             {
-                var createZaakRequest = CreateOzZaakCreationRequest(detZaak, mapping.OpenZaaktypeId, mapping.Rsin, mapping.VertrouwelijkheidMappings);
+                // Check if zaak already exists in OpenZaak and delete it to allow re-run
+                var existingZaak = await _openZaakApiClient.GetZaakByIdentificatie(detZaak.FunctioneleIdentificatie);
+                if (existingZaak != null)
+                {
+                    await DeleteExistingZaakAndRelatedObjectsAsync(existingZaak, token);
+                }
+
+                var createZaakRequest = CreateOzZaakCreationRequest(detZaak, mapping.OpenZaaktypeId, mapping.Rsin, mapping.ZaakVertrouwelijkheidMappings);
 
                 OzZaak createdZaak;
                 using (ActivitySource.StartActivity("CreateZaak"))
@@ -65,13 +73,10 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 // Create status for the zaak based on status mapping
                 await MigrateStatusAsync(detZaak, createdZaak, mapping, token);
 
-                if (firstInformatieObjectType is { })
-                {
-                    await UploadZaakgegevensPdfAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, token);
+                await UploadZaakgegevensPdfAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, token);
 
-                    // Migrate all documents with their versions
-                    await MigrateDocumentsAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, mapping.DocumentstatusMappings, mapping.DocumentPropertyMappings, token);
-                }
+                // Migrate all documents with their versions
+                await MigrateDocumentsAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, mapping.DocumentstatusMappings, mapping.DocumentPropertyMappings, token);
 
                 // Migrate all besluiten for the zaak
                 await MigrateBesluitenAsync(detZaak, createdZaak, mapping.Rsin, mapping.BesluittypeMappings, token);
@@ -130,6 +135,13 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
 
         private static OzDocument MapToOzDocument(DetDocument item, DetDocumentVersie versie, Uri informatieObjectType, string rsin, Dictionary<string, string> documentstatusMappings, Dictionary<string, Dictionary<string, string>> documentPropertyMappings)
         {
+            // If kenmerk is longer than 40, fail the migration
+            const int MaxIdentificatieLength = 40;
+            if (item.Kenmerk?.Length > MaxIdentificatieLength)
+            {
+                throw new InvalidDataException($"Document '{item.Titel}' migration failed: The 'kenmerk' field length ({item.Kenmerk.Length}) exceeds the maximum allowed length of {MaxIdentificatieLength} characters.");
+            }
+
             // Apply data transformations
             const int MaxTitelLength = 200; // 197 + "..."
             var titel = TruncateWithDots(item.Titel, MaxTitelLength);
@@ -139,15 +151,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
 
             beschrijving ??= "";
 
-            var verschijningsvorm = item?.DocumentVorm?.Naam ?? "";
-
-            const int MaxIdentificatieLength = 40;
-
-            // If kenmerk is longer than 40, fail the migration
-            if (item.Kenmerk?.Length > MaxIdentificatieLength)
-            {
-                throw new InvalidDataException($"Document '{item.Titel}' migration failed: The 'kenmerk' field length ({item.Kenmerk.Length}) exceeds the maximum allowed length of {MaxIdentificatieLength} characters.");
-            }
+            var verschijningsvorm = item.DocumentVorm?.Naam ?? "";
 
             // Map the document status from DET to OpenZaak
             var ozDocumentStatus = GetOzDocumentStatus(item, documentstatusMappings);
@@ -159,12 +163,24 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             var taal = item.Taal?.FunctioneelId.ToLower() ?? "dut";
             var auteur = versie.Auteur ?? "Auteur_onbekend";
 
+            // Map ondertekening if available
+            Ondertekening? ondertekening = null;
+            if (versie.Ondertekeningen?.Count > 0)
+            {
+                var laasteOndertekening = versie.Ondertekeningen.OrderByDescending(o => o.OndertekenDatum).First();
+                ondertekening = new Ondertekening
+                {
+                    Datum = laasteOndertekening.OndertekenDatum,
+                    Soort = "digitaal"
+                };
+            }
+
             return new OzDocument
             {
                 Bestandsnaam = versie.Bestandsnaam,
                 Bronorganisatie = rsin,
                 Formaat = versie.Mimetype,
-                Identificatie = item.Kenmerk,
+                Identificatie = item.Kenmerk ?? "",
                 Informatieobjecttype = informatieobjecttype,
                 Taal = taal,
                 Titel = titel,
@@ -176,11 +192,12 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 Status = ozDocumentStatus,
                 Verschijningsvorm = verschijningsvorm,
                 Link = "",
-                Trefwoorden = []
+                Trefwoorden = [],
+                Ondertekening = ondertekening
             };
         }
 
-        private static VertrouwelijkheidsAanduiding MapPublicatieNiveau(string? publicatieNiveau, Dictionary<string, Dictionary<string, string>> documentPropertyMappings, string documentTitel)
+        private static DocumentVertrouwelijkheidaanduiding MapPublicatieNiveau(string? publicatieNiveau, Dictionary<string, Dictionary<string, string>> documentPropertyMappings, string documentTitel)
         {
             if (string.IsNullOrWhiteSpace(publicatieNiveau))
             {
@@ -197,7 +214,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 throw new InvalidOperationException($"Document '{documentTitel}' migration failed: Publicatieniveau '{publicatieNiveau}' has not been mapped to an OpenZaak vertrouwelijkheidaanduiding.");
             }
 
-            if (!Enum.TryParse<VertrouwelijkheidsAanduiding>(mappedValue, true, out var vertrouwelijkheid))
+            if (!Enum.TryParse<DocumentVertrouwelijkheidaanduiding>(mappedValue, true, out var vertrouwelijkheid))
             {
                 throw new InvalidOperationException($"Document '{documentTitel}' migration failed: Mapped vertrouwelijkheidaanduiding '{mappedValue}' is not a valid value.");
             }
@@ -265,7 +282,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             await _openZaakApiClient.KoppelDocument(zaak, savedDocument, token);
         }
 
-        private async Task UploadZaakgegevensPdfAsync(DetZaak detZaak, OzZaak createdZaak, Uri informatieObjectType, string rsin, CancellationToken token)
+        private async Task UploadZaakgegevensPdfAsync(DetZaak detZaak, OzZaak createdZaak, Guid pdfInformatieobjecttypeId, string rsin, CancellationToken token)
         {
             using var activity = ActivitySource.StartActivity("UploadZaakgegevensPdf");
 
@@ -275,17 +292,18 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 pdfBytes = pdfGenerator.GenerateZaakgegevensPdf(detZaak);
             }
             var fileName = $"zaakgegevens_{detZaak.FunctioneleIdentificatie}.pdf";
+            var informatieobjecttypeUri = new Uri($"{_openZaakApiOptions.BaseUrl}catalogi/api/v1/informatieobjecttypen/{pdfInformatieobjecttypeId}");
 
             var ozDocument = new OzDocument
             {
                 Bestandsnaam = fileName,
                 Bronorganisatie = rsin,
                 Formaat = "application/pdf",
-                Identificatie = $"{detZaak.FunctioneleIdentificatie}",
+                Identificatie = $"zaakgegevens-{detZaak.FunctioneleIdentificatie}",
                 Informatieobjecttype = informatieObjectType,
                 Taal = "dut",
                 Titel = $"e-Suite zaakgegevens {detZaak.FunctioneleIdentificatie}",
-                Vertrouwelijkheidaanduiding = VertrouwelijkheidsAanduiding.openbaar,
+                Vertrouwelijkheidaanduiding = DocumentVertrouwelijkheidaanduiding.openbaar,
                 Bestandsomvang = pdfBytes.Length,
                 Auteur = "Automatisch gegenereerd bij migratie vanuit e-Suite",
                 Beschrijving = "Automatisch gegenereerd document met basisgegevens van de zaak uit het bronsysteem",
@@ -527,7 +545,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             }
         }
 
-        private CreateOzZaakRequest CreateOzZaakCreationRequest(DetZaak detZaak, Guid ozZaaktypeId, string rsin, Dictionary<bool, VertrouwelijkheidsAanduiding> vertrouwelijkheidMappings)
+        private CreateOzZaakRequest CreateOzZaakCreationRequest(DetZaak detZaak, Guid ozZaaktypeId, string rsin, Dictionary<bool, ZaakVertrouwelijkheidaanduiding> vertrouwelijkheidMappings)
         {
             const int MaxZaaknummerLength = 40;
             if (detZaak.FunctioneleIdentificatie.Length > MaxZaaknummerLength)
@@ -609,7 +627,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             return createRequest;
         }
 
-        private static VertrouwelijkheidsAanduiding MapVertrouwelijkheid(bool detVertrouwelijk, Dictionary<bool, VertrouwelijkheidsAanduiding> vertrouwelijkheidMappings, string zaakIdentificatie)
+        private static ZaakVertrouwelijkheidaanduiding MapVertrouwelijkheid(bool detVertrouwelijk, Dictionary<bool, ZaakVertrouwelijkheidaanduiding> vertrouwelijkheidMappings, string zaakIdentificatie)
         {
             if (!vertrouwelijkheidMappings.TryGetValue(detVertrouwelijk, out var ozVertrouwelijkheidaanduiding))
             {
@@ -645,6 +663,40 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             var truncatedInput = input[..(maxLength - dots.Length)].TrimEnd();
 
             return truncatedInput + dots;
+        }
+
+        /// <summary>
+        /// Deletes an existing zaak and all its related objects from OpenZaak.
+        /// 
+        /// Note: The DELETE zaak endpoint automatically cascades and deletes:
+        /// - All statussen (statuses)
+        /// - The resultaat (result)
+        /// - All zaakinformatieobjecten (document links)
+        /// - All rollen, zaakobjecten, zaakeigenschappen, zaakkenmerken, klantcontacten
+        /// 
+        /// We must manually delete:
+        /// - Besluiten
+        /// - The actual documents (enkelvoudiginformatieobjecten)
+        /// </summary>
+        private async Task DeleteExistingZaakAndRelatedObjectsAsync(OzZaak zaak, CancellationToken token)
+        {
+            var zaakInformatieobjecten = await _openZaakApiClient.GetZaakInformatieobjectenForZaak(zaak.Url);
+            var besluiten = await _openZaakApiClient.GetBesluitenForZaak(zaak.Url);
+            foreach (var besluit in besluiten)
+            {
+                var besluitId = OzUrlToGuidConverter.ExtractUuidFromUrl(besluit.Url.ToString());
+                await _openZaakApiClient.DeleteBesluit(besluitId);
+            }
+
+            var zaakId = OzUrlToGuidConverter.ExtractUuidFromUrl(zaak.Url.ToString());
+            await _openZaakApiClient.DeleteZaak(zaakId);
+
+            // finally delete documents
+            foreach (var zio in zaakInformatieobjecten)
+            {
+                var documentId = OzUrlToGuidConverter.ExtractUuidFromUrl(zio.Informatieobject);
+                await _openZaakApiClient.DeleteDocument(documentId);
+            }
         }
     }
 

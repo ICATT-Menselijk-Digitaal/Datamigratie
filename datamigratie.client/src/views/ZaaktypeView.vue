@@ -1,14 +1,27 @@
 <template>
-  <h1>e-Suite zaaktype</h1>
+  <router-link
+    :to="{ name: 'detZaaktypes', ...(search && { query: { search } }) }"
+    class="button button-secondary"
+    >&lt; Terug</router-link
+  >
+
+  <h2>e-Suite zaaktype "{{ detZaaktypeNaam || "..." }}"</h2>
+
+  <alert-inline v-if="!isGeneralConfigLoading && !isGeneralConfigComplete" type="warning">
+    Let op: de migratie kan pas worden gestart als alle gegevens bij "Algemeen" ook zijn ingevuld.
+  </alert-inline>
 
   <zaaktype-mapping-section
     v-if="detZaaktypeId"
     :det-zaaktype-id="detZaaktypeId"
     :disabled="isThisMigrationRunning"
     v-model:zaaktype-mapping="zaaktypeMapping"
+    @update:det-zaaktype-naam="detZaaktypeNaam = $event"
   />
 
   <template v-if="zaaktypeMapping">
+    <h3>Mapping</h3>
+
     <status-mapping-section
       :mapping-id="zaaktypeMapping.id"
       :det-zaaktype="zaaktypeMapping.detZaaktype"
@@ -43,24 +56,23 @@
 
     <vertrouwelijkheid-mapping-section
       :mapping-id="zaaktypeMapping.id"
+      :det-zaaktype="zaaktypeMapping.detZaaktype"
+      :oz-zaaktype="zaaktypeMapping.ozZaaktype"
       :disabled="isThisMigrationRunning"
       @update:complete="vertrouwelijkheidMappingsComplete = $event"
     />
 
-    <menu class="reset">
-      <li>
-        <router-link
-          :to="{ name: 'detZaaktypes', ...(search && { query: { search } }) }"
-          class="button button-secondary"
-          >&lt; Terug</router-link
-        >
-      </li>
+    <pdf-informatieobjecttype-mapping-section
+      :mapping-id="zaaktypeMapping.id"
+      :oz-zaaktype="zaaktypeMapping.ozZaaktype"
+      :disabled="isThisMigrationRunning"
+      @update:complete="generatedPdfMappingComplete = $event"
+    />
 
-      <template v-if="!error && !isThisMigrationRunning">
-        <li v-if="canStartMigration">
-          <button type="button" @click="startMigration">Start migratie</button>
-        </li>
-      </template>
+    <menu class="reset" v-if="!error && !isThisMigrationRunning && canStartMigration">
+      <li>
+        <button type="button" @click="startMigration">Start migratie</button>
+      </li>
     </menu>
   </template>
 
@@ -81,20 +93,23 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import PromptModal from "@/components/PromptModal.vue";
+import AlertInline from "@/components/AlertInline.vue";
 import StatusMappingSection from "@/components/StatusMappingSection.vue";
 import BesluittypeMappingSection from "@/components/BesluittypeMappingSection.vue";
 import { useMigrationControl } from "@/composables/use-migration-control";
 import ResultaattypeMappingSection from "@/components/ResultaattypeMappingSection.vue";
 import DocumentPropertyMappingSection from "@/components/DocumentPropertyMappingSection.vue";
 import VertrouwelijkheidMappingSection from "@/components/VertrouwelijkheidMappingSection.vue";
+import PdfInformatieobjecttypeMappingSection from "@/components/PdfInformatieobjecttypeMappingSection.vue";
 import MigrationHistoryTable from "@/components/MigrationHistoryTable.vue";
 import ZaaktypeMappingSection, {
   type ZaaktypeMappingModel
 } from "@/components/ZaaktypeMappingSection.vue";
 import { useMigration } from "@/composables/migration-store";
+import { useGeneralConfig } from "@/composables/use-general-config";
 import { MigrationStatus } from "@/types/datamigratie";
 const { detZaaktypeId } = defineProps<{ detZaaktypeId: string }>();
 
@@ -102,17 +117,29 @@ const route = useRoute();
 const search = computed(() => String(route.query.search || "").trim());
 
 const zaaktypeMapping = ref<ZaaktypeMappingModel>();
+const detZaaktypeNaam = ref<string>("");
 
 const statusMappingsComplete = ref(false);
 const resultaattypeMappingsComplete = ref(false);
 const besluittypeMappingsComplete = ref(false);
 const documentPropertyMappingsComplete = ref(false);
 const vertrouwelijkheidMappingsComplete = ref(false);
+const generatedPdfMappingComplete = ref(false);
 
 const { error, migration } = useMigration();
 const { isThisMigrationRunning, confirmDialog, startMigration } = useMigrationControl(
   () => detZaaktypeId
 );
+
+const {
+  isGeneralConfigComplete,
+  checkGeneralConfig,
+  loading: isGeneralConfigLoading
+} = useGeneralConfig();
+
+onMounted(() => {
+  checkGeneralConfig();
+});
 
 const allIsComplete = computed(
   () =>
@@ -120,7 +147,8 @@ const allIsComplete = computed(
     besluittypeMappingsComplete.value &&
     resultaattypeMappingsComplete.value &&
     documentPropertyMappingsComplete.value &&
-    vertrouwelijkheidMappingsComplete.value
+    vertrouwelijkheidMappingsComplete.value &&
+    generatedPdfMappingComplete.value
 );
 
 const canStartMigration = computed(

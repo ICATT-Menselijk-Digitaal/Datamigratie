@@ -199,6 +199,27 @@ namespace Datamigratie.Data.Migrations
                     b.ToTable("MigrationRecords");
                 });
 
+            modelBuilder.Entity("Datamigratie.Data.Entities.PdfInformatieobjecttypeMapping", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("OzInformatieobjecttypeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ZaaktypenMappingId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ZaaktypenMappingId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_PdfInformatieobjecttypeMapping_ZaaktypenMappingId_Unique");
+
+                    b.ToTable("PdfInformatieobjecttypeMappings");
+                });
+
             modelBuilder.Entity("Datamigratie.Data.Entities.ResultaattypeMapping", b =>
                 {
                     b.Property<Guid>("Id")
@@ -346,6 +367,17 @@ namespace Datamigratie.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Migration");
+                });
+
+            modelBuilder.Entity("Datamigratie.Data.Entities.PdfInformatieobjecttypeMapping", b =>
+                {
+                    b.HasOne("Datamigratie.Data.Entities.ZaaktypenMapping", "ZaaktypenMapping")
+                        .WithMany()
+                        .HasForeignKey("ZaaktypenMappingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ZaaktypenMapping");
                 });
 
             modelBuilder.Entity("Datamigratie.Data.Entities.ResultaattypeMapping", b =>

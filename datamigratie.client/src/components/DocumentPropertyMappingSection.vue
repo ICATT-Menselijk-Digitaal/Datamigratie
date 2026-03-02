@@ -2,76 +2,71 @@
   <div class="document-property-mapping-section">
     <mapping-grid
       v-model="publicatieNiveauMappingsModel"
-      title="Document publicatieniveau mapping"
+      title="Publicatieniveau"
       description="Koppel de e-Suite publicatieniveaus voor documenten aan de Open Zaak vertrouwelijkheidaanduiding."
       source-label="e-Suite Publicatieniveau"
       target-label="Open Zaak Vertrouwelijkheidaanduiding"
       :source-items="publicatieNiveauSourceItems"
       :target-items="vertrouwelijkheidaanduidingTargetItems"
       :all-mapped="allPublicatieNiveauMapped"
-      :is-editing="publicatieniveauIsInEditMode"
       :disabled="disabled"
       :loading="isLoading"
       empty-message="Er zijn geen publicatieniveaus beschikbaar."
-      target-placeholder="Kies een vertrouwelijkheidaanduiding"
-      save-button-text="Publicatieniveau mappings opslaan"
-      edit-button-text="Publicatieniveau mappings aanpassen"
+      target-placeholder="- Kies een vertrouwelijkheidaanduiding -"
+      save-button-text="Mapping opslaan"
+      cancel-button-text="Annuleren"
+      edit-button-text="Mapping aanpassen"
       :show-edit-button="true"
-      :show-warning="true"
-      warning-message="Niet alle publicatieniveaus zijn gekoppeld."
+      :show-warning="false"
+      :collapsible="true"
+      :show-collapse-warning="!allPublicatieNiveauMapped"
       @save="handleSavePublicatieNiveau"
-      @edit="forceEditPublicatieniveau = true"
+      @cancel="handleCancelPublicatieNiveau"
     />
 
-    <div class="documenttype-section">
-      <!-- only shown when feature flag is enabled -->
-      <div
-        v-if="
-          featureFlags.showDocumenttypeTestHelper &&
-          documenttypeSourceItems.length > 0
-        "
-        class="test-helper"
-      >
-        <label>
-          <input
-            type="checkbox"
-            :disabled="!documenttypeIsInEditMode"
-            @change="fillRandomDocumenttypeMappings($event)"
-          />
-          <span style="color: #e74c3c; font-weight: bold"
-            >for testing: check to autofill with random selections</span
-          >
-        </label>
-      </div>
-
-      <mapping-grid
-        v-model="documenttypeMappingsModel"
-        title="Documenttype mapping"
-        description="Koppel de e-Suite documenttypes aan de Open Zaak informatieobjecttypes."
-        source-label="e-Suite Documenttype"
-        target-label="Open Zaak Informatieobjecttype"
-        :source-items="documenttypeSourceItems"
-        :target-items="informatieobjecttypeTargetItems"
-        :all-mapped="allDocumenttypeMapped"
-        :is-editing="documenttypeIsInEditMode"
-        :disabled="disabled"
-        :loading="isLoading"
-        empty-message="Er zijn geen documenttypes beschikbaar."
-        target-placeholder="Kies een informatieobjecttype"
-        save-button-text="Documenttype mappings opslaan"
-        edit-button-text="Documenttype mappings aanpassen"
-        :show-edit-button="true"
-        :show-warning="true"
-        warning-message="Niet alle documenttypes zijn gekoppeld."
-        @save="handleSaveDocumenttype"
-        @edit="forceEditDocumenttype = true"
-      />
-    </div>
+    <mapping-grid
+      v-model="documenttypeMappingsModel"
+      title="Documenttype"
+      description="Koppel de e-Suite documenttypes aan de Open Zaak informatieobjecttypes."
+      source-label="e-Suite Documenttype"
+      target-label="Open Zaak Informatieobjecttype"
+      :source-items="documenttypeSourceItems"
+      :target-items="informatieobjecttypeTargetItems"
+      :all-mapped="allDocumenttypeMapped"
+      :disabled="disabled"
+      :loading="isLoading"
+      empty-message="Er zijn geen documenttypes beschikbaar."
+      target-placeholder="- Kies een informatieobjecttype -"
+      save-button-text="Mapping opslaan"
+      cancel-button-text="Annuleren"
+      edit-button-text="Mapping aanpassen"
+      :show-edit-button="true"
+      :show-warning="false"
+      :collapsible="true"
+      :show-collapse-warning="!allDocumenttypeMapped"
+      @save="handleSaveDocumenttype"
+      @cancel="handleCancelDocumenttype"
+    >
+      <template #extra-content>
+        <!-- only shown when feature flag is enabled -->
+        <div
+          v-if="featureFlags.showDocumenttypeTestHelper && documenttypeSourceItems.length > 0"
+          class="test-helper"
+        >
+          <label>
+            <input type="checkbox" @change="fillRandomDocumenttypeMappings($event)" />
+            <span style="color: #e74c3c; font-weight: bold"
+              >for testing: check to autofill with random selections</span
+            >
+          </label>
+        </div>
+      </template>
+    </mapping-grid>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import MappingGrid, { type MappingItem, type Mapping } from "@/components/MappingGrid.vue";
 import type { DETZaaktype } from "@/services/detService";
 import type { OZZaaktype } from "@/services/ozService";
@@ -93,11 +88,6 @@ type DocumentPropertyMappingResponse = {
 
 type SaveDocumentPropertyMappingsRequest = {
   mappings: DocumentPropertyMappingItem[];
-};
-
-type VertrouwelijkheidaanduidingOption = {
-  value: string;
-  label: string;
 };
 
 interface Props {
@@ -122,12 +112,12 @@ const PUBLICATIENIVEAU = "publicatieniveau";
 const DOCUMENTTYPE = "documenttype";
 
 const validPublicatieNiveauMappings = computed(() =>
-  publicatieNiveauOptions.value.map((niveau) => ({
-    sourceId: niveau,
+  (props.detZaaktype.publicatieNiveauOptions ?? []).map((option) => ({
+    sourceId: option.id,
     targetId:
       mappingsFromServer.value.find(
         ({ detPropertyName, detValue }) =>
-          detPropertyName === PUBLICATIENIVEAU && detValue === niveau
+          detPropertyName === PUBLICATIENIVEAU && detValue === option.id
       )?.ozValue || null
   }))
 );
@@ -143,17 +133,6 @@ const validDocumenttypeMappings = computed(
     })) || []
 );
 
-const publicatieNiveauOptions = ref<string[]>([]);
-const vertrouwelijkheidaanduidingOptions = ref<{ value: string; label: string }[]>([]);
-const forceEditPublicatieniveau = ref(false);
-const publicatieniveauIsInEditMode = computed(
-  () => forceEditPublicatieniveau.value || !allPublicatieNiveauMapped.value
-);
-
-const forceEditDocumenttype = ref(false);
-const documenttypeIsInEditMode = computed(
-  () => forceEditDocumenttype.value || !allDocumenttypeMapped.value
-);
 const isLoading = ref(false);
 
 const fetchMappings = async () => {
@@ -197,21 +176,13 @@ const saveMappings = async () => {
   }
 };
 
-const publicatieNiveauSourceItems = computed<MappingItem[]>(() => {
-  return publicatieNiveauOptions.value.map((option) => ({
-    id: option,
-    name: option.charAt(0).toUpperCase() + option.slice(1),
-    description: undefined
-  }));
-});
+const publicatieNiveauSourceItems = computed<MappingItem[]>(
+  () => props.detZaaktype.publicatieNiveauOptions ?? []
+);
 
-const vertrouwelijkheidaanduidingTargetItems = computed<MappingItem[]>(() => {
-  return vertrouwelijkheidaanduidingOptions.value.map((option) => ({
-    id: option.value,
-    name: option.label,
-    description: undefined
-  }));
-});
+const vertrouwelijkheidaanduidingTargetItems = computed<MappingItem[]>(
+  () => props.ozZaaktype.ozDocumentVertrouwelijkheidaanduidingen ?? []
+);
 
 const documenttypeSourceItems = computed<MappingItem[]>(() => {
   if (!props.detZaaktype.documenttypen) return [];
@@ -246,9 +217,7 @@ const allDocumenttypeMapped = computed(
     validDocumenttypeMappings.value.every(({ targetId }) => targetId)
 );
 
-const isComplete = computed(
-  () => !publicatieniveauIsInEditMode.value && !documenttypeIsInEditMode.value
-);
+const isComplete = computed(() => allPublicatieNiveauMapped.value && allDocumenttypeMapped.value);
 
 watch(isComplete, (value) => {
   emit("update:complete", value);
@@ -261,12 +230,18 @@ const documenttypeMappingsModel = ref<Mapping[]>([]);
 
 const handleSavePublicatieNiveau = async () => {
   await saveMappings();
-  forceEditPublicatieniveau.value = false;
+};
+
+const handleCancelPublicatieNiveau = () => {
+  fetchMappings();
 };
 
 const handleSaveDocumenttype = async () => {
   await saveMappings();
-  forceEditDocumenttype.value = false;
+};
+
+const handleCancelDocumenttype = () => {
+  fetchMappings();
 };
 
 // fills documenttype mappings with random selections (when VITE_ENABLE_TEST_HELPERS=true)
@@ -313,36 +288,26 @@ watch(validDocumenttypeMappings, (value) => {
 watch(validPublicatieNiveauMappings, (value) => {
   publicatieNiveauMappingsModel.value = value;
 });
-
-onMounted(async () => {
-  isLoading.value = true;
-  try {
-    publicatieNiveauOptions.value = await get<string[]>(`/api/det/options/publicatieniveau`);
-    vertrouwelijkheidaanduidingOptions.value = await get<VertrouwelijkheidaanduidingOption[]>(
-      `/api/oz/options/vertrouwelijkheidaanduiding`
-    );
-  } catch (error) {
-    toast.add({
-      text: `Fout bij ophalen van de document mappings opties - ${error}`,
-      type: "error"
-    });
-  } finally {
-    isLoading.value = false;
-  }
-});
 </script>
 
 <style lang="scss" scoped>
 .document-property-mapping-section {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-large);
-}
+  gap: var(--spacing-small);
+  align-self: stretch;
+  width: 100%;
 
-.documenttype-section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-default);
+  // Remove bottom margin from nested collapsible sections since parent has gap
+  :deep(.collapsible-mapping-section) {
+    margin-block-end: 0;
+  }
+
+  // Add margin-bottom only to the last collapsible section
+  // to maintain proper spacing with the next section (Vertrouwelijkheid)
+  :deep(.collapsible-mapping-section:last-child) {
+    margin-block-end: var(--spacing-small);
+  }
 }
 
 .test-helper {
@@ -350,6 +315,7 @@ onMounted(async () => {
   background-color: var(--marked);
   border: 2px dashed var(--accent);
   border-radius: var(--radius-default);
+  margin-bottom: var(--spacing-default);
 
   label {
     display: flex;

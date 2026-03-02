@@ -1,25 +1,26 @@
 <template>
   <mapping-grid
     v-model="mappingsModel"
-    title="Resultaattype mapping"
+    title="Resultaattype"
     description="Koppel de e-Suite resultaattypen aan de Open Zaak resultaattypen."
     source-label="e-Suite Resultaattype"
     target-label="Open Zaak Resultaattype"
     :source-items="sourceResultaattypeItems"
     :target-items="targetResultaattypeItems"
     :all-mapped="allMapped"
-    :is-editing="isInEditMode"
     :disabled="disabled"
     :loading="isLoading"
     empty-message="Er zijn geen resultaattypen beschikbaar voor dit zaaktype."
-    target-placeholder="Kies een resultaattype"
-    save-button-text="Resultaattypen mappings opslaan"
-    :show-warning="true"
-    warning-message="Niet alle resultaattypen zijn gekoppeld. Migratie kan niet worden gestart."
-    edit-button-text="Resultaattypemappings aanpassen"
+    target-placeholder="- Kies een resultaattype -"
+    save-button-text="Mapping opslaan"
+    cancel-button-text="Annuleren"
+    edit-button-text="Mapping aanpassen"
     :show-edit-button="true"
-    @edit="forceEdit = true"
+    :show-warning="false"
+    :collapsible="true"
+    :show-collapse-warning="!allMapped"
     @save="saveMappings"
+    @cancel="handleCancel"
   />
 </template>
 
@@ -71,14 +72,12 @@ const validMappings = computed(
 );
 
 const isLoading = ref(false);
-const forceEdit = ref(false);
-const isInEditMode = computed(() => forceEdit.value || !allMapped.value);
 
 const allMapped = computed(() => {
   return validMappings.value.length > 0 && validMappings.value.every((m) => m.targetId);
 });
 
-const isComplete = computed(() => !isInEditMode.value);
+const isComplete = computed(() => allMapped.value);
 
 const sourceResultaattypeItems = computed<MappingItem[]>(() => {
   if (!props.detZaaktype.resultaten) return [];
@@ -132,14 +131,16 @@ const saveMappings = async () => {
 
     // re-fetch mappings to check for completeness
     await fetchMappings();
-
-    forceEdit.value = false;
   } catch (error) {
     toast.add({ text: `Fout bij opslaan van de resultaattype mappings - ${error}`, type: "error" });
     throw error;
   } finally {
     isLoading.value = false;
   }
+};
+
+const handleCancel = () => {
+  fetchMappings();
 };
 
 // trigger fetching mappings whenever the mapping id or target zaaktype changes

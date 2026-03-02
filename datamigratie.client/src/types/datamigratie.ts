@@ -1,5 +1,10 @@
 // Shared types for the Datamigratie application
 
+export type ZaaktypeOptionItem = {
+  id: string;
+  name: string;
+};
+
 export type ZaaktypeMapping = {
   id: string;
   detZaaktypeId: string;

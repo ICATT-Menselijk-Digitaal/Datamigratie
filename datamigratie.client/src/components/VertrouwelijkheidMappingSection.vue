@@ -1,33 +1,36 @@
 <template>
   <mapping-grid
     v-model="mappingsModel"
-    title="Vertrouwelijkheid mapping"
+    title="Vertrouwelijkheid"
     description="Koppel de e-Suite vertrouwelijkheid waarden aan de Open Zaak vertrouwelijkheidaanduiding."
     source-label="e-Suite Vertrouwelijk"
     target-label="Open Zaak Vertrouwelijkheidaanduiding"
     :source-items="sourceItems"
     :target-items="targetItems"
     :all-mapped="allMapped"
-    :is-editing="forceEdit"
     :disabled="disabled"
     :loading="isLoading"
     empty-message="Er zijn geen vertrouwelijkheid opties beschikbaar."
-    target-placeholder="Kies een vertrouwelijkheidaanduiding"
-    save-button-text="Vertrouwelijkheidmappings opslaan"
-    :show-warning="true"
-    warning-message="Niet alle vertrouwelijkheid opties zijn gekoppeld. Migratie kan niet worden gestart."
-    @save="saveMappings"
-    edit-button-text="Vertrouwelijkheidmappings aanpassen"
+    target-placeholder="- Kies een vertrouwelijkheidaanduiding -"
+    save-button-text="Mapping opslaan"
+    cancel-button-text="Annuleren"
+    edit-button-text="Mapping aanpassen"
     :show-edit-button="true"
-    @edit="forceEdit = true"
+    :show-warning="false"
+    :collapsible="true"
+    :show-collapse-warning="!allMapped"
+    @save="saveMappings"
+    @cancel="handleCancel"
   />
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, watchEffect } from "vue";
+import { ref, computed, watch, watchEffect } from "vue";
 import MappingGrid, { type MappingItem, type Mapping } from "@/components/MappingGrid.vue";
 import toast from "@/components/toast/toast";
 import { get, post } from "@/utils/fetchWrapper";
+import type { OZZaaktype } from "@/services/ozService";
+import type { DETZaaktype } from "@/services/detService";
 
 type VertrouwelijkheidMappingItem = {
   detVertrouwelijkheid: boolean;
@@ -43,13 +46,10 @@ type SaveVertrouwelijkheidMappingsRequest = {
   mappings: VertrouwelijkheidMappingItem[];
 };
 
-type VertrouwelijkheidaanduidingOption = {
-  value: string;
-  label: string;
-};
-
 interface Props {
   mappingId: string;
+  detZaaktype: DETZaaktype;
+  ozZaaktype: OZZaaktype;
   disabled: boolean;
 }
 
@@ -59,34 +59,17 @@ const emit = defineEmits<{
   (e: "update:complete", value: boolean): void;
 }>();
 
-const sourceItems = [
-  { id: "true", name: "Ja (Vertrouwelijk)" },
-  { id: "false", name: "Nee (Niet vertrouwelijk)" }
-];
+const sourceItems = computed<MappingItem[]>(
+  () => props.detZaaktype.detVertrouwelijkheidOpties ?? []
+);
 
-const targetItems = ref<MappingItem[]>([]);
+const targetItems = computed<MappingItem[]>(
+  () => props.ozZaaktype.ozZaakVertrouwelijkheidaanduidingen ?? []
+);
+
 const isLoading = ref(false);
-const forceEdit = ref(false);
 const allMapped = ref<boolean>(false);
 const mappingsModel = ref<Mapping[]>([]);
-
-const fetchOzOptions = async () => {
-  try {
-    targetItems.value = (
-      await get<VertrouwelijkheidaanduidingOption[]>("/api/oz/options/vertrouwelijkheidaanduiding")
-    ).map((option) => ({
-      id: option.value,
-      name: option.label,
-      description: undefined
-    }));
-  } catch (error) {
-    toast.add({
-      text: `Fout bij ophalen van de vertrouwelijkheidaanduiding opties - ${error}`,
-      type: "error"
-    });
-    throw error;
-  }
-};
 
 const fetchMappings = async () => {
   isLoading.value = true;
@@ -128,8 +111,6 @@ const saveMappings = async () => {
 
     // re-fetch mappings to check for completeness
     await fetchMappings();
-
-    forceEdit.value = !allMapped.value;
   } catch (error) {
     toast.add({
       text: `Fout bij opslaan van de vertrouwelijkheid mappings - ${error}`,
@@ -141,24 +122,22 @@ const saveMappings = async () => {
   }
 };
 
-// Fetch OZ options once on mount
-onMounted(() => {
-  fetchOzOptions();
-});
+const handleCancel = () => {
+  fetchMappings();
+};
 
-// Trigger fetching mappings and set the form in edit/view mode whenever the mapping id changes
+// Trigger fetching mappings whenever the mapping id changes
 watch(
   () => props.mappingId,
   async () => {
     await fetchMappings();
-    forceEdit.value = !allMapped.value;
   },
   { immediate: true }
 );
 
 watchEffect(() => {
   // the mapping is complete when all source items are present in the mapping and have a target value
-  const isMappingComplete = sourceItems.every((m) => {
+  const isMappingComplete = sourceItems.value.every((m) => {
     const mappedSourceItem = mappingsModel.value.find(
       (mapping) => mapping.sourceId.toString() === m.id
     );
@@ -168,6 +147,6 @@ watchEffect(() => {
   });
 
   allMapped.value = isMappingComplete;
-  emit("update:complete", isMappingComplete && !forceEdit.value);
+  emit("update:complete", isMappingComplete && allMapped.value);
 });
 </script>
