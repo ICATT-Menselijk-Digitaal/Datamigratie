@@ -4,6 +4,7 @@
 
 - [Migrate additional document property](https://dimpact.atlassian.net/browse/DATA-272)
 - [Implement UI changes](https://dimpact.atlassian.net/browse/DATA-256)
+- [Allow full re-run of a migration](https://dimpact.atlassian.net/browse/DATA-255)
 
 ## v0.1.0
 
