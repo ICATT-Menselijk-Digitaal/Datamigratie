@@ -28,7 +28,7 @@ var group = app.MapGroup("/").AddEndpointFilter(async (context, next) =>
     }
     if (!extractedApiKey.Equals(app.Configuration["ApiKey"]))
     {
-        return Results.Forbid();
+        return Results.StatusCode(StatusCodes.Status403Forbidden);
     }
     return await next(context);
 });
