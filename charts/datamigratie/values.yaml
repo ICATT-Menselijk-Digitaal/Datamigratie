@@ -57,8 +57,7 @@ service:
 
 ingress:
   enabled: false
-  annotations:
-    {}
+  annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   className: ""
@@ -75,32 +74,13 @@ ingress:
 # Specify extra ingresses, for example if you have multiple ingress classes
 extraIngress: []
 
-resources:
-  {}
+resources: {}
   # limits:
   #   cpu: 200m
   #   memory: 256Mi
   # requests:
   #   cpu: 100m
   #   memory: 128Mi
-
-apiConnections:
-  openZaakApi:
-    baseUrl: ""
-    apiKey: ""
-    apiUser: ""
-  detApi:
-    baseUrl: ""
-    apiKey: ""
-
-oidc:
-  authority: ""
-  clientId: ""
-  clientSecret: ""
-  functioneelBeheerderRole: ""
-  nameClaimType: ""
-  roleClaimType: ""
-  emailClaimType: ""
 
 autoscaling:
   enabled: false
@@ -143,8 +123,26 @@ settings:
     environment: ""
     httpPorts: ""
 
-featureFlags:
-  enableTestHelpers: false
+  oidc:
+    authority: ""
+    clientId: ""
+    clientSecret: ""
+    functioneelBeheerderRole: ""
+    nameClaimType: ""
+    roleClaimType: ""
+    emailClaimType: ""
+
+  apiConnections:
+    openZaakApi:
+      baseUrl: ""
+      apiKey: ""
+      apiUser: ""
+    detApi:
+      baseUrl: ""
+      apiKey: ""
+
+  featureFlags:
+    enableTestHelpers: false
 
 postgresql:
   enabled: false

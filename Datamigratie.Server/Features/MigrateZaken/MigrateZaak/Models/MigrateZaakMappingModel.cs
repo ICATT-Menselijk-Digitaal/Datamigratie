@@ -18,11 +18,16 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak.Models
                 /// <summary>
                 /// Vertrouwelijkheid mappings: DetVertrouwelijkheid (true/false) -> OzVertrouwelijkheidaanduiding
                 /// </summary>
-                public required Dictionary<bool, VertrouwelijkheidsAanduiding> VertrouwelijkheidMappings { get; set; }
+                public required Dictionary<bool, ZaakVertrouwelijkheidaanduiding> ZaakVertrouwelijkheidMappings { get; set; }
 
                 /// <summary>
                 /// Besluittype mappings: DetBesluittypeNaam -> OzBesluittypeId
                 /// </summary>
                 public required Dictionary<string, Guid> BesluittypeMappings { get; set; }
+
+                /// <summary>
+                /// The OZ informatieobjecttype ID to assign to the generated PDF document.
+                /// </summary>
+                public required Guid PdfInformatieobjecttypeId { get; set; }
         }
 }

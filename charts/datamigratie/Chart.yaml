@@ -4,8 +4,8 @@ description: A Helm chart for the Datamigratie Component
 
 type: application
 
-# Chart version 
-version: 0.1.0
+# Chart version and appVersion will be filled in during a release, leave as is
+version: 0.0.0
 appVersion: 0.0.0
 
 dependencies:

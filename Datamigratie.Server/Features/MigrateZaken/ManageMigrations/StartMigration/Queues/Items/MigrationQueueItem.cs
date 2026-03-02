@@ -41,12 +41,18 @@ namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Q
                 /// Vertrouwelijkheid mappings loaded and validated by StartMigrationController before queuing.
                 /// Dictionary: DetVertrouwelijkheid (true/false) -> OzVertrouwelijkheidaanduiding
                 /// </summary>
-                public required Dictionary<bool, VertrouwelijkheidsAanduiding> VertrouwelijkheidMappings { get; set; }
+                public required Dictionary<bool, ZaakVertrouwelijkheidaanduiding> ZaakVertrouwelijkheidMappings { get; set; }
 
                 /// <summary>
                 /// Besluittype mappings loaded and validated by StartMigrationController before queuing.
                 /// Dictionary: DetBesluittypeNaam -> OzBesluittypeId
                 /// </summary>
                 public required Dictionary<string, Guid> BesluittypeMappings { get; set; }
+
+                /// <summary>
+                /// PDF informatieobjecttype mapping loaded and validated by StartMigrationController before queuing.
+                /// The OZ informatieobjecttype ID to assign to the generated PDF document.
+                /// </summary>
+                public required Guid PdfInformatieobjecttypeId { get; set; }
         }
 }

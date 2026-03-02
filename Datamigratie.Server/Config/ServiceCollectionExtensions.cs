@@ -24,6 +24,7 @@ using Datamigratie.Server.Features.Map.GlobalMapping.DocumentstatusMapping.Save.
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.DocumentProperty;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Vertrouwelijkheid;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Besluittype;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.PdfInformatieobjecttype;
 
 namespace Datamigratie.Server.Config
 {
@@ -57,6 +58,7 @@ namespace Datamigratie.Server.Config
             services.AddScoped<ISaveDocumentPropertyMappingsService, SaveDocumentPropertyMappingsService>();
             services.AddScoped<IValidateVertrouwelijkheidMappingsService, ValidateVertrouwelijkheidMappingsService>();
             services.AddScoped<IValidateBesluittypeMappingsService, ValidateBesluittypeMappingsService>();
+            services.AddScoped<IValidatePdfInformatieobjecttypeMappingService, ValidatePdfInformatieobjecttypeMappingService>();
 
             services.AddHostedService<StartMigrationBackgroundService>();
             services.AddSingleton<IMigrationBackgroundTaskQueue>(ctx =>

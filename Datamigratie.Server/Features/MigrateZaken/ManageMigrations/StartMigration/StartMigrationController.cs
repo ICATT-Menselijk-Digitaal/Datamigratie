@@ -11,6 +11,7 @@ using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.DocumentProperty;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Vertrouwelijkheid;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Besluittype;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.PdfInformatieobjecttype;
 using Datamigratie.Server.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +30,7 @@ public class StartMigrationController(
     IValidateDocumentPropertyMappingsService validateDocumentPropertyMappingsService,
     IValidateVertrouwelijkheidMappingsService validateVertrouwelijkheidMappingsService,
     IValidateBesluittypeMappingsService validateBesluittypeMappingsService,
+    IValidatePdfInformatieobjecttypeMappingService validatePdfInformatieobjecttypeMappingService,
     IDetApiClient detApiClient,
     ILogger<StartMigrationController> logger) : ControllerBase
 {
@@ -59,6 +61,7 @@ public class StartMigrationController(
             var documentPropertyMappings = await ValidateAndGetDocumentPropertyMappingsAsync(detZaaktype);
             var vertrouwelijkheidMappings = await ValidateAndGetVertrouwelijkheidMappingsAsync(detZaaktype);
             var besluittypeMappings = await ValidateAndGetBesluittypeMappingsAsync(detZaaktype);
+            var pdfInformatieobjecttypeId = await ValidateAndGetPdfInformatieobjecttypeMappingAsync(detZaaktype);
 
             await backgroundTaskQueue.QueueMigrationAsync(new MigrationQueueItem
             {
@@ -68,8 +71,9 @@ public class StartMigrationController(
                 ResultaatMappings = resultaatMappings,
                 DocumentstatusMappings = documentstatusMappings,
                 DocumentPropertyMappings = documentPropertyMappings,
-                VertrouwelijkheidMappings = vertrouwelijkheidMappings,
-                BesluittypeMappings = besluittypeMappings
+                ZaakVertrouwelijkheidMappings = vertrouwelijkheidMappings,
+                BesluittypeMappings = besluittypeMappings,
+                PdfInformatieobjecttypeId = pdfInformatieobjecttypeId
             });
         }
         catch (Exception e)
@@ -147,7 +151,7 @@ public class StartMigrationController(
             : documentPropertyMappings;
     }
 
-    private async Task<Dictionary<bool, VertrouwelijkheidsAanduiding>> ValidateAndGetVertrouwelijkheidMappingsAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)
+    private async Task<Dictionary<bool, ZaakVertrouwelijkheidaanduiding>> ValidateAndGetVertrouwelijkheidMappingsAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)
     {
         var (vertrouwelijkheidMappingsValid, vertrouwelijkheidMappings) = await validateVertrouwelijkheidMappingsService.ValidateAndGetVertrouwelijkheidMappings(detZaaktype);
 
@@ -172,5 +176,14 @@ public class StartMigrationController(
         return !besluittypeMappingsValid
             ? throw new InvalidOperationException("Not all DET besluittypen have been mapped to OZ besluittypen. Please configure besluittype mappings first.")
             : besluittypeMappings;
+    }
+
+    private async Task<Guid> ValidateAndGetPdfInformatieobjecttypeMappingAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)
+    {
+        var (isValid, ozInformatieobjecttypeId) = await validatePdfInformatieobjecttypeMappingService.ValidateAndGetPdfInformatieobjecttypeMapping(detZaaktype);
+
+        return !isValid || ozInformatieobjecttypeId is null
+            ? throw new InvalidOperationException("No informatieobjecttype has been configured for the generated PDF. Please configure the PDF informatieobjecttype mapping first.")
+            : ozInformatieobjecttypeId.Value;
     }
 }
