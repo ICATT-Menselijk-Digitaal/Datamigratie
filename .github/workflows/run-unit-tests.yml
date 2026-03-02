@@ -1,0 +1,54 @@
+name: .NET Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Test
+        run: dotnet test --no-build --configuration Release --logger "trx;LogFileName=test-results.trx" --results-directory ./TestResults
+
+      - name: Publish Test Results
+        uses: dorny/test-reporter@v2
+        if: always()
+        with:
+          name: Test Results
+          path: "./TestResults/**/*.trx"
+          reporter: dotnet-trx
+          # Only create check runs when we have permission (not from forks)
+          # Fork PRs run with read-only tokens, so this avoids permission errors
+          fail-on-error: true
+          fail-on-empty: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Test Results as Artifact
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-results
+          path: ./TestResults/**/*.trx
+          retention-days: 30
