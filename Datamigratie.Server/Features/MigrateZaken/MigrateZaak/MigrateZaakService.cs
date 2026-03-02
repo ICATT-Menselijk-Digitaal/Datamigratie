@@ -73,7 +73,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 // Create status for the zaak based on status mapping
                 await MigrateStatusAsync(detZaak, createdZaak, mapping, token);
 
-                await UploadZaakgegevensPdfAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, token);
+                await UploadZaakgegevensPdfAsync(detZaak, createdZaak, mapping.PdfInformatieobjecttypeId, mapping.Rsin, token);
 
                 // Migrate all documents with their versions
                 await MigrateDocumentsAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, mapping.DocumentstatusMappings, mapping.DocumentPropertyMappings, token);
@@ -300,7 +300,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 Bronorganisatie = rsin,
                 Formaat = "application/pdf",
                 Identificatie = $"zaakgegevens-{detZaak.FunctioneleIdentificatie}",
-                Informatieobjecttype = informatieObjectType,
+                Informatieobjecttype = informatieobjecttypeUri,
                 Taal = "dut",
                 Titel = $"e-Suite zaakgegevens {detZaak.FunctioneleIdentificatie}",
                 Vertrouwelijkheidaanduiding = DocumentVertrouwelijkheidaanduiding.openbaar,
