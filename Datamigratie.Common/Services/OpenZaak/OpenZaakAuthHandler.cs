@@ -8,7 +8,7 @@ namespace Datamigratie.Common.Services.OpenZaak;
 internal class OpenZaakAuthHandler(IOptions<OpenZaakApiOptions> options) : DelegatingHandler
 {
     // Token lifetime: 1 hour minus 1-min clock leeway; refresh 1m before expiry = 58 min
-    private static readonly TimeSpan TokenLifetime = TimeSpan.FromSeconds(55);
+    private static readonly TimeSpan s_tokenLifetime = TimeSpan.FromMinutes(58);
 
     private readonly OpenZaakApiOptions _options = options.Value;
     private string? _cachedToken;
@@ -37,7 +37,7 @@ internal class OpenZaakAuthHandler(IOptions<OpenZaakApiOptions> options) : Deleg
         if (_cachedToken == null || DateTime.UtcNow >= _tokenExpiresAt)
         {
             _cachedToken = OpenZaakTokenProvider.GenerateZakenApiToken(_options.ApiKey, _options.ApiUser);
-            _tokenExpiresAt = DateTime.UtcNow.Add(TokenLifetime);
+            _tokenExpiresAt = DateTime.UtcNow.Add(s_tokenLifetime);
         }
         return _cachedToken;
     }
