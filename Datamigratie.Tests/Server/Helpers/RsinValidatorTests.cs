@@ -1,4 +1,4 @@
-using Datamigratie.Server.Helpers;
+﻿using Datamigratie.Server.Helpers;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -48,8 +48,8 @@ public class RsinValidatorTests
     [Theory]
     [InlineData("12345678a")]
     [InlineData("ABCDEFGHI")]
-    [InlineData("123 456 78")]
-    [InlineData("123-456-78")]
+    [InlineData("123 456 7")]
+    [InlineData("123-456-7")]
     public void ValidateRsin_ContainsNonDigits_ThrowsArgumentException(string rsin)
     {
         // Act & Assert
