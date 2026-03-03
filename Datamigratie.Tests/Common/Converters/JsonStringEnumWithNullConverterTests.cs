@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using Datamigratie.Common.Converters;
 
@@ -50,13 +50,13 @@ namespace Datamigratie.Tests.Common.Converters
         }
 
         [Fact]
-        public void Deserialize_NullValue_ReturnsBlank()
+        public void Deserialize_NullValue_ThrowsJsonException()
         {
             var json = """{"Value":null}""";
 
-            var model = JsonSerializer.Deserialize<TestModel>(json);
+            var ex = Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<TestModel>(json));
 
-            Assert.Equal(TestEnum.Blank, model!.Value);
+            Assert.Contains("Unknown TestEnum value: ", ex.Message);
         }
 
         [Fact]
