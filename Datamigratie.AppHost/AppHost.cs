@@ -23,32 +23,32 @@ var migrations = builder
     .WithReference(dmtDb)
     .WaitFor(dmtDb);
 
-var det = builder.AddProject<Projects.Datamigratie_FakeDet>("datamigratie-fakedet")
-    .WithEnvironment("ApiKey", detApiKey);
+//var det = builder.AddProject<Projects.Datamigratie_FakeDet>("datamigratie-fakedet")
+//    .WithEnvironment("ApiKey", detApiKey);
 
-var openzaak = builder.AddOpenZaak("openzaak", port: 54322)
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithReference(ozaakdb)
-    .WithReference(redis)
-    .WithInitialSettings("ConfigInladen", Path.Combine("openzaak", "config.yaml"))
-    .WaitFor(ozaakdb)
-    .WaitFor(redis);
+//var openzaak = builder.AddOpenZaak("openzaak", port: 54322)
+//    .WithLifetime(ContainerLifetime.Persistent)
+//    .WithReference(ozaakdb)
+//    .WithReference(redis)
+//    .WithInitialSettings("ConfigInladen", Path.Combine("openzaak", "config.yaml"))
+//    .WaitFor(ozaakdb)
+//    .WaitFor(redis);
 
-openzaak.AddInitScript(ozaakdb, "CatalogiInladen", Path.Combine("openzaak", "data__dump.sql"));
+//openzaak.AddInitScript(ozaakdb, "CatalogiInladen", Path.Combine("openzaak", "data__dump.sql"));
 
-var proxy = openzaak.AddNginxProxy("OpenZaakProxy", 54321)
-    .WithLifetime(ContainerLifetime.Persistent);
+//var proxy = openzaak.AddNginxProxy("OpenZaakProxy", 54321)
+//    .WithLifetime(ContainerLifetime.Persistent);
 
 builder.AddProject<Projects.Datamigratie_Server>("datamigratie-server")
-    .WithEnvironment("OpenZaakApi__BaseUrl", $"{proxy.GetEndpoint("http")}/")
-    .WithEnvironment("OpenZaakApi__ApiKey", "super-secret-with-a-lot-of-characters")
-    .WithEnvironment("OpenZaakApi__ApiUser", "user-id")
-    .WithEnvironment("DetApi__BaseUrl", det.GetEndpoint("http"))
-    .WithEnvironment("DetApi__ApiKey", detApiKey)
+    //.WithEnvironment("OpenZaakApi__BaseUrl", $"{proxy.GetEndpoint("http")}/")
+    //.WithEnvironment("OpenZaakApi__ApiKey", "super-secret-with-a-lot-of-characters")
+    //.WithEnvironment("OpenZaakApi__ApiUser", "user-id")
+    //.WithEnvironment("DetApi__BaseUrl", det.GetEndpoint("http"))
+    //.WithEnvironment("DetApi__ApiKey", detApiKey)
     .WithReference(dmtDb)
     .WaitFor(dmtDb)
-    .WaitFor(openzaak)
-    .WaitFor(det)
+    //.WaitFor(openzaak)
+    //.WaitFor(det)
     .WaitForCompletion(migrations);
 
 builder.Build().Run();
