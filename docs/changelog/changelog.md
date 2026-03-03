@@ -4,6 +4,7 @@
 
 - [Migrate additional document property](https://dimpact.atlassian.net/browse/DATA-272)
 - [Implement UI changes](https://dimpact.atlassian.net/browse/DATA-256)
+- [Fix 1 hour maximum for migrations (JWT token related)](https://dimpact.atlassian.net/browse/DATA-194)
 - [Allow full re-run of a migration](https://dimpact.atlassian.net/browse/DATA-255)
 
 ## v0.1.0
