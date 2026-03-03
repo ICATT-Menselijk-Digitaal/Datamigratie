@@ -19,7 +19,7 @@ In practice, this means:
 - **Use `<form>` with `<button type="submit">`** and a submit handler on the form instead of wiring up click handlers on buttons. You get Enter-to-submit, built-in validation, and a clear action hierarchy for free.
 - **Use `<details>` / `<summary>`** instead of building collapsible sections with JavaScript and v-if/v-else branches. One native element replaces a `collapsible` prop, toggle state, conditional rendering, and an arrow icon that needs manual rotation.
 - **Use `<dl>`** for key-value data instead of tables or label/div combos. It's the right tool and it needs almost no styling.
-- **Don't fight natural sizing.** Inputs, selects, and text already know how to size themselves. Avoid setting explicit widths, min-widths, and heights unless content actually overflows. `field-sizing: content` on selects is a good example — let the content decide.
+- **Don't fight natural sizing.** Inputs, selects, and text already know how to size themselves. Avoid setting explicit widths, min-widths, and heights unless content actually overflows.
 - **Don't micro-manage spacing.** Set a rhythm at the base level with sensible margins on headings, paragraphs, and form elements. If you're adding `margin-top: 16px` or `gap: 8px` in every component, the base styles are incomplete.
 
 **We don't need to be pixel-perfect with the Figma design.** The goal is to capture the design's _intent_ — its hierarchy, rhythm, and relationships — in a way that works across screen sizes without constant adjustment. A design that needs 50 lines of CSS to position two buttons is telling you the HTML structure is wrong, not that you need more CSS.
