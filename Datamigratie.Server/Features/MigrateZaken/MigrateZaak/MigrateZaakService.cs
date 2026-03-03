@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Datamigratie.Common.Config;
+using Datamigratie.Common.Helpers;
 using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak;
@@ -28,6 +29,13 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
         {
             try
             {
+                // Check if zaak already exists in OpenZaak and delete it to allow re-run
+                var existingZaak = await _openZaakApiClient.GetZaakByIdentificatie(detZaak.FunctioneleIdentificatie);
+                if (existingZaak != null)
+                {
+                    await DeleteExistingZaakAndRelatedObjectsAsync(existingZaak, token);
+                }
+
                 var createZaakRequest = CreateOzZaakCreationRequest(detZaak, mapping.OpenZaaktypeId, mapping.Rsin, mapping.ZaakVertrouwelijkheidMappings);
 
                 var createdZaak = await _openZaakApiClient.CreateZaak(createZaakRequest);
@@ -591,6 +599,40 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             var truncatedInput = input[..(maxLength - dots.Length)].TrimEnd();
 
             return truncatedInput + dots;
+        }
+
+        /// <summary>
+        /// Deletes an existing zaak and all its related objects from OpenZaak.
+        /// 
+        /// Note: The DELETE zaak endpoint automatically cascades and deletes:
+        /// - All statussen (statuses)
+        /// - The resultaat (result)
+        /// - All zaakinformatieobjecten (document links)
+        /// - All rollen, zaakobjecten, zaakeigenschappen, zaakkenmerken, klantcontacten
+        /// 
+        /// We must manually delete:
+        /// - Besluiten
+        /// - The actual documents (enkelvoudiginformatieobjecten)
+        /// </summary>
+        private async Task DeleteExistingZaakAndRelatedObjectsAsync(OzZaak zaak, CancellationToken token)
+        {
+            var zaakInformatieobjecten = await _openZaakApiClient.GetZaakInformatieobjectenForZaak(zaak.Url);
+            var besluiten = await _openZaakApiClient.GetBesluitenForZaak(zaak.Url);
+            foreach (var besluit in besluiten)
+            {
+                var besluitId = OzUrlToGuidConverter.ExtractUuidFromUrl(besluit.Url.ToString());
+                await _openZaakApiClient.DeleteBesluit(besluitId);
+            }
+
+            var zaakId = OzUrlToGuidConverter.ExtractUuidFromUrl(zaak.Url.ToString());
+            await _openZaakApiClient.DeleteZaak(zaakId);
+
+            // finally delete documents
+            foreach (var zio in zaakInformatieobjecten)
+            {
+                var documentId = OzUrlToGuidConverter.ExtractUuidFromUrl(zio.Informatieobject);
+                await _openZaakApiClient.DeleteDocument(documentId);
+            }
         }
     }
 
