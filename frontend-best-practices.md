@@ -16,7 +16,7 @@ An unstyled HTML page is already responsive. Text wraps, content stacks, inputs 
 
 In practice, this means:
 
-- **Use `<form>` with `type="submit"`** instead of wiring up click handlers on buttons. You get Enter-to-submit, built-in validation, and a clear action hierarchy for free.
+- **Use `<form>` with `<button type="submit">`** and a submit handler on the form instead of wiring up click handlers on buttons. You get Enter-to-submit, built-in validation, and a clear action hierarchy for free.
 - **Use `<details>` / `<summary>`** instead of building collapsible sections with JavaScript and v-if/v-else branches. One native element replaces a `collapsible` prop, toggle state, conditional rendering, and an arrow icon that needs manual rotation.
 - **Use `<dl>`** for key-value data instead of tables or label/div combos. It's the right tool and it needs almost no styling.
 - **Don't fight natural sizing.** Inputs, selects, and text already know how to size themselves. Avoid setting explicit widths, min-widths, and heights unless content actually overflows. `field-sizing: content` on selects is a good example — let the content decide.
