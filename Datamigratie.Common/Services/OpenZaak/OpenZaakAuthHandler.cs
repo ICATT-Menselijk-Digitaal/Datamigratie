@@ -21,7 +21,7 @@ internal class OpenZaakAuthHandler(IOptions<OpenZaakApiOptions> options) : Deleg
 
         var response = await base.SendAsync(request, cancellationToken);
 
-        if (response.StatusCode == HttpStatusCode.Unauthorized)
+        if (response.StatusCode == HttpStatusCode.Forbidden)
         {
             _tokenExpiresAt = DateTime.MinValue; // force regeneration
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", GetOrRefreshToken());
