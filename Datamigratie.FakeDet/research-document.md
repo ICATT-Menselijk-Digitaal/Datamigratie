@@ -64,6 +64,23 @@ The trace below is representative of a zaak with one 10 MB document.
 - **Documents are the heaviest part of the migration.** Fetching and posting a document take comparable time (~0.1–0.15s each for network calls).
 - With fake data, documents are generated and served as PDFs by FakeDet. It is unclear how performance will differ when fetching real documents from the eSuite, as the fetch mechanism and document sizes may differ significantly.
 
+## Projected Migration Duration: Municipality Examples
+
+To put these numbers in context, the table below projects total migration time for two municipalities of different sizes, using the most optimistic assumptions: one document with one version (10 MB) per zaak, no errors, and the observed rate of ~1.7 seconds per zaak.
+
+| Municipality | Total zaken | Total seconds  | Total hours | Working days (8 h/day) |
+| ------------ | ----------- | -------------- | ----------- | ---------------------- |
+| Zwolle       | 881,201     | ~1,498,042 s   | ~416 hours  | **~52 working days**   |
+| Rotterdam    | 1,780,698   | ~3,027,186 s   | ~841 hours  | **~105 working days**  |
+
+These figures represent a **best-case scenario**. In practice, the actual duration will be longer for several reasons:
+
+- **Real documents are likely larger or more numerous.** Many zaken will have multiple documents with multiple versions.
+- **Errors require retries or manual intervention.** Any failure breaks the pipeline and must be resolved before migration can continue.
+- **Fetching documents from the eSuite may be slower** than generating them on-the-fly with FakeDet, since network latency and source-system load are unpredictable.
+
+These estimates underscore the need for parallelisation and robust error handling before migrating municipalities with large datasets.
+
 ## Open Questions
 
 - How does migration perform when besluiten are included?
@@ -78,25 +95,25 @@ Custom metrics and traces were added to the `Datamigratie.Server` meter/activity
 
 ## Metrics
 
-| Metric name | Type | Unit | Tags | Description |
-| --- | --- | --- | --- | --- |
-| `migration.duration` | Histogram | ms | — | Duration of a full migration run (all zaken for one zaaktype) |
-| `migration.zaak.duration` | Histogram | ms | `result` = `succeeded` \| `failed` | End-to-end duration of migrating a single zaak |
-| `migration.zaak.document.count` | Histogram | {document} | — | Number of documents per zaak |
-| `migration.zaak.document.version.count` | Histogram | {version} | Total number of document versions per zaak |
+| Metric name                             | Type      | Unit       | Tags                                       | Description                                                   |
+| --------------------------------------- | --------- | ---------- | ------------------------------------------ | ------------------------------------------------------------- |
+| `migration.duration`                    | Histogram | ms         | —                                          | Duration of a full migration run (all zaken for one zaaktype) |
+| `migration.zaak.duration`               | Histogram | ms         | `result` = `succeeded` \| `failed`         | End-to-end duration of migrating a single zaak                |
+| `migration.zaak.document.count`         | Histogram | {document} | —                                          | Number of documents per zaak                                  |
+| `migration.zaak.document.version.count` | Histogram | {version}  | Total number of document versions per zaak |
 
 ## Traces (activity spans)
 
-| Span name | Scope | Tags set |
-| --- | --- | --- |
-| `MigrateZaak` | Per zaak | `zaak.identificatie`, `zaak.result`, `zaak.duration_ms`, `zaak.document.count`, `zaak.document.version.count`, `zaak.besluit.count` |
-| `CreateZaak` | Per zaak | — |
-| `MigrateResultaat` | Per zaak | — |
-| `MigrateStatus` | Per zaak | — |
-| `UploadZaakgegevensPdf` | Per zaak | — |
-| `GenerateZaakgegevensPdf` | Per zaak | — |
-| `MigrateDocuments` | Per zaak | `zaak.document_count` |
-| `MigrateBesluiten` | Per zaak | — |
+| Span name                 | Scope    | Tags set                                                                                                                            |
+| ------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `MigrateZaak`             | Per zaak | `zaak.identificatie`, `zaak.result`, `zaak.duration_ms`, `zaak.document.count`, `zaak.document.version.count`, `zaak.besluit.count` |
+| `CreateZaak`              | Per zaak | —                                                                                                                                   |
+| `MigrateResultaat`        | Per zaak | —                                                                                                                                   |
+| `MigrateStatus`           | Per zaak | —                                                                                                                                   |
+| `UploadZaakgegevensPdf`   | Per zaak | —                                                                                                                                   |
+| `GenerateZaakgegevensPdf` | Per zaak | —                                                                                                                                   |
+| `MigrateDocuments`        | Per zaak | `zaak.document_count`                                                                                                               |
+| `MigrateBesluiten`        | Per zaak | —                                                                                                                                   |
 
 The meter and activity source are both named `"Datamigratie.Server"`. The meter is registered in `ServiceDefaults` via `AddMeter("Datamigratie.Server")` alongside the existing ASP.NET Core, HTTP client, and runtime instrumentation.
 
