@@ -6,6 +6,7 @@
 - [Implement UI changes](https://dimpact.atlassian.net/browse/DATA-256)
 - [Fix 1 hour maximum for migrations (JWT token related)](https://dimpact.atlassian.net/browse/DATA-194)
 - [Allow full re-run of a migration](https://dimpact.atlassian.net/browse/DATA-255)
+- [Enable performance testing using large data volumes](https://dimpact.atlassian.net/browse/DATA-253)
 
 ## v0.1.0
 
