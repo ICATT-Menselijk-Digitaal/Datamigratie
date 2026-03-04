@@ -22,7 +22,17 @@
   <template v-if="zaaktypeMapping">
     <h3>Mapping</h3>
 
+    <div v-if="featureFlags.showTestHelpers" class="test-helper">
+      <label>
+        <input type="checkbox" @change="fillAllMappings" />
+        <span style="color: #e74c3c; font-weight: bold"
+          >for testing: check to autofill all mappings with random selections</span
+        >
+      </label>
+    </div>
+
     <status-mapping-section
+      ref="statusMappingRef"
       :mapping-id="zaaktypeMapping.id"
       :det-zaaktype="zaaktypeMapping.detZaaktype"
       :oz-zaaktype="zaaktypeMapping.ozZaaktype"
@@ -31,6 +41,7 @@
     />
 
     <resultaattype-mapping-section
+      ref="resultaattypeMappingRef"
       :mapping-id="zaaktypeMapping.id"
       :det-zaaktype="zaaktypeMapping.detZaaktype"
       :oz-zaaktype="zaaktypeMapping.ozZaaktype"
@@ -39,6 +50,7 @@
     />
 
     <besluittype-mapping-section
+      ref="besluittypeMappingRef"
       :mapping-id="zaaktypeMapping.id"
       :det-zaaktype="zaaktypeMapping.detZaaktype"
       :oz-zaaktype="zaaktypeMapping.ozZaaktype"
@@ -47,6 +59,7 @@
     />
 
     <document-property-mapping-section
+      ref="documentPropertyMappingRef"
       :mapping-id="zaaktypeMapping.id"
       :det-zaaktype="zaaktypeMapping.detZaaktype"
       :oz-zaaktype="zaaktypeMapping.ozZaaktype"
@@ -55,6 +68,7 @@
     />
 
     <vertrouwelijkheid-mapping-section
+      ref="vertrouwelijkheidMappingRef"
       :mapping-id="zaaktypeMapping.id"
       :det-zaaktype="zaaktypeMapping.detZaaktype"
       :oz-zaaktype="zaaktypeMapping.ozZaaktype"
@@ -63,6 +77,7 @@
     />
 
     <pdf-informatieobjecttype-mapping-section
+      ref="pdfMappingRef"
       :mapping-id="zaaktypeMapping.id"
       :oz-zaaktype="zaaktypeMapping.ozZaaktype"
       :disabled="isThisMigrationRunning"
@@ -111,6 +126,7 @@ import ZaaktypeMappingSection, {
 import { useMigration } from "@/composables/migration-store";
 import { useGeneralConfig } from "@/composables/use-general-config";
 import { MigrationStatus } from "@/types/datamigratie";
+import { featureFlags } from "@/config/featureFlags";
 const { detZaaktypeId } = defineProps<{ detZaaktypeId: string }>();
 
 const route = useRoute();
@@ -118,6 +134,13 @@ const search = computed(() => String(route.query.search || "").trim());
 
 const zaaktypeMapping = ref<ZaaktypeMappingModel>();
 const detZaaktypeNaam = ref<string>("");
+
+const statusMappingRef = ref();
+const resultaattypeMappingRef = ref();
+const besluittypeMappingRef = ref();
+const documentPropertyMappingRef = ref();
+const vertrouwelijkheidMappingRef = ref();
+const pdfMappingRef = ref();
 
 const statusMappingsComplete = ref(false);
 const resultaattypeMappingsComplete = ref(false);
@@ -154,10 +177,41 @@ const allIsComplete = computed(
 const canStartMigration = computed(
   () => allIsComplete.value && migration.value?.status !== MigrationStatus.inProgress
 );
+
+const fillAllMappings = async () => {
+  await Promise.all([
+    statusMappingRef.value?.fillRandomAndSave(),
+    resultaattypeMappingRef.value?.fillRandomAndSave(),
+    besluittypeMappingRef.value?.fillRandomAndSave(),
+    documentPropertyMappingRef.value?.fillRandomAndSave(),
+    vertrouwelijkheidMappingRef.value?.fillRandomAndSave(),
+    pdfMappingRef.value?.fillRandomAndSave()
+  ]);
+};
 </script>
 
 <style lang="scss" scoped>
 @use "@/assets/variables";
+
+.test-helper {
+  padding: var(--spacing-default);
+  background-color: var(--marked);
+  border: 2px dashed var(--accent);
+  border-radius: var(--radius-default);
+  margin-bottom: var(--spacing-default);
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-small);
+    cursor: pointer;
+    margin: 0;
+
+    input[type="checkbox"] {
+      cursor: pointer;
+    }
+  }
+}
 
 .status-mapping {
   margin-block-end: var(--spacing-large);

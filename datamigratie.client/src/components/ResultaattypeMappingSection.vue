@@ -157,5 +157,22 @@ watch(validMappings, (value) => {
   mappingsModel.value = value;
 });
 
+const fillRandom = () => {
+  mappingsModel.value = sourceResultaattypeItems.value.map((sourceItem) => ({
+    sourceId: sourceItem.id,
+    targetId:
+      targetResultaattypeItems.value[
+        Math.floor(Math.random() * targetResultaattypeItems.value.length)
+      ]?.id ?? null
+  }));
+};
+
+const fillRandomAndSave = async () => {
+  fillRandom();
+  await saveMappings();
+};
+
+defineExpose({ fillRandomAndSave });
+
 watch(isComplete, (v) => emit("update:complete", v));
 </script>

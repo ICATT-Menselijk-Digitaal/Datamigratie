@@ -50,7 +50,7 @@
       <template #extra-content>
         <!-- only shown when feature flag is enabled -->
         <div
-          v-if="featureFlags.showDocumenttypeTestHelper && documenttypeSourceItems.length > 0"
+          v-if="featureFlags.showTestHelpers && documenttypeSourceItems.length > 0"
           class="test-helper"
         >
           <label>
@@ -243,6 +243,34 @@ const handleSaveDocumenttype = async () => {
 const handleCancelDocumenttype = () => {
   fetchMappings();
 };
+
+const fillRandom = () => {
+  if (informatieobjecttypeTargetItems.value.length > 0) {
+    documenttypeMappingsModel.value = documenttypeSourceItems.value.map((sourceItem) => ({
+      sourceId: sourceItem.id,
+      targetId:
+        informatieobjecttypeTargetItems.value[
+          Math.floor(Math.random() * informatieobjecttypeTargetItems.value.length)
+        ].id
+    }));
+  }
+  if (vertrouwelijkheidaanduidingTargetItems.value.length > 0) {
+    publicatieNiveauMappingsModel.value = publicatieNiveauSourceItems.value.map((sourceItem) => ({
+      sourceId: sourceItem.id,
+      targetId:
+        vertrouwelijkheidaanduidingTargetItems.value[
+          Math.floor(Math.random() * vertrouwelijkheidaanduidingTargetItems.value.length)
+        ].id
+    }));
+  }
+};
+
+const fillRandomAndSave = async () => {
+  fillRandom();
+  await saveMappings();
+};
+
+defineExpose({ fillRandomAndSave });
 
 // fills documenttype mappings with random selections (when VITE_ENABLE_TEST_HELPERS=true)
 const fillRandomDocumenttypeMappings = (event: Event) => {

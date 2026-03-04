@@ -135,6 +135,21 @@ watch(
   { immediate: true }
 );
 
+const fillRandom = () => {
+  mappingsModel.value = sourceItems.value.map((sourceItem) => ({
+    sourceId: sourceItem.id,
+    targetId:
+      targetItems.value[Math.floor(Math.random() * targetItems.value.length)]?.id ?? null
+  }));
+};
+
+const fillRandomAndSave = async () => {
+  fillRandom();
+  await saveMappings();
+};
+
+defineExpose({ fillRandomAndSave });
+
 watchEffect(() => {
   // the mapping is complete when all source items are present in the mapping and have a target value
   const isMappingComplete = sourceItems.value.every((m) => {
