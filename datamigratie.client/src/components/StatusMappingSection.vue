@@ -159,21 +159,5 @@ watch(
   { immediate: true }
 );
 
-const fillRandom = () => {
-  mappingsModel.value = sourceStatusItems.value.map((sourceItem) => ({
-    sourceId: sourceItem.id,
-    targetId:
-      targetStatusItems.value[Math.floor(Math.random() * targetStatusItems.value.length)]?.id ??
-      null
-  }));
-};
-
-const fillRandomAndSave = async () => {
-  fillRandom();
-  await saveMappings();
-};
-
-defineExpose({ fillRandomAndSave });
-
 watch(isComplete, (v) => emit("update:complete", v));
 </script>
