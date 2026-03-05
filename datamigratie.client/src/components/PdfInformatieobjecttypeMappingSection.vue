@@ -9,35 +9,38 @@
         class="warning-icon"
       />
     </summary>
-    <p>
-      Voor elke zaak wordt er een PDF document gegenereerd waar niet-mapbare zaakgegevens in staan
-      die wel gemigreerd moeten worden. Selecteer welk OZ informatieobjecttype deze PDF met
-      zaakgegevens krijgt:
-    </p>
 
-    <simple-spinner v-if="isLoading" />
+    <form @submit.prevent="saveMapping">
+      <p id="pdfOmschrijving">
+        Voor elke zaak wordt er een PDF document gegenereerd waar niet-mapbare zaakgegevens in staan
+        die wel gemigreerd moeten worden. Selecteer welk OZ informatieobjecttype deze PDF met
+        zaakgegevens krijgt:
+      </p>
 
-    <template v-else>
-      <select
-        v-model="selectedInformatieobjecttypeId"
-        :disabled="(!isEditing && isMapped) || disabled"
-      >
-        <option value="">- Kies een informatieobjecttype -</option>
-        <option v-for="iot in informatieobjecttypen" :key="iot.id" :value="iot.id">
-          {{ iot.omschrijving }}
-        </option>
-      </select>
+      <simple-spinner v-if="isLoading" />
 
-      <div v-if="(!isMapped || isEditing) && !disabled" class="form-actions">
-        <button type="button" @click="saveMapping">Informatieobjecttype opslaan</button>
-      </div>
-
-      <div v-if="isMapped && !isEditing && !disabled" class="form-actions">
-        <button type="button" class="secondary" @click="isEditing = true">
-          Informatieobjecttype aanpassen
-        </button>
-      </div>
-    </template>
+      <template v-else>
+        <select
+          id="pdfInfoObjectSelect"
+          aria-labelledby="pdfOmschrijving"
+          v-model="selectedInformatieobjecttypeId"
+          :disabled="(!isEditing && isMapped) || disabled"
+        >
+          <option value="">- Kies een informatieobjecttype -</option>
+          <option v-for="iot in informatieobjecttypen" :key="iot.id" :value="iot.id">
+            {{ iot.omschrijving }}
+          </option>
+        </select>
+        <div v-if="(!isMapped || isEditing) && !disabled" class="form-actions">
+          <button type="submit">Informatieobjecttype opslaan</button>
+        </div>
+        <div v-if="isMapped && !isEditing && !disabled" class="form-actions">
+          <button type="button" class="secondary" @click="isEditing = true">
+            Informatieobjecttype aanpassen
+          </button>
+        </div>
+      </template>
+    </form>
   </details>
 </template>
 
