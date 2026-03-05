@@ -38,3 +38,9 @@ async function selectRandomOptions(details: HTMLDetailsElement) {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+button {
+  margin-block-end: var(--spacing-default);
+}
+</style>
