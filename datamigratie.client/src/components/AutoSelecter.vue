@@ -1,33 +1,40 @@
 <template>
   <button type="button" @click="openAndSelect">
-    for testing: check to autofill all mappings with random selections
+    for testing: click to autofill all mappings with random selections
   </button>
 </template>
 
 <script setup lang="ts">
-import { nextTick } from "vue";
+const wait = (ms?: number) => new Promise((r) => setTimeout(r, ms ?? 50));
 
 async function openAndSelect() {
-  openAllSections();
-  await nextTick();
-  fillInAllSelectElements();
+  for (const details of document.querySelectorAll("details")) {
+    details.open = true;
+    await wait();
+    const editButton = details.querySelector("button[data-edit-grid-open]") as
+      | HTMLButtonElement
+      | undefined;
+    editButton?.click();
+    await wait();
+    await selectRandomOptions(details);
+    const submitbutton = details.querySelector("button[type=submit]") as
+      | HTMLButtonElement
+      | undefined;
+    submitbutton?.click();
+    await wait();
+  }
 }
 
-function openAllSections() {
-  document
-    .querySelectorAll("button[data-edit-grid-open]")
-    .forEach((button) => (button as HTMLButtonElement).click());
-}
-
-function fillInAllSelectElements() {
-  document.querySelectorAll("select").forEach((select) => {
-    // ignore if it already has a value
-    if (select.value) return;
-    // find the first option that has an actual value (not a placeholder)
-    const firstOption = [...select.options].find(({ value }) => !!value);
-    // if there are no options, ignore
-    if (!firstOption) return;
-    select.value = firstOption.value;
-  });
+async function selectRandomOptions(details: HTMLDetailsElement) {
+  for (const select of details.querySelectorAll("select")) {
+    if (select.value) continue;
+    const selectableOptions = [...select.options].filter(({ value }) => !!value);
+    if (!selectableOptions.length) continue;
+    const randomChoice = Math.floor(Math.random() * selectableOptions.length);
+    const option = selectableOptions[randomChoice];
+    select.value = option.value;
+    select.dispatchEvent(new Event("change"));
+    await wait();
+  }
 }
 </script>
