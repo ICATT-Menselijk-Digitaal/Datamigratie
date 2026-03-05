@@ -135,12 +135,16 @@ watch(
   { immediate: true }
 );
 
-const fillRandomAndSave = async () => {
+const fillRandom = () => {
   mappingsModel.value = sourceItems.value.map((sourceItem) => ({
     sourceId: sourceItem.id,
     targetId:
       targetItems.value[Math.floor(Math.random() * targetItems.value.length)]?.id ?? null
   }));
+};
+
+const fillRandomAndSave = async () => {
+  fillRandom();
   await saveMappings();
 };
 

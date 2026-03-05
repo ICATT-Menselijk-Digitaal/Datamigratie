@@ -124,11 +124,15 @@ const saveMapping = async () => {
   }
 };
 
-const fillRandomAndSave = async () => {
+const fillRandom = () => {
   const items = informatieobjecttypen.value;
   if (items.length > 0) {
     selectedInformatieobjecttypeId.value = items[Math.floor(Math.random() * items.length)].id;
   }
+};
+
+const fillRandomAndSave = async () => {
+  fillRandom();
   await saveMapping();
 };
 

@@ -47,6 +47,20 @@
       @save="handleSaveDocumenttype"
       @cancel="handleCancelDocumenttype"
     >
+      <template #extra-content>
+        <!-- only shown when feature flag is enabled -->
+        <div
+          v-if="featureFlags.showTestHelpers && documenttypeSourceItems.length > 0"
+          class="test-helper"
+        >
+          <label>
+            <input type="checkbox" @change="fillRandomDocumenttypeMappings($event)" />
+            <span style="color: #e74c3c; font-weight: bold"
+              >for testing: check to autofill with random selections</span
+            >
+          </label>
+        </div>
+      </template>
     </mapping-grid>
   </div>
 </template>
@@ -57,6 +71,7 @@ import MappingGrid, { type MappingItem, type Mapping } from "@/components/Mappin
 import type { DETZaaktype } from "@/services/detService";
 import type { OZZaaktype } from "@/services/ozService";
 import { get, post } from "@/utils/fetchWrapper";
+import { featureFlags } from "@/config/featureFlags";
 import toast from "./toast/toast";
 
 type DocumentPropertyMappingItem = {
@@ -229,7 +244,7 @@ const handleCancelDocumenttype = () => {
   fetchMappings();
 };
 
-const fillRandomAndSave = async () => {
+const fillRandom = () => {
   if (informatieobjecttypeTargetItems.value.length > 0) {
     documenttypeMappingsModel.value = documenttypeSourceItems.value.map((sourceItem) => ({
       sourceId: sourceItem.id,
@@ -248,11 +263,40 @@ const fillRandomAndSave = async () => {
         ].id
     }));
   }
+};
+
+const fillRandomAndSave = async () => {
+  fillRandom();
   await saveMappings();
 };
 
 defineExpose({ fillRandomAndSave });
 
+// fills documenttype mappings with random selections (when VITE_ENABLE_TEST_HELPERS=true)
+const fillRandomDocumenttypeMappings = (event: Event) => {
+  const checkbox = event.target as HTMLInputElement;
+
+  if (checkbox.checked && informatieobjecttypeTargetItems.value.length > 0) {
+    const randomMappings = documenttypeSourceItems.value.map((sourceItem) => {
+      const randomIndex = Math.floor(Math.random() * informatieobjecttypeTargetItems.value.length);
+      const randomTarget = informatieobjecttypeTargetItems.value[randomIndex];
+
+      return {
+        sourceId: sourceItem.id,
+        targetId: randomTarget.id
+      };
+    });
+
+    documenttypeMappingsModel.value = randomMappings;
+  } else {
+    const clearedMappings = documenttypeSourceItems.value.map((sourceItem) => ({
+      sourceId: sourceItem.id,
+      targetId: null
+    }));
+
+    documenttypeMappingsModel.value = clearedMappings;
+  }
+};
 
 watch(isComplete, (c) => emit("update:complete", c));
 
@@ -291,6 +335,31 @@ watch(validPublicatieNiveauMappings, (value) => {
   // to maintain proper spacing with the next section (Vertrouwelijkheid)
   :deep(.collapsible-mapping-section:last-child) {
     margin-block-end: var(--spacing-small);
+  }
+}
+
+.test-helper {
+  padding: var(--spacing-default);
+  background-color: var(--marked);
+  border: 2px dashed var(--accent);
+  border-radius: var(--radius-default);
+  margin-bottom: var(--spacing-default);
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-small);
+    cursor: pointer;
+    margin: 0;
+
+    input[type="checkbox"] {
+      cursor: pointer;
+    }
+
+    span {
+      color: var(--code);
+      font-weight: var(--font-bold);
+    }
   }
 }
 </style>
