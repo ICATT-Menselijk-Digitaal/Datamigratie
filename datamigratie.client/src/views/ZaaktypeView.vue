@@ -64,13 +64,6 @@
       @update:complete="vertrouwelijkheidMappingsComplete = $event"
     />
 
-    <pdf-informatieobjecttype-mapping-section
-      :mapping-id="zaaktypeMapping.id"
-      :oz-zaaktype="zaaktypeMapping.ozZaaktype"
-      :disabled="isThisMigrationRunning"
-      @update:complete="generatedPdfMappingComplete = $event"
-    />
-
     <menu class="reset" v-if="!error && !isThisMigrationRunning && canStartMigration">
       <li>
         <button type="button" @click="startMigration">Start migratie</button>
@@ -104,7 +97,6 @@ import BesluittypeMappingSection from "@/components/BesluittypeMappingSection.vu
 import { useMigrationControl } from "@/composables/use-migration-control";
 import ResultaattypeMappingSection from "@/components/ResultaattypeMappingSection.vue";
 import VertrouwelijkheidMappingSection from "@/components/VertrouwelijkheidMappingSection.vue";
-import PdfInformatieobjecttypeMappingSection from "@/components/PdfInformatieobjecttypeMappingSection.vue";
 import MigrationHistoryTable from "@/components/MigrationHistoryTable.vue";
 import ZaaktypeMappingSection, {
   type ZaaktypeMappingModel

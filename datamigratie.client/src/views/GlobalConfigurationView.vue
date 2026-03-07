@@ -117,7 +117,7 @@ async function loadConfiguration() {
 
   try {
     const rsinConfig = await get<Mapping[]>(serverUrl);
-    const rsinValue = rsinConfig[0].targetId || "";
+    const rsinValue = rsinConfig[0]?.targetId || "";
     rsin.value = rsinValue;
     originalRsin.value = rsinValue;
     isEditingRsin.value = !rsinValue; // Start in edit mode if no RSIN is set
@@ -139,21 +139,17 @@ async function saveRsinConfiguration() {
     }
   }
 
-  loading.value = true;
-
   try {
+    originalRsin.value = rsin.value || "";
+    isEditingRsin.value = false;
     await put(serverUrl, [
       {
         targetId: rsin.value || undefined
       }
     ]);
-    originalRsin.value = rsin.value || "";
-    isEditingRsin.value = false;
-    toast.add({ text: "RSIN configuratie succesvol opgeslagen." });
   } catch (error: unknown) {
     toast.add({ text: `Fout bij opslaan van de RSIN - ${error}`, type: "error" });
-  } finally {
-    loading.value = false;
+    isEditingRsin.value = true;
   }
 }
 

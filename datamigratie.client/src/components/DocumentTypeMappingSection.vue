@@ -33,13 +33,21 @@ const emit = defineEmits<{
 
 const documenttypeSourceItems = computed<MappingItem[]>(() => {
   if (!props.detZaaktype.documenttypen) return [];
-  return props.detZaaktype.documenttypen
+  const fromServer = props.detZaaktype.documenttypen
     .filter((dt) => dt.actief)
     .map((dt) => ({
       id: dt.naam,
       name: dt.naam,
       description: dt.omschrijving
     }));
+  fromServer.push({
+    id: "export-pdf",
+    name: "Informatieobjecttype voor gegenereerde PDF",
+    description: `Voor elke zaak wordt er een PDF document gegenereerd waar niet-mapbare zaakgegevens in staan
+      die wel gemigreerd moeten worden. Selecteer welk OZ informatieobjecttype deze PDF met
+      zaakgegevens krijgt:`
+  });
+  return fromServer;
 });
 
 const informatieobjecttypeTargetItems = computed<MappingItem[]>(() => {
