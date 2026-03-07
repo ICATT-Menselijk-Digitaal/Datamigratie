@@ -1,82 +1,86 @@
 <template>
-  <form @submit.prevent="handleSave">
+  <form @submit.prevent="submit">
     <details class="mapping-section mapping-section--collapsible" :open="initiallyExpanded">
       <summary class="mapping-header-collapsible">
         <span>{{ title }}</span>
         <img
-          v-if="showCollapseWarning"
+          v-if="!isComplete"
           src="@/assets/bi-exclamation-circle-fill.svg"
           alt="Niet compleet"
           class="warning-icon"
         />
       </summary>
-      <p v-if="description">{{ description }}</p>
+      <p v-if="description && sourceItems.length">{{ description }}</p>
       <slot name="extra-content"></slot>
       <simple-spinner v-if="loading" />
       <div v-else-if="sourceItems.length === 0">
         <p>{{ emptyMessage }}</p>
       </div>
-      <div v-else class="mapping-grid">
-        <div class="mapping-header">
-          <div>{{ sourceLabel }}</div>
-          <div>{{ targetLabel }}</div>
-        </div>
-        <div v-for="sourceItem in sourceItems" :key="sourceItem.id" class="mapping-row">
-          <div class="source-item">
-            <strong>{{ sourceItem.name }}</strong>
-            <span v-if="sourceItem.description" class="item-description">{{
-              sourceItem.description
-            }}</span>
+      <template v-else>
+        <div class="mapping-grid">
+          <div class="mapping-header">
+            <div>{{ sourceLabel }}</div>
+            <div>{{ targetLabel }}</div>
           </div>
-          <div class="target-item">
-            <select
-              v-if="isEditing"
-              :value="getMappingForSource(sourceItem.id).targetId || ''"
-              @change="updateMapping(sourceItem.id, ($event.target as HTMLSelectElement).value)"
-              :disabled="disabled"
-            >
-              <option value="">{{ targetPlaceholder }}</option>
-              <option v-for="targetItem in targetItems" :key="targetItem.id" :value="targetItem.id">
-                {{ targetItem.name }}
-              </option>
-            </select>
-            <div v-else class="target-value">
-              <template v-if="getMappingForSource(sourceItem.id).targetId">
-                {{ getTargetName(getMappingForSource(sourceItem.id).targetId) }}
-              </template>
-              <template v-else>
-                <span>Geen</span>
-                <img src="@/assets/bi-exclamation-circle-fill.svg" alt="Niet gekoppeld" />
-              </template>
+          <div
+            v-for="{ sourceItem, targetItem } in mappings"
+            :key="sourceItem.id"
+            class="mapping-row"
+          >
+            <div class="source-item">
+              <strong>{{ sourceItem.name }}</strong>
+              <span v-if="sourceItem.description" class="item-description">{{
+                sourceItem.description
+              }}</span>
+            </div>
+            <div class="target-item">
+              <select v-if="isEditing" :name="sourceItem.id" :aria-label="sourceItem.name">
+                <option value="" :selected="!targetItem">{{ targetPlaceholder }}</option>
+                <option
+                  v-for="item in targetItems"
+                  :key="item.id"
+                  :value="item.id"
+                  :selected="item === targetItem"
+                >
+                  {{ item.name }}
+                </option>
+              </select>
+              <div v-else class="target-value">
+                <template v-if="targetItem">
+                  {{ targetItem.name }}
+                </template>
+                <template v-else>
+                  <span>Geen</span>
+                  <img src="@/assets/bi-exclamation-circle-fill.svg" alt="Niet gekoppeld" />
+                </template>
+              </div>
             </div>
           </div>
         </div>
-
-        <alert-inline v-if="!allMapped && showWarning" type="warning">
-          {{ warningMessage }}
-        </alert-inline>
-      </div>
-      <div v-if="isEditing && !disabled" class="form-actions">
-        <button type="submit">
-          {{ saveButtonText }}
-        </button>
-        <button type="button" class="secondary" @click="handleCancel">
-          {{ cancelButtonText }}
-        </button>
-      </div>
-      <div v-if="showEditButton && !isEditing && !disabled" class="form-actions">
-        <button type="button" class="secondary" @click="handleEdit">
-          {{ editButtonText }}
-        </button>
-      </div>
+        <div v-if="isEditing && !isDisabled" class="form-actions">
+          <button type="submit">
+            {{ saveButtonText }}
+          </button>
+          <button type="reset" class="secondary" @click="handleCancel">
+            {{ cancelButtonText }}
+          </button>
+        </div>
+        <div v-if="!isEditing && !isDisabled" class="form-actions">
+          <button type="button" class="secondary" @click="handleEdit">
+            {{ editButtonText }}
+          </button>
+        </div>
+      </template>
     </details>
   </form>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import AlertInline from "@/components/AlertInline.vue";
+import { computed, onWatcherCleanup, ref, watch, watchEffect } from "vue";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
+import { get, put } from "@/utils/fetchWrapper";
+import toast from "./toast/toast";
+import { useMigration } from "@/composables/migration-store";
 
 export interface MappingItem {
   id: string;
@@ -94,100 +98,108 @@ interface Props {
   description: string;
   sourceLabel: string;
   targetLabel: string;
+  detZaaktypeId?: string;
+  mappingId?: string;
   sourceItems: MappingItem[];
   targetItems: MappingItem[];
-  modelValue: Mapping[];
-  allMapped: boolean;
-  disabled?: boolean;
-  loading?: boolean;
+  mappingProperty: string;
   emptyMessage?: string;
   targetPlaceholder?: string;
   saveButtonText?: string;
   cancelButtonText?: string;
   editButtonText?: string;
-  showEditButton?: boolean;
-  showWarning?: boolean;
-  warningMessage?: string;
   initiallyExpanded?: boolean;
-  showCollapseWarning?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  disabled: false,
-  loading: false,
   emptyMessage: "Er zijn geen items beschikbaar voor dit zaaktype.",
   targetPlaceholder: "Kies een item",
-  saveButtonText: "Mappings opslaan",
+  saveButtonText: "Mapping opslaan",
   cancelButtonText: "Annuleren",
-  editButtonText: "Mappings aanpassen",
-  showEditButton: false,
-  showWarning: true,
-  warningMessage: "Niet alle items zijn gekoppeld. Migratie kan niet worden gestart.",
-  initiallyExpanded: false,
-  showCollapseWarning: false
+  editButtonText: "Mapping aanpassen",
+  initiallyExpanded: false
 });
-
-const emit = defineEmits<{
-  (e: "update:modelValue", value: Mapping[]): void;
-  (e: "save"): void;
-  (e: "cancel"): void;
-  (e: "edit"): void;
-}>();
 
 // for edit state management
 const isEditing = ref(false);
 
-const getMappingForSource = (sourceId: string): Mapping => {
-  const existing = props.modelValue.find((m) => m.sourceId === sourceId);
-  if (existing) return existing;
+const serverMappings = ref<Mapping[]>([]);
+const loading = ref(true);
+const error = ref("");
 
-  // Create a new mapping and add it to the array
-  const newMapping: Mapping = { sourceId, targetId: null };
-  emit("update:modelValue", [...props.modelValue, newMapping]);
-  return newMapping;
-};
+const serverUrl = computed(() =>
+  ["/api", "mappings", "properties", props.mappingProperty, props.mappingId]
+    .filter((x) => !!x)
+    .join("/")
+);
 
-const getTargetName = (targetId: string | null | undefined): string => {
-  if (!targetId) return "";
-  const targetItem = props.targetItems.find((item) => item.id === targetId);
-  return targetItem?.name || "";
-};
-
-const updateMapping = (sourceId: string, targetId: string) => {
-  // Convert empty string to null
-  const normalizedTargetId = targetId === "" || targetId === "null" ? null : targetId;
-
-  // Find existing mapping or create new one
-  const existingIndex = props.modelValue.findIndex((m) => m.sourceId === sourceId);
-
-  if (existingIndex >= 0) {
-    // Update existing mapping
-    const updatedMappings = [...props.modelValue];
-    updatedMappings[existingIndex] = {
-      ...updatedMappings[existingIndex],
-      targetId: normalizedTargetId
-    };
-    emit("update:modelValue", updatedMappings);
-  } else {
-    // Create new mapping
-    const newMapping: Mapping = { sourceId, targetId: normalizedTargetId };
-    emit("update:modelValue", [...props.modelValue, newMapping]);
+watchEffect(async () => {
+  const controller = new AbortController();
+  onWatcherCleanup(() => controller.abort());
+  loading.value = true;
+  error.value = "";
+  try {
+    serverMappings.value = await get(serverUrl.value);
+  } catch {
+    error.value = "fout bij ophalen mappings";
+  } finally {
+    loading.value = false;
   }
-};
+});
 
-const handleSave = () => {
-  emit("save");
+function submit(e: Event) {
+  if (!(e.target instanceof HTMLFormElement)) return;
+  const formData = new FormData(e.target);
+  const newMappings = [...formData]
+    .map(([sourceId, targetId]) => ({
+      sourceId,
+      targetId: targetId.toString()
+    }))
+    .filter((x) => !!x.targetId);
+  const oldMappings = serverMappings.value;
+  serverMappings.value = newMappings;
   isEditing.value = false;
-};
+  put(serverUrl.value, newMappings).catch(() => {
+    serverMappings.value = oldMappings;
+    toast.add({
+      text: "er ging iets mis bij het opslaan van de wijzigingen. probeer het opnieuw",
+      type: "error"
+    });
+    isEditing.value = true;
+  });
+}
+
+const mappings = computed(() =>
+  props.sourceItems.map((sourceItem) => {
+    const targetMapping = serverMappings.value.find(({ sourceId }) => sourceId == sourceItem.id);
+    const targetItem =
+      targetMapping && props.targetItems.find(({ id }) => id === targetMapping.targetId);
+    return {
+      sourceItem,
+      targetItem
+    };
+  })
+);
+
+const { migration } = useMigration();
+
+const isComplete = computed(
+  () => !loading.value && mappings.value.every(({ targetItem }) => targetItem)
+);
+
+const emit = defineEmits<{ (e: "update:complete", value: boolean): void }>();
+watch(isComplete, (v) => emit("update:complete", v), { immediate: true });
+
+const isDisabled = computed(
+  () => !!migration.value?.detZaaktypeId && migration.value.detZaaktypeId === props.detZaaktypeId
+);
 
 const handleCancel = () => {
   isEditing.value = false;
-  emit("cancel");
 };
 
 const handleEdit = () => {
   isEditing.value = true;
-  emit("edit");
 };
 </script>
 

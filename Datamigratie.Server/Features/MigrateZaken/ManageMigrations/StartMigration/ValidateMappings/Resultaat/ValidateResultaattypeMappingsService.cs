@@ -24,14 +24,12 @@ public class ValidateResultaattypeMappingsService(
             return (true, new Dictionary<string, Guid>());
         }
 
-        var mappings = await context.ResultaattypeMappings
-            .Where(rm => rm.ZaaktypenMapping.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie)
-            .ToListAsync();
-
-        var mappingDictionary = mappings.ToDictionary(m => m.DetResultaattypeNaam, m => m.OzResultaattypeId);
+        var mappingDictionary = await context.PropertyMappings
+            .Where(rm => rm.Mapping!.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie && rm.Property == "resultaattype")
+            .ToDictionaryAsync(x => x.SourceId, x => Guid.Parse(x.TargetId));
 
         // checking if all DET resultaattypen are mapped
-        var allMapped = detResultaattypen.All(resultaat => mappingDictionary.ContainsKey(resultaat));
+        var allMapped = detResultaattypen.All(mappingDictionary.ContainsKey);
 
         return (allMapped, mappingDictionary);
     }

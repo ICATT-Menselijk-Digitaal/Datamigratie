@@ -15,13 +15,13 @@ public class ValidateVertrouwelijkheidMappingsService(
 {
     public async Task<(bool IsValid, Dictionary<bool, ZaakVertrouwelijkheidaanduiding> Mappings)> ValidateAndGetVertrouwelijkheidMappings(DetZaaktypeDetail detZaaktype)
     {
-        var mappings = await context.VertrouwelijkheidMappings
-            .Where(m => m.ZaaktypenMapping.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie)
+        var mappings = await context.PropertyMappings
+            .Where(m => m.Mapping!.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie && m.Property == "vertrouwelijkheid")
             .ToListAsync();
 
         var mappingDictionary = mappings.ToDictionary(
-            m => m.DetVertrouwelijkheid,
-            m => Enum.Parse<ZaakVertrouwelijkheidaanduiding>(m.OzVertrouwelijkheidaanduiding));
+            m => bool.Parse(m.SourceId),
+            m => Enum.Parse<ZaakVertrouwelijkheidaanduiding>(m.TargetId));
 
         // Check if both true and false are mapped
         var allMapped = mappingDictionary.ContainsKey(true) && mappingDictionary.ContainsKey(false);

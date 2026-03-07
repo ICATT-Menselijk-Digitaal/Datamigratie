@@ -11,21 +11,24 @@ public class ValidateDocumentPropertyMappingsService(
 {
     public async Task<(bool IsValid, Dictionary<string, Dictionary<string, string>> Mappings)> ValidateAndGetDocumentPropertyMappings(DetZaaktypeDetail detZaaktype)
     {
-        var documentPropertyMappings = await dbContext.DocumentPropertyMappings
-            .Where(m => m.ZaaktypenMapping.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie)
+        const string Publicatieniveau = "publicatieniveau";
+        const string Documenttype = "documenttype";
+
+        var documentPropertyMappings = await dbContext.PropertyMappings
+            .Where(m => m.Mapping!.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie && (m.Property == Publicatieniveau || m.Property == Documenttype))
             .ToListAsync();
 
         // Filter out mappings with null or empty OzValue
         var validMappings = documentPropertyMappings
-            .Where(m => !string.IsNullOrWhiteSpace(m.OzValue))
+            .Where(m => !string.IsNullOrWhiteSpace(m.TargetId))
             .ToList();
 
         var publicatieNiveauMappings = validMappings
-            .Where(m => m.DetPropertyName == "publicatieniveau")
+            .Where(m => m.Property == Publicatieniveau)
             .ToList();
 
         var missingPublicatieNiveaus = MappingConstants.PublicatieNiveau.Options
-            .Where(pn => !publicatieNiveauMappings.Any(m => m.DetValue == pn.Id))
+            .Where(pn => !publicatieNiveauMappings.Any(m => m.SourceId == pn.Id))
             .ToList();
 
         if (missingPublicatieNiveaus.Count != 0)
@@ -40,11 +43,11 @@ public class ValidateDocumentPropertyMappingsService(
         if (documenttypen.Count != 0)
         {
             var documenttypeMappings = validMappings
-                .Where(m => m.DetPropertyName == "documenttype")
+                .Where(m => m.Property == "documenttype")
                 .ToList();
 
             var missingDocumenttypen = documenttypen
-                .Where(dt => !documenttypeMappings.Any(m => m.DetValue == dt.Documenttype.Naam))
+                .Where(dt => !documenttypeMappings.Any(m => m.SourceId == dt.Documenttype.Naam))
                 .Select(dt => dt.Documenttype.Naam)
                 .ToList();
 
@@ -57,10 +60,10 @@ public class ValidateDocumentPropertyMappingsService(
         }
 
         var result = validMappings
-            .GroupBy(m => m.DetPropertyName)
+            .GroupBy(m => m.Property)
             .ToDictionary(
                 g => g.Key,
-                g => g.ToDictionary(m => m.DetValue, m => m.OzValue)
+                g => g.ToDictionary(m => m.SourceId, m => m.TargetId)
             );
 
         return (true, result);

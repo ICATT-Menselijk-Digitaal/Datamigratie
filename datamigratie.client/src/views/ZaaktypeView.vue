@@ -26,7 +26,6 @@
       :mapping-id="zaaktypeMapping.id"
       :det-zaaktype="zaaktypeMapping.detZaaktype"
       :oz-zaaktype="zaaktypeMapping.ozZaaktype"
-      :disabled="isThisMigrationRunning"
       @update:complete="statusMappingsComplete = $event"
     />
 
@@ -34,7 +33,6 @@
       :mapping-id="zaaktypeMapping.id"
       :det-zaaktype="zaaktypeMapping.detZaaktype"
       :oz-zaaktype="zaaktypeMapping.ozZaaktype"
-      :disabled="isThisMigrationRunning"
       @update:complete="resultaattypeMappingsComplete = $event"
     />
 
@@ -42,23 +40,27 @@
       :mapping-id="zaaktypeMapping.id"
       :det-zaaktype="zaaktypeMapping.detZaaktype"
       :oz-zaaktype="zaaktypeMapping.ozZaaktype"
-      :disabled="isThisMigrationRunning"
       @update:complete="besluittypeMappingsComplete = $event"
     />
 
-    <document-property-mapping-section
+    <document-publicatie-niveau-mapping-section
       :mapping-id="zaaktypeMapping.id"
       :det-zaaktype="zaaktypeMapping.detZaaktype"
       :oz-zaaktype="zaaktypeMapping.ozZaaktype"
-      :disabled="isThisMigrationRunning"
-      @update:complete="documentPropertyMappingsComplete = $event"
+      @update:complete="publicatieNiveauMappingsComplete = $event"
+    />
+
+    <document-type-mapping-section
+      :mapping-id="zaaktypeMapping.id"
+      :det-zaaktype="zaaktypeMapping.detZaaktype"
+      :oz-zaaktype="zaaktypeMapping.ozZaaktype"
+      @update:complete="documentTypeMappingsComplete = $event"
     />
 
     <vertrouwelijkheid-mapping-section
       :mapping-id="zaaktypeMapping.id"
       :det-zaaktype="zaaktypeMapping.detZaaktype"
       :oz-zaaktype="zaaktypeMapping.ozZaaktype"
-      :disabled="isThisMigrationRunning"
       @update:complete="vertrouwelijkheidMappingsComplete = $event"
     />
 
@@ -101,7 +103,6 @@ import StatusMappingSection from "@/components/StatusMappingSection.vue";
 import BesluittypeMappingSection from "@/components/BesluittypeMappingSection.vue";
 import { useMigrationControl } from "@/composables/use-migration-control";
 import ResultaattypeMappingSection from "@/components/ResultaattypeMappingSection.vue";
-import DocumentPropertyMappingSection from "@/components/DocumentPropertyMappingSection.vue";
 import VertrouwelijkheidMappingSection from "@/components/VertrouwelijkheidMappingSection.vue";
 import PdfInformatieobjecttypeMappingSection from "@/components/PdfInformatieobjecttypeMappingSection.vue";
 import MigrationHistoryTable from "@/components/MigrationHistoryTable.vue";
@@ -111,6 +112,8 @@ import ZaaktypeMappingSection, {
 import { useMigration } from "@/composables/migration-store";
 import { useGeneralConfig } from "@/composables/use-general-config";
 import { MigrationStatus } from "@/types/datamigratie";
+import DocumentPublicatieNiveauMappingSection from "@/components/DocumentPublicatieNiveauMappingSection.vue";
+import DocumentTypeMappingSection from "@/components/DocumentTypeMappingSection.vue";
 const { detZaaktypeId } = defineProps<{ detZaaktypeId: string }>();
 
 const route = useRoute();
@@ -122,7 +125,8 @@ const detZaaktypeNaam = ref<string>("");
 const statusMappingsComplete = ref(false);
 const resultaattypeMappingsComplete = ref(false);
 const besluittypeMappingsComplete = ref(false);
-const documentPropertyMappingsComplete = ref(false);
+const publicatieNiveauMappingsComplete = ref(false);
+const documentTypeMappingsComplete = ref(false);
 const vertrouwelijkheidMappingsComplete = ref(false);
 const generatedPdfMappingComplete = ref(false);
 
@@ -146,7 +150,8 @@ const allIsComplete = computed(
     statusMappingsComplete.value &&
     besluittypeMappingsComplete.value &&
     resultaattypeMappingsComplete.value &&
-    documentPropertyMappingsComplete.value &&
+    publicatieNiveauMappingsComplete.value &&
+    documentTypeMappingsComplete.value &&
     vertrouwelijkheidMappingsComplete.value &&
     generatedPdfMappingComplete.value
 );

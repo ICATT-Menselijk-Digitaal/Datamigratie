@@ -76,12 +76,14 @@ const isSavedMappingComplete = computed(() => savedInformatieobjecttypeId.value 
 
 const initiallyExpanded = ref(true);
 
+const serverUrl = computed(() => `/api/mappings/properties/pdf/${props.mappingId}`);
+
 const fetchMapping = async () => {
   isLoading.value = true;
   try {
-    const response = await get<PdfInformatieobjecttypeMappingResponse>(
-      `/api/mappings/${props.mappingId}/informatieobjecttype`
-    ).catch(swallow404);
+    const response = await get<PdfInformatieobjecttypeMappingResponse>(serverUrl.value).catch(
+      swallow404
+    );
 
     selectedInformatieobjecttypeId.value = response?.ozInformatieobjecttypeId ?? "";
     savedInformatieobjecttypeId.value = response?.ozInformatieobjecttypeId ?? "";
@@ -99,7 +101,7 @@ const fetchMapping = async () => {
 const saveMapping = async () => {
   isLoading.value = true;
   try {
-    await post(`/api/mappings/${props.mappingId}/informatieobjecttype`, {
+    await post(serverUrl.value, {
       ozInformatieobjecttypeId: selectedInformatieobjecttypeId.value || null
     });
 

@@ -1,55 +1,26 @@
 <template>
   <mapping-grid
-    v-model="mappingsModel"
+    mapping-property="documentstatus"
     title="Documentstatussen"
     description="Koppel de e-Suite documentstatussen aan de Open Zaak documentstatussen."
     source-label="e-Suite Documentstatus"
     target-label="Open Zaak Documentstatus"
     :source-items="sourceItems"
     :target-items="targetItems"
-    :all-mapped="allMapped"
-    :disabled="disabled"
-    :loading="loading"
     empty-message="Er zijn geen documentstatussen beschikbaar."
     target-placeholder="- Kies een documentstatus -"
-    save-button-text="Mapping opslaan"
-    cancel-button-text="Annuleren"
-    edit-button-text="Mapping aanpassen"
-    :show-edit-button="true"
-    :show-warning="false"
-    :collapsible="true"
-    :show-collapse-warning="!allMapped"
-    @save="handleSave"
-    @cancel="handleCancel"
   />
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
-import MappingGrid, { type MappingItem, type Mapping } from "@/components/MappingGrid.vue";
-import type { DetDocumentstatus } from "@/services/detService";
-import type { DocumentstatusMappingItem } from "@/types/datamigratie";
+import { computed, onMounted, ref } from "vue";
+import MappingGrid, { type MappingItem } from "@/components/MappingGrid.vue";
+import { detService, type DetDocumentstatus } from "@/services/detService";
 
-interface Props {
-  detDocumentstatussen: DetDocumentstatus[];
-  documentstatusMappings: DocumentstatusMappingItem[];
-  allMapped: boolean;
-  disabled?: boolean;
-  loading?: boolean;
-  showWarning?: boolean;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  disabled: false,
-  loading: false,
-  showWarning: true
+const detDocumentstatussen = ref<DetDocumentstatus[]>([]);
+onMounted(async () => {
+  detDocumentstatussen.value = await detService.getAllDocumentstatussen();
 });
-
-const emit = defineEmits<{
-  (e: "save", mappings: DocumentstatusMappingItem[]): void;
-}>();
-
-const localMappings = ref<DocumentstatusMappingItem[]>([]);
 
 const ozDocumentstatussen = [
   { id: "in_bewerking", name: "In bewerking" },
@@ -59,7 +30,7 @@ const ozDocumentstatussen = [
 ];
 
 const sourceItems = computed<MappingItem[]>(() => {
-  return props.detDocumentstatussen.map((status) => ({
+  return detDocumentstatussen.value.map((status) => ({
     id: status.naam,
     name: status.naam
   }));
@@ -72,36 +43,4 @@ const targetItems = computed<MappingItem[]>(() => {
     description: undefined
   }));
 });
-
-const mappingsModel = computed<Mapping[]>({
-  get: () => {
-    return localMappings.value.map((m) => ({
-      sourceId: m.detDocumentstatus,
-      targetId: m.ozDocumentstatus
-    }));
-  },
-  set: (newMappings: Mapping[]) => {
-    localMappings.value = newMappings.map((m) => ({
-      detDocumentstatus: m.sourceId,
-      ozDocumentstatus: m.targetId
-    }));
-  }
-});
-
-const handleSave = () => {
-  emit("save", localMappings.value);
-};
-
-const handleCancel = () => {
-  // reset to server state
-  localMappings.value = JSON.parse(JSON.stringify(props.documentstatusMappings));
-};
-
-watch(
-  () => props.documentstatusMappings,
-  (newMappings) => {
-    localMappings.value = JSON.parse(JSON.stringify(newMappings));
-  },
-  { immediate: true, deep: true }
-);
 </script>
