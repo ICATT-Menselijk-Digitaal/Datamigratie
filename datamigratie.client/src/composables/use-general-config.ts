@@ -1,31 +1,27 @@
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import { get } from "@/utils/fetchWrapper";
-import type { RsinConfiguration } from "@/types/datamigratie";
+import type { Mapping } from "@/components/MappingGrid.vue";
 
 export function useGeneralConfig() {
-  const rsin = ref<string | null>(null);
   const loading = ref(false);
-
-  const isGeneralConfigComplete = computed(() => {
-    return !!rsin.value;
-  });
+  const isGeneralConfigComplete = ref(false);
 
   async function checkGeneralConfig() {
     loading.value = true;
     try {
       // checking rsin and if all DET documentstatussen have mappings
-      const rsinConfig = await get<RsinConfiguration>("/api/globalmapping/rsin");
-      rsin.value = rsinConfig.rsin || null;
+      const [rsin, documentstatus] = await Promise.all(
+        ["rsin", "documentstatus"].map((prop) => get<Mapping[]>(`/api/mappings/properties/${prop}`))
+      );
+      isGeneralConfigComplete.value = !!rsin[0]?.targetId && !!documentstatus.length;
     } catch (error) {
       console.error("Failed to check general configuration:", error);
-      rsin.value = null;
     } finally {
       loading.value = false;
     }
   }
 
   return {
-    rsin,
     isGeneralConfigComplete,
     loading,
     checkGeneralConfig

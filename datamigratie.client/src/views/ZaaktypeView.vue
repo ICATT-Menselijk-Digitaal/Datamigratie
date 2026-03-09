@@ -120,7 +120,6 @@ const besluittypeMappingsComplete = ref(false);
 const publicatieNiveauMappingsComplete = ref(false);
 const documentTypeMappingsComplete = ref(false);
 const vertrouwelijkheidMappingsComplete = ref(false);
-const generatedPdfMappingComplete = ref(false);
 
 const { error, migration } = useMigration();
 const { isThisMigrationRunning, confirmDialog, startMigration } = useMigrationControl(
@@ -145,7 +144,7 @@ const allIsComplete = computed(
     publicatieNiveauMappingsComplete.value &&
     documentTypeMappingsComplete.value &&
     vertrouwelijkheidMappingsComplete.value &&
-    generatedPdfMappingComplete.value
+    isGeneralConfigComplete.value
 );
 
 const canStartMigration = computed(
