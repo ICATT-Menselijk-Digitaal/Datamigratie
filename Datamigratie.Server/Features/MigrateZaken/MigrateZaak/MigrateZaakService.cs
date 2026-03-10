@@ -278,13 +278,18 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
         {
             var savedDocument = await _openZaakApiClient.CreateDocument(ozDocument);
 
+            var uploadSucceeded = false;
             try
             {
                 await uploadContentAction(savedDocument, token);
+                uploadSucceeded = true;
             }
             finally
             {
-                await TryUnlockDocumentIgnoringErrorsAsync(savedDocument.Id, savedDocument.Lock, token);
+                if (uploadSucceeded)
+                    await _openZaakApiClient.UnlockDocument(savedDocument.Id, savedDocument.Lock, token);
+                else
+                    await TryUnlockDocumentIgnoringErrorsAsync(savedDocument.Id, savedDocument.Lock, token);
             }
 
             await _openZaakApiClient.KoppelDocument(zaak, savedDocument, token);
@@ -294,6 +299,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
         {
             var lockToken = await _openZaakApiClient.LockDocument(documentId, token);
 
+            var uploadSucceeded = false;
             try
             {
                 ozDocument.Lock = lockToken;
@@ -312,10 +318,15 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                     documentInhoudId,
                     async (stream, ct) => await _openZaakApiClient.UploadBestand(refreshedDocument, stream, ct),
                     token);
+
+                uploadSucceeded = true;
             }
             finally
             {
-                await TryUnlockDocumentIgnoringErrorsAsync(documentId, lockToken, token);
+                if (uploadSucceeded)
+                    await _openZaakApiClient.UnlockDocument(documentId, lockToken, token);
+                else
+                    await TryUnlockDocumentIgnoringErrorsAsync(documentId, lockToken, token);
             }
         }
 
