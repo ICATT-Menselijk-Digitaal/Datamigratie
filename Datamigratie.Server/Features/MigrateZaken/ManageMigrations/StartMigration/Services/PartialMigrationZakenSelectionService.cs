@@ -42,10 +42,9 @@ public class PartialMigrationZakenSelectionService(
             })
             .ToListAsync(ct);
 
-        return latestRecordPerZaak
+        return [.. latestRecordPerZaak
             .Where(r => !r.IsSuccessful)
-            .Select(r => r.DetZaaknummer)
-            .ToList();
+            .Select(r => r.DetZaaknummer)];
     }
 
     /// <summary>
@@ -63,9 +62,8 @@ public class PartialMigrationZakenSelectionService(
 
         var allCurrentlyClosed = await detApiClient.GetZakenByZaaktype(detZaaktypeId);
 
-        return allCurrentlyClosed
+        return [.. allCurrentlyClosed
             .Where(z => !z.Open && !previouslyAttempted.Contains(z.FunctioneleIdentificatie))
-            .Select(z => z.FunctioneleIdentificatie)
-            .ToList();
+            .Select(z => z.FunctioneleIdentificatie)];
     }
 }
