@@ -22,6 +22,8 @@
   <template v-if="zaaktypeMapping">
     <h3>Mapping</h3>
 
+    <auto-selecter v-if="featureFlags.showTestHelpers" />
+
     <status-mapping-section
       :mapping-id="zaaktypeMapping.id"
       :det-zaaktype="zaaktypeMapping.detZaaktype"
@@ -111,6 +113,8 @@ import ZaaktypeMappingSection, {
 import { useMigration } from "@/composables/migration-store";
 import { useGeneralConfig } from "@/composables/use-general-config";
 import { MigrationStatus } from "@/types/datamigratie";
+import { featureFlags } from "@/config/featureFlags";
+import AutoSelecter from "@/components/AutoSelecter.vue";
 const { detZaaktypeId } = defineProps<{ detZaaktypeId: string }>();
 
 const route = useRoute();
