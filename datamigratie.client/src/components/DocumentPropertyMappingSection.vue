@@ -46,22 +46,7 @@
       :show-collapse-warning="!allDocumenttypeMapped"
       @save="handleSaveDocumenttype"
       @cancel="handleCancelDocumenttype"
-    >
-      <template #extra-content>
-        <!-- only shown when feature flag is enabled -->
-        <div
-          v-if="featureFlags.showDocumenttypeTestHelper && documenttypeSourceItems.length > 0"
-          class="test-helper"
-        >
-          <label>
-            <input type="checkbox" @change="fillRandomDocumenttypeMappings($event)" />
-            <span style="color: #e74c3c; font-weight: bold"
-              >for testing: check to autofill with random selections</span
-            >
-          </label>
-        </div>
-      </template>
-    </mapping-grid>
+    />
   </div>
 </template>
 
@@ -71,7 +56,6 @@ import MappingGrid, { type MappingItem, type Mapping } from "@/components/Mappin
 import type { DETZaaktype } from "@/services/detService";
 import type { OZZaaktype } from "@/services/ozService";
 import { get, post } from "@/utils/fetchWrapper";
-import { featureFlags } from "@/config/featureFlags";
 import toast from "./toast/toast";
 
 type DocumentPropertyMappingItem = {
@@ -242,32 +226,6 @@ const handleSaveDocumenttype = async () => {
 
 const handleCancelDocumenttype = () => {
   fetchMappings();
-};
-
-// fills documenttype mappings with random selections (when VITE_ENABLE_TEST_HELPERS=true)
-const fillRandomDocumenttypeMappings = (event: Event) => {
-  const checkbox = event.target as HTMLInputElement;
-
-  if (checkbox.checked && informatieobjecttypeTargetItems.value.length > 0) {
-    const randomMappings = documenttypeSourceItems.value.map((sourceItem) => {
-      const randomIndex = Math.floor(Math.random() * informatieobjecttypeTargetItems.value.length);
-      const randomTarget = informatieobjecttypeTargetItems.value[randomIndex];
-
-      return {
-        sourceId: sourceItem.id,
-        targetId: randomTarget.id
-      };
-    });
-
-    documenttypeMappingsModel.value = randomMappings;
-  } else {
-    const clearedMappings = documenttypeSourceItems.value.map((sourceItem) => ({
-      sourceId: sourceItem.id,
-      targetId: null
-    }));
-
-    documenttypeMappingsModel.value = clearedMappings;
-  }
 };
 
 watch(isComplete, (c) => emit("update:complete", c));

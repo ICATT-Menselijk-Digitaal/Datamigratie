@@ -65,7 +65,7 @@
         </button>
       </div>
       <div v-if="showEditButton && !isEditing && !disabled" class="form-actions">
-        <button type="button" class="secondary" @click="handleEdit">
+        <button type="button" class="secondary" @click="handleEdit" data-edit-grid-open>
           {{ editButtonText }}
         </button>
       </div>
