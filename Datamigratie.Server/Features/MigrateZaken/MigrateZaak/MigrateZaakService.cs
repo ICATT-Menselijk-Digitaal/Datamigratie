@@ -278,23 +278,16 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
         {
             var savedDocument = await _openZaakApiClient.CreateDocument(ozDocument);
 
-            var uploadSucceeded = false;
             try
             {
                 await uploadContentAction(savedDocument, token);
-                uploadSucceeded = true;
             }
-            finally
+            catch 
             {
-                if (uploadSucceeded)
-                {
-                    await _openZaakApiClient.UnlockDocument(savedDocument.Id, savedDocument.Lock, token);
-                }
-                else
-                {
-                    await TryUnlockDocumentIgnoringErrorsAsync(savedDocument.Id, savedDocument.Lock, token);
-                }
+               await TryUnlockDocumentIgnoringErrorsAsync(savedDocument.Id, savedDocument.Lock, token);
+               throw;
             }
+            await _openZaakApiClient.UnlockDocument(savedDocument.Id, savedDocument.Lock, token);
 
             await _openZaakApiClient.KoppelDocument(zaak, savedDocument, token);
         }
