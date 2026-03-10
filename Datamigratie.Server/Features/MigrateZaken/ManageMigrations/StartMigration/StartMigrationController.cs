@@ -66,6 +66,7 @@ public class StartMigrationController(
             await backgroundTaskQueue.QueueMigrationAsync(new MigrationQueueItem
             {
                 DetZaaktypeId = request.DetZaaktypeId,
+                MigrationType = request.MigrationType,
                 RsinMapping = rsinMapping,
                 StatusMappings = statusMappings,
                 ResultaatMappings = resultaatMappings,
