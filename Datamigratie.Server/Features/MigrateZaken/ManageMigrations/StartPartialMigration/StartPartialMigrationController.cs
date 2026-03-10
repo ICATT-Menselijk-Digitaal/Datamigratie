@@ -22,7 +22,7 @@ public class StartPartialMigrationController(
 
         try
         {
-            var queueItem = await buildMigrationQueueItemService.BuildAsync(request.DetZaaktypeId, MigrationType.Partial);
+            var queueItem = await buildMigrationQueueItemService.ValidateAndBuildAsync(request.DetZaaktypeId, MigrationType.Partial);
             await backgroundTaskQueue.QueueMigrationAsync(queueItem);
         }
         catch (Exception e)

@@ -15,24 +15,10 @@ public class PartialMigrationZakenSelectionService(
 {
     public async Task<IReadOnlyList<string>> SelectZakenAsync(string detZaaktypeId, CancellationToken ct = default)
     {
-        var failedZaken = await GetStillFailedZakenAsync(detZaaktypeId, ct);
-
-        var newlyClosedZaken = await GetNewlyClosedZakenAsync(detZaaktypeId, ct);
-
-        var selection = failedZaken.Union(newlyClosedZaken).ToList();
-
-        return selection;
-    }
-
-    /// <summary>
-    /// Returns zaaknummers whose most recent MigrationRecord (across all runs) is unsuccessful.
-    /// Zaken that failed in run 1 but succeeded in run 2 are excluded.
-    /// </summary>
-    private async Task<List<string>> GetStillFailedZakenAsync(string detZaaktypeId, CancellationToken ct)
-    {
-        // For each DetZaaknummer that was ever attempted for this zaaktype,
-        // get the most recent record and check if it failed.
-        var latestRecordPerZaak = await context.MigrationRecords
+        // Fetch the most recent migration result per zaaknummer in a single query.
+        // IsSuccessful = true  → previously succeeded, exclude from re-run
+        // IsSuccessful = false → still failed, include in re-run
+        var previousMigrationZaken = await context.MigrationRecords
             .Where(r => r.Migration.DetZaaktypeId == detZaaktypeId)
             .GroupBy(r => r.DetZaaknummer)
             .Select(g => new
@@ -42,28 +28,21 @@ public class PartialMigrationZakenSelectionService(
             })
             .ToListAsync(ct);
 
-        return [.. latestRecordPerZaak
+        var stillFailed = previousMigrationZaken
             .Where(r => !r.IsSuccessful)
-            .Select(r => r.DetZaaknummer)];
-    }
-
-    /// <summary>
-    /// Returns zaaknummers that are currently closed in DET but have never appeared
-    /// in any MigrationRecord for this zaaktype (i.e. were open during all previous runs).
-    /// </summary>
-    private async Task<List<string>> GetNewlyClosedZakenAsync(string detZaaktypeId, CancellationToken ct)
-    {
-        var previouslyAttempted = (await context.MigrationRecords
-            .Where(r => r.Migration.DetZaaktypeId == detZaaktypeId)
             .Select(r => r.DetZaaknummer)
-            .Distinct()
-            .ToListAsync(ct))
+            .ToList();
+
+        var previouslyAttempted = previousMigrationZaken
+            .Select(r => r.DetZaaknummer)
             .ToHashSet();
 
         var allCurrentlyClosed = await detApiClient.GetZakenByZaaktype(detZaaktypeId);
 
-        return [.. allCurrentlyClosed
+        var newlyClosed = allCurrentlyClosed
             .Where(z => !z.Open && !previouslyAttempted.Contains(z.FunctioneleIdentificatie))
-            .Select(z => z.FunctioneleIdentificatie)];
+            .Select(z => z.FunctioneleIdentificatie);
+
+        return [.. stillFailed.Union(newlyClosed)];
     }
 }

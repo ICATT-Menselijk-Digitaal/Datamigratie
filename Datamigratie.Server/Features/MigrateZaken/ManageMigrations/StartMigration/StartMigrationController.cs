@@ -22,7 +22,7 @@ public class StartMigrationController(
 
         try
         {
-            var queueItem = await buildMigrationQueueItemService.BuildAsync(request.DetZaaktypeId, MigrationType.Full);
+            var queueItem = await buildMigrationQueueItemService.ValidateAndBuildAsync(request.DetZaaktypeId, MigrationType.Full);
             await backgroundTaskQueue.QueueMigrationAsync(queueItem);
         }
         catch (Exception e)

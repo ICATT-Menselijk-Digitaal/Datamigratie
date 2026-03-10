@@ -19,7 +19,7 @@ namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.S
 
 public interface IBuildMigrationQueueItemService
 {
-    Task<MigrationQueueItem> BuildAsync(string detZaaktypeId, MigrationType migrationType);
+    Task<MigrationQueueItem> ValidateAndBuildAsync(string detZaaktypeId, MigrationType migrationType);
 }
 
 public class BuildMigrationQueueItemService(
@@ -34,7 +34,7 @@ public class BuildMigrationQueueItemService(
     IValidatePdfInformatieobjecttypeMappingService validatePdfInformatieobjecttypeMappingService,
     ILogger<BuildMigrationQueueItemService> logger) : IBuildMigrationQueueItemService
 {
-    public async Task<MigrationQueueItem> BuildAsync(string detZaaktypeId, MigrationType migrationType)
+    public async Task<MigrationQueueItem> ValidateAndBuildAsync(string detZaaktypeId, MigrationType migrationType)
     {
         var detZaaktype = await detApiClient.GetZaaktypeDetail(detZaaktypeId)
             ?? throw new InvalidOperationException($"DET Zaaktype '{detZaaktypeId}' not found.");
