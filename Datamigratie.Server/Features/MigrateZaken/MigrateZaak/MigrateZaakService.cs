@@ -296,7 +296,6 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
         {
             var lockToken = await _openZaakApiClient.LockDocument(documentId, token);
 
-            var uploadSucceeded = false;
             try
             {
                 ozDocument.Lock = lockToken;
@@ -315,20 +314,13 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                     documentInhoudId,
                     async (stream, ct) => await _openZaakApiClient.UploadBestand(refreshedDocument, stream, ct),
                     token);
-
-                uploadSucceeded = true;
             }
-            finally
+            catch
             {
-                if (uploadSucceeded)
-                {
-                    await _openZaakApiClient.UnlockDocument(documentId, lockToken, token);
-                }
-                else
-                {
-                    await TryUnlockDocumentIgnoringErrorsAsync(documentId, lockToken, token);
-                }
+                await TryUnlockDocumentIgnoringErrorsAsync(documentId, lockToken, token);
+                throw;
             }
+            await _openZaakApiClient.UnlockDocument(documentId, lockToken, token);
         }
 
         private async Task TryUnlockDocumentIgnoringErrorsAsync(Guid documentId, string? lockToken, CancellationToken token)
