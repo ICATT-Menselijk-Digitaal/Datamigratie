@@ -282,7 +282,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             }
             finally
             {
-                await _openZaakApiClient.UnlockDocument(savedDocument.Id, savedDocument.Lock, token);
+                await TryUnlockDocumentIgnoringErrorsAsync(savedDocument.Id, savedDocument.Lock, token);
             }
 
             await _openZaakApiClient.KoppelDocument(zaak, savedDocument, token);
@@ -313,7 +313,19 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             }
             finally
             {
+                await TryUnlockDocumentIgnoringErrorsAsync(documentId, lockToken, token);
+            }
+        }
+
+        private async Task TryUnlockDocumentIgnoringErrorsAsync(Guid documentId, string? lockToken, CancellationToken token)
+        {
+            try
+            {
                 await _openZaakApiClient.UnlockDocument(documentId, lockToken, token);
+            }
+            catch
+            {
+                // Swallow unlock failures so the original exception propagates that triggered this unlock attempt
             }
         }
 
