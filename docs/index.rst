@@ -18,3 +18,4 @@ DMT is ontwikkeld door `ICATT.menselijk digitaal <https://www.icatt.nl>`__ in op
    installatie/installatie.md
    migratie handleiding/migratie handleiding.md
    changelog/changelog.md
+   decision_record/decision_record.md
