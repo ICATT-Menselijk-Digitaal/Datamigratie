@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Datamigratie.Data.Migrations
 {
     [DbContext(typeof(DatamigratieDbContext))]
-    [Migration("20260310144127_Add-Migration-Run-Type")]
+    [Migration("20260310153753_Add-Migration-Run-Type")]
     partial class AddMigrationRunType
     {
         /// <inheritdoc />
@@ -137,7 +137,9 @@ namespace Datamigratie.Data.Migrations
 
                     b.Property<string>("MigrationType")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("Full");
 
                     b.Property<int>("ProcessedRecords")
                         .HasColumnType("integer");

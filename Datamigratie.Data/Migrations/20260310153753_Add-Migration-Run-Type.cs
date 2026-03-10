@@ -10,20 +10,27 @@ namespace Datamigratie.Data.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
+            migrationBuilder.AlterColumn<string>(
                 name: "MigrationType",
                 table: "Migrations",
                 type: "text",
                 nullable: false,
-                defaultValue: "");
+                defaultValue: "Full",
+                oldClrType: typeof(string),
+                oldType: "text");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
+            migrationBuilder.AlterColumn<string>(
                 name: "MigrationType",
-                table: "Migrations");
+                table: "Migrations",
+                type: "text",
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "text",
+                oldDefaultValue: "Full");
         }
     }
 }

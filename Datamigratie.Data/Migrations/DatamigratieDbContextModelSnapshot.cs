@@ -134,7 +134,9 @@ namespace Datamigratie.Data.Migrations
 
                     b.Property<string>("MigrationType")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("Full");
 
                     b.Property<int>("ProcessedRecords")
                         .HasColumnType("integer");

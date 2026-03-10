@@ -50,7 +50,8 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
 
             entity.Property(e => e.MigrationType)
                 .IsRequired()
-                .HasConversion<string>();
+                .HasConversion<string>()
+                .HasDefaultValue(MigrationType.Full);
 
             entity.Property(e => e.CreatedAt)
                 .IsRequired();
