@@ -49,10 +49,7 @@ public class StartMigrationService(
         List<DetZaakMinimal> closedZaken;
         if (migrationQueueItem.MigrationType == MigrationType.Partial)
         {
-            var selectedZaaknummers = await partialMigrationZakenSelectionService.SelectZakenAsync(migrationQueueItem.DetZaaktypeId, stoppingToken);
-            closedZaken = selectedZaaknummers
-                .Select(z => new DetZaakMinimal { FunctioneleIdentificatie = z, Open = false })
-                .ToList();
+            closedZaken = [.. await partialMigrationZakenSelectionService.SelectZakenAsync(migrationQueueItem.DetZaaktypeId, stoppingToken)];
         }
         else
         {
@@ -71,7 +68,7 @@ public class StartMigrationService(
         }
 
         var migrationSw = Stopwatch.StartNew();
-        await ExecuteMigration(migration, closedZaken, zaakTypeMapping.Id, zaakTypeMapping.OzZaaktypeId, migrationQueueItem.RsinMapping!, migrationQueueItem.StatusMappings, migrationQueueItem.ResultaatMappings, migrationQueueItem.DocumentstatusMappings, migrationQueueItem.DocumentPropertyMappings, migrationQueueItem.ZaakVertrouwelijkheidMappings, migrationQueueItem.BesluittypeMappings, migrationQueueItem.PdfInformatieobjecttypeId, stoppingToken);
+        await ExecuteMigration(migration, closedZaken, zaakTypeMapping.Id, zaakTypeMapping.OzZaaktypeId, migrationQueueItem.RsinMapping, migrationQueueItem.StatusMappings, migrationQueueItem.ResultaatMappings, migrationQueueItem.DocumentstatusMappings, migrationQueueItem.DocumentPropertyMappings, migrationQueueItem.ZaakVertrouwelijkheidMappings, migrationQueueItem.BesluittypeMappings, migrationQueueItem.PdfInformatieobjecttypeId, stoppingToken);
         migrationSw.Stop();
         MigrationDurationHistogram.Record(migrationSw.Elapsed.TotalMilliseconds);
         await CompleteMigrationAsync(migration);

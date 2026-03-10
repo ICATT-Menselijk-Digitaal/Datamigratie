@@ -1,4 +1,5 @@
 ﻿using Datamigratie.Common.Services.Det;
+using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,14 +7,14 @@ namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.S
 
 public interface IPartialMigrationZakenSelectionService
 {
-    Task<IReadOnlyList<string>> SelectZakenAsync(string detZaaktypeId, CancellationToken ct = default);
+    Task<IReadOnlyList<DetZaakMinimal>> SelectZakenAsync(string detZaaktypeId, CancellationToken ct = default);
 }
 
 public class PartialMigrationZakenSelectionService(
     DatamigratieDbContext context,
     IDetApiClient detApiClient) : IPartialMigrationZakenSelectionService
 {
-    public async Task<IReadOnlyList<string>> SelectZakenAsync(string detZaaktypeId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<DetZaakMinimal>> SelectZakenAsync(string detZaaktypeId, CancellationToken ct = default)
     {
         // Fetch the most recent migration result per zaaknummer in a single query.
         // IsSuccessful = true  → previously succeeded, exclude from re-run
@@ -30,18 +31,17 @@ public class PartialMigrationZakenSelectionService(
 
         var stillFailed = previousMigrationZaken
             .Where(r => !r.IsSuccessful)
-            .Select(r => r.DetZaaknummer)
+            .Select(r => new DetZaakMinimal { FunctioneleIdentificatie = r.DetZaaknummer, Open = false })
             .ToList();
 
         var previouslyAttempted = previousMigrationZaken
             .Select(r => r.DetZaaknummer)
             .ToHashSet();
 
-        var allCurrentlyClosed = await detApiClient.GetZakenByZaaktype(detZaaktypeId);
+        var allZakenFromZaaktype = await detApiClient.GetZakenByZaaktype(detZaaktypeId);
 
-        var newlyClosed = allCurrentlyClosed
-            .Where(z => !z.Open && !previouslyAttempted.Contains(z.FunctioneleIdentificatie))
-            .Select(z => z.FunctioneleIdentificatie);
+        var newlyClosed = allZakenFromZaaktype
+            .Where(z => !z.Open && !previouslyAttempted.Contains(z.FunctioneleIdentificatie));
 
         return [.. stillFailed.Union(newlyClosed)];
     }
