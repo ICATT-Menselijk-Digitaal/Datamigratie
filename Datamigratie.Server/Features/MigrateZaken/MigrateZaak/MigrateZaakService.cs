@@ -9,6 +9,7 @@ using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Server.Features.Migrate.MigrateZaak.Models;
 using Datamigratie.Server.Features.Migrate.MigrateZaak.Pdf;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Datamigratie.Server.Features.Migrate.MigrateZaak
@@ -22,7 +23,8 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
         IOpenZaakApiClient openZaakApiClient,
         IDetApiClient detClient,
         IOptions<OpenZaakApiOptions> options,
-        IZaakgegevensPdfGenerator pdfGenerator) : IMigrateZaakService
+        IZaakgegevensPdfGenerator pdfGenerator,
+        ILogger<MigrateZaakService> logger) : IMigrateZaakService
     {
         private static readonly ActivitySource ActivitySource = new("Datamigratie.Server");
         private static readonly Meter Meter = new("Datamigratie.Server");
@@ -323,9 +325,10 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             {
                 await _openZaakApiClient.UnlockDocument(documentId, lockToken, token);
             }
-            catch
+            catch (Exception ex)
             {
                 // Swallow unlock failures so the original exception propagates that triggered this unlock attempt
+                logger.LogWarning(ex, "Failed to unlock document {DocumentId} after an error. The document may remain locked in OpenZaak.", documentId);
             }
         }
 
