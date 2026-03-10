@@ -276,10 +276,45 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
         {
             var savedDocument = await _openZaakApiClient.CreateDocument(ozDocument);
 
-            await uploadContentAction(savedDocument, token);
+            try
+            {
+                await uploadContentAction(savedDocument, token);
+            }
+            finally
+            {
+                await _openZaakApiClient.UnlockDocument(savedDocument.Id, savedDocument.Lock, token);
+            }
 
-            await _openZaakApiClient.UnlockDocument(savedDocument.Id, savedDocument.Lock, token);
             await _openZaakApiClient.KoppelDocument(zaak, savedDocument, token);
+        }
+
+        private async Task UpdateDocumentVersionAsync(Guid documentId, OzDocument ozDocument, long documentInhoudId, CancellationToken token)
+        {
+            var lockToken = await _openZaakApiClient.LockDocument(documentId, token);
+
+            try
+            {
+                ozDocument.Lock = lockToken;
+
+                // update document to create new version
+                await _openZaakApiClient.UpdateDocument(documentId, ozDocument);
+
+                // after an update the document contains outdated bestandsdelen information.
+                // we need to GET a document again in order to get the latest bestandsdelen
+                var refreshedDocument = await _openZaakApiClient.GetDocument(documentId)
+                    ?? throw new InvalidDataException($"We cannot find the document with id {documentId} that was updated.");
+
+                refreshedDocument.Lock = lockToken;
+
+                await detClient.GetDocumentInhoudAsync(
+                    documentInhoudId,
+                    async (stream, ct) => await _openZaakApiClient.UploadBestand(refreshedDocument, stream, ct),
+                    token);
+            }
+            finally
+            {
+                await _openZaakApiClient.UnlockDocument(documentId, lockToken, token);
+            }
         }
 
         private async Task UploadZaakgegevensPdfAsync(DetZaak detZaak, OzZaak createdZaak, Guid pdfInformatieobjecttypeId, string rsin, CancellationToken token)
@@ -499,33 +534,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                                 throw new InvalidOperationException("First document version must be created before updating");
                             }
 
-                            // lock the document to get a lock token
-                            var lockToken = await _openZaakApiClient.LockDocument(mainDocument.Id, token);
-
-                            // set lock token
-                            ozDocument.Lock = lockToken;
-
-                            // update document to create new version
-                            var updatedDocument = await _openZaakApiClient.UpdateDocument(mainDocument.Id, ozDocument);
-
-                            // after an update the document contains outdated bestandsdelen information.
-                            // we need to GET a document again in order to get the latest bestandsdelen
-                            var refreshedDocument = await _openZaakApiClient.GetDocument(mainDocument.Id);
-
-                            if (refreshedDocument == null)
-                            {
-                                throw new InvalidDataException($"We cannot find the document with id {mainDocument.Id} that was updated.");
-                            }
-
-                            // set lock token again
-                            refreshedDocument.Lock = lockToken;
-
-                            await detClient.GetDocumentInhoudAsync(
-                                detVersie.DocumentInhoudID,
-                                async (stream, ct) => await _openZaakApiClient.UploadBestand(refreshedDocument, stream, ct),
-                                token);
-
-                            await _openZaakApiClient.UnlockDocument(mainDocument.Id, lockToken, token);
+                            await UpdateDocumentVersionAsync(mainDocument.Id, ozDocument, detVersie.DocumentInhoudID, token);
                         }
 
                     }
