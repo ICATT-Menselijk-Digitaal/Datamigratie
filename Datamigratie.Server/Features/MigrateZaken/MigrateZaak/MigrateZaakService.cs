@@ -287,9 +287,13 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             finally
             {
                 if (uploadSucceeded)
+                {
                     await _openZaakApiClient.UnlockDocument(savedDocument.Id, savedDocument.Lock, token);
+                }
                 else
+                {
                     await TryUnlockDocumentIgnoringErrorsAsync(savedDocument.Id, savedDocument.Lock, token);
+                }
             }
 
             await _openZaakApiClient.KoppelDocument(zaak, savedDocument, token);
@@ -324,9 +328,13 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             finally
             {
                 if (uploadSucceeded)
+                {
                     await _openZaakApiClient.UnlockDocument(documentId, lockToken, token);
+                }
                 else
+                {
                     await TryUnlockDocumentIgnoringErrorsAsync(documentId, lockToken, token);
+                }
             }
         }
 
