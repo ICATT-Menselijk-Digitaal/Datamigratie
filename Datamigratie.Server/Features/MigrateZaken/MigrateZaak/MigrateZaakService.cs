@@ -339,7 +339,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             catch (Exception ex)
             {
                 // Swallow unlock failures so the original exception propagates that triggered this unlock attempt
-                logger.LogWarning(ex, "Failed to unlock document {DocumentId} after an error. The document may remain locked in OpenZaak.", documentId);
+                logger.LogError(ex, "Failed to unlock document {DocumentId} after an error. The document may remain locked in OpenZaak.", documentId);
             }
         }
 
