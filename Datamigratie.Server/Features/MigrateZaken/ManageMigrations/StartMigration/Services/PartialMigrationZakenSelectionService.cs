@@ -28,7 +28,7 @@ public class PartialMigrationZakenSelectionService(
     /// Returns zaaknummers whose most recent MigrationRecord (across all runs) is unsuccessful.
     /// Zaken that failed in run 1 but succeeded in run 2 are excluded.
     /// </summary>
-    private async Task<HashSet<string>> GetStillFailedZakenAsync(string detZaaktypeId, CancellationToken ct)
+    private async Task<List<string>> GetStillFailedZakenAsync(string detZaaktypeId, CancellationToken ct)
     {
         // For each DetZaaknummer that was ever attempted for this zaaktype,
         // get the most recent record and check if it failed.
@@ -45,14 +45,14 @@ public class PartialMigrationZakenSelectionService(
         return latestRecordPerZaak
             .Where(r => !r.IsSuccessful)
             .Select(r => r.DetZaaknummer)
-            .ToHashSet();
+            .ToList();
     }
 
     /// <summary>
     /// Returns zaaknummers that are currently closed in DET but have never appeared
     /// in any MigrationRecord for this zaaktype (i.e. were open during all previous runs).
     /// </summary>
-    private async Task<HashSet<string>> GetNewlyClosedZakenAsync(string detZaaktypeId, CancellationToken ct)
+    private async Task<List<string>> GetNewlyClosedZakenAsync(string detZaaktypeId, CancellationToken ct)
     {
         var previouslyAttempted = (await context.MigrationRecords
             .Where(r => r.Migration.DetZaaktypeId == detZaaktypeId)
@@ -66,6 +66,6 @@ public class PartialMigrationZakenSelectionService(
         return allCurrentlyClosed
             .Where(z => !z.Open && !previouslyAttempted.Contains(z.FunctioneleIdentificatie))
             .Select(z => z.FunctioneleIdentificatie)
-            .ToHashSet();
+            .ToList();
     }
 }
