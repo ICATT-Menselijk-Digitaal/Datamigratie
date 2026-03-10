@@ -1,6 +1,6 @@
 <template>
   <button type="button" @click="openAndSelect">
-    for testing: click to autofill all mappings with random selections
+    Voor testen: vul alle mappings automatisch met willekeurige keuzes
   </button>
 </template>
 
