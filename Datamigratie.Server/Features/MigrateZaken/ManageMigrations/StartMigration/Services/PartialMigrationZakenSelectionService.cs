@@ -1,4 +1,4 @@
-using Datamigratie.Common.Services.Det;
+﻿using Datamigratie.Common.Services.Det;
 using Datamigratie.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,19 +11,15 @@ public interface IPartialMigrationZakenSelectionService
 
 public class PartialMigrationZakenSelectionService(
     DatamigratieDbContext context,
-    IDetApiClient detApiClient,
-    ILogger<PartialMigrationZakenSelectionService> logger) : IPartialMigrationZakenSelectionService
+    IDetApiClient detApiClient) : IPartialMigrationZakenSelectionService
 {
     public async Task<IReadOnlyList<string>> SelectZakenAsync(string detZaaktypeId, CancellationToken ct = default)
     {
         var failedZaken = await GetStillFailedZakenAsync(detZaaktypeId, ct);
-        logger.LogInformation("Partial migration: {Count} still-failed zaken for zaaktype {ZaaktypeId}", failedZaken.Count, detZaaktypeId);
 
         var newlyClosedZaken = await GetNewlyClosedZakenAsync(detZaaktypeId, ct);
-        logger.LogInformation("Partial migration: {Count} newly-closed zaken for zaaktype {ZaaktypeId}", newlyClosedZaken.Count, detZaaktypeId);
 
         var selection = failedZaken.Union(newlyClosedZaken).ToList();
-        logger.LogInformation("Partial migration: {Count} total zaken selected for zaaktype {ZaaktypeId}", selection.Count, detZaaktypeId);
 
         return selection;
     }
