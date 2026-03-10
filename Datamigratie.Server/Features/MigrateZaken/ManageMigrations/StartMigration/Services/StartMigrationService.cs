@@ -53,20 +53,11 @@ public class StartMigrationService(
             closedZaken = selectedZaaknummers
                 .Select(z => new DetZaakMinimal { FunctioneleIdentificatie = z, Open = false })
                 .ToList();
-            logger.LogInformation(
-                "Partial migration: {Count} zaken selected for zaaktype {ZaaktypeId}",
-                closedZaken.Count,
-                migrationQueueItem.DetZaaktypeId);
         }
         else
         {
             var allZaken = await detApiClient.GetZakenByZaaktype(migrationQueueItem.DetZaaktypeId);
             closedZaken = allZaken.Where(z => !z.Open).ToList();
-            logger.LogInformation(
-                "Found {TotalCount} zaken for zaaktype {ZaaktypeId}, {ClosedCount} are closed and will be migrated",
-                allZaken.Count,
-                migrationQueueItem.DetZaaktypeId,
-                closedZaken.Count);
         }
 
         await UpdateMigrationTotalRecordsAsync(migration, closedZaken.Count, stoppingToken);

@@ -38,7 +38,7 @@ public class PartialMigrationZakenSelectionService(
             .Select(g => new
             {
                 DetZaaknummer = g.Key,
-                IsSuccessful = g.OrderByDescending(r => r.ProcessedAt).First().IsSuccessful
+                g.OrderByDescending(r => r.ProcessedAt).First().IsSuccessful
             })
             .ToListAsync(ct);
 
@@ -54,11 +54,12 @@ public class PartialMigrationZakenSelectionService(
     /// </summary>
     private async Task<HashSet<string>> GetNewlyClosedZakenAsync(string detZaaktypeId, CancellationToken ct)
     {
-        var previouslyAttempted = await context.MigrationRecords
+        var previouslyAttempted = (await context.MigrationRecords
             .Where(r => r.Migration.DetZaaktypeId == detZaaktypeId)
             .Select(r => r.DetZaaknummer)
             .Distinct()
-            .ToHashSetAsync(ct);
+            .ToListAsync(ct))
+            .ToHashSet();
 
         var allCurrentlyClosed = await detApiClient.GetZakenByZaaktype(detZaaktypeId);
 
