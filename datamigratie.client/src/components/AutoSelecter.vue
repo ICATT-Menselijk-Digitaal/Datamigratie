@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-const wait = (ms?: number) => new Promise((r) => setTimeout(r, ms ?? 50));
+const wait = (ms?: number) => new Promise((r) => setTimeout(r, ms ?? 100));
 
 async function openAndSelect() {
   for (const details of document.querySelectorAll("details")) {
