@@ -71,6 +71,7 @@ type DocumentPropertyMappingResponse = {
 };
 
 type SaveDocumentPropertyMappingsRequest = {
+  detPropertyName: string;
   mappings: DocumentPropertyMappingItem[];
 };
 
@@ -132,29 +133,54 @@ const fetchMappings = async () => {
   }
 };
 
-const saveMappings = async () => {
+const savePublicatieNiveauMappings = async () => {
   isLoading.value = true;
   try {
-    const mappingsToSave = [
-      ...documenttypeMappingsModel.value.map(({ sourceId, targetId }) => ({
-        detValue: sourceId,
-        ozValue: targetId,
-        detPropertyName: DOCUMENTTYPE
-      })),
-      ...publicatieNiveauMappingsModel.value.map(({ sourceId, targetId }) => ({
+    const mappingsToSave = publicatieNiveauMappingsModel.value
+      .filter(({ targetId }) => targetId)
+      .map(({ sourceId, targetId }) => ({
         detValue: sourceId,
         ozValue: targetId,
         detPropertyName: PUBLICATIENIVEAU
-      }))
-    ].filter(({ ozValue }) => ozValue);
+      }));
 
     await post(`/api/mappings/${props.mappingId}/documentproperties`, {
+      detPropertyName: PUBLICATIENIVEAU,
       mappings: mappingsToSave
     } as SaveDocumentPropertyMappingsRequest);
 
     await fetchMappings();
+    toast.add({ text: "De publicatieniveau mappings zijn succesvol opgeslagen." });
   } catch (error) {
-    console.error("Error saving document property mappings:", error);
+    toast.add({
+      text: `Fout bij opslaan van de publicatieniveau mapping - ${error}`,
+      type: "error"
+    });
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const saveDocumenttypeMappings = async () => {
+  isLoading.value = true;
+  try {
+    const mappingsToSave = documenttypeMappingsModel.value
+      .filter(({ targetId }) => targetId)
+      .map(({ sourceId, targetId }) => ({
+        detValue: sourceId,
+        ozValue: targetId,
+        detPropertyName: DOCUMENTTYPE
+      }));
+
+    await post(`/api/mappings/${props.mappingId}/documentproperties`, {
+      detPropertyName: DOCUMENTTYPE,
+      mappings: mappingsToSave
+    } as SaveDocumentPropertyMappingsRequest);
+
+    await fetchMappings();
+    toast.add({ text: "De documenttype mappings zijn succesvol opgeslagen." });
+  } catch (error) {
+    toast.add({ text: `Fout bij opslaan van de documenttype mapping - ${error}`, type: "error" });
   } finally {
     isLoading.value = false;
   }
@@ -213,7 +239,7 @@ const publicatieNiveauMappingsModel = ref<Mapping[]>([]);
 const documenttypeMappingsModel = ref<Mapping[]>([]);
 
 const handleSavePublicatieNiveau = async () => {
-  await saveMappings();
+  await savePublicatieNiveauMappings();
 };
 
 const handleCancelPublicatieNiveau = () => {
@@ -221,7 +247,7 @@ const handleCancelPublicatieNiveau = () => {
 };
 
 const handleSaveDocumenttype = async () => {
-  await saveMappings();
+  await saveDocumenttypeMappings();
 };
 
 const handleCancelDocumenttype = () => {

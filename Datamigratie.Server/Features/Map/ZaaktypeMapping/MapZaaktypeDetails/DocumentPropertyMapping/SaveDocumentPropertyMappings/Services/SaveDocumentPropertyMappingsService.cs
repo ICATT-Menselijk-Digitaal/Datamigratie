@@ -1,4 +1,4 @@
-using Datamigratie.Data;
+﻿using Datamigratie.Data;
 using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.DocumentPropertyMapping.SaveDocumentPropertyMappings.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,9 +14,9 @@ public class SaveDocumentPropertyMappingsService(DatamigratieDbContext context) 
     public async Task SaveDocumentPropertyMappings(Guid zaaktypenMappingId, SaveDocumentPropertyMappingsRequest request)
     {
         var existingMappings = await context.DocumentPropertyMappings
-            .Where(dam => dam.ZaaktypenMappingId == zaaktypenMappingId)
+            .Where(dam => dam.ZaaktypenMappingId == zaaktypenMappingId && dam.DetPropertyName == request.DetPropertyName)
             .ToListAsync();
-        
+
         context.DocumentPropertyMappings.RemoveRange(existingMappings);
 
         var newMappings = request.Mappings.Select(m => new Data.Entities.DocumentPropertyMapping
@@ -26,7 +26,7 @@ public class SaveDocumentPropertyMappingsService(DatamigratieDbContext context) 
             DetValue = m.DetValue,
             OzValue = m.OzValue
         });
-        
+
         await context.DocumentPropertyMappings.AddRangeAsync(newMappings);
         await context.SaveChangesAsync();
     }

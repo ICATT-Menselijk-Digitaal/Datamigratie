@@ -2,6 +2,8 @@ namespace Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDet
 
 public class SaveDocumentPropertyMappingsRequest
 {
+    public required string DetPropertyName { get; set; }
+
     public required List<DocumentPropertyMappingItem> Mappings { get; set; }
 }
 
