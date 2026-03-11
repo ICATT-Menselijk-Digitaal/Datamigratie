@@ -32,10 +32,16 @@ namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Q
                 public required Dictionary<string, string> DocumentstatusMappings { get; set; }
 
                 /// <summary>
-                /// Document property mappings loaded and validated by StartMigrationController before queuing.
-                /// Dictionary: PropertyName -> (DetValue -> OzValue)
+                /// Publicatieniveau mappings loaded and validated by StartMigrationController before queuing.
+                /// Dictionary: DetPublicatieNiveau -> OzVertrouwelijkheidaanduiding
                 /// </summary>
-                public required Dictionary<string, Dictionary<string, string>> DocumentPropertyMappings { get; set; }
+                public required Dictionary<string, string> PublicatieNiveauMappings { get; set; }
+
+                /// <summary>
+                /// Documenttype mappings loaded and validated by StartMigrationController before queuing.
+                /// Dictionary: DetDocumenttypeNaam -> OzInformatieobjecttypeUrl
+                /// </summary>
+                public required Dictionary<string, string> DocumenttypeMappings { get; set; }
 
                 /// <summary>
                 /// Vertrouwelijkheid mappings loaded and validated by StartMigrationController before queuing.

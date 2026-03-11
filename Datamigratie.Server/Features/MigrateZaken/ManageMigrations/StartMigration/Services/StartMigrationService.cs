@@ -66,12 +66,12 @@ public class StartMigrationService(
         }
 
         var migrationSw = Stopwatch.StartNew();
-        await ExecuteMigration(migration, closedZaken, zaakTypeMapping.Id, zaakTypeMapping.OzZaaktypeId, migrationQueueItem.RsinMapping!, migrationQueueItem.StatusMappings, migrationQueueItem.ResultaatMappings, migrationQueueItem.DocumentstatusMappings, migrationQueueItem.DocumentPropertyMappings, migrationQueueItem.ZaakVertrouwelijkheidMappings, migrationQueueItem.BesluittypeMappings, migrationQueueItem.PdfInformatieobjecttypeId, stoppingToken);
+        await ExecuteMigration(migration, closedZaken, zaakTypeMapping.Id, zaakTypeMapping.OzZaaktypeId, migrationQueueItem.RsinMapping!, migrationQueueItem.StatusMappings, migrationQueueItem.ResultaatMappings, migrationQueueItem.DocumentstatusMappings, migrationQueueItem.PublicatieNiveauMappings, migrationQueueItem.DocumenttypeMappings, migrationQueueItem.ZaakVertrouwelijkheidMappings, migrationQueueItem.BesluittypeMappings, migrationQueueItem.PdfInformatieobjecttypeId, stoppingToken);
         migrationSw.Stop();
         MigrationDurationHistogram.Record(migrationSw.Elapsed.TotalMilliseconds);
         await CompleteMigrationAsync(migration);
     }
-    private async Task ExecuteMigration(Data.Entities.Migration migration, List<DetZaakMinimal> zaken, Guid zaaktypenMappingId, Guid openZaaktypeId, RsinMapping rsinMapping, Dictionary<string, Guid> statusMappings, Dictionary<string, Guid> resultaatMappings, Dictionary<string, string> documentstatusMappings, Dictionary<string, Dictionary<string, string>> documentPropertyMappings, Dictionary<bool, ZaakVertrouwelijkheidaanduiding> vertrouwelijkheidMappings, Dictionary<string, Guid> besluittypeMappings, Guid pdfInformatieobjecttypeId, CancellationToken ct)
+    private async Task ExecuteMigration(Data.Entities.Migration migration, List<DetZaakMinimal> zaken, Guid zaaktypenMappingId, Guid openZaaktypeId, RsinMapping rsinMapping, Dictionary<string, Guid> statusMappings, Dictionary<string, Guid> resultaatMappings, Dictionary<string, string> documentstatusMappings, Dictionary<string, string> publicatieNiveauMappings, Dictionary<string, string> documenttypeMappings, Dictionary<bool, ZaakVertrouwelijkheidaanduiding> vertrouwelijkheidMappings, Dictionary<string, Guid> besluittypeMappings, Guid pdfInformatieobjecttypeId, CancellationToken ct)
     {
         logger.LogInformation("Starting migration {Id} for DET ZaaktypeId {DetZaaktypeId} to OZ ZaaktypeId {OpenZaaktypeId} with zaken count {Count} to migrate",
             migration.Id, migration.DetZaaktypeId, openZaaktypeId, zaken.Count);
@@ -84,7 +84,7 @@ public class StartMigrationService(
                 return;
             }
 
-            await MigrateSingleZaakAsync(migration, zaak, openZaaktypeId, rsinMapping, resultaatMappings, statusMappings, documentstatusMappings, documentPropertyMappings, vertrouwelijkheidMappings, besluittypeMappings, pdfInformatieobjecttypeId, ct);
+            await MigrateSingleZaakAsync(migration, zaak, openZaaktypeId, rsinMapping, resultaatMappings, statusMappings, documentstatusMappings, publicatieNiveauMappings, documenttypeMappings, vertrouwelijkheidMappings, besluittypeMappings, pdfInformatieobjecttypeId, ct);
             await ReportProgressAsync(migration, ct);
         }
     }
@@ -102,7 +102,7 @@ public class StartMigrationService(
                 : 0.0);
     }
 
-    private async Task MigrateSingleZaakAsync(Migration migration, DetZaakMinimal zaakMinimal, Guid openZaaktypeId, RsinMapping rsinMapping, Dictionary<string, Guid> resultaatMappings, Dictionary<string, Guid> statusMappings, Dictionary<string, string> documentstatusMappings, Dictionary<string, Dictionary<string, string>> documentPropertyMappings, Dictionary<bool, ZaakVertrouwelijkheidaanduiding> zaakVertrouwelijkheidMappings, Dictionary<string, Guid> besluittypeMappings, Guid pdfInformatieobjecttypeId, CancellationToken ct)
+    private async Task MigrateSingleZaakAsync(Migration migration, DetZaakMinimal zaakMinimal, Guid openZaaktypeId, RsinMapping rsinMapping, Dictionary<string, Guid> resultaatMappings, Dictionary<string, Guid> statusMappings, Dictionary<string, string> documentstatusMappings, Dictionary<string, string> publicatieNiveauMappings, Dictionary<string, string> documenttypeMappings, Dictionary<bool, ZaakVertrouwelijkheidaanduiding> zaakVertrouwelijkheidMappings, Dictionary<string, Guid> besluittypeMappings, Guid pdfInformatieobjecttypeId, CancellationToken ct)
     {
         MigrationRecord record;
         try
@@ -120,7 +120,8 @@ public class StartMigrationService(
                 ResultaattypeUri = resultaattypeUri,
                 StatustypeUri = statustypeUri,
                 DocumentstatusMappings = documentstatusMappings,
-                DocumentPropertyMappings = documentPropertyMappings,
+                PublicatieNiveauMappings = publicatieNiveauMappings,
+                DocumenttypeMappings = documenttypeMappings,
                 ZaakVertrouwelijkheidMappings = zaakVertrouwelijkheidMappings,
                 BesluittypeMappings = besluittypeMappings,
                 PdfInformatieobjecttypeId = pdfInformatieobjecttypeId
