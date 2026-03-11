@@ -31,6 +31,14 @@ public class Migration
     public int FailedRecords { get; set; }
     
     public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
+
+    public MigrationType MigrationType { get; set; } = MigrationType.Full;
+}
+
+public enum MigrationType
+{
+    Full,
+    Partial
 }
 
 public enum MigrationStatus

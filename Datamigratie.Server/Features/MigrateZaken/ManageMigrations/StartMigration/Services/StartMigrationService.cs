@@ -28,7 +28,8 @@ public class StartMigrationService(
     ILogger<StartMigrationService> logger,
     IMigrateZaakService migrateZaakService,
     MigrationWorkerState workerState,
-    IOptions<OpenZaakApiOptions> openZaakOptions) : IStartMigrationService
+    IOptions<OpenZaakApiOptions> openZaakOptions,
+    IPartialMigrationZakenSelectionService partialMigrationZakenSelectionService) : IStartMigrationService
 {
     private static readonly Meter Meter = new("Datamigratie.Server");
 
@@ -45,15 +46,16 @@ public class StartMigrationService(
 
         workerState.MigrationId = migration.Id;
 
-        var allZaken = await detApiClient.GetZakenByZaaktype(migrationQueueItem.DetZaaktypeId);
-
-        var closedZaken = allZaken.Where(z => !z.Open).ToList();
-
-        logger.LogInformation(
-            "Found {TotalCount} zaken for zaaktype {ZaaktypeId}, {ClosedCount} are closed and will be migrated",
-            allZaken.Count,
-            migrationQueueItem.DetZaaktypeId,
-            closedZaken.Count);
+        List<DetZaakMinimal> closedZaken;
+        if (migrationQueueItem.MigrationType == MigrationType.Partial)
+        {
+            closedZaken = [.. await partialMigrationZakenSelectionService.SelectZakenAsync(migrationQueueItem.DetZaaktypeId, stoppingToken)];
+        }
+        else
+        {
+            var allZaken = await detApiClient.GetZakenByZaaktype(migrationQueueItem.DetZaaktypeId);
+            closedZaken = allZaken.Where(z => !z.Open).ToList();
+        }
 
         await UpdateMigrationTotalRecordsAsync(migration, closedZaken.Count, stoppingToken);
 
@@ -66,7 +68,7 @@ public class StartMigrationService(
         }
 
         var migrationSw = Stopwatch.StartNew();
-        await ExecuteMigration(migration, closedZaken, zaakTypeMapping.Id, zaakTypeMapping.OzZaaktypeId, migrationQueueItem.RsinMapping!, migrationQueueItem.StatusMappings, migrationQueueItem.ResultaatMappings, migrationQueueItem.DocumentstatusMappings, migrationQueueItem.DocumentPropertyMappings, migrationQueueItem.ZaakVertrouwelijkheidMappings, migrationQueueItem.BesluittypeMappings, migrationQueueItem.PdfInformatieobjecttypeId, stoppingToken);
+        await ExecuteMigration(migration, closedZaken, zaakTypeMapping.Id, zaakTypeMapping.OzZaaktypeId, migrationQueueItem.RsinMapping, migrationQueueItem.StatusMappings, migrationQueueItem.ResultaatMappings, migrationQueueItem.DocumentstatusMappings, migrationQueueItem.DocumentPropertyMappings, migrationQueueItem.ZaakVertrouwelijkheidMappings, migrationQueueItem.BesluittypeMappings, migrationQueueItem.PdfInformatieobjecttypeId, stoppingToken);
         migrationSw.Stop();
         MigrationDurationHistogram.Record(migrationSw.Elapsed.TotalMilliseconds);
         await CompleteMigrationAsync(migration);
@@ -315,6 +317,7 @@ public class StartMigrationService(
         var migration = new Migration
         {
             DetZaaktypeId = queueItem.DetZaaktypeId,
+            MigrationType = queueItem.MigrationType,
             Status = MigrationStatus.InProgress,
             CreatedAt = DateTime.UtcNow,
             StartedAt = DateTime.UtcNow
