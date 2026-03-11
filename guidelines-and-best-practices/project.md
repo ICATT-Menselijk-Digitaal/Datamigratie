@@ -190,6 +190,10 @@ Before writing or modifying any frontend code, read [frontend-best-practices.md]
 - [ ] **Stable port configuration**: Consider fixed ports for local development convenience
   > _"Irritant als de DB port telkens weer iets randoms wordt"_ (PR #15)
 
+### Administration
+
+- [ ] **Release notes**: The changelog should contain an entry for the story related to this pull request. The entry should be in the 'Current version' section of the changelog. The entry should consist of the title of the story and a link to the story in Jira. Usually the link has this format: 'https://dimpact.atlassian.net/browse/[DATA-XXX]'. The right value for [DATA-XXX] can be found in the name of the current branch.
+
 ---
 
 ## Common Review Comments (Quick Reference)
