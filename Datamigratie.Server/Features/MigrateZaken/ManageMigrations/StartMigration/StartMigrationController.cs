@@ -1,4 +1,4 @@
-﻿using Datamigratie.Common.Services.Det;
+using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Data;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Models;
@@ -8,7 +8,8 @@ using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.State
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Documentstatus;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Resultaat;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Status;
-using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.DocumentProperty;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.PublicatieNiveau;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Documenttype;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Vertrouwelijkheid;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Besluittype;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.PdfInformatieobjecttype;
@@ -27,7 +28,8 @@ public class StartMigrationController(
     IValidateStatusMappingsService validateStatusMappingsService,
     IValidateResultaattypeMappingsService validateResultaattypeMappingsService,
     IValidateDocumentstatusMappingsService validateDocumentstatusMappingsService,
-    IValidateDocumentPropertyMappingsService validateDocumentPropertyMappingsService,
+    IValidatePublicatieNiveauMappingsService validatePublicatieNiveauMappingsService,
+    IValidateDocumenttypeMappingsService validateDocumenttypeMappingsService,
     IValidateVertrouwelijkheidMappingsService validateVertrouwelijkheidMappingsService,
     IValidateBesluittypeMappingsService validateBesluittypeMappingsService,
     IValidatePdfInformatieobjecttypeMappingService validatePdfInformatieobjecttypeMappingService,
@@ -58,7 +60,8 @@ public class StartMigrationController(
             var statusMappings = await ValidateAndGetStatusMappingsAsync(detZaaktype);
             var resultaatMappings = await ValidateAndGetResultaattypeMappingsAsync(detZaaktype);
             var documentstatusMappings = await ValidateAndGetDocumentstatusMappingsAsync();
-            var documentPropertyMappings = await ValidateAndGetDocumentPropertyMappingsAsync(detZaaktype);
+            var publicatieNiveauMappings = await ValidateAndGetPublicatieNiveauMappingsAsync(detZaaktype);
+            var documenttypeMappings = await ValidateAndGetDocumenttypeMappingsAsync(detZaaktype);
             var vertrouwelijkheidMappings = await ValidateAndGetVertrouwelijkheidMappingsAsync(detZaaktype);
             var besluittypeMappings = await ValidateAndGetBesluittypeMappingsAsync(detZaaktype);
             var pdfInformatieobjecttypeId = await ValidateAndGetPdfInformatieobjecttypeMappingAsync(detZaaktype);
@@ -70,7 +73,8 @@ public class StartMigrationController(
                 StatusMappings = statusMappings,
                 ResultaatMappings = resultaatMappings,
                 DocumentstatusMappings = documentstatusMappings,
-                DocumentPropertyMappings = documentPropertyMappings,
+                PublicatieNiveauMappings = publicatieNiveauMappings,
+                DocumenttypeMappings = documenttypeMappings,
                 ZaakVertrouwelijkheidMappings = vertrouwelijkheidMappings,
                 BesluittypeMappings = besluittypeMappings,
                 PdfInformatieobjecttypeId = pdfInformatieobjecttypeId
@@ -142,13 +146,22 @@ public class StartMigrationController(
             : documentstatusMappings;
     }
 
-    private async Task<Dictionary<string, Dictionary<string, string>>> ValidateAndGetDocumentPropertyMappingsAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)
+    private async Task<Dictionary<string, string>> ValidateAndGetPublicatieNiveauMappingsAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)
     {
-        var (documentPropertyMappingsValid, documentPropertyMappings) = await validateDocumentPropertyMappingsService.ValidateAndGetDocumentPropertyMappings(detZaaktype);
+        var (isValid, mappings) = await validatePublicatieNiveauMappingsService.ValidateAndGetPublicatieNiveauMappings(detZaaktype);
 
-        return !documentPropertyMappingsValid
-            ? throw new InvalidOperationException("Not all document properties have been mapped. Please configure publicatieniveau and documenttype mappings first.")
-            : documentPropertyMappings;
+        return !isValid
+            ? throw new InvalidOperationException("Not all publicatieniveaus have been mapped. Please configure publicatieniveau mappings first.")
+            : mappings;
+    }
+
+    private async Task<Dictionary<string, string>> ValidateAndGetDocumenttypeMappingsAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)
+    {
+        var (isValid, mappings) = await validateDocumenttypeMappingsService.ValidateAndGetDocumenttypeMappings(detZaaktype);
+
+        return !isValid
+            ? throw new InvalidOperationException("Not all documenttypes have been mapped. Please configure documenttype mappings first.")
+            : mappings;
     }
 
     private async Task<Dictionary<bool, ZaakVertrouwelijkheidaanduiding>> ValidateAndGetVertrouwelijkheidMappingsAsync(Common.Services.Det.Models.DetZaaktypeDetail detZaaktype)

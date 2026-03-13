@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-const wait = (ms?: number) => new Promise((r) => setTimeout(r, ms ?? 100));
+const wait = (ms?: number) => new Promise((r) => setTimeout(r, ms ?? 50));
 
 async function openAndSelect() {
   for (const details of document.querySelectorAll("details")) {
@@ -20,9 +20,27 @@ async function openAndSelect() {
     const submitbutton = details.querySelector("button[type=submit]") as
       | HTMLButtonElement
       | undefined;
-    submitbutton?.click();
-    await wait();
+    if (submitbutton) {
+      submitbutton.click();
+      await waitForSave(submitbutton);
+    }
   }
+}
+
+async function waitForSave(submitButton: HTMLButtonElement) {
+  await new Promise<void>((resolve) => {
+    const observer = new MutationObserver(() => {
+      if (!document.contains(submitButton) || submitButton.closest("form") === null) {
+        observer.disconnect();
+        resolve();
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    setTimeout(() => {
+      observer.disconnect();
+      resolve();
+    }, 5000);
+  });
 }
 
 async function selectRandomOptions(details: HTMLDetailsElement) {
