@@ -75,6 +75,9 @@
       <li>
         <button type="button" @click="startMigration">Start migratie</button>
       </li>
+      <li>
+        <button type="button" class="button-secondary" @click="startPartialMigration">Gedeeltelijke hermigratie</button>
+      </li>
     </menu>
   </template>
 
@@ -88,6 +91,19 @@
     <p>
       Weet je zeker dat je de migratie van zaken van het e-Suite zaaktype
       <em>{{ zaaktypeMapping?.detZaaktype?.naam }}</em> wilt starten?
+    </p>
+  </prompt-modal>
+
+  <prompt-modal
+    :dialog="partialConfirmDialog"
+    cancel-text="Nee, annuleren"
+    confirm-text="Ja, start gedeeltelijke hermigratie"
+  >
+    <h2>Gedeeltelijke hermigratie starten</h2>
+
+    <p>
+      Weet je zeker dat je een gedeeltelijke hermigratie wilt starten voor het e-Suite zaaktype
+      <em>{{ zaaktypeMapping?.detZaaktype?.naam }}</em>? Alleen zaken met fouten uit eerdere migraties en nieuw gesloten zaken worden gemigreerd.
     </p>
   </prompt-modal>
 
@@ -131,7 +147,7 @@ const vertrouwelijkheidMappingsComplete = ref(false);
 const generatedPdfMappingComplete = ref(false);
 
 const { error, migration } = useMigration();
-const { isThisMigrationRunning, confirmDialog, startMigration } = useMigrationControl(
+const { isThisMigrationRunning, confirmDialog, startMigration, partialConfirmDialog, startPartialMigration } = useMigrationControl(
   () => detZaaktypeId
 );
 
@@ -189,10 +205,6 @@ menu {
   @media (min-width: variables.$breakpoint-md) {
     & {
       flex-direction: row;
-
-      li:first-of-type {
-        margin-inline-end: auto;
-      }
     }
   }
 

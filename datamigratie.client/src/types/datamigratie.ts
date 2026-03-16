@@ -37,6 +37,10 @@ export type StartMigration = {
   detZaaktypeId: string;
 };
 
+export type StartPartialMigration = {
+  detZaaktypeId: string;
+};
+
 export type MigrationHistoryItem = {
   id: number;
   status: string;
