@@ -1,4 +1,4 @@
-using Datamigratie.Data.Entities;
+﻿using Datamigratie.Data.Entities;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Models;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Services;
@@ -10,28 +10,8 @@ namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration;
 [ApiController]
 [Route("api/migration")]
 public class StartMigrationController(
-    MigrationWorkerState workerState,
-    IMigrationBackgroundTaskQueue backgroundTaskQueue,
-    IBuildMigrationQueueItemService buildMigrationQueueItemService) : ControllerBase
+    MigrationWorkerState workerState) : ControllerBase
 {
-    [HttpPost("start")]
-    public async Task<ActionResult> StartMigration([FromBody] StartMigrationRequest request)
-    {
-        if (workerState.IsWorking)
-            return Conflict(new { message = "Er loopt al een migratie." });
-
-        try
-        {
-            var queueItem = await buildMigrationQueueItemService.ValidateAndBuildAsync(request.DetZaaktypeId, MigrationType.Full);
-            await backgroundTaskQueue.QueueMigrationAsync(queueItem);
-        }
-        catch (Exception e)
-        {
-            return Conflict(new { message = e.Message });
-        }
-
-        return Ok();
-    }
 
     [HttpGet]
     public ActionResult<MigrationStatusResponse> GetMigration()
