@@ -317,7 +317,6 @@ public class StartMigrationService(
         var migration = new Migration
         {
             DetZaaktypeId = queueItem.DetZaaktypeId,
-            MigrationType = queueItem.MigrationType,
             Status = MigrationStatus.InProgress,
             CreatedAt = DateTime.UtcNow,
             StartedAt = DateTime.UtcNow
