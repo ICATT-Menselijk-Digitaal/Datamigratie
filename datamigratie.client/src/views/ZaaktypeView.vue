@@ -76,7 +76,7 @@
         <button type="button" @click="startMigration">Start migratie</button>
       </li>
       <li>
-        <button type="button" class="button-secondary" @click="startPartialMigration">Gedeeltelijke hermigratie</button>
+        <button type="button" class="secondary" @click="startPartialMigration">Gedeeltelijke hermigratie</button>
       </li>
     </menu>
   </template>
