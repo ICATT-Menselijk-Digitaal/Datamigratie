@@ -7,6 +7,8 @@
 - [Fix 1 hour maximum for migrations (JWT token related)](https://dimpact.atlassian.net/browse/DATA-194)
 - [Allow full re-run of a migration](https://dimpact.atlassian.net/browse/DATA-255)
 - [Enable performance testing using large data volumes](https://dimpact.atlassian.net/browse/DATA-253)
+- [Enable performance testing using large data volumes](https://dimpact.atlassian.net/browse/DATA-253)
+- [(QoL) Auto fill all zaaktype mappings with UI button](https://dimpact.atlassian.net/browse/DATA-407)
 
 ## v0.1.0
 
@@ -42,4 +44,3 @@
 - [Migration of non-configurable additional Document properties from the e-Suite to OpenZaak)](https://dimpact.atlassian.net/browse/DATA-112)
 - [Global configuration of RSIN](https://dimpact.atlassian.net/browse/DATA-139)
 - [Migration log overview migration-level](https://dimpact.atlassian.net/browse/DATA-17)
-
