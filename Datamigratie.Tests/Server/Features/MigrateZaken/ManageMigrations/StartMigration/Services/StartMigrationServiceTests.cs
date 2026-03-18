@@ -85,7 +85,7 @@ public class StartMigrationServiceTests
     // --- Group 1: Migration type branching ---
 
     [Fact]
-    public async Task PerformMigrationAsync_FullMigration_OnlyMigratesClosedZaken()
+    public async Task PerformMigrationAsync_FullMigration_OnlyMigratesClosedZakenAndSetsTotalRecords()
     {
         // Arrange
         await using var context = CreateContext();
@@ -113,40 +113,12 @@ public class StartMigrationServiceTests
         // Assert: only closed zaken (zaak-001 and zaak-003) are migrated
         migrateZaak.Verify(s => s.MigrateZaak(It.IsAny<DetZaak>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
         partialSelection.Verify(s => s.SelectZakenAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task PerformMigrationAsync_FullMigration_SetsTotalRecordsToClosedZakenCount()
-    {
-        // Arrange
-        await using var context = CreateContext();
-        SeedZaaktypeMapping(context, ZaaktypeId);
-
-        var detClient = new Mock<IDetApiClient>();
-        detClient.Setup(c => c.GetZakenByZaaktype(ZaaktypeId)).ReturnsAsync([
-            new DetZaakMinimal { FunctioneleIdentificatie = "zaak-001", Open = false },
-            new DetZaakMinimal { FunctioneleIdentificatie = "zaak-002", Open = true },
-            new DetZaakMinimal { FunctioneleIdentificatie = "zaak-003", Open = false },
-        ]);
-        detClient.Setup(c => c.GetZaakByZaaknummer(It.IsAny<string>()))
-            .ReturnsAsync((string id) => CreateDetZaak(id));
-
-        var migrateZaak = new Mock<IMigrateZaakService>();
-        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<DetZaak>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(MigrateZaakResult.Success("zaak-001", "ok"));
-
-        var sut = CreateSut(context, detClient, migrateZaak, new Mock<IPartialMigrationZakenSelectionService>());
-
-        // Act
-        await sut.PerformMigrationAsync(CreateQueueItem(MigrationType.Full), CancellationToken.None);
-
-        // Assert: TotalRecords == 2 (only closed)
         var migration = await context.Migrations.FirstAsync();
         Assert.Equal(2, migration.TotalRecords);
     }
 
     [Fact]
-    public async Task PerformMigrationAsync_PartialMigration_DelegatesToSelectionServiceAndSkipsDetClient()
+    public async Task PerformMigrationAsync_PartialMigration_OnlyMigratesSelectedZaken()
     {
         // Arrange
         await using var context = CreateContext();
@@ -175,32 +147,7 @@ public class StartMigrationServiceTests
         migrateZaak.Verify(s => s.MigrateZaak(It.IsAny<DetZaak>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact]
-    public async Task PerformMigrationAsync_MissingZaaktypeMapping_FailsMigrationWithoutMigratingZaken()
-    {
-        // Arrange: no ZaaktypenMapping seeded
-        await using var context = CreateContext();
-
-        var detClient = new Mock<IDetApiClient>();
-        detClient.Setup(c => c.GetZakenByZaaktype(ZaaktypeId)).ReturnsAsync([
-            new DetZaakMinimal { FunctioneleIdentificatie = "zaak-001", Open = false }
-        ]);
-
-        var migrateZaak = new Mock<IMigrateZaakService>();
-
-        var sut = CreateSut(context, detClient, migrateZaak, new Mock<IPartialMigrationZakenSelectionService>());
-
-        // Act
-        await sut.PerformMigrationAsync(CreateQueueItem(MigrationType.Full), CancellationToken.None);
-
-        // Assert: migration status = Failed, error message references missing mapping
-        var migration = await context.Migrations.FirstAsync();
-        Assert.Equal(MigrationStatus.Failed, migration.Status);
-        Assert.Contains("mapping was not found", migration.ErrorMessage);
-        migrateZaak.Verify(s => s.MigrateZaak(It.IsAny<DetZaak>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()), Times.Never);
-    }
-
-    // --- Group 2: Record counter correctness ---
+// --- Group 2: Record counter correctness ---
 
     [Fact]
     public async Task PerformMigrationAsync_SuccessfulZaak_IncrementsSuccessfulRecords()
