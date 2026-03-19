@@ -20,7 +20,6 @@ import PromptModal from "@/components/PromptModal.vue";
 import { useMigration } from "@/composables/migration-store";
 import { post } from "@/utils/fetchWrapper";
 import toast from "@/components/toast/toast";
-import type { StartMigration } from "@/types/datamigratie";
 
 const { detZaaktypeId, zaaktypeNaam } = defineProps<{
   detZaaktypeId: string;
@@ -34,7 +33,7 @@ const startMigration = async () => {
   if ((await confirmDialog.reveal()).isCanceled) return;
 
   try {
-    await post(`/api/migration/start`, { detZaaktypeId } as StartMigration);
+    await post(`/api/migration/start`, { detZaaktypeId });
     fetchMigration();
   } catch (err: unknown) {
     toast.add({ text: `Fout bij starten van de migratie - ${err}`, type: "error" });
