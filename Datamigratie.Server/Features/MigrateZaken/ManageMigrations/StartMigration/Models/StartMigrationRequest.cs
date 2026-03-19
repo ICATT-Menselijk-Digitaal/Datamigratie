@@ -1,6 +1,6 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Models;
+namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Models;
 
 public class StartMigrationRequest
 {

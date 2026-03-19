@@ -3,7 +3,7 @@ using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 
-namespace Datamigratie.Server.Features.Migrate.MigrateZaak.Pdf
+namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf
 {
     public interface IZaakgegevensPdfGenerator
     {
@@ -61,13 +61,13 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak.Pdf
                 return "-";
 
             var parts = new List<string>();
-            
+
             if (betaalgegevens.Bedrag.HasValue)
                 parts.Add($"Bedrag: €{betaalgegevens.Bedrag.Value:F2}");
-            
+
             if (!string.IsNullOrEmpty(betaalgegevens.Betaalstatus))
                 parts.Add($"Status: {betaalgegevens.Betaalstatus}");
-            
+
             if (!string.IsNullOrEmpty(betaalgegevens.Kenmerk))
                 parts.Add($"Kenmerk: {betaalgegevens.Kenmerk}");
 

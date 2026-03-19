@@ -1,8 +1,8 @@
 ﻿using Datamigratie.Data;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.MigrationHistory.GetZakenMigrationHistory.Models;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.ShowMigrationHistory.GetZakenMigrationHistory.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Datamigratie.Server.Features.Migrate.ManageMigrations.MigrationHistory.GetZakenMigrationHistory.Services;
+namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.ShowMigrationHistory.GetZakenMigrationHistory.Services;
 
 public interface IGetMigrationRecordsService
 {

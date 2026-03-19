@@ -1,8 +1,8 @@
 ﻿using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Data.Entities;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Models;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Models;
 
-namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues.Items
+namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Queues.Items
 {
         public class MigrationQueueItem
         {

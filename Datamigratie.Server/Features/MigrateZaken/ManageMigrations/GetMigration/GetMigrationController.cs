@@ -1,15 +1,12 @@
-﻿using Datamigratie.Data.Entities;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Models;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Services;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.State;
+﻿using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.GetMigration.Models;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.State;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration;
+namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.GetMigration;
 
 [ApiController]
 [Route("api/migration")]
-public class StartMigrationController(
+public class GetMigrationController(
     MigrationWorkerState workerState) : ControllerBase
 {
 

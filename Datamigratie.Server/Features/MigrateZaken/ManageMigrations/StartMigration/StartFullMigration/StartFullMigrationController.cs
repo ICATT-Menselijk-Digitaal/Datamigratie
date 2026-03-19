@@ -1,11 +1,11 @@
 ﻿using Datamigratie.Data.Entities;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Models;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Services;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.State;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Models;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Queues;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Services;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.State;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration;
+namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.StartFullMigration;
 
 [ApiController]
 [Route("api/migration")]
