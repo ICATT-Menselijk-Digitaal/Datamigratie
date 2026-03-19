@@ -43,7 +43,6 @@ namespace Datamigratie.Server.Config
             services.AddScoped<IZaakgegevensPdfGenerator, ZaakgegevensPdfGenerator>();
 
             services.AddScoped<IStartMigrationService, StartMigrationService>();
-            services.AddScoped<IPartialMigrationZakenSelectionService, PartialMigrationZakenSelectionService>();
             services.AddScoped<IBuildMigrationQueueItemService, BuildMigrationQueueItemService>();
             services.AddScoped<IGetMigrationHistoryService, GetMigrationHistoryService>();
             services.AddScoped<IGetMigrationRecordsService, GetMigrationRecordsService>();
