@@ -1,10 +1,10 @@
 ﻿using Datamigratie.Data;
 using Datamigratie.Data.Entities;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.MigrationHistory.GetZaaktypeMigrationHistory.Models;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.State;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.ShowMigrationHistory.GetZaaktypeMigrationHistory.Models;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.State;
 using Microsoft.EntityFrameworkCore;
 
-namespace Datamigratie.Server.Features.Migrate.ManageMigrations.MigrationHistory.GetZaaktypeMigrationHistory.Services;
+namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.ShowMigrationHistory.GetZaaktypeMigrationHistory.Services;
 
 public interface IGetMigrationHistoryService
 {

@@ -1,10 +1,10 @@
-using Datamigratie.Common.Services.Det;
+﻿using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Data;
 using Datamigratie.Data.Entities;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Models;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues.Items;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Models;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Queues.Items;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Besluittype;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.DocumentProperty;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Documentstatus;
@@ -15,7 +15,7 @@ using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.
 using Datamigratie.Server.Helpers;
 using Microsoft.EntityFrameworkCore;
 
-namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Services;
+namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Services;
 
 public interface IBuildMigrationQueueItemService
 {

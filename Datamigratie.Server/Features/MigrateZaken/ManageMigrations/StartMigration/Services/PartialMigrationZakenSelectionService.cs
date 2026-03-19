@@ -1,9 +1,9 @@
-﻿using Datamigratie.Common.Services.Det;
+using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Services;
+namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Services;
 
 public interface IPartialMigrationZakenSelectionService
 {
@@ -29,7 +29,10 @@ public class PartialMigrationZakenSelectionService(
 
         var allZakenFromZaaktype = await detApiClient.GetZakenByZaaktype(detZaaktypeId);
 
-        var allZakenFromZaaktypeExcludingSuccesfullMigratedZaken = allZakenFromZaaktype.Where(a => succesfullmigratedZaken.All(b => !a.Open && a.FunctioneleIdentificatie != b.DetZaaknummer)).ToList();
+        var allZakenFromZaaktypeExcludingSuccesfullMigratedZaken = allZakenFromZaaktype
+            .Where(a => succesfullmigratedZaken.All(b => !a.Open && a.FunctioneleIdentificatie != b.DetZaaknummer))
+            .ToList();
+
         return allZakenFromZaaktypeExcludingSuccesfullMigratedZaken;
     }
 }

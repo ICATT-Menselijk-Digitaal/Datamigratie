@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartPartialMigration.Models;
+namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.StartPartialMigration.Models;
 
 public class StartPartialMigrationRequest
 {

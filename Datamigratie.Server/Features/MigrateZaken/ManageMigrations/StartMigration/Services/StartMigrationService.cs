@@ -6,15 +6,15 @@ using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Data;
 using Datamigratie.Data.Entities;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Models;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues.Items;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.State;
-using Datamigratie.Server.Features.Migrate.MigrateZaak;
-using Datamigratie.Server.Features.Migrate.MigrateZaak.Models;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Models;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Queues.Items;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.State;
+using Datamigratie.Server.Features.MigrateZaken.MigrateZaak;
+using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Services;
+namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Services;
 
 public interface IStartMigrationService
 {

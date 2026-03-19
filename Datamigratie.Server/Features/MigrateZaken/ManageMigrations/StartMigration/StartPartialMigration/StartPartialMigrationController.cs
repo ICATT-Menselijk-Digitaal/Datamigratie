@@ -1,11 +1,11 @@
-using Datamigratie.Data.Entities;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Services;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.State;
-using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartPartialMigration.Models;
+﻿using Datamigratie.Data.Entities;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Queues;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Services;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.State;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.StartPartialMigration.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartPartialMigration;
+namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.StartPartialMigration;
 
 [ApiController]
 [Route("api/migration")]
@@ -14,7 +14,7 @@ public class StartPartialMigrationController(
     IMigrationBackgroundTaskQueue backgroundTaskQueue,
     IBuildMigrationQueueItemService buildMigrationQueueItemService) : ControllerBase
 {
-    [HttpPost("start-partial")]
+    [HttpPost("startpartial")]
     public async Task<ActionResult> StartPartialMigration([FromBody] StartPartialMigrationRequest request)
     {
         if (workerState.IsWorking)
