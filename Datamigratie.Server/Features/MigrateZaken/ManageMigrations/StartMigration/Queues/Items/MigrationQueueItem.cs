@@ -1,11 +1,14 @@
 ﻿using Datamigratie.Common.Services.OpenZaak.Models;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Models;
+using Datamigratie.Data.Entities;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Models;
 
-namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues.Items
+namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Queues.Items
 {
         public class MigrationQueueItem
         {
                 public required string DetZaaktypeId { get; set; }
+
+                public required IZakenSelector ZakenSelector { get; set; }
 
                 /// <summary>
                 /// Rsin Mapping is validated and set by StartMigrationController before queuing.
