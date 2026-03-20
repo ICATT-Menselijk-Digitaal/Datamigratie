@@ -73,23 +73,19 @@
 
     <menu class="reset" v-if="!error && !isThisMigrationRunning && canStartMigration">
       <li>
-        <button type="button" @click="startMigration">Start migratie</button>
+        <start-migration-button
+          :det-zaaktype-id="detZaaktypeId"
+          :zaaktype-naam="zaaktypeMapping?.detZaaktype?.naam ?? ''"
+        />
+      </li>
+      <li>
+        <start-partial-migration-button
+          :det-zaaktype-id="detZaaktypeId"
+          :zaaktype-naam="zaaktypeMapping?.detZaaktype?.naam ?? ''"
+        />
       </li>
     </menu>
   </template>
-
-  <prompt-modal
-    :dialog="confirmDialog"
-    cancel-text="Nee, niet migreren"
-    confirm-text="Ja, start migratie"
-  >
-    <h2>Migratie starten</h2>
-
-    <p>
-      Weet je zeker dat je de migratie van zaken van het e-Suite zaaktype
-      <em>{{ zaaktypeMapping?.detZaaktype?.naam }}</em> wilt starten?
-    </p>
-  </prompt-modal>
 
   <migration-history-table v-if="!error" :det-zaaktype-id="detZaaktypeId" />
 </template>
@@ -97,11 +93,11 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
-import PromptModal from "@/components/PromptModal.vue";
 import AlertInline from "@/components/AlertInline.vue";
 import StatusMappingSection from "@/components/StatusMappingSection.vue";
 import BesluittypeMappingSection from "@/components/BesluittypeMappingSection.vue";
-import { useMigrationControl } from "@/composables/use-migration-control";
+import StartMigrationButton from "@/components/StartMigrationButton.vue";
+import StartPartialMigrationButton from "@/components/StartPartialMigrationButton.vue";
 import ResultaattypeMappingSection from "@/components/ResultaattypeMappingSection.vue";
 import DocumentPropertyMappingSection from "@/components/DocumentPropertyMappingSection.vue";
 import VertrouwelijkheidMappingSection from "@/components/VertrouwelijkheidMappingSection.vue";
@@ -131,8 +127,10 @@ const vertrouwelijkheidMappingsComplete = ref(false);
 const generatedPdfMappingComplete = ref(false);
 
 const { error, migration } = useMigration();
-const { isThisMigrationRunning, confirmDialog, startMigration } = useMigrationControl(
-  () => detZaaktypeId
+const isThisMigrationRunning = computed(
+  () =>
+    migration.value?.status === MigrationStatus.inProgress &&
+    migration.value.detZaaktypeId === detZaaktypeId
 );
 
 const {
@@ -189,10 +187,6 @@ menu {
   @media (min-width: variables.$breakpoint-md) {
     & {
       flex-direction: row;
-
-      li:first-of-type {
-        margin-inline-end: auto;
-      }
     }
   }
 

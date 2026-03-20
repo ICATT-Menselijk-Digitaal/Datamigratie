@@ -2,7 +2,6 @@
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Data;
-using Datamigratie.Data.Entities;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Models;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Queues.Items;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Besluittype;
@@ -19,7 +18,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigrat
 
 public interface IBuildMigrationQueueItemService
 {
-    Task<MigrationQueueItem> ValidateAndBuildAsync(string detZaaktypeId, MigrationType migrationType);
+    Task<MigrationQueueItem> ValidateAndBuildAsync(string detZaaktypeId, IZakenSelector zakenSelector);
 }
 
 public class BuildMigrationQueueItemService(
@@ -34,7 +33,7 @@ public class BuildMigrationQueueItemService(
     IValidatePdfInformatieobjecttypeMappingService validatePdfInformatieobjecttypeMappingService,
     ILogger<BuildMigrationQueueItemService> logger) : IBuildMigrationQueueItemService
 {
-    public async Task<MigrationQueueItem> ValidateAndBuildAsync(string detZaaktypeId, MigrationType migrationType)
+    public async Task<MigrationQueueItem> ValidateAndBuildAsync(string detZaaktypeId, IZakenSelector zakenSelector)
     {
         var detZaaktype = await detApiClient.GetZaaktypeDetail(detZaaktypeId)
             ?? throw new InvalidOperationException($"DET Zaaktype '{detZaaktypeId}' not found.");
@@ -53,7 +52,7 @@ public class BuildMigrationQueueItemService(
         return new MigrationQueueItem
         {
             DetZaaktypeId = detZaaktypeId,
-            MigrationType = migrationType,
+            ZakenSelector = zakenSelector,
             RsinMapping = rsinMapping,
             StatusMappings = statusMappings,
             ResultaatMappings = resultaatMappings,

@@ -28,8 +28,7 @@ public class StartMigrationService(
     ILogger<StartMigrationService> logger,
     IMigrateZaakService migrateZaakService,
     MigrationWorkerState workerState,
-    IOptions<OpenZaakApiOptions> openZaakOptions,
-    IPartialMigrationZakenSelectionService partialMigrationZakenSelectionService) : IStartMigrationService
+    IOptions<OpenZaakApiOptions> openZaakOptions) : IStartMigrationService
 {
     private static readonly Meter Meter = new("Datamigratie.Server");
 
@@ -46,16 +45,7 @@ public class StartMigrationService(
 
         workerState.MigrationId = migration.Id;
 
-        List<DetZaakMinimal> closedZaken;
-        if (migrationQueueItem.MigrationType == MigrationType.Partial)
-        {
-            closedZaken = [.. await partialMigrationZakenSelectionService.SelectZakenAsync(migrationQueueItem.DetZaaktypeId, stoppingToken)];
-        }
-        else
-        {
-            var allZaken = await detApiClient.GetZakenByZaaktype(migrationQueueItem.DetZaaktypeId);
-            closedZaken = allZaken.Where(z => !z.Open).ToList();
-        }
+        List<DetZaakMinimal> closedZaken = [.. await migrationQueueItem.ZakenSelector.SelectZakenAsync(migrationQueueItem.DetZaaktypeId, stoppingToken)];
 
         await UpdateMigrationTotalRecordsAsync(migration, closedZaken.Count, stoppingToken);
 

@@ -1,4 +1,4 @@
-﻿using Datamigratie.Data.Entities;
+﻿using Datamigratie.Common.Services.Det;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Queues;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Services;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.State;
@@ -12,7 +12,9 @@ namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigrat
 public class StartPartialMigrationController(
     MigrationWorkerState workerState,
     IMigrationBackgroundTaskQueue backgroundTaskQueue,
-    IBuildMigrationQueueItemService buildMigrationQueueItemService) : ControllerBase
+    IBuildMigrationQueueItemService buildMigrationQueueItemService,
+    IServiceScopeFactory scopeFactory,
+    IDetApiClient detApiClient) : ControllerBase
 {
     [HttpPost("startpartial")]
     public async Task<ActionResult> StartPartialMigration([FromBody] StartPartialMigrationRequest request)
@@ -22,7 +24,8 @@ public class StartPartialMigrationController(
 
         try
         {
-            var queueItem = await buildMigrationQueueItemService.ValidateAndBuildAsync(request.DetZaaktypeId, MigrationType.Partial);
+            var partialMigrationZakenSelector = new PartialMigrationZakenSelector(scopeFactory, detApiClient);
+            var queueItem = await buildMigrationQueueItemService.ValidateAndBuildAsync(request.DetZaaktypeId, partialMigrationZakenSelector);
             await backgroundTaskQueue.QueueMigrationAsync(queueItem);
         }
         catch (Exception e)

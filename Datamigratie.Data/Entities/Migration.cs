@@ -34,12 +34,6 @@ public class Migration
 
 }
 
-public enum MigrationType
-{
-    Full,
-    Partial
-}
-
 public enum MigrationStatus
 {
     Pending,

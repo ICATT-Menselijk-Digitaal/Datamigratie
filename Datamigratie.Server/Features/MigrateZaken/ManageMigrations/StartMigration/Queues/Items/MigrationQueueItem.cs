@@ -8,7 +8,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigrat
         {
                 public required string DetZaaktypeId { get; set; }
 
-                public MigrationType MigrationType { get; set; } = MigrationType.Full;
+                public required IZakenSelector ZakenSelector { get; set; }
 
                 /// <summary>
                 /// Rsin Mapping is validated and set by StartMigrationController before queuing.
