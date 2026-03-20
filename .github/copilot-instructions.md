@@ -96,6 +96,11 @@ Features/
 - [ ] **Validate acceptance criteria**: Ensure all fields/requirements from the story are implemented
   > *"This doesn't contain all the fields from the story"* (PR #45)
 
+### Testing
+
+- [ ] **Test via public interfaces only**: Do not unit test private methods. Test behavior by observing public outputs (return values, DB state, exceptions) given controlled inputs.
+  > Private method tests make code hard to refactor and don't guarantee the full flow works after major edits.
+
 ### Code Quality
 
 - [ ] **Avoid duplication**: Abstract repeated patterns into shared functions
