@@ -6,15 +6,15 @@ using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Data;
 using Datamigratie.Data.Entities;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Models;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues.Items;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.State;
-using Datamigratie.Server.Features.Migrate.MigrateZaak;
-using Datamigratie.Server.Features.Migrate.MigrateZaak.Models;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Models;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Queues.Items;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.State;
+using Datamigratie.Server.Features.MigrateZaken.MigrateZaak;
+using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Services;
+namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Services;
 
 public interface IStartMigrationService
 {
@@ -45,15 +45,7 @@ public class StartMigrationService(
 
         workerState.MigrationId = migration.Id;
 
-        var allZaken = await detApiClient.GetZakenByZaaktype(migrationQueueItem.DetZaaktypeId);
-
-        var closedZaken = allZaken.Where(z => !z.Open).ToList();
-
-        logger.LogInformation(
-            "Found {TotalCount} zaken for zaaktype {ZaaktypeId}, {ClosedCount} are closed and will be migrated",
-            allZaken.Count,
-            migrationQueueItem.DetZaaktypeId,
-            closedZaken.Count);
+        List<DetZaakMinimal> closedZaken = [.. await migrationQueueItem.ZakenSelector.SelectZakenAsync(migrationQueueItem.DetZaaktypeId, stoppingToken)];
 
         await UpdateMigrationTotalRecordsAsync(migration, closedZaken.Count, stoppingToken);
 

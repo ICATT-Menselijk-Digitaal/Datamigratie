@@ -1,8 +1,8 @@
-﻿using Datamigratie.Server.Features.Migrate.ManageMigrations.MigrationHistory.GetZaaktypeMigrationHistory.Models;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.MigrationHistory.GetZaaktypeMigrationHistory.Services;
+﻿using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.ShowMigrationHistory.GetZaaktypeMigrationHistory.Models;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.ShowMigrationHistory.GetZaaktypeMigrationHistory.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Datamigratie.Server.Features.Migrate.ManageMigrations.MigrationHistory.GetZaaktypeMigrationHistory;
+namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.ShowMigrationHistory.GetZaaktypeMigrationHistory;
 
 [ApiController]
 [Route("api/migration")]

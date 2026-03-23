@@ -1,4 +1,4 @@
-﻿namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.State
+﻿namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.State
 {
     /// <summary>
     /// Thread-safe singleton state for tracking the currently running migration.

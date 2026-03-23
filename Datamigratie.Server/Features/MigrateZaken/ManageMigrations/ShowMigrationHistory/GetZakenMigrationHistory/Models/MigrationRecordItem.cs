@@ -1,4 +1,4 @@
-﻿namespace Datamigratie.Server.Features.Migrate.ManageMigrations.MigrationHistory.GetZakenMigrationHistory.Models;
+﻿namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.ShowMigrationHistory.GetZakenMigrationHistory.Models;
 
 public class MigrationRecordItem
 {
