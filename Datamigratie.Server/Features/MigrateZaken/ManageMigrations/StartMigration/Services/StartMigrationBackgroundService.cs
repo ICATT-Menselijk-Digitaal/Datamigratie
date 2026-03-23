@@ -1,16 +1,16 @@
-﻿using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.State;
+﻿using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Queues;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.State;
 
-namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Services
+namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Services
 {
     /// <summary>
     /// Code based on:
     /// https://learn.microsoft.com/en-us/aspnet/core/fundamentals/host/hosted-services?view=aspnetcore-9.0&tabs=visual-studio
     /// </summary>
     public class StartMigrationBackgroundService(
-        IServiceScopeFactory scopeFactory, 
+        IServiceScopeFactory scopeFactory,
         IMigrationBackgroundTaskQueue taskQueue,
-        ILogger<StartMigrationBackgroundService> logger, 
+        ILogger<StartMigrationBackgroundService> logger,
         MigrationWorkerState workerState) : BackgroundService
     {
         public IMigrationBackgroundTaskQueue TaskQueue { get; } = taskQueue;
@@ -21,7 +21,7 @@ namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.S
 
             await BackgroundProcessing(stoppingToken);
         }
-         
+
         private async Task BackgroundProcessing(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
@@ -41,7 +41,7 @@ namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.S
 
                     // set worker state for other threads to read from
                     workerState.DetZaaktypeId = workItem.DetZaaktypeId;
-                    workerState.IsWorking = true; 
+                    workerState.IsWorking = true;
 
                     await migrationService.PerformMigrationAsync(workItem, stoppingToken);
                 }
@@ -49,7 +49,7 @@ namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.S
                 {
                     logger.LogError(ex,
                         "Error occurred executing migration for DET Zaaktype Id {DetZaaktypeId}.", workItem.DetZaaktypeId);
-                    
+
                     if (workerState.MigrationId.HasValue)
                     {
                         try

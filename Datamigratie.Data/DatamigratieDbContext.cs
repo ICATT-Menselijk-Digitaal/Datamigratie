@@ -119,13 +119,6 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
                 .HasDatabaseName("IX_BesluittypeMapping_ZaaktypenMappingId_DetBesluittypeNaam_Unique");
         });
 
-        modelBuilder.Entity<DocumentPropertyMapping>(entity =>
-        {
-            entity.HasIndex(e => new { e.ZaaktypenMappingId, e.DetPropertyName, e.DetValue })
-                .IsUnique()
-                .HasDatabaseName("IX_DocumentPropertyMapping_ZaaktypenMappingId_DetPropertyName_DetValue_Unique");
-        });
-
         modelBuilder.Entity<VertrouwelijkheidMapping>(entity =>
         {
             entity.HasIndex(e => new { e.ZaaktypenMappingId, e.DetVertrouwelijkheid })
@@ -139,6 +132,20 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
                 .IsUnique()
                 .HasDatabaseName("IX_PdfInformatieobjecttypeMapping_ZaaktypenMappingId_Unique");
         });
+
+        modelBuilder.Entity<PublicatieNiveauMapping>(entity =>
+        {
+            entity.HasIndex(e => new { e.ZaaktypenMappingId, e.DetPublicatieNiveau })
+                .IsUnique()
+                .HasDatabaseName("IX_PublicatieNiveauMapping_ZaaktypenMappingId_DetPublicatieNiveau_Unique");
+        });
+
+        modelBuilder.Entity<DocumenttypeMapping>(entity =>
+        {
+            entity.HasIndex(e => new { e.ZaaktypenMappingId, e.DetDocumenttypeNaam })
+                .IsUnique()
+                .HasDatabaseName("IX_DocumenttypeMapping_ZaaktypenMappingId_DetDocumenttypeNaam_Unique");
+        });
     }
 
     public DbSet<ZaaktypenMapping> Mappings { get; set; }
@@ -148,8 +155,9 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
     public DbSet<RsinConfiguration> RsinConfigurations { get; set; }
     public DbSet<StatusMapping> StatusMappings { get; set; }
     public DbSet<BesluittypeMapping> BesluittypeMappings { get; set; }
-    public DbSet<DocumentPropertyMapping> DocumentPropertyMappings { get; set; }
     public DbSet<DocumentstatusMapping> DocumentstatusMappings { get; set; }
     public DbSet<VertrouwelijkheidMapping> VertrouwelijkheidMappings { get; set; }
     public DbSet<PdfInformatieobjecttypeMapping> PdfInformatieobjecttypeMappings { get; set; }
+    public DbSet<PublicatieNiveauMapping> PublicatieNiveauMappings { get; set; }
+    public DbSet<DocumenttypeMapping> DocumenttypeMappings { get; set; }
 }

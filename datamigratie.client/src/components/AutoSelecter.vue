@@ -20,9 +20,27 @@ async function openAndSelect() {
     const submitbutton = details.querySelector("button[type=submit]") as
       | HTMLButtonElement
       | undefined;
-    submitbutton?.click();
-    await wait();
+    if (submitbutton) {
+      submitbutton.click();
+      await waitForSave(submitbutton);
+    }
   }
+}
+
+async function waitForSave(submitButton: HTMLButtonElement) {
+  await new Promise<void>((resolve) => {
+    const observer = new MutationObserver(() => {
+      if (!document.contains(submitButton) || submitButton.closest("form") === null) {
+        observer.disconnect();
+        resolve();
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    setTimeout(() => {
+      observer.disconnect();
+      resolve();
+    }, 5000);
+  });
 }
 
 async function selectRandomOptions(details: HTMLDetailsElement) {
