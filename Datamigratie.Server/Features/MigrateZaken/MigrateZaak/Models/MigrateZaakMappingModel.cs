@@ -13,7 +13,16 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models
         /// Document status mappings: DetDocumentstatusNaam -> OzDocumentstatus (e.g., "in_bewerking", "definitief")
         /// </summary>
         public required Dictionary<string, string> DocumentstatusMappings { get; set; }
-        public Dictionary<string, Dictionary<string, string>> DocumentPropertyMappings { get; set; } = new();
+
+        /// <summary>
+        /// Publicatieniveau mappings: DetPublicatieNiveau -> OzVertrouwelijkheidaanduiding
+        /// </summary>
+        public Dictionary<string, string> PublicatieNiveauMappings { get; set; } = new();
+
+        /// <summary>
+        /// Documenttype mappings: DetDocumenttypeNaam -> OzInformatieobjecttypeUrl
+        /// </summary>
+        public Dictionary<string, string> DocumenttypeMappings { get; set; } = new();
 
         /// <summary>
         /// Vertrouwelijkheid mappings: DetVertrouwelijkheid (true/false) -> OzVertrouwelijkheidaanduiding

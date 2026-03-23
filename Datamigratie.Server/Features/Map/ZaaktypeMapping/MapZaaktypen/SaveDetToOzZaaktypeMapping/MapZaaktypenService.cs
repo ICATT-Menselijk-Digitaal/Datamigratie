@@ -71,13 +71,23 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.SaveDetT
                     await context.SaveChangesAsync();
                 }
 
-                var documentPropertyMappings = await context.DocumentPropertyMappings
-                   .Where(dpm => dpm.ZaaktypenMappingId == currentMapping.Id)
+                var publicatieNiveauMappings = await context.PublicatieNiveauMappings
+                   .Where(m => m.ZaaktypenMappingId == currentMapping.Id)
                    .ToListAsync();
 
-                if (documentPropertyMappings.Count != 0)
+                if (publicatieNiveauMappings.Count != 0)
                 {
-                    context.DocumentPropertyMappings.RemoveRange(documentPropertyMappings);
+                    context.PublicatieNiveauMappings.RemoveRange(publicatieNiveauMappings);
+                    await context.SaveChangesAsync();
+                }
+
+                var documenttypeMappings = await context.DocumenttypeMappings
+                   .Where(m => m.ZaaktypenMappingId == currentMapping.Id)
+                   .ToListAsync();
+
+                if (documenttypeMappings.Count != 0)
+                {
+                    context.DocumenttypeMappings.RemoveRange(documenttypeMappings);
                     await context.SaveChangesAsync();
                 }
 

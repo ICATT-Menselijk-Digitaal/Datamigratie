@@ -8,8 +8,10 @@ using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Status
 using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.StatusMapping.ShowStatusMappings.Services;
 using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.BesluittypeMapping.SaveBesluittypeMappings.Services;
 using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.BesluittypeMapping.ShowBesluittypeMappings.Services;
-using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.DocumentPropertyMapping.SaveDocumentPropertyMappings.Services;
-using Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDetailsMapping.DocumentPropertyMapping.ShowDocumentPropertyMappings.Services;
+using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.PublicatieNiveauMapping.ShowPublicatieNiveauMappings;
+using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.PublicatieNiveauMapping.SavePublicatieNiveauMappings;
+using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.DocumenttypeMapping.ShowDocumenttypeMappings;
+using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.DocumenttypeMapping.SaveDocumenttypeMappings;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.ShowMigrationHistory.GetZaaktypeMigrationHistory.Services;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.ShowMigrationHistory.GetZakenMigrationHistory.Services;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Queues;
@@ -21,7 +23,8 @@ using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Resultaat;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Status;
 using Datamigratie.Server.Features.Map.GlobalMapping.DocumentstatusMapping.Save.Services;
-using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.DocumentProperty;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.PublicatieNiveau;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Documenttype;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Vertrouwelijkheid;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Besluittype;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.PdfInformatieobjecttype;
@@ -54,9 +57,12 @@ namespace Datamigratie.Server.Config
             services.AddScoped<IValidateResultaattypeMappingsService, ValidateResultaattypeMappingsService>();
             services.AddScoped<IValidateDocumentstatusMappingsService, ValidateDocumentstatusMappingsService>();
             services.AddScoped<ISaveDocumentstatusMappingsService, SaveDocumentstatusMappingsService>();
-            services.AddScoped<IValidateDocumentPropertyMappingsService, ValidateDocumentPropertyMappingsService>();
-            services.AddScoped<IShowDocumentPropertyMappingsService, ShowDocumentPropertyMappingsService>();
-            services.AddScoped<ISaveDocumentPropertyMappingsService, SaveDocumentPropertyMappingsService>();
+            services.AddScoped<IValidatePublicatieNiveauMappingsService, ValidatePublicatieNiveauMappingsService>();
+            services.AddScoped<IValidateDocumenttypeMappingsService, ValidateDocumenttypeMappingsService>();
+            services.AddScoped<IShowPublicatieNiveauMappingsService, ShowPublicatieNiveauMappingsService>();
+            services.AddScoped<ISavePublicatieNiveauMappingsService, SavePublicatieNiveauMappingsService>();
+            services.AddScoped<IShowDocumenttypeMappingsService, ShowDocumenttypeMappingsService>();
+            services.AddScoped<ISaveDocumenttypeMappingsService, SaveDocumenttypeMappingsService>();
             services.AddScoped<IValidateVertrouwelijkheidMappingsService, ValidateVertrouwelijkheidMappingsService>();
             services.AddScoped<IValidateBesluittypeMappingsService, ValidateBesluittypeMappingsService>();
             services.AddScoped<IValidatePdfInformatieobjecttypeMappingService, ValidatePdfInformatieobjecttypeMappingService>();

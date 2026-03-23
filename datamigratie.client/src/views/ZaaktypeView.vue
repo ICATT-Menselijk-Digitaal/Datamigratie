@@ -48,12 +48,20 @@
       @update:complete="besluittypeMappingsComplete = $event"
     />
 
-    <document-property-mapping-section
+    <publicatie-niveau-mapping-section
       :mapping-id="zaaktypeMapping.id"
       :det-zaaktype="zaaktypeMapping.detZaaktype"
       :oz-zaaktype="zaaktypeMapping.ozZaaktype"
       :disabled="isThisMigrationRunning"
-      @update:complete="documentPropertyMappingsComplete = $event"
+      @update:complete="publicatieNiveauMappingsComplete = $event"
+    />
+
+    <documenttype-mapping-section
+      :mapping-id="zaaktypeMapping.id"
+      :det-zaaktype="zaaktypeMapping.detZaaktype"
+      :oz-zaaktype="zaaktypeMapping.ozZaaktype"
+      :disabled="isThisMigrationRunning"
+      @update:complete="documenttypeMappingsComplete = $event"
     />
 
     <vertrouwelijkheid-mapping-section
@@ -99,7 +107,8 @@ import BesluittypeMappingSection from "@/components/BesluittypeMappingSection.vu
 import StartMigrationButton from "@/components/StartMigrationButton.vue";
 import StartPartialMigrationButton from "@/components/StartPartialMigrationButton.vue";
 import ResultaattypeMappingSection from "@/components/ResultaattypeMappingSection.vue";
-import DocumentPropertyMappingSection from "@/components/DocumentPropertyMappingSection.vue";
+import PublicatieNiveauMappingSection from "@/components/PublicatieNiveauMappingSection.vue";
+import DocumenttypeMappingSection from "@/components/DocumenttypeMappingSection.vue";
 import VertrouwelijkheidMappingSection from "@/components/VertrouwelijkheidMappingSection.vue";
 import PdfInformatieobjecttypeMappingSection from "@/components/PdfInformatieobjecttypeMappingSection.vue";
 import MigrationHistoryTable from "@/components/MigrationHistoryTable.vue";
@@ -122,7 +131,8 @@ const detZaaktypeNaam = ref<string>("");
 const statusMappingsComplete = ref(false);
 const resultaattypeMappingsComplete = ref(false);
 const besluittypeMappingsComplete = ref(false);
-const documentPropertyMappingsComplete = ref(false);
+const publicatieNiveauMappingsComplete = ref(false);
+const documenttypeMappingsComplete = ref(false);
 const vertrouwelijkheidMappingsComplete = ref(false);
 const generatedPdfMappingComplete = ref(false);
 
@@ -148,7 +158,8 @@ const allIsComplete = computed(
     statusMappingsComplete.value &&
     besluittypeMappingsComplete.value &&
     resultaattypeMappingsComplete.value &&
-    documentPropertyMappingsComplete.value &&
+    publicatieNiveauMappingsComplete.value &&
+    documenttypeMappingsComplete.value &&
     vertrouwelijkheidMappingsComplete.value &&
     generatedPdfMappingComplete.value
 );
