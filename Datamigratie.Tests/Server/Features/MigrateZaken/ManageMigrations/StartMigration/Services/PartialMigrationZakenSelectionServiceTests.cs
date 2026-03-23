@@ -2,8 +2,9 @@ using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Data;
 using Datamigratie.Data.Entities;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Services;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.StartPartialMigration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 
 namespace Datamigratie.Tests.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Services;
@@ -18,6 +19,18 @@ public class PartialMigrationZakenSelectionServiceTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
         return new DatamigratieDbContext(options);
+    }
+
+    private static IServiceScopeFactory CreateScopeFactory(DatamigratieDbContext context)
+    {
+        var services = new ServiceCollection();
+        services.AddSingleton(context);
+        var provider = services.BuildServiceProvider();
+        var scopeFactoryMock = new Mock<IServiceScopeFactory>();
+        var scopeMock = new Mock<IServiceScope>();
+        scopeMock.Setup(s => s.ServiceProvider).Returns(provider);
+        scopeFactoryMock.Setup(f => f.CreateScope()).Returns(scopeMock.Object);
+        return scopeFactoryMock.Object;
     }
 
     private static Migration CreateMigration(DatamigratieDbContext context)
@@ -60,7 +73,8 @@ public class PartialMigrationZakenSelectionServiceTests
                 new DetZaakMinimal { FunctioneleIdentificatie = "zaak-003", Open = true  }, // still open, skip
             ]);
 
-        var sut = new PartialMigrationZakenSelectionService(context, detClientMock.Object);
+        var scopeFactory = CreateScopeFactory(context);
+        var sut = new PartialMigrationZakenSelector(scopeFactory, detClientMock.Object);
 
         // Act
         var result = await sut.SelectZakenAsync(ZaaktypeId);
@@ -89,7 +103,8 @@ public class PartialMigrationZakenSelectionServiceTests
                 new DetZaakMinimal { FunctioneleIdentificatie = "zaak-002", Open = false },
             ]);
 
-        var sut = new PartialMigrationZakenSelectionService(context, detClientMock.Object);
+        var scopeFactory = CreateScopeFactory(context);
+        var sut = new PartialMigrationZakenSelector(scopeFactory, detClientMock.Object);
 
         // Act
         var result = await sut.SelectZakenAsync(ZaaktypeId);
@@ -118,7 +133,8 @@ public class PartialMigrationZakenSelectionServiceTests
                 new DetZaakMinimal { FunctioneleIdentificatie = "zaak-001", Open = false },
             ]);
 
-        var sut = new PartialMigrationZakenSelectionService(context, detClientMock.Object);
+        var scopeFactory = CreateScopeFactory(context);
+        var sut = new PartialMigrationZakenSelector(scopeFactory, detClientMock.Object);
 
         // Act
         var result = await sut.SelectZakenAsync(ZaaktypeId);
@@ -147,7 +163,8 @@ public class PartialMigrationZakenSelectionServiceTests
                 new DetZaakMinimal { FunctioneleIdentificatie = "zaak-003", Open = false }, // newly closed
             ]);
 
-        var sut = new PartialMigrationZakenSelectionService(context, detClientMock.Object);
+        var scopeFactory = CreateScopeFactory(context);
+        var sut = new PartialMigrationZakenSelector(scopeFactory, detClientMock.Object);
 
         // Act
         var result = await sut.SelectZakenAsync(ZaaktypeId);
