@@ -172,7 +172,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
                 var laasteOndertekening = versie.Ondertekeningen.OrderByDescending(o => o.OndertekenDatum).First();
                 ondertekening = new Ondertekening
                 {
-                    Datum = laasteOndertekening.OndertekenDatum,
+                    Datum = DateOnly.FromDateTime(laasteOndertekening.OndertekenDatum.DateTime),
                     Soort = "digitaal"
                 };
             }
@@ -577,7 +577,7 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
 
             var registratieDatum = detZaak.CreatieDatumTijd.ToString("yyyy-MM-dd");
 
-            var startDatum = detZaak.Startdatum.ToString("yyyy-MM-dd");
+            var startDatum = detZaak.Startdatum?.ToString("yyyy-MM-dd") ?? "";
 
             const int MaxOmschrijvingLength = 80;
             var omschrijving = TruncateWithDots(detZaak.Omschrijving, MaxOmschrijvingLength);

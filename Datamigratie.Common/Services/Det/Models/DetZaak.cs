@@ -29,12 +29,12 @@ namespace Datamigratie.Common.Services.Det.Models
         public bool Notificeerbaar { get; set; }
         public required string Omschrijving { get; set; }
         public bool ProcesGestart { get; set; }
-        public DateOnly Startdatum { get; set; }
+        public DateOnly? Startdatum { get; set; }
         public DateOnly Streefdatum { get; set; }
         public bool Vernietiging { get; set; }
         public bool Vertrouwelijk { get; set; }
         [JsonConverter(typeof(DetZonedDateTimeConverter))]
-        public DateTimeOffset WijzigDatumTijd { get; set; }
+        public DateTimeOffset? WijzigDatumTijd { get; set; }
         public DetZaaktype? Zaaktype { get; set; }
         public List<DetDocument>? Documenten { get; set; }
         public List<DetBesluit>? Besluiten { get; set; }
@@ -42,6 +42,13 @@ namespace Datamigratie.Common.Services.Det.Models
         public DetArchiveerGegevens? ArchiveerGegevens { get; set; }
         public DetGeolocatie? Geolocatie { get; set; }
         public DetKanaal? Kanaal { get; set; }
+        public DateTimeOffset? Ztc1MigratiedatumTijd { get; set; }
+        public List<DetZaakNotitie>? Notities { get; set; }
+        public List<DetBetrokkene>? Betrokkenen { get; set; }
+        public List<long>? GekoppeldeZaken { get; set; }
+        public List<DetZaakdata>? Zaakdata { get; set; }
+        public List<DetTaak>? Taken { get; set; }
+        public required List<DetZaakHistorie> Historie { get; set; }
     }
 
     public class DetDocument
@@ -52,10 +59,39 @@ namespace Datamigratie.Common.Services.Det.Models
         public string? Beschrijving { get; set; }
         public DocumentTaal? Taal { get; set; }
         public DocumentVorm? DocumentVorm { get; set; }
-
         public required DetDocumentstatus Documentstatus { get; set; }
-        public string? Publicatieniveau { get; set; }
+        public required string Publicatieniveau { get; set; }
         public DetDocumenttype? Documenttype { get; set; }
+        public long? PdfaDocumentInhoudID { get; set; }
+        public DetDocumentVersie? PdfaDocumentversie { get; set; }
+        public string? DocumentVersturen { get; set; }
+        public string? Locatie { get; set; }
+        public required bool AanvraagDocument { get; set; }
+        public List<DetDocumentMetadata>? DocumentMetadata { get; set; }
+        public required List<DetDocumentHistorie> Historie { get; set; }
+    }
+
+    public class DetDocumentMetadata
+    {
+        public string? Waarde { get; set; }
+        public DetMetadataElement? MetadataElement { get; set; }
+    }
+
+    public class DetMetadataElement
+    {
+        public string? Naam { get; set; }
+        public string? Label { get; set; }
+        public string? Type { get; set; }
+    }
+
+    public class DetDocumentHistorie
+    {
+        public string? TypeWijziging { get; set; }
+        public string? GewijzigdDoor { get; set; }
+        public DateOnly? WijzigingDatum { get; set; }
+        public string? OudeWaarde { get; set; }
+        public string? NieuweWaarde { get; set; }
+        public string? Toelichting { get; set; }
     }
 
     public class DetDocumentVersie
@@ -63,17 +99,83 @@ namespace Datamigratie.Common.Services.Det.Models
         public required int Versienummer { get; set; }
         public required long DocumentInhoudID { get; set; }
         public required string Bestandsnaam { get; set; }
-        public string Mimetype { get; set; }
+        public required string Mimetype { get; set; }
+        public required bool Compressed { get; set; }
         public long? Documentgrootte { get; set; }
         public string? Auteur { get; set; }
         public required DateOnly Creatiedatum { get; set; }
         public List<DetOndertekening>? Ondertekeningen { get; set; }
+        public string? Afzender { get; set; }
     }
 
     public class DetOndertekening
     {
-        [JsonConverter(typeof(DetDateOnlyConverter))]
-        public DateOnly OndertekenDatum { get; set; }
+        public required string Ondertekenaar { get; set; }
+        [JsonConverter(typeof(DetZonedDateTimeConverter))]
+        public DateTimeOffset OndertekenDatum { get; set; }
+        public required bool Gemandateerd { get; set; }
+        public string? Opmerking { get; set; }
+    }
+
+    public class DetZaakNotitie
+    {
+        public required string Medewerker { get; set; }
+        public required DateTimeOffset DatumTijd { get; set; }
+        public string? Notitie { get; set; }
+    }
+
+    public class DetBetrokkene
+    {
+        public required bool IndCorrespondentie { get; set; }
+        public DateOnly? Startdatum { get; set; }
+    }
+
+    public class DetZaakdata
+    {
+        public required string Type { get; set; }
+        public required string Naam { get; set; }
+        public string? Omschrijving { get; set; }
+        public string? Formatering { get; set; }
+        public object? Waarde { get; set; }
+        public List<string>? Waarden { get; set; }
+    }
+
+    public class DetTaak
+    {
+        public required string FunctioneelIdentificatie { get; set; }
+        public required DateOnly Startdatum { get; set; }
+        public required bool IndicatieExternToegankelijk { get; set; }
+        public required string Taaktype { get; set; }
+        public required List<DetTaakHistorie> Historie { get; set; }
+        public string? Processtap { get; set; }
+        public string? AfgehandeldDoor { get; set; }
+        public DateTimeOffset? Einddatum { get; set; }
+        public DateOnly? Fataledatum { get; set; }
+        public DateOnly? Streefdatum { get; set; }
+        public string? Vestigingsnummer { get; set; }
+        public string? KvkNummer { get; set; }
+        public string? ToekenningEmail { get; set; }
+    }
+
+    public class DetTaakHistorie
+    {
+        public required string TypeWijziging { get; set; }
+        public string? GewijzigdDoor { get; set; }
+        public DateOnly? WijzigingDatum { get; set; }
+        public string? OudeWaarde { get; set; }
+        public string? NieuweWaarde { get; set; }
+        public string? Toelichting { get; set; }
+    }
+
+    public class DetZaakHistorie
+    {
+        public required string TypeWijziging { get; set; }
+        public string? GewijzigdDoor { get; set; }
+        public DateOnly? WijzigingDatum { get; set; }
+        public string? OudeWaarde { get; set; }
+        public string? NieuweWaarde { get; set; }
+        public string? NieuweWaardeExtern { get; set; }
+        public string? Toelichting { get; set; }
     }
 
     public class DetBetaalgegevens
@@ -82,11 +184,26 @@ namespace Datamigratie.Common.Services.Det.Models
         public string? Betaalstatus { get; set; }
         public string? Kenmerk { get; set; }
         public DateOnly? TransactieDatum { get; set; }
+        public string? OrigineleStatusCode { get; set; }
+        public string? TransactieId { get; set; }
+        public string? Ncerror { get; set; }
     }
 
     public class DetArchiveerGegevens
     {
         public DateOnly? BewaartermijnEinddatum { get; set; }
+        public string? OverbrengenDoor { get; set; }
+        public string? OverbrengenNaar { get; set; }
+        public string? OverbrengenType { get; set; }
+        public string? SelectielijstItemNaam { get; set; }
+        public DetOvergebrachteGegevens? OvergebrachteGegevens { get; set; }
+    }
+
+    public class DetOvergebrachteGegevens
+    {
+        public required DateOnly OvergebrachtOp { get; set; }
+        public required string OvergebrachtDoor { get; set; }
+        public required string OvergebrachtNaar { get; set; }
     }
 
     public class DocumentTaal
@@ -127,5 +244,6 @@ namespace Datamigratie.Common.Services.Det.Models
     public class DetKanaal
     {
         public required string Naam { get; set; }
+        public string? Omschrijving { get; set; }
     }
 }
