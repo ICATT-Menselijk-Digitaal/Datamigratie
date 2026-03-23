@@ -1,15 +1,18 @@
-using System.Net;
+﻿using System.Net;
 using Datamigratie.Common.Config;
 using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Data;
 using Datamigratie.Data.Entities;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Models;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues.Items;
 using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Services;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.State;
-using Datamigratie.Server.Features.Migrate.MigrateZaak;
-using Datamigratie.Server.Features.Migrate.MigrateZaak.Models;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Models;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.StartFullMigration;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Queues.Items;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Services;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.State;
+using Datamigratie.Server.Features.MigrateZaken.MigrateZaak;
+using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -39,18 +42,19 @@ public class StartMigrationServiceTests
         context.SaveChanges();
     }
 
-    private static MigrationQueueItem CreateQueueItem(MigrationType type = MigrationType.Full)
+    private static MigrationQueueItem CreateQueueItem(IZakenSelector selector)
         => new()
         {
             DetZaaktypeId = ZaaktypeId,
-            MigrationType = type,
+            ZakenSelector = selector,
             RsinMapping = new RsinMapping { Rsin = "000000000" },
-            StatusMappings = [],
-            ResultaatMappings = [],
-            DocumentstatusMappings = [],
-            DocumentPropertyMappings = [],
-            ZaakVertrouwelijkheidMappings = [],
-            BesluittypeMappings = [],
+            StatusMappings = new(),
+            ResultaatMappings = new(),
+            DocumentstatusMappings = new(),
+            PublicatieNiveauMappings = new(),
+            DocumenttypeMappings = new(),
+            ZaakVertrouwelijkheidMappings = new(),
+            BesluittypeMappings = new(),
             PdfInformatieobjecttypeId = Guid.NewGuid()
         };
 
@@ -68,8 +72,7 @@ public class StartMigrationServiceTests
     private static StartMigrationService CreateSut(
         DatamigratieDbContext context,
         Mock<IDetApiClient> detClient,
-        Mock<IMigrateZaakService> migrateZaakService,
-        Mock<IPartialMigrationZakenSelectionService> partialSelection)
+        Mock<IMigrateZaakService> migrateZaakService)
     {
         var options = Options.Create(new OpenZaakApiOptions { BaseUrl = "https://openzaak.test/" });
         return new StartMigrationService(
@@ -78,8 +81,7 @@ public class StartMigrationServiceTests
             NullLogger<StartMigrationService>.Instance,
             migrateZaakService.Object,
             new MigrationWorkerState(),
-            options,
-            partialSelection.Object);
+            options);
     }
 
     // --- Group 1: Migration type branching ---
@@ -104,15 +106,16 @@ public class StartMigrationServiceTests
         migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<DetZaak>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(MigrateZaakResult.Success("zaak-001", "ok"));
 
-        var partialSelection = new Mock<IPartialMigrationZakenSelectionService>();
-        var sut = CreateSut(context, detClient, migrateZaak, partialSelection);
+        // Use a FullMigrationZakenSelector with the mocked detClient
+        var selector = new FullMigrationZakenSelector(detClient.Object);
+
+        var sut = CreateSut(context, detClient, migrateZaak);
 
         // Act
-        await sut.PerformMigrationAsync(CreateQueueItem(MigrationType.Full), CancellationToken.None);
+        await sut.PerformMigrationAsync(CreateQueueItem(selector), CancellationToken.None);
 
         // Assert: only closed zaken (zaak-001 and zaak-003) are migrated
         migrateZaak.Verify(s => s.MigrateZaak(It.IsAny<DetZaak>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
-        partialSelection.Verify(s => s.SelectZakenAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
         var migration = await context.Migrations.FirstAsync();
         Assert.Equal(2, migration.TotalRecords);
     }
@@ -128,26 +131,28 @@ public class StartMigrationServiceTests
         detClient.Setup(c => c.GetZaakByZaaknummer("zaak-001"))
             .ReturnsAsync(CreateDetZaak("zaak-001"));
 
-        var partialSelection = new Mock<IPartialMigrationZakenSelectionService>();
-        partialSelection.Setup(s => s.SelectZakenAsync(ZaaktypeId, It.IsAny<CancellationToken>()))
+        // Use a custom selector that returns only zaak-001
+        var selectorMock = new Mock<IZakenSelector>();
+        selectorMock.Setup(s => s.SelectZakenAsync(ZaaktypeId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([new DetZaakMinimal { FunctioneleIdentificatie = "zaak-001", Open = false }]);
 
         var migrateZaak = new Mock<IMigrateZaakService>();
         migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<DetZaak>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(MigrateZaakResult.Success("zaak-001", "ok"));
 
-        var sut = CreateSut(context, detClient, migrateZaak, partialSelection);
+
+        var sut = CreateSut(context, detClient, migrateZaak);
 
         // Act
-        await sut.PerformMigrationAsync(CreateQueueItem(MigrationType.Partial), CancellationToken.None);
+        await sut.PerformMigrationAsync(CreateQueueItem(selectorMock.Object), CancellationToken.None);
 
-        // Assert: selection service called, DET bulk fetch NOT called, one zaak migrated
-        partialSelection.Verify(s => s.SelectZakenAsync(ZaaktypeId, It.IsAny<CancellationToken>()), Times.Once);
+        // Assert: selector called, DET bulk fetch NOT called, one zaak migrated
+        selectorMock.Verify(s => s.SelectZakenAsync(ZaaktypeId, It.IsAny<CancellationToken>()), Times.Once);
         detClient.Verify(c => c.GetZakenByZaaktype(It.IsAny<string>()), Times.Never);
         migrateZaak.Verify(s => s.MigrateZaak(It.IsAny<DetZaak>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
-// --- Group 2: Record counter correctness ---
+    // --- Group 2: Record counter correctness ---
 
     [Fact]
     public async Task PerformMigrationAsync_SuccessfulZaak_IncrementsSuccessfulRecords()
@@ -165,10 +170,12 @@ public class StartMigrationServiceTests
         migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<DetZaak>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(MigrateZaakResult.Success("zaak-001", "ok"));
 
-        var sut = CreateSut(context, detClient, migrateZaak, new Mock<IPartialMigrationZakenSelectionService>());
+
+        var selector = new Mock<IZakenSelector>().Object;
+        var sut = CreateSut(context, detClient, migrateZaak);
 
         // Act
-        await sut.PerformMigrationAsync(CreateQueueItem(), CancellationToken.None);
+        await sut.PerformMigrationAsync(CreateQueueItem(selector), CancellationToken.None);
 
         // Assert
         var migration = await context.Migrations.FirstAsync();
@@ -196,10 +203,12 @@ public class StartMigrationServiceTests
         migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<DetZaak>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(MigrateZaakResult.Failed("zaak-001", "fout", "details", 422));
 
-        var sut = CreateSut(context, detClient, migrateZaak, new Mock<IPartialMigrationZakenSelectionService>());
+
+        var selector = new Mock<IZakenSelector>().Object;
+        var sut = CreateSut(context, detClient, migrateZaak);
 
         // Act
-        await sut.PerformMigrationAsync(CreateQueueItem(), CancellationToken.None);
+        await sut.PerformMigrationAsync(CreateQueueItem(selector), CancellationToken.None);
 
         // Assert
         var migration = await context.Migrations.FirstAsync();
@@ -226,10 +235,12 @@ public class StartMigrationServiceTests
             .ThrowsAsync(new HttpRequestException("Not found", null, HttpStatusCode.NotFound));
 
         var migrateZaak = new Mock<IMigrateZaakService>();
-        var sut = CreateSut(context, detClient, migrateZaak, new Mock<IPartialMigrationZakenSelectionService>());
+
+        var selector = new Mock<IZakenSelector>().Object;
+        var sut = CreateSut(context, detClient, migrateZaak);
 
         // Act
-        await sut.PerformMigrationAsync(CreateQueueItem(), CancellationToken.None);
+        await sut.PerformMigrationAsync(CreateQueueItem(selector), CancellationToken.None);
 
         // Assert: failed record with 404 status code
         var record = await context.MigrationRecords.FirstAsync();
@@ -255,10 +266,12 @@ public class StartMigrationServiceTests
             .ThrowsAsync(new InvalidOperationException("Unexpected"));
 
         var migrateZaak = new Mock<IMigrateZaakService>();
-        var sut = CreateSut(context, detClient, migrateZaak, new Mock<IPartialMigrationZakenSelectionService>());
+
+        var selector = new Mock<IZakenSelector>().Object;
+        var sut = CreateSut(context, detClient, migrateZaak);
 
         // Act
-        await sut.PerformMigrationAsync(CreateQueueItem(), CancellationToken.None);
+        await sut.PerformMigrationAsync(CreateQueueItem(selector), CancellationToken.None);
 
         // Assert: failed record with 500
         var record = await context.MigrationRecords.FirstAsync();
@@ -291,10 +304,11 @@ public class StartMigrationServiceTests
             .ReturnsAsync(MigrateZaakResult.Failed("zaak-002", "fout", "details", 500))
             .ReturnsAsync(MigrateZaakResult.Success("zaak-003", "ok"));
 
-        var sut = CreateSut(context, detClient, migrateZaak, new Mock<IPartialMigrationZakenSelectionService>());
+        var sut = CreateSut(context, detClient, migrateZaak);
 
         // Act
-        await sut.PerformMigrationAsync(CreateQueueItem(), CancellationToken.None);
+        var selector = new Mock<IZakenSelector>().Object;
+        await sut.PerformMigrationAsync(CreateQueueItem(selector), CancellationToken.None);
 
         // Assert
         var migration = await context.Migrations.FirstAsync();

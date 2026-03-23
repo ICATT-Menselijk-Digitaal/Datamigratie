@@ -28,8 +28,7 @@ public class StartMigrationService(
     ILogger<StartMigrationService> logger,
     IMigrateZaakService migrateZaakService,
     MigrationWorkerState workerState,
-    IOptions<OpenZaakApiOptions> openZaakOptions,
-    IPartialMigrationZakenSelectionService partialMigrationZakenSelectionService) : IStartMigrationService
+    IOptions<OpenZaakApiOptions> openZaakOptions) : IStartMigrationService
 {
     private static readonly Meter Meter = new("Datamigratie.Server");
 
