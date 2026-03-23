@@ -7,12 +7,12 @@ using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
-using Datamigratie.Server.Features.Migrate.MigrateZaak.Models;
-using Datamigratie.Server.Features.Migrate.MigrateZaak.Pdf;
+using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models;
+using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Datamigratie.Server.Features.Migrate.MigrateZaak
+namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
 {
     public interface IMigrateZaakService
     {
@@ -272,10 +272,10 @@ namespace Datamigratie.Server.Features.Migrate.MigrateZaak
             {
                 await uploadContentAction(savedDocument, token);
             }
-            catch 
+            catch
             {
-               await TryUnlockDocumentIgnoringErrorsAsync(savedDocument.Id, savedDocument.Lock, token);
-               throw;
+                await TryUnlockDocumentIgnoringErrorsAsync(savedDocument.Id, savedDocument.Lock, token);
+                throw;
             }
             await _openZaakApiClient.UnlockDocument(savedDocument.Id, savedDocument.Lock, token);
 

@@ -12,13 +12,13 @@ using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Public
 using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.PublicatieNiveauMapping.SavePublicatieNiveauMappings;
 using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.DocumenttypeMapping.ShowDocumenttypeMappings;
 using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.DocumenttypeMapping.SaveDocumenttypeMappings;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.MigrationHistory.GetZaaktypeMigrationHistory.Services;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.MigrationHistory.GetZakenMigrationHistory.Services;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Queues;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Services;
-using Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.State;
-using Datamigratie.Server.Features.Migrate.MigrateZaak;
-using Datamigratie.Server.Features.Migrate.MigrateZaak.Pdf;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.ShowMigrationHistory.GetZaaktypeMigrationHistory.Services;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.ShowMigrationHistory.GetZakenMigrationHistory.Services;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Queues;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Services;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.State;
+using Datamigratie.Server.Features.MigrateZaken.MigrateZaak;
+using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Documentstatus;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Resultaat;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Status;
@@ -46,6 +46,7 @@ namespace Datamigratie.Server.Config
             services.AddScoped<IZaakgegevensPdfGenerator, ZaakgegevensPdfGenerator>();
 
             services.AddScoped<IStartMigrationService, StartMigrationService>();
+            services.AddScoped<IBuildMigrationQueueItemService, BuildMigrationQueueItemService>();
             services.AddScoped<IGetMigrationHistoryService, GetMigrationHistoryService>();
             services.AddScoped<IGetMigrationRecordsService, GetMigrationRecordsService>();
             services.AddScoped<IShowStatusMappingsService, ShowStatusMappingsService>();

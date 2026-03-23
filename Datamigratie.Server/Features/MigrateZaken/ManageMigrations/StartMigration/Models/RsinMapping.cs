@@ -1,4 +1,4 @@
-﻿namespace Datamigratie.Server.Features.Migrate.ManageMigrations.StartMigration.Models
+﻿namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Models
 {
     public class RsinMapping
     {

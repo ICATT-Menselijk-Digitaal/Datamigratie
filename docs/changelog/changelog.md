@@ -7,6 +7,7 @@
 - [Fix 1 hour maximum for migrations (JWT token related)](https://dimpact.atlassian.net/browse/DATA-194)
 - [Allow full re-run of a migration](https://dimpact.atlassian.net/browse/DATA-255)
 - [Enable performance testing using large data volumes](https://dimpact.atlassian.net/browse/DATA-253)
+- [Allow partial re-run of migration](https://dimpact.atlassian.net/browse/DATA-297)
 - [(QoL) Auto fill all zaaktype mappings with UI button](https://dimpact.atlassian.net/browse/DATA-407)
 - [Extend PDF content: un-mapped properties](https://dimpact.atlassian.net/browse/DATA-386)
 

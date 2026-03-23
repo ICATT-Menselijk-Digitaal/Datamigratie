@@ -1,9 +1,9 @@
-using Datamigratie.Common.Services.Det.Models;
+﻿using Datamigratie.Common.Services.Det.Models;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 
-namespace Datamigratie.Server.Features.Migrate.MigrateZaak.Pdf
+namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf
 {
     public interface IZaakgegevensPdfGenerator
     {
