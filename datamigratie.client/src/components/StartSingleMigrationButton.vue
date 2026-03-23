@@ -25,7 +25,7 @@
           <button type="button" class="button secondary" @click="closeDialog">Annuleren</button>
         </li>
         <li>
-          <button type="submit" :disabled="!zaaknummer.trim()">Migreer zaak</button>
+          <button type="submit" :disabled="!zaaknummer.trim() || isLoading">Migreer zaak</button>
         </li>
       </menu>
     </form>
@@ -47,6 +47,7 @@ const { fetchMigration } = useMigration();
 
 const dialogRef = ref<HTMLDialogElement>();
 const zaaknummer = ref("");
+const isLoading = ref(false);
 
 const openDialog = () => {
   zaaknummer.value = "";
@@ -61,10 +62,10 @@ const onSubmit = async () => {
   const trimmed = zaaknummer.value.trim();
   if (!trimmed) return;
 
-  closeDialog();
-
+  isLoading.value = true;
   try {
     await post(`/api/migration/startsingle`, { detZaaktypeId, zaaknummer: trimmed });
+    closeDialog();
     fetchMigration();
     toast.add({ text: `Migratie gestart voor zaak '${trimmed}'.`, type: "confirm" });
   } catch (err: unknown) {
@@ -72,6 +73,8 @@ const onSubmit = async () => {
       text: `Fout bij starten van de enkelvoudige migratie - ${err}`,
       type: "error"
     });
+  } finally {
+    isLoading.value = false;
   }
 };
 </script>
