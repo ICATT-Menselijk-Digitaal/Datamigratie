@@ -21,16 +21,19 @@ public class StartSingleMigrationController(
         if (workerState.IsWorking)
             return Conflict(new { message = "Er loopt al een migratie." });
 
-        var zaak = await detApiClient.GetZaakByZaaknummer(request.Zaaknummer);
-        if (zaak is null)
-            return UnprocessableEntity(new { message = $"Zaak met zaaknummer '{request.Zaaknummer}' is niet gevonden in DET." });
-
-        if (zaak.Zaaktype?.FunctioneleIdentificatie != request.DetZaaktypeId)
-            return UnprocessableEntity(new { message = $"Zaak '{request.Zaaknummer}' behoort niet tot dit zaaktype." });
-
         try
         {
-            var zakenSelector = new SingleZaakSelector(detApiClient, request.Zaaknummer);
+            var zaak = await detApiClient.GetZaakByZaaknummer(request.Zaaknummer);
+            if (zaak is null)
+                return UnprocessableEntity(new { message = $"Zaak met zaaknummer '{request.Zaaknummer}' is niet gevonden in DET." });
+
+            if (zaak.Zaaktype?.FunctioneleIdentificatie != request.DetZaaktypeId)
+                return UnprocessableEntity(new { message = $"Zaak '{request.Zaaknummer}' behoort niet tot dit zaaktype." });
+
+            if (zaak.Open)
+                return UnprocessableEntity(new { message = $"Zaak '{request.Zaaknummer}' is nog open en kan daarom niet gemigreerd worden." });
+
+            var zakenSelector = new SingleZaakSelector(request.Zaaknummer, zaak.Open);
             var queueItem = await buildMigrationQueueItemService.ValidateAndBuildAsync(request.DetZaaktypeId, zakenSelector);
             await backgroundTaskQueue.QueueMigrationAsync(queueItem);
         }
