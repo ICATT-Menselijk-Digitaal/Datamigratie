@@ -74,7 +74,8 @@ const onSubmit = async () => {
     fetchMigration();
     toast.add({ text: `Migratie gestart voor zaak '${trimmed}'.`, type: "confirm" });
   } catch (err: unknown) {
-    errorMessage.value = `Fout bij starten van de enkelvoudige migratie - ${err}`;
+    errorMessage.value =
+      err instanceof Error ? err.message : "Er is een onbekende fout opgetreden.";
   } finally {
     isLoading.value = false;
   }
