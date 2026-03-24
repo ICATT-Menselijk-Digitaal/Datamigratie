@@ -235,6 +235,7 @@ public class StartMigrationService(
 
     private static MigrationRecord CreateFailedMigrationRecord(Migration migration, string detZaaknummer, string? errorTitle, string? errorDetails, int? statusCode)
     {
+        migration.FailedRecords++;
         return new MigrationRecord
         {
             MigrationId = migration.Id,

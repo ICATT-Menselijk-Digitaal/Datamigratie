@@ -256,6 +256,9 @@ public class StartMigrationServiceTests
         // Migration itself completes (not failed)
         var migration = await context.Migrations.FirstAsync();
         Assert.Equal(MigrationStatus.Completed, migration.Status);
+        Assert.Equal(1, migration.FailedRecords);
+        Assert.Equal(1, migration.ProcessedRecords);
+        Assert.Equal(1, migration.TotalRecords);
     }
 
     [Fact]
