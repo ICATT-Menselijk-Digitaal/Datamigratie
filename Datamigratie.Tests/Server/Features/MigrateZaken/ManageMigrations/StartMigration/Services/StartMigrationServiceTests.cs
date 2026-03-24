@@ -65,7 +65,8 @@ public class StartMigrationServiceTests
             Omschrijving = "test",
             CreatieDatumTijd = DateTimeOffset.UtcNow,
             Startdatum = DateOnly.FromDateTime(DateTime.Today),
-            Streefdatum = DateOnly.FromDateTime(DateTime.Today)
+            Streefdatum = DateOnly.FromDateTime(DateTime.Today),
+            Historie = [],
         };
 
     private static StartMigrationService CreateSut(
