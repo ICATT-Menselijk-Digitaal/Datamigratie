@@ -29,7 +29,7 @@ namespace Datamigratie.Common.Services.Det.Models
         public bool Notificeerbaar { get; set; }
         public required string Omschrijving { get; set; }
         public bool ProcesGestart { get; set; }
-        public DateOnly? Startdatum { get; set; }
+        public DateOnly Startdatum { get; set; }
         public DateOnly Streefdatum { get; set; }
         public bool Vernietiging { get; set; }
         public bool Vertrouwelijk { get; set; }

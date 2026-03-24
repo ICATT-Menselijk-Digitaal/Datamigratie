@@ -577,7 +577,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
 
             var registratieDatum = detZaak.CreatieDatumTijd.ToString("yyyy-MM-dd");
 
-            var startDatum = detZaak.Startdatum?.ToString("yyyy-MM-dd") ?? "";
+            var startDatum = detZaak.Startdatum?.ToString("yyyy-MM-dd");
 
             const int MaxOmschrijvingLength = 80;
             var omschrijving = TruncateWithDots(detZaak.Omschrijving, MaxOmschrijvingLength);
