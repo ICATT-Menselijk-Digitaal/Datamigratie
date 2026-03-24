@@ -15,12 +15,14 @@ public class ValidateRoltypeMappingsService(
 {
     public async Task<(bool IsValid, Dictionary<string, string> Mappings)> ValidateAndGetRoltypeMappings(string detZaaktypeId)
     {
+        var safeDetZaaktypeId = detZaaktypeId.ReplaceLineEndings(" ");
+
         var zaaktypenMapping = await dbContext.Mappings
             .FirstOrDefaultAsync(m => m.DetZaaktypeId == detZaaktypeId);
 
         if (zaaktypenMapping == null)
         {
-            logger.LogWarning("No zaaktype mapping found for zaaktype {DetZaaktypeId}", detZaaktypeId);
+            logger.LogWarning("No zaaktype mapping found for zaaktype {DetZaaktypeId}", safeDetZaaktypeId);
             return (false, []);
         }
 
@@ -35,7 +37,7 @@ public class ValidateRoltypeMappingsService(
         if (missingRollen.Count != 0)
         {
             logger.LogWarning("Missing roltype mappings for zaaktype {DetZaaktypeId}: {MissingRollen}",
-                detZaaktypeId, string.Join(", ", missingRollen.Select(r => r.Id)));
+                safeDetZaaktypeId, string.Join(", ", missingRollen.Select(r => r.Id)));
             return (false, []);
         }
 
