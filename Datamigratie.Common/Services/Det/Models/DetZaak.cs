@@ -48,7 +48,7 @@ namespace Datamigratie.Common.Services.Det.Models
         public List<long>? GekoppeldeZaken { get; set; }
         public List<DetZaakdata>? Zaakdata { get; set; }
         public List<DetTaak>? Taken { get; set; }
-        public required List<DetZaakHistorie> Historie { get; set; }
+        public required List<DetZaakHistorie> Historie { get; set; } = [];
     }
 
     public class DetDocument
