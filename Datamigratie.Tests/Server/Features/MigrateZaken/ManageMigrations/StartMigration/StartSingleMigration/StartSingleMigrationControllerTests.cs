@@ -29,7 +29,8 @@ public class StartSingleMigrationControllerTests
             FunctioneleIdentificatie = zaaktypeId,
             Naam = "Test zaaktype",
             Omschrijving = "Test"
-        }
+        },
+        Historie = new(),
     };
 
     private static StartSingleMigrationRequest DefaultRequest => new()
