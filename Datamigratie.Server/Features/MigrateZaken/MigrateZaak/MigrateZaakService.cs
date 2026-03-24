@@ -172,7 +172,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 var laasteOndertekening = versie.Ondertekeningen.OrderByDescending(o => o.OndertekenDatum).First();
                 ondertekening = new Ondertekening
                 {
-                    Datum = laasteOndertekening.OndertekenDatum,
+                    Datum = DateOnly.FromDateTime(laasteOndertekening.OndertekenDatum.DateTime),
                     Soort = "digitaal"
                 };
             }
