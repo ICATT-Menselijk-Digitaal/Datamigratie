@@ -79,6 +79,14 @@
       @update:complete="generatedPdfMappingComplete = $event"
     />
 
+    <roltype-mapping-section
+      :mapping-id="zaaktypeMapping.id"
+      :det-zaaktype="zaaktypeMapping.detZaaktype"
+      :oz-zaaktype="zaaktypeMapping.ozZaaktype"
+      :disabled="isThisMigrationRunning"
+      @update:complete="roltypeMappingsComplete = $event"
+    />
+
     <menu class="reset" v-if="!error && !isThisMigrationRunning && canStartMigration">
       <li>
         <start-migration-button
@@ -118,6 +126,7 @@ import PublicatieNiveauMappingSection from "@/components/PublicatieNiveauMapping
 import DocumenttypeMappingSection from "@/components/DocumenttypeMappingSection.vue";
 import VertrouwelijkheidMappingSection from "@/components/VertrouwelijkheidMappingSection.vue";
 import PdfInformatieobjecttypeMappingSection from "@/components/PdfInformatieobjecttypeMappingSection.vue";
+import RoltypeMappingSection from "@/components/RoltypeMappingSection.vue";
 import MigrationHistoryTable from "@/components/MigrationHistoryTable.vue";
 import ZaaktypeMappingSection, {
   type ZaaktypeMappingModel
@@ -142,6 +151,7 @@ const publicatieNiveauMappingsComplete = ref(false);
 const documenttypeMappingsComplete = ref(false);
 const vertrouwelijkheidMappingsComplete = ref(false);
 const generatedPdfMappingComplete = ref(false);
+const roltypeMappingsComplete = ref(false);
 
 const { error, migration } = useMigration();
 const isThisMigrationRunning = computed(
@@ -168,7 +178,8 @@ const allIsComplete = computed(
     publicatieNiveauMappingsComplete.value &&
     documenttypeMappingsComplete.value &&
     vertrouwelijkheidMappingsComplete.value &&
-    generatedPdfMappingComplete.value
+    generatedPdfMappingComplete.value &&
+    roltypeMappingsComplete.value
 );
 
 const canStartMigration = computed(

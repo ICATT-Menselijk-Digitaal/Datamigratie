@@ -20,6 +20,8 @@ namespace Datamigratie.Common.Services.OpenZaak
 
         Task<List<OzBesluittype>> GetBesluittypenForZaaktype(Uri zaaktypeUri);
 
+        Task<List<OzRoltype>> GetRoltypesForZaaktype(Uri zaaktypeUri);
+
         Task<OzZaak> CreateZaak(CreateOzZaakRequest request);
 
         Task<OzResultaat> CreateResultaat(CreateOzResultaatRequest request);
@@ -131,6 +133,17 @@ namespace Datamigratie.Common.Services.OpenZaak
             var endpoint = $"catalogi/api/v1/besluittypen?zaaktypen={Uri.EscapeDataString(zaaktypeUri.ToString())}";
             var pagedBesluittypen = await GetAllPagedData<OzBesluittype>(endpoint);
             return pagedBesluittypen.Results;
+        }
+
+        /// <summary>
+        /// Gets all roltypen for a specific zaaktype.
+        /// </summary>
+        /// <returns>A list of roltypen for the zaaktype</returns>
+        public async Task<List<OzRoltype>> GetRoltypesForZaaktype(Uri zaaktypeUri)
+        {
+            var endpoint = $"catalogi/api/v1/roltypen?zaaktype={Uri.EscapeDataString(zaaktypeUri.ToString())}";
+            var pagedRoltypen = await GetAllPagedData<OzRoltype>(endpoint);
+            return pagedRoltypen.Results;
         }
 
         public async Task<OzZaak?> GetZaakByIdentificatie(string zaakNummer)

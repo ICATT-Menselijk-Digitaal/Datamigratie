@@ -1,10 +1,25 @@
-using Datamigratie.Common.Services.OpenZaak.Models;
+﻿using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Server.Shared.Models;
 
 namespace Datamigratie.Server.Constants
 {
     public static class MappingConstants
     {
+        public static class DetRol
+        {
+            public static readonly ZaaktypeOptionItem[] Options =
+            [
+                new() { Id = "Initiator",       Name = "Initiator" },
+                new() { Id = "Behandelaar",     Name = "Behandelaar" },
+                new() { Id = "Belanghebbende",  Name = "Belanghebbende" },
+                new() { Id = "Gemachtigde",     Name = "Gemachtigde" },
+                new() { Id = "Melder",          Name = "Melder" },
+                new() { Id = "Medeaanvrager",   Name = "Medeaanvrager" },
+                new() { Id = "Plaatsvervanger", Name = "Plaatsvervanger" },
+                new() { Id = "Overig",          Name = "Overig" },
+            ];
+        }
+
         public static class PublicatieNiveau
         {
             public static readonly ZaaktypeOptionItem[] Options =

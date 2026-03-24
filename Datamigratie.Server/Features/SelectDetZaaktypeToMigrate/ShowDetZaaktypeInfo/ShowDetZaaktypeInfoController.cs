@@ -35,7 +35,8 @@ namespace Datamigratie.Server.Features.SelectDetZaaktypeToMigrate.ShowDetZaaktyp
                 Documenttypen = [.. detZaaktypeDetail.Documenttypen.Select(dt => dt.Documenttype)],
                 Besluittypen = [.. detZaaktypeDetail.Besluiten.Select(b => b.Besluittype)],
                 PublicatieNiveauOptions = [.. MappingConstants.PublicatieNiveau.Options],
-                DetVertrouwelijkheidOpties = [.. MappingConstants.DetVertrouwelijkheid.Options]
+                DetVertrouwelijkheidOpties = [.. MappingConstants.DetVertrouwelijkheid.Options],
+                DetRolOpties = [.. MappingConstants.DetRol.Options]
             };
 
             return enrichedDetZaaktype;

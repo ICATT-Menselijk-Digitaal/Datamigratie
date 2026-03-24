@@ -50,7 +50,8 @@ public class StartSingleMigrationControllerTests
         DocumenttypeMappings = [],
         ZaakVertrouwelijkheidMappings = [],
         BesluittypeMappings = [],
-        PdfInformatieobjecttypeId = Guid.Empty
+        PdfInformatieobjecttypeId = Guid.Empty,
+        RoltypeMappings = []
     };
 
     private static StartSingleMigrationController CreateSut(

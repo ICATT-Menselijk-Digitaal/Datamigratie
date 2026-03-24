@@ -23,6 +23,7 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Sh
             var ozResultaattypes = await openZaakApiClient.GetResultaattypenForZaaktype(new Uri(ozZaaktype.Url));
             var ozInformatieobjecttypen = await openZaakApiClient.GetInformatieobjecttypenForZaaktype(new Uri(ozZaaktype.Url));
             var ozBesluittypen = await openZaakApiClient.GetBesluittypenForZaaktype(new Uri(ozZaaktype.Url));
+            var ozRoltypen = await openZaakApiClient.GetRoltypesForZaaktype(new Uri(ozZaaktype.Url));
 
             var enrichedOzZaaktype = new EnrichedOzZaaktype
             {
@@ -32,6 +33,7 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Sh
                 Resultaattypen = ozResultaattypes,
                 Informatieobjecttypen = ozInformatieobjecttypen,
                 Besluittypen = ozBesluittypen,
+                Roltypen = ozRoltypen,
                 Omschrijving = ozZaaktype.Omschrijving,
                 OzZaakVertrouwelijkheidaanduidingen = [.. MappingConstants.OzZaakVertrouwelijkheidaanduiding.Options],
                 OzDocumentVertrouwelijkheidaanduidingen = [.. MappingConstants.OzDocumentVertrouwelijkheidaanduiding.Options]
