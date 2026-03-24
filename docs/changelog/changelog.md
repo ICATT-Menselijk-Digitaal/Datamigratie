@@ -11,6 +11,7 @@
 - [(QoL) Auto fill all zaaktype mappings with UI button](https://dimpact.atlassian.net/browse/DATA-407)
 - [Enable single zaak migration from Zaaktype page](https://dimpact.atlassian.net/browse/DATA-265)
 - [Configuration of Roltype per Zaaktype](https://dimpact.atlassian.net/browse/DATA-331)
+- [Extend PDF content: un-mapped properties](https://dimpact.atlassian.net/browse/DATA-386)
 
 ## v0.1.0
 

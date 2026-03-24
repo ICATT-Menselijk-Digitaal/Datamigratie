@@ -20,6 +20,8 @@
         autocomplete="off"
       />
 
+      <p v-if="errorMessage" class="error-message" role="alert">{{ errorMessage }}</p>
+
       <menu class="reset">
         <li>
           <button type="button" class="button secondary" @click="closeDialog">Annuleren</button>
@@ -48,9 +50,11 @@ const { fetchMigration } = useMigration();
 const dialogRef = ref<HTMLDialogElement>();
 const zaaknummer = ref("");
 const isLoading = ref(false);
+const errorMessage = ref("");
 
 const openDialog = () => {
   zaaknummer.value = "";
+  errorMessage.value = "";
   dialogRef.value?.showModal();
 };
 
@@ -63,16 +67,15 @@ const onSubmit = async () => {
   if (!trimmed) return;
 
   isLoading.value = true;
+  errorMessage.value = "";
   try {
     await post(`/api/migration/startsingle`, { detZaaktypeId, zaaknummer: trimmed });
     closeDialog();
     fetchMigration();
     toast.add({ text: `Migratie gestart voor zaak '${trimmed}'.`, type: "confirm" });
   } catch (err: unknown) {
-    toast.add({
-      text: `Fout bij starten van de enkelvoudige migratie - ${err}`,
-      type: "error"
-    });
+    errorMessage.value =
+      err instanceof Error ? err.message : "Er is een onbekende fout opgetreden.";
   } finally {
     isLoading.value = false;
   }
@@ -114,5 +117,9 @@ menu {
 
 label {
   font-weight: var(--font-bold);
+}
+
+.error-message {
+  color: var(--danger);
 }
 </style>
