@@ -196,6 +196,13 @@ Before writing or modifying any frontend code, read [frontend-best-practices.md]
 
 ---
 
+### Testing
+
+- [ ] **Test via public interfaces only**: Do not unit test private methods. Test behavior by observing public outputs (return values, DB state, exceptions) given controlled inputs.
+  > Private method tests make code hard to refactor and don't guarantee the full flow works after major edits.
+
+---
+
 ## Common Review Comments (Quick Reference)
 
 | Issue                     | Feedback Pattern                                         |

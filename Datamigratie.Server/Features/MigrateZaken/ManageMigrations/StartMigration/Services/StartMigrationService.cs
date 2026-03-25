@@ -131,6 +131,8 @@ public class StartMigrationService(
                 "De zaak kon niet opgehaald worden uit het bronsysteem.",
                 $"HTTP {statusCode}: {httpEx.Message}",
                 statusCode);
+
+            migration.FailedRecords++;
         }
         catch (Exception ex)
         {
@@ -141,6 +143,8 @@ public class StartMigrationService(
                 "Onverwachte fout tijdens migratie",
                 ex.Message,
                 statusCode: 500);
+
+            migration.FailedRecords++;
         }
 
         context.MigrationRecords.Add(record);
