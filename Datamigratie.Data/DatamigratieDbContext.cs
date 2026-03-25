@@ -146,6 +146,13 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
                 .IsUnique()
                 .HasDatabaseName("IX_DocumenttypeMapping_ZaaktypenMappingId_DetDocumenttypeNaam_Unique");
         });
+
+        modelBuilder.Entity<RoltypeMapping>(entity =>
+        {
+            entity.HasIndex(e => new { e.ZaaktypenMappingId, e.DetRol })
+                .IsUnique()
+                .HasDatabaseName("IX_RoltypeMapping_ZaaktypenMappingId_DetRol_Unique");
+        });
     }
 
     public DbSet<ZaaktypenMapping> Mappings { get; set; }
@@ -160,4 +167,5 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
     public DbSet<PdfInformatieobjecttypeMapping> PdfInformatieobjecttypeMappings { get; set; }
     public DbSet<PublicatieNiveauMapping> PublicatieNiveauMappings { get; set; }
     public DbSet<DocumenttypeMapping> DocumenttypeMappings { get; set; }
+    public DbSet<RoltypeMapping> RoltypeMappings { get; set; }
 }

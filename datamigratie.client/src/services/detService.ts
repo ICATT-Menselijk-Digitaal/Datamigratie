@@ -42,6 +42,7 @@ export type DETZaaktype = {
   publicatieNiveauOptions?: ZaaktypeOptionItem[];
   detVertrouwelijkheidOpties?: ZaaktypeOptionItem[];
   besluittypen?: DetBesluittype[];
+  detRolOpties?: ZaaktypeOptionItem[];
 };
 
 export type DetDocumentstatus = {

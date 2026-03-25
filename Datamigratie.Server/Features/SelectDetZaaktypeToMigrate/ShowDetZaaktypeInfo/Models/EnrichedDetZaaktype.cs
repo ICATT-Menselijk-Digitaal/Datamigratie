@@ -1,4 +1,4 @@
-using Datamigratie.Common.Services.Det.Models;
+﻿using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Server.Shared.Models;
 
 namespace Datamigratie.Server.Features.SelectDetZaaktypeToMigrate.ShowDetZaaktypeInfo.Models
@@ -11,5 +11,6 @@ namespace Datamigratie.Server.Features.SelectDetZaaktypeToMigrate.ShowDetZaaktyp
         public List<ZaaktypeOptionItem> PublicatieNiveauOptions { get; set; } = [];
         public List<ZaaktypeOptionItem> DetVertrouwelijkheidOpties { get; set; } = [];
         public List<DetBesluittype> Besluittypen { get; set; } = [];
+        public List<ZaaktypeOptionItem> DetRolOpties { get; set; } = [];
     }
 }

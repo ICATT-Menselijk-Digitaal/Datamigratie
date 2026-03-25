@@ -10,6 +10,7 @@ using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.PdfInformatieobjecttype;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.PublicatieNiveau;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Resultaat;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Roltype;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Status;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Vertrouwelijkheid;
 using Datamigratie.Server.Helpers;
@@ -33,6 +34,7 @@ public class BuildMigrationQueueItemService(
     IValidateVertrouwelijkheidMappingsService validateVertrouwelijkheidMappingsService,
     IValidateBesluittypeMappingsService validateBesluittypeMappingsService,
     IValidatePdfInformatieobjecttypeMappingService validatePdfInformatieobjecttypeMappingService,
+    IValidateRoltypeMappingsService validateRoltypeMappingsService,
     ILogger<BuildMigrationQueueItemService> logger) : IBuildMigrationQueueItemService
 {
     public async Task<MigrationQueueItem> ValidateAndBuildAsync(string detZaaktypeId, IZakenSelector zakenSelector)
@@ -51,6 +53,7 @@ public class BuildMigrationQueueItemService(
         var vertrouwelijkheidMappings = await GetVertrouwelijkheidMappingsAsync(detZaaktype);
         var besluittypeMappings = await GetBesluittypeMappingsAsync(detZaaktype);
         var pdfInformatieobjecttypeId = await GetPdfInformatieobjecttypeIdAsync(detZaaktype);
+        var roltypeMappings = await GetRoltypeMappingsAsync(detZaaktypeId);
 
         return new MigrationQueueItem
         {
@@ -64,7 +67,8 @@ public class BuildMigrationQueueItemService(
             DocumenttypeMappings = documenttypeMappings,
             ZaakVertrouwelijkheidMappings = vertrouwelijkheidMappings,
             BesluittypeMappings = besluittypeMappings,
-            PdfInformatieobjecttypeId = pdfInformatieobjecttypeId
+            PdfInformatieobjecttypeId = pdfInformatieobjecttypeId,
+            RoltypeMappings = roltypeMappings
         };
     }
 
@@ -143,5 +147,12 @@ public class BuildMigrationQueueItemService(
         var (isValid, id) = await validatePdfInformatieobjecttypeMappingService.ValidateAndGetPdfInformatieobjecttypeMapping(detZaaktype);
         return isValid && id is not null ? id.Value
             : throw new InvalidOperationException("No informatieobjecttype has been configured for the generated PDF. Please configure the PDF informatieobjecttype mapping first.");
+    }
+
+    private async Task<Dictionary<string, string>> GetRoltypeMappingsAsync(string detZaaktypeId)
+    {
+        var (isValid, mappings) = await validateRoltypeMappingsService.ValidateAndGetRoltypeMappings(detZaaktypeId);
+        return isValid ? mappings
+            : throw new InvalidOperationException("Not all DET rollen have been mapped to OZ roltypen. Please configure roltype mappings first.");
     }
 }

@@ -26,6 +26,12 @@ export type OzBesluittype = {
   url: string;
 };
 
+export type OzRoltype = {
+  url: string;
+  uuid: string;
+  omschrijving: string;
+};
+
 export type OZZaaktype = {
   id: string;
   identificatie: string;
@@ -34,6 +40,7 @@ export type OZZaaktype = {
   resultaattypen?: OzResultaattype[];
   informatieobjecttypen?: OzInformatieobjecttype[];
   besluittypen?: OzBesluittype[];
+  roltypen?: OzRoltype[];
   ozZaakVertrouwelijkheidaanduidingen?: ZaaktypeOptionItem[];
   ozDocumentVertrouwelijkheidaanduidingen?: ZaaktypeOptionItem[];
 };

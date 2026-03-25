@@ -28,6 +28,9 @@ using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Vertrouwelijkheid;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Besluittype;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.PdfInformatieobjecttype;
+using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.RoltypeMapping.ShowRoltypeMappings;
+using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.RoltypeMapping.SaveRoltypeMappings;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Roltype;
 
 namespace Datamigratie.Server.Config
 {
@@ -66,6 +69,9 @@ namespace Datamigratie.Server.Config
             services.AddScoped<IValidateVertrouwelijkheidMappingsService, ValidateVertrouwelijkheidMappingsService>();
             services.AddScoped<IValidateBesluittypeMappingsService, ValidateBesluittypeMappingsService>();
             services.AddScoped<IValidatePdfInformatieobjecttypeMappingService, ValidatePdfInformatieobjecttypeMappingService>();
+            services.AddScoped<IShowRoltypeMappingsService, ShowRoltypeMappingsService>();
+            services.AddScoped<ISaveRoltypeMappingsService, SaveRoltypeMappingsService>();
+            services.AddScoped<IValidateRoltypeMappingsService, ValidateRoltypeMappingsService>();
 
             services.AddHostedService<StartMigrationBackgroundService>();
             services.AddSingleton<IMigrationBackgroundTaskQueue>(ctx =>
