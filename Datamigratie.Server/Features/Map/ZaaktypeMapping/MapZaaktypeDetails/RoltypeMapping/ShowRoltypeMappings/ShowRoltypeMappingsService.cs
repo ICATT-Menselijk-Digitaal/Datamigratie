@@ -13,13 +13,13 @@ public class ShowRoltypeMappingsService(DatamigratieDbContext context) : IShowRo
 {
     public async Task<List<RoltypeMappingResponse>> GetRoltypeMappings(Guid zaaktypenMappingId)
     {
-        return [.. await context.RoltypeMappings
+        return await context.RoltypeMappings
             .Where(m => m.ZaaktypenMappingId == zaaktypenMappingId)
             .Select(m => new RoltypeMappingResponse
             {
                 DetRol = m.DetRol,
                 OzRoltypeUrl = m.OzRoltypeUrl
             })
-            .ToListAsync()];
+            .ToListAsync();
     }
 }
