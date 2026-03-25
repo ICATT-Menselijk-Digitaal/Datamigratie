@@ -54,7 +54,8 @@ public class StartMigrationServiceTests
             DocumenttypeMappings = new(),
             ZaakVertrouwelijkheidMappings = new(),
             BesluittypeMappings = new(),
-            PdfInformatieobjecttypeId = Guid.NewGuid()
+            PdfInformatieobjecttypeId = Guid.NewGuid(),
+            RoltypeMappings = new(),
         };
 
     private static DetZaak CreateDetZaak(string zaaknummer)
