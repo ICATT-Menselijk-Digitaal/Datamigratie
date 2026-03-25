@@ -42,6 +42,7 @@ namespace Datamigratie.Common.Services.Det.Models
         public DetArchiveerGegevens? ArchiveerGegevens { get; set; }
         public DetGeolocatie? Geolocatie { get; set; }
         public DetKanaal? Kanaal { get; set; }
+        [JsonConverter(typeof(DetZonedDateTimeConverter))]
         public DateTimeOffset? Ztc1MigratiedatumTijd { get; set; }
         public List<DetZaakNotitie>? Notities { get; set; }
         public List<DetBetrokkene>? Betrokkenen { get; set; }
@@ -120,6 +121,7 @@ namespace Datamigratie.Common.Services.Det.Models
     public class DetZaakNotitie
     {
         public required string Medewerker { get; set; }
+        [JsonConverter(typeof(DetZonedDateTimeConverter))]
         public required DateTimeOffset DatumTijd { get; set; }
         public string? Notitie { get; set; }
     }
@@ -149,6 +151,7 @@ namespace Datamigratie.Common.Services.Det.Models
         public required List<DetTaakHistorie> Historie { get; set; }
         public string? Processtap { get; set; }
         public string? AfgehandeldDoor { get; set; }
+        [JsonConverter(typeof(DetZonedDateTimeConverter))]
         public DateTimeOffset? Einddatum { get; set; }
         public DateOnly? Fataledatum { get; set; }
         public DateOnly? Streefdatum { get; set; }
