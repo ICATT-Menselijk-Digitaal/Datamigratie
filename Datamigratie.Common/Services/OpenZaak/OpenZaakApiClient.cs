@@ -59,6 +59,8 @@ namespace Datamigratie.Common.Services.OpenZaak
         Task UnlockDocument(Guid id, String? lockToken, CancellationToken token);
 
         Task UploadBestand(OzDocument document, Stream content, CancellationToken token);
+
+        Task CreateRol(OzCreateRolRequest request, CancellationToken token = default);
     }
 
     public class OpenZaakClient : OzPagedApiClient, IOpenZaakApiClient
@@ -432,6 +434,12 @@ namespace Datamigratie.Common.Services.OpenZaak
         protected override int GetDefaultStartingPage()
         {
             return DefaultStartingPage;
+        }
+
+        public async Task CreateRol(OzCreateRolRequest request, CancellationToken token = default)
+        {
+            using var response = await _httpClient.PostAsJsonAsync("zaken/api/v1/rollen", request, token);
+            await response.HandleOpenZaakErrorsAsync(token);
         }
 
         private class PushStreamContent(Func<Stream, Task> handler, long length = 0) : HttpContent

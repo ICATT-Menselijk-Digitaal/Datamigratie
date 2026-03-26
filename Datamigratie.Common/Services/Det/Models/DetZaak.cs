@@ -14,6 +14,7 @@ namespace Datamigratie.Common.Services.Det.Models
     {
         public string? AangemaaktDoor { get; set; }
         public string? Afdeling { get; set; }
+        public string? Behandelaar { get; set; }
         public DetBetaalgegevens? Betaalgegevens { get; set; }
 
         [JsonConverter(typeof(DetZonedDateTimeConverter))]

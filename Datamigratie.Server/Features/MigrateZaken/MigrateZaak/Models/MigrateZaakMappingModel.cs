@@ -38,5 +38,10 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models
         /// The OZ informatieobjecttype ID to assign to the generated PDF document.
         /// </summary>
         public required Guid PdfInformatieobjecttypeId { get; set; }
+
+        /// <summary>
+        /// Roltype mappings: DetRol -> OzRoltypeUrl (or "alleen_pdf").
+        /// </summary>
+        public required Dictionary<string, string> RoltypeMappings { get; set; }
     }
 }
