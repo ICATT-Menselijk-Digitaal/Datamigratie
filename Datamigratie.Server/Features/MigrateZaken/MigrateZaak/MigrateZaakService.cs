@@ -83,6 +83,9 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 // Migrate all besluiten for the zaak
                 await MigrateBesluitenAsync(detZaak, createdZaak, mapping.Rsin, mapping.BesluittypeMappings, token);
 
+                // Migrate rollen (e.g. Behandelaar) to OpenZaak
+                await MigrateRollenAsync(detZaak, createdZaak, mapping.RoltypeMappings, token);
+
                 sw.Stop();
 
                 var documentCount = detZaak.Documenten?.Count ?? 0;
@@ -414,6 +417,46 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
             };
 
             await _openZaakApiClient.CreateStatus(createStatusRequest);
+        }
+
+        private async Task MigrateRollenAsync(DetZaak detZaak, OzZaak createdZaak, Dictionary<string, string> roltypeMappings, CancellationToken token)
+        {
+            foreach (var (detRol, roltypeUrl) in roltypeMappings)
+            {
+                if (roltypeUrl.Equals("alleen_pdf", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                var request = detRol switch
+                {
+                    "Behandelaar" => BuildBehandelaarRolRequest(detZaak, createdZaak, roltypeUrl),
+                    // we'll add cases here for future rollen, e.g.:
+                    // "Initiator" => BuildInitiatorRolRequest(detZaak, createdZaak, roltypeUrl),
+                    _ => null
+                };
+
+                if (request is not null)
+                {
+                    await _openZaakApiClient.CreateRol(request, token);
+                }
+            }
+        }
+
+        private static OzCreateRolRequest? BuildBehandelaarRolRequest(DetZaak detZaak, OzZaak createdZaak, string roltypeUrl)
+        {
+            return string.IsNullOrWhiteSpace(detZaak.Behandelaar)
+                ? null
+                : new OzCreateRolRequest
+                {
+                    Zaak = createdZaak.Url,
+                    BetrokkeneType = "medewerker",
+                    Roltype = new Uri(roltypeUrl),
+                    BetrokkeneIdentificatie = new OzBetrokkeneIdentificatie
+                    {
+                        Identificatie = detZaak.Behandelaar
+                    }
+                };
         }
 
         /// <summary>
