@@ -447,16 +447,19 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
         {
             return string.IsNullOrWhiteSpace(detZaak.Behandelaar)
                 ? null
+                : !Uri.TryCreate(roltypeUrl, UriKind.Absolute, out var roltypeUri)
+                ? throw new InvalidOperationException(
+                    $"Rol 'Behandelaar' migration failed for zaak '{detZaak.FunctioneleIdentificatie}': Roltype URL '{roltypeUrl}' is not a valid URI.")
                 : new OzCreateRolRequest
+            {
+                Zaak = createdZaak.Url,
+                BetrokkeneType = "medewerker",
+                Roltype = roltypeUri,
+                BetrokkeneIdentificatie = new OzBetrokkeneIdentificatie
                 {
-                    Zaak = createdZaak.Url,
-                    BetrokkeneType = "medewerker",
-                    Roltype = new Uri(roltypeUrl),
-                    BetrokkeneIdentificatie = new OzBetrokkeneIdentificatie
-                    {
-                        Identificatie = detZaak.Behandelaar
-                    }
-                };
+                    Identificatie = detZaak.Behandelaar
+                }
+            };
         }
 
         /// <summary>
