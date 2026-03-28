@@ -17,21 +17,12 @@ public class ValidateRoltypeMappingsService(
     {
         var safeDetZaaktypeId = detZaaktypeId.ReplaceLineEndings(" ");
 
-        var zaaktypenMapping = await dbContext.Mappings
-            .FirstOrDefaultAsync(m => m.DetZaaktypeId == detZaaktypeId);
-
-        if (zaaktypenMapping == null)
-        {
-            logger.LogWarning("No zaaktype mapping found for zaaktype {DetZaaktypeId}", safeDetZaaktypeId);
-            return (false, []);
-        }
-
-        var roltypeMappings = await dbContext.RoltypeMappings
-            .Where(m => m.ZaaktypenMappingId == zaaktypenMapping.Id)
-            .ToListAsync();
+        var roltypeMappings = await dbContext.PropertyMappings
+            .Where(m => m.Mapping!.DetZaaktypeId == detZaaktypeId && m.Property == "roltype" && m.SourceId != null)
+            .ToDictionaryAsync(m => m.SourceId!, m => m.TargetId);
 
         var missingRollen = MappingConstants.DetRol.Options
-            .Where(rol => !roltypeMappings.Any(m => m.DetRol == rol.Id))
+            .Where(rol => !roltypeMappings.Any(m => m.Key == rol.Id))
             .ToList();
 
         if (missingRollen.Count != 0)
@@ -41,6 +32,6 @@ public class ValidateRoltypeMappingsService(
             return (false, []);
         }
 
-        return (true, roltypeMappings.ToDictionary(m => m.DetRol, m => m.OzRoltypeUrl));
+        return (true, roltypeMappings);
     }
 }

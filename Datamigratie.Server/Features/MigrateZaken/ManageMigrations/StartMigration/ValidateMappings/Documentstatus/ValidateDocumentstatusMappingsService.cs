@@ -26,11 +26,12 @@ public class ValidateDocumentstatusMappingsService(
             return (true, new Dictionary<string, string>());
         }
 
-        var documentstatusMappings = await context.DocumentstatusMappings
-            .ToDictionaryAsync(m => m.DetDocumentstatus, m => m.OzDocumentstatus);
+        var documentstatusMappings = await context.PropertyMappings
+            .Where(x => x.Property == "documentstatus")
+            .ToDictionaryAsync(m => m.SourceId, m => m.TargetId);
 
         // checking if all DET document statuses are mapped
-        var allMapped = detDocumentstatusNames.All(status => documentstatusMappings.ContainsKey(status));
+        var allMapped = detDocumentstatusNames.All(documentstatusMappings.ContainsKey);
 
         // validate all mapped OZ statuses are in DocumentStatus enum
         var invalidMappings = documentstatusMappings

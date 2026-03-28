@@ -1,46 +1,27 @@
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import { get } from "@/utils/fetchWrapper";
-import type { RsinConfiguration, DocumentstatusMappingResponse } from "@/types/datamigratie";
-import { detService } from "@/services/detService";
+import type { Mapping } from "@/components/MappingGrid.vue";
 
 export function useGeneralConfig() {
-  const rsin = ref<string | null>(null);
-  const documentstatusMappingsComplete = ref(false);
   const loading = ref(false);
-
-  const isGeneralConfigComplete = computed(() => {
-    return !!rsin.value && documentstatusMappingsComplete.value;
-  });
+  const isGeneralConfigComplete = ref(false);
 
   async function checkGeneralConfig() {
     loading.value = true;
     try {
       // checking rsin and if all DET documentstatussen have mappings
-      const rsinConfig = await get<RsinConfiguration>("/api/globalmapping/rsin");
-      rsin.value = rsinConfig.rsin || null;
-
-      const [detStatuses, savedMappings] = await Promise.all([
-        detService.getAllDocumentstatussen(),
-        get<DocumentstatusMappingResponse[]>("/api/globalmapping/documentstatuses")
-      ]);
-
-      documentstatusMappingsComplete.value =
-        detStatuses.length > 0 &&
-        detStatuses.every((status) =>
-          savedMappings.some((m) => m.detDocumentstatus === status.naam && m.ozDocumentstatus)
-        );
+      const [rsin, documentstatus] = await Promise.all(
+        ["rsin", "documentstatus"].map((prop) => get<Mapping[]>(`/api/mappings/properties/${prop}`))
+      );
+      isGeneralConfigComplete.value = !!rsin[0]?.targetId && !!documentstatus.length;
     } catch (error) {
       console.error("Failed to check general configuration:", error);
-      rsin.value = null;
-      documentstatusMappingsComplete.value = false;
     } finally {
       loading.value = false;
     }
   }
 
   return {
-    rsin,
-    documentstatusMappingsComplete,
     isGeneralConfigComplete,
     loading,
     checkGeneralConfig

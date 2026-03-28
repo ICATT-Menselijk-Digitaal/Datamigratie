@@ -1,4 +1,4 @@
-using Datamigratie.Common.Services.Det.Models;
+﻿using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Data;
 using Datamigratie.Server.Constants;
 using Microsoft.EntityFrameworkCore;
@@ -16,21 +16,12 @@ public class ValidatePublicatieNiveauMappingsService(
 {
     public async Task<(bool IsValid, Dictionary<string, string> Mappings)> ValidateAndGetPublicatieNiveauMappings(DetZaaktypeDetail detZaaktype)
     {
-        var zaaktypenMapping = await dbContext.Mappings
-            .FirstOrDefaultAsync(m => m.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie);
-
-        if (zaaktypenMapping == null)
-        {
-            logger.LogWarning("No zaaktype mapping found for zaaktype {DetZaaktypeFunctioneleIdentificatie}", detZaaktype.FunctioneleIdentificatie);
-            return (false, new Dictionary<string, string>());
-        }
-
-        var publicatieNiveauMappings = await dbContext.PublicatieNiveauMappings
-            .Where(m => m.ZaaktypenMappingId == zaaktypenMapping.Id)
-            .ToListAsync();
+        var publicatieNiveauMappings = await dbContext.PropertyMappings
+            .Where(m => m.Mapping!.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie && m.Property == "publicatieniveau" && m.SourceId != null)
+            .ToDictionaryAsync(x => x.SourceId!, x => x.TargetId);
 
         var missingPublicatieNiveaus = MappingConstants.PublicatieNiveau.Options
-            .Where(pn => !publicatieNiveauMappings.Any(m => m.DetPublicatieNiveau == pn.Id))
+            .Where(pn => !publicatieNiveauMappings.Any(m => m.Key == pn.Id))
             .ToList();
 
         if (missingPublicatieNiveaus.Count != 0)
@@ -40,6 +31,6 @@ public class ValidatePublicatieNiveauMappingsService(
             return (false, new Dictionary<string, string>());
         }
 
-        return (true, publicatieNiveauMappings.ToDictionary(m => m.DetPublicatieNiveau, m => m.OzVertrouwelijkheidaanduiding));
+        return (true, publicatieNiveauMappings);
     }
 }

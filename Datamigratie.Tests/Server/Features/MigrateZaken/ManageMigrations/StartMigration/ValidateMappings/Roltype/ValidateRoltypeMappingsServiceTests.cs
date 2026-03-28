@@ -36,13 +36,15 @@ public class ValidateRoltypeMappingsServiceTests
 
     private static void AddAllRoltypeMappings(DatamigratieDbContext context, Guid zaaktypenMappingId)
     {
-        var mappings = MappingConstants.DetRol.Options.Select(rol => new RoltypeMapping
+        var mappings = MappingConstants.DetRol.Options.Select(rol => new PropertyMapping
         {
-            ZaaktypenMappingId = zaaktypenMappingId,
-            DetRol = rol.Id,
-            OzRoltypeUrl = $"https://openzaak.example.com/catalogi/api/v1/roltypen/{Guid.NewGuid()}"
+            Id = Guid.NewGuid(),
+            MappingId = zaaktypenMappingId,
+            Property = "roltype",
+            SourceId = rol.Id,
+            TargetId = $"https://openzaak.example.com/catalogi/api/v1/roltypen/{Guid.NewGuid()}"
         });
-        context.RoltypeMappings.AddRange(mappings);
+        context.PropertyMappings.AddRange(mappings);
         context.SaveChanges();
     }
 
@@ -78,11 +80,13 @@ public class ValidateRoltypeMappingsServiceTests
         var zaaktypenMapping = AddZaaktypenMapping(context);
 
         // Only add mapping for one rol, leaving the other 7 missing
-        context.RoltypeMappings.Add(new RoltypeMapping
+        context.PropertyMappings.Add(new PropertyMapping
         {
-            ZaaktypenMappingId = zaaktypenMapping.Id,
-            DetRol = "Initiator",
-            OzRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/some-uuid"
+            Id = Guid.NewGuid(),
+            Property = "roltype",
+            MappingId = zaaktypenMapping.Id,
+            SourceId = "Initiator",
+            TargetId = "https://openzaak.example.com/catalogi/api/v1/roltypen/some-uuid"
         });
         await context.SaveChangesAsync();
 
@@ -133,13 +137,15 @@ public class ValidateRoltypeMappingsServiceTests
         var zaaktypenMapping = AddZaaktypenMapping(context);
 
         // Map all rollen, but one uses "alleen_pdf"
-        var mappings = MappingConstants.DetRol.Options.Select((rol, i) => new RoltypeMapping
+        var mappings = MappingConstants.DetRol.Options.Select((rol, i) => new PropertyMapping
         {
-            ZaaktypenMappingId = zaaktypenMapping.Id,
-            DetRol = rol.Id,
-            OzRoltypeUrl = i == 0 ? "alleen_pdf" : $"https://openzaak.example.com/catalogi/api/v1/roltypen/{Guid.NewGuid()}"
+            Id = Guid.NewGuid(),
+            MappingId = zaaktypenMapping.Id,
+            Property = "roltype",
+            SourceId = rol.Id,
+            TargetId = i == 0 ? "alleen_pdf" : $"https://openzaak.example.com/catalogi/api/v1/roltypen/{Guid.NewGuid()}"
         });
-        context.RoltypeMappings.AddRange(mappings);
+        context.PropertyMappings.AddRange(mappings);
         await context.SaveChangesAsync();
 
         var service = CreateService(context);
