@@ -46,7 +46,7 @@ namespace Datamigratie.Common.Services.Det.Models
         public DateTimeOffset? Ztc1MigratiedatumTijd { get; set; }
         public List<DetZaakNotitie>? Notities { get; set; }
         public List<DetBetrokkene>? Betrokkenen { get; set; }
-        public List<long>? GekoppeldeZaken { get; set; }
+        public List<DetZaakZaakKoppeling>? GekoppeldeZaken { get; set; }
         public List<DetZaakdata>? Zaakdata { get; set; }
         public List<DetTaak>? Taken { get; set; }
         public required List<DetZaakHistorie> Historie { get; set; } = [];
@@ -248,5 +248,12 @@ namespace Datamigratie.Common.Services.Det.Models
     {
         public required string Naam { get; set; }
         public string? Omschrijving { get; set; }
+    }
+
+    public class DetZaakZaakKoppeling
+    {
+        public required string GekoppeldeZaak { get; set; }
+        public required string Relatietype { get; set; }
+        public required bool DossierEigenaar { get; set; }
     }
 }
