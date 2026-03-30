@@ -19,12 +19,13 @@ public class SaveRoltypeMappingsServiceTests
 
     private static SaveRoltypeMappingsService CreateService(DatamigratieDbContext context) => new(context);
 
-    private static SaveRoltypeMappingsRequest BuildRequest(params (string DetRol, string OzRoltypeUrl)[] mappings) =>
+    private static SaveRoltypeMappingsRequest BuildRequest(params (string DetRol, bool AlleenPdf, string? OzRoltypeUrl)[] mappings) =>
         new()
         {
             Mappings = mappings.Select(m => new RoltypeMappingItem
             {
                 DetRol = m.DetRol,
+                AlleenPdf = m.AlleenPdf,
                 OzRoltypeUrl = m.OzRoltypeUrl
             }).ToList()
         };
@@ -37,8 +38,8 @@ public class SaveRoltypeMappingsServiceTests
         var service = CreateService(context);
 
         var request = BuildRequest(
-            ("Initiator", "https://openzaak.example.com/catalogi/api/v1/roltypen/uuid-1"),
-            ("Behandelaar", "alleen_pdf")
+            ("Initiator", false, "https://openzaak.example.com/catalogi/api/v1/roltypen/uuid-1"),
+            ("Behandelaar", true, null)
         );
 
         await service.SaveRoltypeMappings(mappingId, request);
@@ -48,8 +49,8 @@ public class SaveRoltypeMappingsServiceTests
             .ToListAsync();
 
         Assert.Equal(2, saved.Count);
-        Assert.Contains(saved, m => m.DetRol == "Initiator" && m.OzRoltypeUrl == "https://openzaak.example.com/catalogi/api/v1/roltypen/uuid-1");
-        Assert.Contains(saved, m => m.DetRol == "Behandelaar" && m.OzRoltypeUrl == "alleen_pdf");
+        Assert.Contains(saved, m => m.DetRol == "Initiator" && m.AlleenPdf == false && m.OzRoltypeUrl == "https://openzaak.example.com/catalogi/api/v1/roltypen/uuid-1");
+        Assert.Contains(saved, m => m.DetRol == "Behandelaar" && m.AlleenPdf == true && m.OzRoltypeUrl == null);
     }
 
     [Fact]
@@ -63,6 +64,7 @@ public class SaveRoltypeMappingsServiceTests
         {
             ZaaktypenMappingId = mappingId,
             DetRol = "Initiator",
+            AlleenPdf = false,
             OzRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/old-uuid"
         });
         await context.SaveChangesAsync();
@@ -71,7 +73,7 @@ public class SaveRoltypeMappingsServiceTests
 
         // Save with updated URL
         var request = BuildRequest(
-            ("Initiator", "https://openzaak.example.com/catalogi/api/v1/roltypen/new-uuid")
+            ("Initiator", false, "https://openzaak.example.com/catalogi/api/v1/roltypen/new-uuid")
         );
 
         await service.SaveRoltypeMappings(mappingId, request);
@@ -94,6 +96,7 @@ public class SaveRoltypeMappingsServiceTests
         {
             ZaaktypenMappingId = mappingId,
             DetRol = "Initiator",
+            AlleenPdf = false,
             OzRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/uuid-1"
         });
         await context.SaveChangesAsync();
@@ -121,6 +124,7 @@ public class SaveRoltypeMappingsServiceTests
         {
             ZaaktypenMappingId = otherMappingId,
             DetRol = "Initiator",
+            AlleenPdf = false,
             OzRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/other"
         });
         await context.SaveChangesAsync();
@@ -128,7 +132,7 @@ public class SaveRoltypeMappingsServiceTests
         var service = CreateService(context);
 
         await service.SaveRoltypeMappings(targetMappingId, BuildRequest(
-            ("Behandelaar", "https://openzaak.example.com/catalogi/api/v1/roltypen/target")
+            ("Behandelaar", false, "https://openzaak.example.com/catalogi/api/v1/roltypen/target")
         ));
 
         // The other zaaktype's mapping should be untouched

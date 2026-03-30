@@ -7,10 +7,14 @@ public class RoltypeMapping
     public required string DetRol { get; set; }
 
     /// <summary>
-    /// URL of the OZ Roltype, or the special value "alleen_pdf" meaning
-    /// the rol information is only included in the generated PDF.
+    /// When true, the rol is only included in the generated PDF and not migrated to OpenZaak.
     /// </summary>
-    public required string OzRoltypeUrl { get; set; }
+    public required bool AlleenPdf { get; set; }
+
+    /// <summary>
+    /// URL of the OZ Roltype. Must be NULL when <see cref="AlleenPdf"/> is true.
+    /// </summary>
+    public string? OzRoltypeUrl { get; set; }
 
     // Navigation property
     public ZaaktypenMapping ZaaktypenMapping { get; set; } = null!;

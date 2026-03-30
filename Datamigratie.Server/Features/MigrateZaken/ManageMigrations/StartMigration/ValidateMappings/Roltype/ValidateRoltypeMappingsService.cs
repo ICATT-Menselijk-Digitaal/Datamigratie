@@ -6,14 +6,14 @@ namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigrat
 
 public interface IValidateRoltypeMappingsService
 {
-    Task<(bool IsValid, Dictionary<string, string> Mappings)> ValidateAndGetRoltypeMappings(string detZaaktypeId);
+    Task<(bool IsValid, Dictionary<string, Uri> Mappings)> ValidateAndGetRoltypeMappings(string detZaaktypeId);
 }
 
 public class ValidateRoltypeMappingsService(
     DatamigratieDbContext dbContext,
     ILogger<ValidateRoltypeMappingsService> logger) : IValidateRoltypeMappingsService
 {
-    public async Task<(bool IsValid, Dictionary<string, string> Mappings)> ValidateAndGetRoltypeMappings(string detZaaktypeId)
+    public async Task<(bool IsValid, Dictionary<string, Uri> Mappings)> ValidateAndGetRoltypeMappings(string detZaaktypeId)
     {
         var roltypeMappings = await dbContext.RoltypeMappings
             .Where(m => m.ZaaktypenMapping.DetZaaktypeId == detZaaktypeId)
@@ -30,6 +30,8 @@ public class ValidateRoltypeMappingsService(
             return (false, []);
         }
 
-        return (true, roltypeMappings.ToDictionary(m => m.DetRol, m => m.OzRoltypeUrl));
+        return (true, roltypeMappings
+            .Where(m => !m.AlleenPdf)
+            .ToDictionary(m => m.DetRol, m => new Uri(m.OzRoltypeUrl!)));
     }
 }

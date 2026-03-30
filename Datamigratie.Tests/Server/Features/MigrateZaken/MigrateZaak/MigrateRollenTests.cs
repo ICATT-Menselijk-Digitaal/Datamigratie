@@ -95,7 +95,7 @@ public class MigrateRollenTests
         return mock;
     }
 
-    private static MigrateZaakMappingModel CreateMapping(Dictionary<string, string>? roltypeMappings = null) =>
+    private static MigrateZaakMappingModel CreateMapping(Dictionary<string, Uri>? roltypeMappings = null) =>
         new()
         {
             Rsin = "123456789",
@@ -107,9 +107,9 @@ public class MigrateRollenTests
             },
             BesluittypeMappings = new Dictionary<string, Guid>(),
             PdfInformatieobjecttypeId = Guid.NewGuid(),
-            RoltypeMappings = roltypeMappings ?? new Dictionary<string, string>
+            RoltypeMappings = roltypeMappings ?? new Dictionary<string, Uri>
             {
-                { "Behandelaar", BehandelaarRoltypeUrl }
+                { "Behandelaar", new Uri(BehandelaarRoltypeUrl) }
             }
         };
 
@@ -136,7 +136,7 @@ public class MigrateRollenTests
 
         clientMock.Verify(c => c.CreateRol(
             It.Is<OzCreateRolRequest>(r =>
-                r.BetrokkeneType == "medewerker" &&
+                r.BetrokkeneType == BetrokkeneType.medewerker &&
                 r.Roltype == new Uri(BehandelaarRoltypeUrl) &&
                 r.BetrokkeneIdentificatie.Identificatie == "medewerker-123" &&
                 r.Zaak == new Uri(ZaakUrl)),
@@ -162,10 +162,8 @@ public class MigrateRollenTests
         var clientMock = CreateOpenZaakClientMock();
         var service = CreateService(clientMock);
 
-        var mapping = CreateMapping(new Dictionary<string, string>
-        {
-            { "Behandelaar", "alleen_pdf" }
-        });
+        // Alleen-PDF rollen are excluded from the dictionary by ValidateRoltypeMappingsService
+        var mapping = CreateMapping(new Dictionary<string, Uri>());
 
         await service.MigrateZaak(CreateDetZaak("medewerker-123"), mapping);
 
@@ -179,7 +177,7 @@ public class MigrateRollenTests
         var clientMock = CreateOpenZaakClientMock();
         var service = CreateService(clientMock);
 
-        var mapping = CreateMapping(new Dictionary<string, string>());
+        var mapping = CreateMapping(new Dictionary<string, Uri>());
 
         await service.MigrateZaak(CreateDetZaak("medewerker-123"), mapping);
 
@@ -193,9 +191,9 @@ public class MigrateRollenTests
         var clientMock = CreateOpenZaakClientMock();
         var service = CreateService(clientMock);
 
-        var mapping = CreateMapping(new Dictionary<string, string>
+        var mapping = CreateMapping(new Dictionary<string, Uri>
         {
-            { "Initiator", "https://openzaak.example.com/catalogi/api/v1/roltypen/initiator-uuid" }
+            { "Initiator", new Uri("https://openzaak.example.com/catalogi/api/v1/roltypen/initiator-uuid") }
         });
 
         await service.MigrateZaak(CreateDetZaak("medewerker-123"), mapping);

@@ -37,12 +37,14 @@ const ALLEEN_PDF_ITEM: MappingItem = { id: ALLEEN_PDF_ID, name: "Alleen PDF" };
 
 type RoltypeMappingItem = {
   detRol: string;
+  alleenPdf: boolean;
   ozRoltypeUrl: string | null;
 };
 
 type RoltypeMappingResponse = {
   detRol: string;
-  ozRoltypeUrl: string;
+  alleenPdf: boolean;
+  ozRoltypeUrl: string | null;
 };
 
 type SaveRoltypeMappingsRequest = {
@@ -66,10 +68,14 @@ const mappingsFromServer = ref<RoltypeMappingResponse[]>([]);
 const isLoading = ref(false);
 
 const validMappings = computed(() =>
-  (props.detZaaktype.detRolOpties ?? []).map((option) => ({
-    sourceId: option.id,
-    targetId: mappingsFromServer.value.find((m) => m.detRol === option.id)?.ozRoltypeUrl || null
-  }))
+  (props.detZaaktype.detRolOpties ?? []).map((option) => {
+    const serverMapping = mappingsFromServer.value.find((m) => m.detRol === option.id);
+    let targetId: string | null = null;
+    if (serverMapping) {
+      targetId = serverMapping.alleenPdf ? ALLEEN_PDF_ID : serverMapping.ozRoltypeUrl;
+    }
+    return { sourceId: option.id, targetId };
+  })
 );
 
 const allMapped = computed(
@@ -107,10 +113,14 @@ const saveMappings = async () => {
   try {
     const mappingsToSave = mappingsModel.value
       .filter((m) => m.targetId)
-      .map(({ sourceId, targetId }) => ({
-        detRol: sourceId,
-        ozRoltypeUrl: targetId
-      }));
+      .map(({ sourceId, targetId }) => {
+        const alleenPdf = targetId === ALLEEN_PDF_ID;
+        return {
+          detRol: sourceId,
+          alleenPdf,
+          ozRoltypeUrl: alleenPdf ? null : targetId
+        } as RoltypeMappingItem;
+      });
 
     await post(`/api/mappings/${props.mappingId}/roltypen`, {
       mappings: mappingsToSave

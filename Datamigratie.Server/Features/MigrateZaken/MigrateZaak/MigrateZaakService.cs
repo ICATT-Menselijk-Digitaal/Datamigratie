@@ -7,6 +7,7 @@ using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
+using Datamigratie.Server.Constants;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf;
 using Microsoft.Extensions.Logging;
@@ -84,7 +85,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 await MigrateBesluitenAsync(detZaak, createdZaak, mapping.Rsin, mapping.BesluittypeMappings, token);
 
                 // Migrate rollen (e.g. Behandelaar) to OpenZaak
-                await MigrateRollenAsync(detZaak, createdZaak, mapping.RoltypeMappings, token);
+                await CreateZaakRolesAsync(detZaak, createdZaak, mapping.RoltypeMappings, token);
 
                 sw.Stop();
 
@@ -419,47 +420,30 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
             await _openZaakApiClient.CreateStatus(createStatusRequest);
         }
 
-        private async Task MigrateRollenAsync(DetZaak detZaak, OzZaak createdZaak, Dictionary<string, string> roltypeMappings, CancellationToken token)
+        private async Task CreateZaakRolesAsync(DetZaak detZaak, OzZaak createdZaak, Dictionary<string, Uri> roltypeMappings, CancellationToken token)
         {
-            foreach (var (detRol, roltypeUrl) in roltypeMappings)
+            if (roltypeMappings.TryGetValue(nameof(DetRolType.Behandelaar), out var behandelaarRoltypeUrl))
             {
-                if (roltypeUrl.Equals("alleen_pdf", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                var request = detRol switch
-                {
-                    "Behandelaar" => BuildBehandelaarRolRequest(detZaak, createdZaak, roltypeUrl),
-                    // we'll add cases here for future rollen, e.g.:
-                    // "Initiator" => BuildInitiatorRolRequest(detZaak, createdZaak, roltypeUrl),
-                    _ => null
-                };
-
-                if (request is not null)
-                {
-                    await _openZaakApiClient.CreateRol(request, token);
-                }
+                await CreateBehandelaarRolAsync(detZaak, createdZaak, behandelaarRoltypeUrl, token);
             }
         }
 
-        private static OzCreateRolRequest? BuildBehandelaarRolRequest(DetZaak detZaak, OzZaak createdZaak, string roltypeUrl)
+        private async Task CreateBehandelaarRolAsync(DetZaak detZaak, OzZaak createdZaak, Uri roltypeUrl, CancellationToken token)
         {
-            return string.IsNullOrWhiteSpace(detZaak.Behandelaar)
-                ? null
-                : !Uri.TryCreate(roltypeUrl, UriKind.Absolute, out var roltypeUri)
-                ? throw new InvalidOperationException(
-                    $"Rol 'Behandelaar' migration failed for zaak '{detZaak.FunctioneleIdentificatie}': Roltype URL '{roltypeUrl}' is not a valid URI.")
-                : new OzCreateRolRequest
+            if (string.IsNullOrWhiteSpace(detZaak.Behandelaar))
+            {
+                return;
+            }
+            await _openZaakApiClient.CreateRol(new OzCreateRolRequest
             {
                 Zaak = createdZaak.Url,
-                BetrokkeneType = "medewerker",
-                Roltype = roltypeUri,
+                BetrokkeneType = BetrokkeneType.medewerker,
+                Roltype = roltypeUrl,
                 BetrokkeneIdentificatie = new OzBetrokkeneIdentificatie
                 {
                     Identificatie = detZaak.Behandelaar
                 }
-            };
+            }, token);
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using Datamigratie.Common.Services.OpenZaak.Models;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Roltype;
 
 namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models
 {
@@ -40,8 +41,8 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models
         public required Guid PdfInformatieobjecttypeId { get; set; }
 
         /// <summary>
-        /// Roltype mappings: DetRol -> OzRoltypeUrl (or "alleen_pdf").
+        /// Roltype mappings: DetRol -> OzRoltypeUrl. Alleen-PDF rollen are excluded (no OZ rol needed).
         /// </summary>
-        public required Dictionary<string, string> RoltypeMappings { get; set; }
+        public required Dictionary<string, Uri> RoltypeMappings { get; set; }
     }
 }

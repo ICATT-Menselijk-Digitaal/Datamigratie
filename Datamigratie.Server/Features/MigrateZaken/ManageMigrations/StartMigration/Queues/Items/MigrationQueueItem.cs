@@ -1,6 +1,7 @@
-using Datamigratie.Common.Services.OpenZaak.Models;
+﻿using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Data.Entities;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Models;
+using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Roltype;
 
 namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Queues.Items;
 
@@ -66,7 +67,7 @@ public class MigrationQueueItem
 
     /// <summary>
     /// Roltype mappings loaded and validated by StartMigrationController before queuing.
-    /// Dictionary: DetRol -> OzRoltypeUrl (or "alleen_pdf")
+    /// Dictionary: DetRol -> OzRoltypeUrl. Alleen-PDF rollen are excluded (no OZ rol needed).
     /// </summary>
-    public required Dictionary<string, string> RoltypeMappings { get; set; }
+    public required Dictionary<string, Uri> RoltypeMappings { get; set; }
 }
