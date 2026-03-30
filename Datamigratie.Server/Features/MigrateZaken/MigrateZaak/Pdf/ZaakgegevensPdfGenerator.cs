@@ -108,12 +108,18 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf
                         }
 
                         // GekoppeldeZaken
-                        if (zaak.GekoppeldeZaken != null && zaak.GekoppeldeZaken.Count > 0)
+                        if (zaak.GekoppeldeZaken != null)
                         {
-                            AddSection(col, "GekoppeldeZaken", table =>
+                            for (var i = 0; i < zaak.GekoppeldeZaken.Count; i++)
                             {
-                                Row(table, "ids", string.Join(", ", zaak.GekoppeldeZaken));
-                            });
+                                var koppeling = zaak.GekoppeldeZaken[i];
+                                AddSection(col, $"GekoppeldeZaak {i + 1}", table =>
+                                {
+                                    Row(table, "gekoppeldeZaak", koppeling.GekoppeldeZaak);
+                                    Row(table, "relatietype", koppeling.Relatietype);
+                                    Row(table, "dossierEigenaar", koppeling.DossierEigenaar.ToString());
+                                });
+                            }
                         }
 
                         // Notities
