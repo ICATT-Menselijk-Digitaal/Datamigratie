@@ -3,36 +3,43 @@
 
   <dialog ref="dialogRef">
     <form class="form-submit" @submit.prevent="onSubmit">
-      <h2>Migreren</h2>
-      Kies hieronder welke zaken van het e-Suite zaaktype "{{ zaaktypeNaam }}" je wilt migreren.
+      <h3>Migreren</h3>
+      <p>
+        Kies hieronder welke zaken van het e-Suite zaaktype "{{ zaaktypeNaam }}" je wilt migreren.
+      </p>
 
-      <label class="radio-option">
-        <input type="radio" name="optie" value="partial" v-model="selectedOption" />
-        Alle nog niet succesvol gemigreerde zaken
-      </label>
+      <fieldset>
+        <legend class="visually-hidden">Welke zaken wil je migreren?</legend>
+        <label class="radio-option">
+          <input type="radio" name="optie" value="partial" v-model="selectedOption" />
+          Alle nog niet succesvol gemigreerde zaken
+        </label>
 
-      <label class="radio-option">
-        <input type="radio" name="optie" value="full" v-model="selectedOption" />
-        Alle zaken
-      </label>
+        <label class="radio-option">
+          <input type="radio" name="optie" value="full" v-model="selectedOption" />
+          Alle zaken
+        </label>
 
-      <label class="radio-option">
-        <input type="radio" name="optie" value="single" v-model="selectedOption" />
-        Eén zaak
-      </label>
+        <label class="radio-option">
+          <input type="radio" name="optie" value="single" v-model="selectedOption" />
+          Eén zaak
+        </label>
 
-      <div v-if="selectedOption === 'single'" class="zaaknummer-input">
-        <label for="zaaknummer-input"><b>Voer het zaaknummer in</b></label>
-        <input
-          id="zaaknummer-input"
-          v-model="zaaknummer"
-          type="text"
-          autocomplete="off"
-          @input="errorMessage = ''"
-        />
-      </div>
-
-      <p v-if="errorMessage" class="error-message" role="alert">⚠ {{ errorMessage }}</p>
+        <div v-if="selectedOption === 'single'" class="zaaknummer-input">
+          <label for="zaaknummer-input">Voer het zaaknummer in</label>
+          <input
+            id="zaaknummer-input"
+            required
+            v-model="zaaknummer"
+            type="text"
+            autocomplete="off"
+            @input="errorMessage = ''"
+          />
+          <p v-if="errorMessage" class="error-message" role="alert">
+            <span aria-hidden="true">⚠ </span>{{ errorMessage }}
+          </p>
+        </div>
+      </fieldset>
 
       <menu class="reset">
         <li>
@@ -120,19 +127,15 @@ form {
   flex-direction: column;
   gap: var(--spacing-default);
 
+  * {
+    margin: 0;
+  }
+
   .radio-option {
     display: flex;
     align-items: center;
     gap: var(--spacing-small);
     cursor: pointer;
-
-    input[type="radio"] {
-      appearance: auto;
-      flex-shrink: 0;
-      background-color: unset;
-      width: min-content;
-      position: static;
-    }
   }
 }
 
@@ -145,7 +148,18 @@ form {
   flex-direction: column;
   gap: var(--spacing-small);
   background-color: var(--accent-bg);
-  padding: var(--spacing-default);
-  border-radius: var(--radius-default);
+  padding: var(--spacing-extrasmall);
+
+  label {
+    font-weight: bold;
+  }
+}
+
+fieldset {
+  border: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-small);
 }
 </style>
