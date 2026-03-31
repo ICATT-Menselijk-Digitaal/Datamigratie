@@ -6,28 +6,17 @@ namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigrat
 
 public interface IValidateRoltypeMappingsService
 {
-    Task<(bool IsValid, Dictionary<string, string> Mappings)> ValidateAndGetRoltypeMappings(string detZaaktypeId);
+    Task<(bool IsValid, Dictionary<string, Uri> Mappings)> ValidateAndGetRoltypeMappings(string detZaaktypeId);
 }
 
 public class ValidateRoltypeMappingsService(
     DatamigratieDbContext dbContext,
     ILogger<ValidateRoltypeMappingsService> logger) : IValidateRoltypeMappingsService
 {
-    public async Task<(bool IsValid, Dictionary<string, string> Mappings)> ValidateAndGetRoltypeMappings(string detZaaktypeId)
+    public async Task<(bool IsValid, Dictionary<string, Uri> Mappings)> ValidateAndGetRoltypeMappings(string detZaaktypeId)
     {
-        var safeDetZaaktypeId = detZaaktypeId.ReplaceLineEndings(" ");
-
-        var zaaktypenMapping = await dbContext.Mappings
-            .FirstOrDefaultAsync(m => m.DetZaaktypeId == detZaaktypeId);
-
-        if (zaaktypenMapping == null)
-        {
-            logger.LogWarning("No zaaktype mapping found for zaaktype {DetZaaktypeId}", safeDetZaaktypeId);
-            return (false, []);
-        }
-
         var roltypeMappings = await dbContext.RoltypeMappings
-            .Where(m => m.ZaaktypenMappingId == zaaktypenMapping.Id)
+            .Where(m => m.ZaaktypenMapping.DetZaaktypeId == detZaaktypeId)
             .ToListAsync();
 
         var missingRollen = MappingConstants.DetRol.Options
@@ -37,10 +26,12 @@ public class ValidateRoltypeMappingsService(
         if (missingRollen.Count != 0)
         {
             logger.LogWarning("Missing roltype mappings for zaaktype {DetZaaktypeId}: {MissingRollen}",
-                safeDetZaaktypeId, string.Join(", ", missingRollen.Select(r => r.Id)));
+                detZaaktypeId.ReplaceLineEndings(" "), string.Join(", ", missingRollen.Select(r => r.Id)));
             return (false, []);
         }
 
-        return (true, roltypeMappings.ToDictionary(m => m.DetRol, m => m.OzRoltypeUrl));
+        return (true, roltypeMappings
+            .Where(m => !m.AlleenPdf && m.OzRoltypeUrl is not null)
+            .ToDictionary(m => m.DetRol, m => new Uri(m.OzRoltypeUrl!)));
     }
 }

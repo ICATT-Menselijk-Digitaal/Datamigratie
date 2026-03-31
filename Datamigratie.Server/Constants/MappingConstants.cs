@@ -9,14 +9,12 @@ namespace Datamigratie.Server.Constants
         {
             public static readonly ZaaktypeOptionItem[] Options =
             [
-                new() { Id = "Initiator",       Name = "Initiator" },
-                new() { Id = "Behandelaar",     Name = "Behandelaar" },
-                new() { Id = "Belanghebbende",  Name = "Belanghebbende" },
-                new() { Id = "Gemachtigde",     Name = "Gemachtigde" },
-                new() { Id = "Melder",          Name = "Melder" },
-                new() { Id = "Medeaanvrager",   Name = "Medeaanvrager" },
-                new() { Id = "Plaatsvervanger", Name = "Plaatsvervanger" },
-                new() { Id = "Overig",          Name = "Overig" },
+                .. Enum.GetValues<DetRolType>()
+                    .Select(value => new ZaaktypeOptionItem
+                    {
+                        Id = value.ToString(),
+                        Name = value.ToString()
+                    })
             ];
         }
 

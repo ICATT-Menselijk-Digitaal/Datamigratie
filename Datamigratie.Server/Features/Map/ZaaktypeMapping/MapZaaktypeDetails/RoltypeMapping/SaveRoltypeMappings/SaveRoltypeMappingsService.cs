@@ -23,6 +23,7 @@ public class SaveRoltypeMappingsService(DatamigratieDbContext context) : ISaveRo
         {
             ZaaktypenMappingId = zaaktypenMappingId,
             DetRol = m.DetRol,
+            AlleenPdf = m.AlleenPdf,
             OzRoltypeUrl = m.OzRoltypeUrl
         });
 

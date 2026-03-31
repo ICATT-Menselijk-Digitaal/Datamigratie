@@ -39,13 +39,15 @@ public class ShowRoltypeMappingsServiceTests
             {
                 ZaaktypenMappingId = mappingId,
                 DetRol = "Initiator",
+                AlleenPdf = false,
                 OzRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/uuid-1"
             },
             new RoltypeMappingEntity
             {
                 ZaaktypenMappingId = mappingId,
                 DetRol = "Behandelaar",
-                OzRoltypeUrl = "alleen_pdf"
+                AlleenPdf = true,
+                OzRoltypeUrl = null
             }
         );
         await context.SaveChangesAsync();
@@ -55,8 +57,8 @@ public class ShowRoltypeMappingsServiceTests
         var result = await service.GetRoltypeMappings(mappingId);
 
         Assert.Equal(2, result.Count);
-        Assert.Contains(result, m => m.DetRol == "Initiator" && m.OzRoltypeUrl == "https://openzaak.example.com/catalogi/api/v1/roltypen/uuid-1");
-        Assert.Contains(result, m => m.DetRol == "Behandelaar" && m.OzRoltypeUrl == "alleen_pdf");
+        Assert.Contains(result, m => m.DetRol == "Initiator" && m.AlleenPdf == false && m.OzRoltypeUrl == "https://openzaak.example.com/catalogi/api/v1/roltypen/uuid-1");
+        Assert.Contains(result, m => m.DetRol == "Behandelaar" && m.AlleenPdf == true && m.OzRoltypeUrl == null);
     }
 
     [Fact]
@@ -71,12 +73,14 @@ public class ShowRoltypeMappingsServiceTests
             {
                 ZaaktypenMappingId = targetMappingId,
                 DetRol = "Initiator",
+                AlleenPdf = false,
                 OzRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/target"
             },
             new RoltypeMappingEntity
             {
                 ZaaktypenMappingId = otherMappingId,
                 DetRol = "Behandelaar",
+                AlleenPdf = false,
                 OzRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/other"
             }
         );

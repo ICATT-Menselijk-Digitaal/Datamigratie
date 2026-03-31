@@ -40,6 +40,7 @@ public class ValidateRoltypeMappingsServiceTests
         {
             ZaaktypenMappingId = zaaktypenMappingId,
             DetRol = rol.Id,
+            AlleenPdf = false,
             OzRoltypeUrl = $"https://openzaak.example.com/catalogi/api/v1/roltypen/{Guid.NewGuid()}"
         });
         context.RoltypeMappings.AddRange(mappings);
@@ -82,6 +83,7 @@ public class ValidateRoltypeMappingsServiceTests
         {
             ZaaktypenMappingId = zaaktypenMapping.Id,
             DetRol = "Initiator",
+            AlleenPdf = false,
             OzRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/some-uuid"
         });
         await context.SaveChangesAsync();
@@ -132,12 +134,13 @@ public class ValidateRoltypeMappingsServiceTests
         await using var context = CreateContext();
         var zaaktypenMapping = AddZaaktypenMapping(context);
 
-        // Map all rollen, but one uses "alleen_pdf"
+        // Map all rollen, but one is alleen PDF (AlleenPdf = true, OzRoltypeUrl = null)
         var mappings = MappingConstants.DetRol.Options.Select((rol, i) => new RoltypeMapping
         {
             ZaaktypenMappingId = zaaktypenMapping.Id,
             DetRol = rol.Id,
-            OzRoltypeUrl = i == 0 ? "alleen_pdf" : $"https://openzaak.example.com/catalogi/api/v1/roltypen/{Guid.NewGuid()}"
+            AlleenPdf = i == 0,
+            OzRoltypeUrl = i == 0 ? null : $"https://openzaak.example.com/catalogi/api/v1/roltypen/{Guid.NewGuid()}"
         });
         context.RoltypeMappings.AddRange(mappings);
         await context.SaveChangesAsync();
@@ -147,7 +150,7 @@ public class ValidateRoltypeMappingsServiceTests
         var (isValid, result) = await service.ValidateAndGetRoltypeMappings(DetZaaktypeId);
 
         Assert.True(isValid);
-        Assert.Equal("alleen_pdf", result[MappingConstants.DetRol.Options[0].Id]);
+        Assert.DoesNotContain(MappingConstants.DetRol.Options[0].Id, result.Keys);
     }
 
     [Fact]

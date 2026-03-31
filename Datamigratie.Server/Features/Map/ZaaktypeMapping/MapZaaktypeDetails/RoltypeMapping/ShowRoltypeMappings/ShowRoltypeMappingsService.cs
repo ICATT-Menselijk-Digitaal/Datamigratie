@@ -18,6 +18,7 @@ public class ShowRoltypeMappingsService(DatamigratieDbContext context) : IShowRo
             .Select(m => new RoltypeMappingResponse
             {
                 DetRol = m.DetRol,
+                AlleenPdf = m.AlleenPdf,
                 OzRoltypeUrl = m.OzRoltypeUrl
             })
             .ToListAsync();

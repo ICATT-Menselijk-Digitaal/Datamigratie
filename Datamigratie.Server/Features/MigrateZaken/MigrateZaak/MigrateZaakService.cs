@@ -7,6 +7,7 @@ using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
+using Datamigratie.Server.Constants;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf;
 using Microsoft.Extensions.Logging;
@@ -82,6 +83,9 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
 
                 // Migrate all besluiten for the zaak
                 await MigrateBesluitenAsync(detZaak, createdZaak, mapping.Rsin, mapping.BesluittypeMappings, token);
+
+                // Migrate rollen (e.g. Behandelaar) to OpenZaak
+                await CreateZaakRolesAsync(detZaak, createdZaak, mapping.RoltypeMappings, token);
 
                 sw.Stop();
 
@@ -414,6 +418,32 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
             };
 
             await _openZaakApiClient.CreateStatus(createStatusRequest);
+        }
+
+        private async Task CreateZaakRolesAsync(DetZaak detZaak, OzZaak createdZaak, Dictionary<string, Uri> roltypeMappings, CancellationToken token)
+        {
+            if (roltypeMappings.TryGetValue(nameof(DetRolType.Behandelaar), out var behandelaarRoltypeUrl))
+            {
+                await CreateBehandelaarRolAsync(detZaak, createdZaak, behandelaarRoltypeUrl, token);
+            }
+        }
+
+        private async Task CreateBehandelaarRolAsync(DetZaak detZaak, OzZaak createdZaak, Uri roltypeUrl, CancellationToken token)
+        {
+            if (string.IsNullOrWhiteSpace(detZaak.Behandelaar))
+            {
+                return;
+            }
+            await _openZaakApiClient.CreateRol(new OzCreateRolRequest
+            {
+                Zaak = createdZaak.Url,
+                BetrokkeneType = BetrokkeneType.medewerker,
+                Roltype = roltypeUrl,
+                BetrokkeneIdentificatie = new OzBetrokkeneIdentificatie
+                {
+                    Identificatie = detZaak.Behandelaar
+                }
+            }, token);
         }
 
         /// <summary>
