@@ -23,10 +23,16 @@
 
       <div v-if="selectedOption === 'single'" class="zaaknummer-input">
         <label for="zaaknummer-input"><b>Voer het zaaknummer in</b></label>
-        <input id="zaaknummer-input" v-model="zaaknummer" type="text" autocomplete="off" />
+        <input
+          id="zaaknummer-input"
+          v-model="zaaknummer"
+          type="text"
+          autocomplete="off"
+          @input="errorMessage = ''"
+        />
       </div>
 
-      <p v-if="errorMessage" class="error-message" role="alert">{{ errorMessage }}</p>
+      <p v-if="errorMessage" class="error-message" role="alert">⚠ {{ errorMessage }}</p>
 
       <menu class="reset">
         <li>
@@ -116,11 +122,18 @@ form {
     gap: var(--spacing-small);
     cursor: pointer;
 
-    input {
-      inline-size: auto;
+    input[type="radio"] {
+      appearance: auto;
       flex-shrink: 0;
+      background-color: unset;
+      width: min-content;
+      position: static;
     }
   }
+}
+
+.error-message {
+  color: var(--danger);
 }
 
 .zaaknummer-input {
