@@ -52,7 +52,7 @@ import { useMigration } from "@/composables/migration-store";
 import { post } from "@/utils/fetchWrapper";
 import toast from "@/components/toast/toast";
 
-const { detZaaktypeId } = defineProps<{
+const { detZaaktypeId, zaaktypeNaam } = defineProps<{
   detZaaktypeId: string;
   zaaktypeNaam: string;
 }>();
@@ -91,6 +91,10 @@ const onSubmit = async () => {
       fetchMigration();
     } else if (selectedOption.value === "single") {
       const trimmed = zaaknummer.value.trim();
+      if (!trimmed) {
+        errorMessage.value = "Vul een zaaknummer in.";
+        return;
+      }
       await post(`/api/migration/startsingle`, { detZaaktypeId, zaaknummer: trimmed });
       closeDialog();
       fetchMigration();
