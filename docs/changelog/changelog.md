@@ -13,6 +13,7 @@
 - [Configuration of Roltype per Zaaktype](https://dimpact.atlassian.net/browse/DATA-331)
 - [Extend PDF content: un-mapped properties](https://dimpact.atlassian.net/browse/DATA-386)
 - [Migrate Behandelaar (Rollen-related)](https://dimpact.atlassian.net/browse/DATA-332)
+- [Migrate previously ignored properties](https://dimpact.atlassian.net/browse/DATA-251)
 
 ## v0.1.0
 

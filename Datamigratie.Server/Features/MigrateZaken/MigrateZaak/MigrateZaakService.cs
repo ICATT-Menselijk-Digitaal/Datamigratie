@@ -199,7 +199,8 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 Verschijningsvorm = verschijningsvorm,
                 Link = "",
                 Trefwoorden = [],
-                Ondertekening = ondertekening
+                Ondertekening = ondertekening,
+                IndicatieGebruiksrecht = item.GeautoriseerdVoorMedewerkers
             };
         }
 
