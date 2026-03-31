@@ -297,7 +297,7 @@ namespace Datamigratie.Data.Migrations
 
                     b.ToTable("RoltypeMappings", t =>
                         {
-                            t.HasCheckConstraint("CK_RoltypeMappings_AlleenPdf_OzRoltypeUrl", "\"AlleenPdf\" = false OR \"OzRoltypeUrl\" IS NULL");
+                            t.HasCheckConstraint("CK_RoltypeMappings_AlleenPdf_OzRoltypeUrl", "(\"AlleenPdf\" = true AND \"OzRoltypeUrl\" IS NULL) OR (\"AlleenPdf\" = false AND \"OzRoltypeUrl\" IS NOT NULL)");
                         });
                 });
 

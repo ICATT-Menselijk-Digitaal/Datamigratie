@@ -31,7 +31,7 @@ public class ValidateRoltypeMappingsService(
         }
 
         return (true, roltypeMappings
-            .Where(m => !m.AlleenPdf)
+            .Where(m => !m.AlleenPdf && m.OzRoltypeUrl is not null)
             .ToDictionary(m => m.DetRol, m => new Uri(m.OzRoltypeUrl!)));
     }
 }

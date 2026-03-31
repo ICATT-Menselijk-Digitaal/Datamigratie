@@ -28,7 +28,7 @@ namespace Datamigratie.Data.Migrations
             migrationBuilder.AddCheckConstraint(
                 name: "CK_RoltypeMappings_AlleenPdf_OzRoltypeUrl",
                 table: "RoltypeMappings",
-                sql: "\"AlleenPdf\" = false OR \"OzRoltypeUrl\" IS NULL");
+                sql: "(\"AlleenPdf\" = true AND \"OzRoltypeUrl\" IS NULL) OR (\"AlleenPdf\" = false AND \"OzRoltypeUrl\" IS NOT NULL)");
         }
 
         /// <inheritdoc />
