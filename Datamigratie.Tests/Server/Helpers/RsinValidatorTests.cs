@@ -6,12 +6,6 @@ namespace Datamigratie.Tests.Server.Helpers;
 
 public class RsinValidatorTests
 {
-    private readonly Mock<ILogger> _mockLogger;
-
-    public RsinValidatorTests()
-    {
-        _mockLogger = new Mock<ILogger>();
-    }
 
     [Theory]
     [InlineData("123456782")] // Valid RSIN that passes 11-test
@@ -19,7 +13,7 @@ public class RsinValidatorTests
     public void ValidateRsin_ValidRsin_DoesNotThrow(string validRsin)
     {
         // Act & Assert - Should not throw
-        var exception = Record.Exception(() => RsinValidator.ValidateRsin(validRsin, _mockLogger.Object));
+        var exception = Record.Exception(() => RsinValidator.ValidateRsin(validRsin));
         Assert.Null(exception);
     }
 
@@ -30,7 +24,7 @@ public class RsinValidatorTests
     public void ValidateRsin_NullOrWhitespace_ThrowsArgumentException(string? rsin)
     {
         // Act & Assert
-        var exception = Assert.Throws<ArgumentException>(() => RsinValidator.ValidateRsin(rsin, _mockLogger.Object));
+        var exception = Assert.Throws<ArgumentException>(() => RsinValidator.ValidateRsin(rsin));
         Assert.Equal("RSIN mag niet leeg zijn.", exception.Message);
     }
 
@@ -41,7 +35,7 @@ public class RsinValidatorTests
     public void ValidateRsin_IncorrectLength_ThrowsArgumentException(string rsin)
     {
         // Act & Assert
-        var exception = Assert.Throws<ArgumentException>(() => RsinValidator.ValidateRsin(rsin, _mockLogger.Object));
+        var exception = Assert.Throws<ArgumentException>(() => RsinValidator.ValidateRsin(rsin));
         Assert.Equal("RSIN moet precies 9 cijfers bevatten.", exception.Message);
     }
 
@@ -53,7 +47,7 @@ public class RsinValidatorTests
     public void ValidateRsin_ContainsNonDigits_ThrowsArgumentException(string rsin)
     {
         // Act & Assert
-        var exception = Assert.Throws<ArgumentException>(() => RsinValidator.ValidateRsin(rsin, _mockLogger.Object));
+        var exception = Assert.Throws<ArgumentException>(() => RsinValidator.ValidateRsin(rsin));
         Assert.Equal("RSIN mag alleen cijfers bevatten.", exception.Message);
     }
 
@@ -64,7 +58,7 @@ public class RsinValidatorTests
     public void ValidateRsin_FailsElevenTest_ThrowsArgumentException(string rsin)
     {
         // Act & Assert
-        var exception = Assert.Throws<ArgumentException>(() => RsinValidator.ValidateRsin(rsin, _mockLogger.Object));
+        var exception = Assert.Throws<ArgumentException>(() => RsinValidator.ValidateRsin(rsin));
         Assert.Equal("RSIN is niet geldig volgens de 11-proef.", exception.Message);
     }
 
@@ -76,7 +70,7 @@ public class RsinValidatorTests
         var validRsin = "123456782";
 
         // Act & Assert
-        var exception = Record.Exception(() => RsinValidator.ValidateRsin(validRsin, _mockLogger.Object));
+        var exception = Record.Exception(() => RsinValidator.ValidateRsin(validRsin));
         Assert.Null(exception);
     }
 }

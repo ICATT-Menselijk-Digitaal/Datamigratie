@@ -19,12 +19,13 @@ public class MigrateRollenTests
     private const string ZaaktypeUrl = "https://openzaak.example.com/catalogi/api/v1/zaaktypen/zaaktype-uuid";
     private const string IotypeUrl = "https://openzaak.example.com/catalogi/api/v1/informatieobjecttypen/iotype-uuid";
 
-    private static MigrateZaakService CreateService(Mock<IOpenZaakApiClient> openZaakClientMock)
+    private static MigrateZaakService CreateService(Mock<IOpenZaakApiClient> openZaakClientMock, DetZaak? zaak = null)
     {
         var detClientMock = new Mock<IDetApiClient>();
+        detClientMock.Setup(c => c.GetZaakByZaaknummer(It.IsAny<string>()))
+            .ReturnsAsync(zaak ?? CreateDetZaak());
         var pdfGeneratorMock = new Mock<IZaakgegevensPdfGenerator>();
-        pdfGeneratorMock.Setup(g => g.GenerateZaakgegevensPdf(It.IsAny<DetZaak>()))
-            .Returns([]);
+        pdfGeneratorMock.Setup(g => g.GenerateZaakgegevensPdf(It.IsAny<DetZaak>(), It.IsAny<Stream>()));
 
         var options = Options.Create(new OpenZaakApiOptions
         {
@@ -36,7 +37,6 @@ public class MigrateRollenTests
         return new MigrateZaakService(
             openZaakClientMock.Object,
             detClientMock.Object,
-            options,
             pdfGeneratorMock.Object,
             NullLogger<MigrateZaakService>.Instance);
     }
@@ -95,22 +95,23 @@ public class MigrateRollenTests
         return mock;
     }
 
-    private static MigrateZaakMappingModel CreateMapping(Dictionary<DetRolType, Uri>? roltypeMappings = null) =>
+    private static MigrateZaakMappingModel CreateMapping(Dictionary<DetRolType, Uri>? roltypeMappings = null, string rsin = "123456789") =>
         new()
         {
-            Rsin = "123456789",
-            DocumentstatusMappings = new Dictionary<string, string>(),
-            ZaakVertrouwelijkheidMappings = new Dictionary<bool, ZaakVertrouwelijkheidaanduiding>
+            DocumentMapper = new(rsin, [], [], []),
+            ZaakMapper = new(rsin, new Uri("https://example.com"), new()
             {
                 { false, ZaakVertrouwelijkheidaanduiding.openbaar },
                 { true, ZaakVertrouwelijkheidaanduiding.vertrouwelijk }
-            },
-            BesluittypeMappings = new Dictionary<string, Guid>(),
-            PdfInformatieobjecttypeId = Guid.NewGuid(),
+            }),
+            BesluitMapper = new(rsin, []),
+            PdfMapper = new(rsin, new Uri("https://example.com")),
+            ResultaatMapper = new([]),
+            StatusMapper = new([]),
             RoltypeMappings = roltypeMappings ?? new()
             {
                 { DetRolType.behandelaar, new Uri(BehandelaarRoltypeUrl) }
-            }
+            },
         };
 
     private static DetZaak CreateDetZaak(string? behandelaar = "medewerker-123") =>
@@ -130,9 +131,9 @@ public class MigrateRollenTests
     public async Task MigrateZaak_WithBehandelaarAndRoltype_CreatesRolInOpenZaak()
     {
         var clientMock = CreateOpenZaakClientMock();
-        var service = CreateService(clientMock);
+        var service = CreateService(clientMock, CreateDetZaak("medewerker-123"));
 
-        await service.MigrateZaak(CreateDetZaak("medewerker-123"), CreateMapping());
+        await service.MigrateZaak("zaak-123", CreateMapping());
 
         clientMock.Verify(c => c.CreateRol(
             It.Is<OzCreateRolRequest>(r =>
@@ -148,9 +149,9 @@ public class MigrateRollenTests
     public async Task MigrateZaak_WithoutBehandelaar_DoesNotCreateRol()
     {
         var clientMock = CreateOpenZaakClientMock();
-        var service = CreateService(clientMock);
+        var service = CreateService(clientMock, CreateDetZaak(behandelaar: null));
 
-        await service.MigrateZaak(CreateDetZaak(behandelaar: null), CreateMapping());
+        await service.MigrateZaak("zaak-123", CreateMapping());
 
         clientMock.Verify(c => c.CreateRol(It.IsAny<OzCreateRolRequest>(), It.IsAny<CancellationToken>()),
             Times.Never);
@@ -160,12 +161,12 @@ public class MigrateRollenTests
     public async Task MigrateZaak_WhenRoltypeIsAlleenPdf_DoesNotCreateRol()
     {
         var clientMock = CreateOpenZaakClientMock();
-        var service = CreateService(clientMock);
+        var service = CreateService(clientMock, CreateDetZaak("medewerker-123"));
 
         // Alleen-PDF rollen are excluded from the dictionary by ValidateRoltypeMappingsService
         var mapping = CreateMapping([]);
 
-        await service.MigrateZaak(CreateDetZaak("medewerker-123"), mapping);
+        await service.MigrateZaak("zaak-123", mapping);
 
         clientMock.Verify(c => c.CreateRol(It.IsAny<OzCreateRolRequest>(), It.IsAny<CancellationToken>()),
             Times.Never);
@@ -175,11 +176,11 @@ public class MigrateRollenTests
     public async Task MigrateZaak_WhenNoBehandelaarMapping_DoesNotCreateRol()
     {
         var clientMock = CreateOpenZaakClientMock();
-        var service = CreateService(clientMock);
+        var service = CreateService(clientMock, CreateDetZaak("medewerker-123"));
 
         var mapping = CreateMapping([]);
 
-        await service.MigrateZaak(CreateDetZaak("medewerker-123"), mapping);
+        await service.MigrateZaak("zaak-123", mapping);
 
         clientMock.Verify(c => c.CreateRol(It.IsAny<OzCreateRolRequest>(), It.IsAny<CancellationToken>()),
             Times.Never);
@@ -189,14 +190,14 @@ public class MigrateRollenTests
     public async Task MigrateZaak_WithUnknownRolKey_DoesNotCreateRol()
     {
         var clientMock = CreateOpenZaakClientMock();
-        var service = CreateService(clientMock);
+        var service = CreateService(clientMock, CreateDetZaak("medewerker-123"));
 
         var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
             { DetRolType.initiator, new Uri("https://openzaak.example.com/catalogi/api/v1/roltypen/initiator-uuid") }
         });
 
-        await service.MigrateZaak(CreateDetZaak("medewerker-123"), mapping);
+        await service.MigrateZaak("zaak-123", mapping);
 
         clientMock.Verify(c => c.CreateRol(It.IsAny<OzCreateRolRequest>(), It.IsAny<CancellationToken>()),
             Times.Never);
@@ -205,16 +206,6 @@ public class MigrateRollenTests
     [Fact]
     public async Task MigrateZaak_WithBetrokkenePersoon_CreatesNatuurlijkPersoonRol()
     {
-        var clientMock = CreateOpenZaakClientMock();
-        var service = CreateService(clientMock);
-
-        const string belanghebbendeRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/belanghebbende-uuid";
-        var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
-        {
-            { DetRolType.behandelaar, new Uri(BehandelaarRoltypeUrl) },
-            { DetRolType.belanghebbende, new Uri(belanghebbendeRoltypeUrl) }
-        });
-
         var zaak = CreateDetZaak();
         zaak.Betrokkenen =
         [
@@ -229,8 +220,19 @@ public class MigrateRollenTests
                 }
             }
         ];
+        var clientMock = CreateOpenZaakClientMock();
+        var service = CreateService(clientMock, zaak);
 
-        await service.MigrateZaak(zaak, mapping);
+        const string belanghebbendeRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/belanghebbende-uuid";
+        var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
+        {
+            { DetRolType.behandelaar, new Uri(BehandelaarRoltypeUrl) },
+            { DetRolType.belanghebbende, new Uri(belanghebbendeRoltypeUrl) }
+        });
+
+        
+
+        await service.MigrateZaak("zaak-123", mapping);
 
         clientMock.Verify(c => c.CreateRol(
             It.Is<OzCreateRolRequest>(r =>
@@ -246,8 +248,6 @@ public class MigrateRollenTests
     [Fact]
     public async Task MigrateZaak_WithBetrokkeneBedrijf_CreatesNietNatuurlijkPersoonRol()
     {
-        var clientMock = CreateOpenZaakClientMock();
-        var service = CreateService(clientMock);
 
         const string melderRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/melder-uuid";
         var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
@@ -272,7 +272,10 @@ public class MigrateRollenTests
             }
         ];
 
-        await service.MigrateZaak(zaak, mapping);
+        var clientMock = CreateOpenZaakClientMock();
+        var service = CreateService(clientMock, zaak);
+
+        await service.MigrateZaak("zaak-123", mapping);
 
         clientMock.Verify(c => c.CreateRol(
             It.Is<OzCreateRolRequest>(r =>
@@ -289,9 +292,6 @@ public class MigrateRollenTests
     [Fact]
     public async Task MigrateZaak_WithGemachtigde_SetsIndicatieMachtiging()
     {
-        var clientMock = CreateOpenZaakClientMock();
-        var service = CreateService(clientMock);
-
         const string gemachtigdeRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/gemachtigde-uuid";
         var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
@@ -314,7 +314,10 @@ public class MigrateRollenTests
             }
         ];
 
-        await service.MigrateZaak(zaak, mapping);
+        var clientMock = CreateOpenZaakClientMock();
+        var service = CreateService(clientMock, zaak);
+
+        await service.MigrateZaak("zaak-123", mapping);
 
         clientMock.Verify(c => c.CreateRol(
             It.Is<OzCreateRolRequest>(r =>
@@ -330,9 +333,6 @@ public class MigrateRollenTests
     [Fact]
     public async Task MigrateZaak_WithBetrokkeneAlleenPdf_DoesNotCreateRol()
     {
-        var clientMock = CreateOpenZaakClientMock();
-        var service = CreateService(clientMock);
-
         // Initiator is alleen-PDF: absent from the dictionary
         var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
@@ -350,7 +350,10 @@ public class MigrateRollenTests
             }
         ];
 
-        await service.MigrateZaak(zaak, mapping);
+        var clientMock = CreateOpenZaakClientMock();
+        var service = CreateService(clientMock, zaak);
+
+        await service.MigrateZaak("zaak-123", mapping);
 
         clientMock.Verify(c => c.CreateRol(It.IsAny<OzCreateRolRequest>(), It.IsAny<CancellationToken>()),
             Times.Never);
@@ -359,9 +362,6 @@ public class MigrateRollenTests
     [Fact]
     public async Task MigrateZaak_WithBetrokkeneUnknownSubjecttype_SkipsBetrokkene()
     {
-        var clientMock = CreateOpenZaakClientMock();
-        var service = CreateService(clientMock);
-
         const string melderRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/melder-uuid";
         var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
@@ -380,7 +380,10 @@ public class MigrateRollenTests
             }
         ];
 
-        await service.MigrateZaak(zaak, mapping);
+        var clientMock = CreateOpenZaakClientMock();
+        var service = CreateService(clientMock, zaak);
+
+        await service.MigrateZaak("zaak-123", mapping);
 
         clientMock.Verify(c => c.CreateRol(It.IsAny<OzCreateRolRequest>(), It.IsAny<CancellationToken>()),
             Times.Never);
@@ -389,9 +392,6 @@ public class MigrateRollenTests
     [Fact]
     public async Task MigrateZaak_WithPersoonMissingBsn_SkipsBetrokkene()
     {
-        var clientMock = CreateOpenZaakClientMock();
-        var service = CreateService(clientMock);
-
         const string belanghebbendeRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/belanghebbende-uuid";
         var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
@@ -410,7 +410,10 @@ public class MigrateRollenTests
             }
         ];
 
-        await service.MigrateZaak(zaak, mapping);
+        var clientMock = CreateOpenZaakClientMock();
+        var service = CreateService(clientMock, zaak);
+
+        await service.MigrateZaak("zaak-123", mapping);
 
         clientMock.Verify(c => c.CreateRol(It.IsAny<OzCreateRolRequest>(), It.IsAny<CancellationToken>()),
             Times.Never);
@@ -419,9 +422,6 @@ public class MigrateRollenTests
     [Fact]
     public async Task MigrateZaak_WithBedrijfMissingKvkNummer_SkipsBetrokkene()
     {
-        var clientMock = CreateOpenZaakClientMock();
-        var service = CreateService(clientMock);
-
         const string melderRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/melder-uuid";
         var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
@@ -440,7 +440,10 @@ public class MigrateRollenTests
             }
         ];
 
-        await service.MigrateZaak(zaak, mapping);
+        var clientMock = CreateOpenZaakClientMock();
+        var service = CreateService(clientMock, zaak);
+
+        await service.MigrateZaak("zaak-123", mapping);
 
         clientMock.Verify(c => c.CreateRol(It.IsAny<OzCreateRolRequest>(), It.IsAny<CancellationToken>()),
             Times.Never);
@@ -451,9 +454,6 @@ public class MigrateRollenTests
     [Fact]
     public async Task MigrateZaak_WithInitiatorPersoon_CreatesNatuurlijkPersoonRol()
     {
-        var clientMock = CreateOpenZaakClientMock();
-        var service = CreateService(clientMock);
-
         var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
             { DetRolType.initiator, new Uri(InitiatorRoltypeUrl) }
@@ -462,7 +462,10 @@ public class MigrateRollenTests
         var zaak = CreateDetZaak(behandelaar: null);
         zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = "123456789" };
 
-        await service.MigrateZaak(zaak, mapping);
+        var clientMock = CreateOpenZaakClientMock();
+        var service = CreateService(clientMock, zaak);
+
+        await service.MigrateZaak("zaak-123", mapping);
 
         clientMock.Verify(c => c.CreateRol(
             It.Is<OzCreateRolRequest>(r =>
@@ -477,9 +480,6 @@ public class MigrateRollenTests
     [Fact]
     public async Task MigrateZaak_WithInitiatorBedrijf_CreatesNietNatuurlijkPersoonRol()
     {
-        var clientMock = CreateOpenZaakClientMock();
-        var service = CreateService(clientMock);
-
         var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
             { DetRolType.initiator, new Uri(InitiatorRoltypeUrl) }
@@ -488,7 +488,10 @@ public class MigrateRollenTests
         var zaak = CreateDetZaak(behandelaar: null);
         zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.bedrijf, KvkNummer = "87654321", Vestigingsnummer = "000087654321" };
 
-        await service.MigrateZaak(zaak, mapping);
+        var clientMock = CreateOpenZaakClientMock();
+        var service = CreateService(clientMock, zaak);
+
+        await service.MigrateZaak("zaak-123", mapping);
 
         clientMock.Verify(c => c.CreateRol(
             It.Is<OzCreateRolRequest>(r =>
@@ -504,9 +507,6 @@ public class MigrateRollenTests
     [Fact]
     public async Task MigrateZaak_WithInitiatorNull_DoesNotCreateInitiatorRol()
     {
-        var clientMock = CreateOpenZaakClientMock();
-        var service = CreateService(clientMock);
-
         var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
             { DetRolType.initiator, new Uri(InitiatorRoltypeUrl) }
@@ -515,7 +515,10 @@ public class MigrateRollenTests
         var zaak = CreateDetZaak(behandelaar: null);
         zaak.Initiator = null;
 
-        await service.MigrateZaak(zaak, mapping);
+        var clientMock = CreateOpenZaakClientMock();
+        var service = CreateService(clientMock, zaak);
+
+        await service.MigrateZaak("zaak-123", mapping);
 
         clientMock.Verify(c => c.CreateRol(It.IsAny<OzCreateRolRequest>(), It.IsAny<CancellationToken>()),
             Times.Never);
@@ -524,9 +527,6 @@ public class MigrateRollenTests
     [Fact]
     public async Task MigrateZaak_WithInitiatorMissingSubjecttype_DoesNotCreateInitiatorRol()
     {
-        var clientMock = CreateOpenZaakClientMock();
-        var service = CreateService(clientMock);
-
         var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
             { DetRolType.initiator, new Uri(InitiatorRoltypeUrl) }
@@ -535,7 +535,10 @@ public class MigrateRollenTests
         var zaak = CreateDetZaak(behandelaar: null);
         zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = null, BurgerServiceNummer = "123456789" };
 
-        await service.MigrateZaak(zaak, mapping);
+        var clientMock = CreateOpenZaakClientMock();
+        var service = CreateService(clientMock, zaak);
+
+        await service.MigrateZaak("zaak-123", mapping);
 
         clientMock.Verify(c => c.CreateRol(It.IsAny<OzCreateRolRequest>(), It.IsAny<CancellationToken>()),
             Times.Never);
@@ -544,9 +547,6 @@ public class MigrateRollenTests
     [Fact]
     public async Task MigrateZaak_WithInitiatorPersoonMissingBsn_SkipsInitiator()
     {
-        var clientMock = CreateOpenZaakClientMock();
-        var service = CreateService(clientMock);
-
         var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
             { DetRolType.initiator, new Uri(InitiatorRoltypeUrl) }
@@ -555,7 +555,10 @@ public class MigrateRollenTests
         var zaak = CreateDetZaak(behandelaar: null);
         zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = null };
 
-        await service.MigrateZaak(zaak, mapping);
+        var clientMock = CreateOpenZaakClientMock();
+        var service = CreateService(clientMock, zaak);
+
+        await service.MigrateZaak("zaak-123", mapping);
 
         clientMock.Verify(c => c.CreateRol(It.IsAny<OzCreateRolRequest>(), It.IsAny<CancellationToken>()),
             Times.Never);
@@ -564,9 +567,6 @@ public class MigrateRollenTests
     [Fact]
     public async Task MigrateZaak_WithInitiatorBedrijfMissingKvkNummer_SkipsInitiator()
     {
-        var clientMock = CreateOpenZaakClientMock();
-        var service = CreateService(clientMock);
-
         var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
             { DetRolType.initiator, new Uri(InitiatorRoltypeUrl) }
@@ -575,7 +575,10 @@ public class MigrateRollenTests
         var zaak = CreateDetZaak(behandelaar: null);
         zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.bedrijf, KvkNummer = null };
 
-        await service.MigrateZaak(zaak, mapping);
+        var clientMock = CreateOpenZaakClientMock();
+        var service = CreateService(clientMock, zaak);
+
+        await service.MigrateZaak("zaak-123", mapping);
 
         clientMock.Verify(c => c.CreateRol(It.IsAny<OzCreateRolRequest>(), It.IsAny<CancellationToken>()),
             Times.Never);
@@ -584,9 +587,6 @@ public class MigrateRollenTests
     [Fact]
     public async Task MigrateZaak_WithNoInitiatorMapping_DoesNotCreateInitiatorRol()
     {
-        var clientMock = CreateOpenZaakClientMock();
-        var service = CreateService(clientMock);
-
         // No "Initiator" key in mappings
         var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
@@ -596,7 +596,10 @@ public class MigrateRollenTests
         var zaak = CreateDetZaak(behandelaar: null);
         zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = "123456789" };
 
-        await service.MigrateZaak(zaak, mapping);
+        var clientMock = CreateOpenZaakClientMock();
+        var service = CreateService(clientMock, zaak);
+
+        await service.MigrateZaak("zaak-123", mapping);
 
         clientMock.Verify(c => c.CreateRol(It.IsAny<OzCreateRolRequest>(), It.IsAny<CancellationToken>()),
             Times.Never);

@@ -1,33 +1,38 @@
-﻿using Datamigratie.Common.Services.Det.Models;
+﻿using Datamigratie.Common.Config;
+using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Documenttype;
 
 public interface IValidateDocumenttypeMappingsService
 {
-    Task<(bool IsValid, Dictionary<string, string> Mappings)> ValidateAndGetDocumenttypeMappings(DetZaaktypeDetail detZaaktype);
+    Task<(bool IsValid, Dictionary<string, Uri> Mappings)> ValidateAndGetDocumenttypeMappings(DetZaaktypeDetail detZaaktype);
 }
 
 public class ValidateDocumenttypeMappingsService(
     DatamigratieDbContext dbContext,
-    ILogger<ValidateDocumenttypeMappingsService> logger) : IValidateDocumenttypeMappingsService
+    ILogger<ValidateDocumenttypeMappingsService> logger,
+    IOptions<OpenZaakApiOptions> openZaakOptions) : IValidateDocumenttypeMappingsService
 {
-    public async Task<(bool IsValid, Dictionary<string, string> Mappings)> ValidateAndGetDocumenttypeMappings(DetZaaktypeDetail detZaaktype)
+    private readonly string _openZaakBaseUrl = openZaakOptions.Value.BaseUrl;
+
+    public async Task<(bool IsValid, Dictionary<string, Uri> Mappings)> ValidateAndGetDocumenttypeMappings(DetZaaktypeDetail detZaaktype)
     {
         var documenttypen = detZaaktype.Documenttypen?.ToList() ?? [];
 
         if (documenttypen.Count == 0)
         {
-            return (true, new Dictionary<string, string>());
+            return (true, new Dictionary<string, Uri>());
         }
 
-        var documenttypeMappings = await dbContext.PropertyMappings
+        var rawMappings = await dbContext.PropertyMappings
             .Where(m => m.ZaaktypenMapping!.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie && m.Property == "documenttype" && m.SourceId != null)
             .ToDictionaryAsync(x => x.SourceId!, m => m.TargetId);
 
         var missingDocumenttypen = documenttypen
-            .Where(dt => !documenttypeMappings.Any(m => m.Key == dt.Documenttype.Naam))
+            .Where(dt => !rawMappings.Any(m => m.Key == dt.Documenttype.Naam))
             .Select(dt => dt.Documenttype.Naam)
             .ToList();
 
@@ -35,9 +40,23 @@ public class ValidateDocumenttypeMappingsService(
         {
             logger.LogWarning("Missing documenttype mappings for zaaktype {DetZaaktypeFunctioneleIdentificatie}. Missing {Count} documenttypes: {MissingValues}",
                 detZaaktype.FunctioneleIdentificatie, missingDocumenttypen.Count, string.Join(", ", missingDocumenttypen.Take(10)));
-            return (false, new Dictionary<string, string>());
+            return (false, new Dictionary<string, Uri>());
         }
 
-        return (true, documenttypeMappings);
+        var parsedMappings = new Dictionary<string, Uri>();
+        foreach (var (key, value) in rawMappings)
+        {
+            if (Guid.TryParse(value, out var guid))
+            {
+                parsedMappings[key] = new Uri($"{_openZaakBaseUrl}catalogi/api/v1/informatieobjecttypen/{guid}");
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    $"Mapped informatieobjecttype value '{value}' for documenttype '{key}' is not a valid GUID.");
+            }
+        }
+
+        return (true, parsedMappings);
     }
 }

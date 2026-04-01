@@ -2,13 +2,13 @@
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration;
-using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Models;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Queues;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Queues.Items;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Services;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.StartSingleMigration;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.StartSingleMigration.Models;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.State;
+using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Mappers;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
@@ -43,15 +43,16 @@ public class StartSingleMigrationControllerTests
     {
         DetZaaktypeId = ZaaktypeId,
         ZakenSelector = new SingleZaakSelector(Zaaknummer, open: false),
-        RsinMapping = new RsinMapping { Rsin = "000000000" },
-        StatusMappings = [],
-        ResultaatMappings = [],
-        DocumentstatusMappings = [],
-        PublicatieNiveauMappings = [],
-        DocumenttypeMappings = [],
-        ZaakVertrouwelijkheidMappings = [],
-        BesluittypeMappings = [],
-        PdfInformatieobjecttypeId = Guid.Empty,
+        ResultaatMapper = new ResultaatMapper(new Dictionary<string, Uri>()),
+        StatusMapper = new StatusMapper(new Dictionary<string, Uri>()),
+        ZaakMapper = new ZaakMapper("000000000", new Uri("https://openzaak.test/catalogi/api/v1/zaaktypen/00000000-0000-0000-0000-000000000000"), new Dictionary<bool, ZaakVertrouwelijkheidaanduiding>()),
+        DocumentMapper = new DocumentMapper(
+            "000000000",
+            new Dictionary<string, DocumentStatus>(),
+            new Dictionary<string, DocumentVertrouwelijkheidaanduiding>(),
+            new Dictionary<string, Uri>()),
+        BesluitMapper = new BesluitMapper("000000000", new Dictionary<string, Uri>()),
+        PdfMapper = new PdfMapper("000000000", new Uri("https://openzaak.test/catalogi/api/v1/informatieobjecttypen/00000000-0000-0000-0000-000000000000")),
         RoltypeMappings = []
     };
 
