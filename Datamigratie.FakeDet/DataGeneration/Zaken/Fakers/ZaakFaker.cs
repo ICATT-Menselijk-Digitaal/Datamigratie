@@ -193,7 +193,7 @@ public sealed class ZaakFaker
 
         return new Persoon
         {
-            Bsn = GenerateBsn(),
+            BurgerServiceNummer = GenerateBsn(),
             Voornaam = _faker.PickRandom(DutchDataSets.Voornamen),
             Voorvoegsel = heeftVoorvoegsel ? _faker.PickRandom(DutchDataSets.Voorvoegsels) : null,
             Achternaam = _faker.PickRandom(DutchDataSets.Achternamen),
