@@ -38,14 +38,19 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf
                             Row(table, "aangemaaktDoor", zaak.AangemaaktDoor);
                             Row(table, "afdeling", zaak.Afdeling);
                             Row(table, "externeIdentificatie", zaak.ExterneIdentificatie);
+                            Row(table, "organisatie", zaak.Organisatie);
                             Row(table, "redenStart", zaak.RedenStart);
                             Row(table, "startdatum", FormatDate(zaak.Startdatum));
                             Row(table, "streefdatum", FormatDate(zaak.Streefdatum));
                             Row(table, "fataledatum", FormatDate(zaak.Fataledatum));
                             Row(table, "einddatum", FormatDate(zaak.Einddatum));
+                            Row(table, "opschorttermijnStartdatum", FormatDate(zaak.OpschorttermijnStartdatum));
+                            Row(table, "opschorttermijnEinddatum", FormatDate(zaak.OpschorttermijnEinddatum));
                             Row(table, "creatieDatumTijd", FormatDateTime(zaak.CreatieDatumTijd));
                             Row(table, "wijzigDatumTijd", FormatDateTime(zaak.WijzigDatumTijd));
                             Row(table, "ztc1MigratiedatumTijd", FormatDateTime(zaak.Ztc1MigratiedatumTijd));
+                            Row(table, "zaakStatus.naam", zaak.ZaakStatus?.Naam);
+                            Row(table, "resultaat.naam", zaak.Resultaat?.Naam);
                             Row(table, "open", zaak.Open.ToString());
                             Row(table, "intake", zaak.Intake.ToString());
                             Row(table, "notificeerbaar", zaak.Notificeerbaar.ToString());
@@ -54,7 +59,20 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf
                             Row(table, "vertrouwelijk", zaak.Vertrouwelijk.ToString());
                             Row(table, "vernietiging", zaak.Vernietiging.ToString());
                             Row(table, "procesGestart", zaak.ProcesGestart.ToString());
+                            Row(table, "geolocatie", zaak.Geolocatie != null ? $"{zaak.Geolocatie.Type} {string.Join(", ", zaak.Geolocatie.Point2D ?? [])}" : null);
                         });
+
+                        // Zaaktype
+                        if (zaak.Zaaktype != null)
+                        {
+                            AddSection(col, "Zaaktype", table =>
+                            {
+                                Row(table, "functioneleIdentificatie", zaak.Zaaktype.FunctioneleIdentificatie);
+                                Row(table, "naam", zaak.Zaaktype.Naam);
+                                Row(table, "omschrijving", zaak.Zaaktype.Omschrijving);
+                                Row(table, "actief", zaak.Zaaktype.Actief.ToString());
+                            });
+                        }
 
                         // Betaalgegevens
                         if (zaak.Betaalgegevens != null)
@@ -79,10 +97,13 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf
                             AddSection(col, "ArchiveerGegevens", table =>
                             {
                                 Row(table, "bewaartermijnEinddatum", FormatDate(a.BewaartermijnEinddatum));
+                                Row(table, "bewaartermijnWaardering", a.BewaartermijnWaardering);
+                                Row(table, "overbrengenOp", FormatDate(a.OverbrengenOp));
                                 Row(table, "overbrengenDoor", a.OverbrengenDoor);
                                 Row(table, "overbrengenNaar", a.OverbrengenNaar);
                                 Row(table, "overbrengenType", a.OverbrengenType);
                                 Row(table, "selectielijstItemNaam", a.SelectielijstItemNaam);
+                                Row(table, "zaaktypeNaam", a.ZaaktypeNaam);
                             });
 
                             if (a.OvergebrachteGegevens != null)
@@ -145,8 +166,46 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf
                                 var bt = zaak.Betrokkenen[i];
                                 AddSection(col, $"Betrokkene {i + 1}", table =>
                                 {
+                                    Row(table, "typeBetrokkenheid", bt.TypeBetrokkenheid);
                                     Row(table, "startdatum", FormatDate(bt.Startdatum));
                                     Row(table, "indCorrespondentie", bt.IndCorrespondentie.ToString());
+                                    Row(table, "toelichting", bt.Toelichting);
+                                });
+                            }
+                        }
+
+                        // BagObjecten
+                        if (zaak.BagObjecten != null)
+                        {
+                            for (var i = 0; i < zaak.BagObjecten.Count; i++)
+                            {
+                                var bag = zaak.BagObjecten[i];
+                                AddSection(col, $"BagObject {i + 1}", table =>
+                                {
+                                    Row(table, "bagObjectId", bag.BagObjectId);
+                                });
+                            }
+                        }
+
+                        // Besluiten
+                        if (zaak.Besluiten != null)
+                        {
+                            for (var i = 0; i < zaak.Besluiten.Count; i++)
+                            {
+                                var besluit = zaak.Besluiten[i];
+                                AddSection(col, $"Besluit {i + 1}", table =>
+                                {
+                                    Row(table, "functioneleIdentificatie", besluit.FunctioneleIdentificatie);
+                                    Row(table, "besluittype.naam", besluit.Besluittype.Naam);
+                                    Row(table, "besluittype.omschrijving", besluit.Besluittype.Omschrijving);
+                                    Row(table, "besluittype.actief", besluit.Besluittype.Actief.ToString());
+                                    Row(table, "besluitDatum", FormatDate(besluit.BesluitDatum));
+                                    Row(table, "ingangsdatum", FormatDate(besluit.Ingangsdatum));
+                                    Row(table, "vervaldatum", FormatDate(besluit.Vervaldatum));
+                                    Row(table, "publicatiedatum", FormatDate(besluit.Publicatiedatum));
+                                    Row(table, "reactiedatum", FormatDate(besluit.Reactiedatum));
+                                    Row(table, "toelichting", besluit.Toelichting);
+                                    Row(table, "procestermijnInMaanden", besluit.ProcestermijnInMaanden?.ToString());
                                 });
                             }
                         }
@@ -162,9 +221,6 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf
                                     Row(table, "type", zd.Type);
                                     Row(table, "naam", zd.Naam);
                                     Row(table, "omschrijving", zd.Omschrijving);
-                                    Row(table, "formatering", zd.Formatering);
-                                    Row(table, "waarde", zd.Waarde?.ToString());
-                                    Row(table, "waarden", zd.Waarden != null ? string.Join(", ", zd.Waarden) : null);
                                 });
                             }
                         }
@@ -223,6 +279,88 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf
                             });
                         }
 
+                        // GekoppeldeContacten
+                        if (zaak.GekoppeldeContacten != null)
+                        {
+                            for (var i = 0; i < zaak.GekoppeldeContacten.Count; i++)
+                            {
+                                var contact = zaak.GekoppeldeContacten[i];
+                                AddSection(col, $"Contact {i + 1}", table =>
+                                {
+                                    Row(table, "functioneleIdentificatie", contact.FunctioneleIdentificatie);
+                                    Row(table, "indicatieVertrouwelijk", contact.IndicatieVertrouwelijk.ToString());
+                                    Row(table, "emailadres", contact.Emailadres);
+                                    Row(table, "telefoonnummer", contact.Telefoonnummer);
+                                    Row(table, "telefoonnummerAlternatief", contact.TelefoonnummerAlternatief);
+                                    Row(table, "startdatumTijd", FormatDateTime(contact.StartdatumTijd));
+                                    Row(table, "einddatumTijd", FormatDateTime(contact.EinddatumTijd));
+                                    Row(table, "streefdatumTijd", FormatDateTime(contact.StreefdatumTijd));
+                                    Row(table, "vraag", contact.Vraag);
+                                    Row(table, "antwoord", contact.Antwoord);
+                                    Row(table, "type.naam", contact.Type?.Naam);
+                                    Row(table, "type.omschrijving", contact.Type?.Omschrijving);
+                                    Row(table, "status.naam", contact.Status?.Naam);
+                                    Row(table, "status.omschrijving", contact.Status?.Omschrijving);
+                                    Row(table, "prioriteit.naam", contact.Prioriteit?.Naam);
+                                    Row(table, "prioriteit.omschrijving", contact.Prioriteit?.Omschrijving);
+                                    Row(table, "prioriteit.dagen", contact.Prioriteit?.Dagen.ToString());
+                                    Row(table, "kanaal.omschrijving", contact.Kanaal?.Omschrijving);
+                                });
+
+                                if (contact.VoorlopigeAntwoorden != null)
+                                {
+                                    for (var v = 0; v < contact.VoorlopigeAntwoorden.Count; v++)
+                                    {
+                                        var va = contact.VoorlopigeAntwoorden[v];
+                                        AddSection(col, $"Contact {i + 1} — VoorlopigAntwoord {v + 1}", table =>
+                                        {
+                                            Row(table, "antwoord", va.Antwoord);
+                                            Row(table, "antwoordDatumTijd", FormatDateTime(va.AntwoordDatumTijd));
+                                        });
+                                    }
+                                }
+
+                                if (contact.BagObjecten != null)
+                                {
+                                    for (var b = 0; b < contact.BagObjecten.Count; b++)
+                                    {
+                                        var bag = contact.BagObjecten[b];
+                                        AddSection(col, $"Contact {i + 1} — BagObject {b + 1}", table =>
+                                        {
+                                            Row(table, "bagObjectId", bag.BagObjectId);
+                                        });
+                                    }
+                                }
+
+                                if (contact.GekoppeldeContacten != null)
+                                {
+                                    for (var k = 0; k < contact.GekoppeldeContacten.Count; k++)
+                                    {
+                                        AddSection(col, $"Contact {i + 1} — GekoppeldContact {k + 1}", table =>
+                                        {
+                                            Row(table, "gekoppeldContact", contact.GekoppeldeContacten[k]);
+                                        });
+                                    }
+                                }
+
+                                if (contact.Historie != null)
+                                {
+                                    for (var h = 0; h < contact.Historie.Count; h++)
+                                    {
+                                        var ch = contact.Historie[h];
+                                        AddSection(col, $"Contact {i + 1} — Historie {h + 1}", table =>
+                                        {
+                                            Row(table, "typeWijziging", ch.TypeWijziging);
+                                            Row(table, "gewijzigdDoor", ch.GewijzigdDoor);
+                                            Row(table, "oudeWaarde", ch.OudeWaarde);
+                                            Row(table, "nieuweWaarde", ch.NieuweWaarde);
+                                            Row(table, "toelichting", ch.Toelichting);
+                                        });
+                                    }
+                                }
+                            }
+                        }
+
                         // Documenten
                         if (zaak.Documenten != null)
                         {
@@ -235,6 +373,13 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf
                                     Row(table, "kenmerk", doc.Kenmerk);
                                     Row(table, "beschrijving", doc.Beschrijving);
                                     Row(table, "publicatieniveau", doc.Publicatieniveau);
+                                    Row(table, "documentrichting", doc.Documentrichting);
+                                    Row(table, "geautoriseerdVoorMedewerkers", doc.GeautoriseerdVoorMedewerkers.ToString());
+                                    Row(table, "taal.naam", doc.Taal?.Naam);
+                                    Row(table, "documentVorm.naam", doc.DocumentVorm?.Naam);
+                                    Row(table, "ontvangstDatum", FormatDate(doc.OntvangstDatum));
+                                    Row(table, "verzendDatum", FormatDate(doc.VerzendDatum));
+                                    Row(table, "documentVersturenDatum", FormatDate(doc.DocumentVersturenDatum));
                                     Row(table, "documentVersturen", doc.DocumentVersturen);
                                     Row(table, "locatie", doc.Locatie);
                                     Row(table, "aanvraagDocument", doc.AanvraagDocument.ToString());
@@ -297,8 +442,10 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf
                                             var ond = versie.Ondertekeningen[o];
                                             AddSection(col, $"Document {i + 1} Versie {versie.Versienummer} — Ondertekening {o + 1}", table =>
                                             {
+                                                Row(table, "documentTitel", ond.DocumentTitel);
                                                 Row(table, "ondertekenaar", ond.Ondertekenaar);
                                                 Row(table, "ondertekenDatum", FormatDateTime(ond.OndertekenDatum));
+                                                Row(table, "creatieDatum", FormatDate(ond.CreatieDatum));
                                                 Row(table, "gemandateerd", ond.Gemandateerd.ToString());
                                                 Row(table, "opmerking", ond.Opmerking);
                                             });
@@ -318,6 +465,20 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf
                                             Row(table, "metadataElement.label", meta.MetadataElement?.Label);
                                             Row(table, "metadataElement.type", meta.MetadataElement?.Type);
                                             Row(table, "waarde", meta.Waarde);
+                                        });
+                                    }
+                                }
+
+                                // DocumentPublicaties
+                                if (doc.Publicaties != null)
+                                {
+                                    for (var p = 0; p < doc.Publicaties.Count; p++)
+                                    {
+                                        var pub = doc.Publicaties[p];
+                                        AddSection(col, $"Document {i + 1} — Publicatie {p + 1}", table =>
+                                        {
+                                            Row(table, "bestemming", pub.Bestemming);
+                                            Row(table, "publicatiedatum", FormatDate(pub.Publicatiedatum));
                                         });
                                     }
                                 }

@@ -14,6 +14,7 @@
 - [Extend PDF content: un-mapped properties](https://dimpact.atlassian.net/browse/DATA-386)
 - [Migrate Behandelaar (Rollen-related)](https://dimpact.atlassian.net/browse/DATA-332)
 - [UI changes: starting a migration](https://dimpact.atlassian.net/browse/DATA-408)
+- [Migrate previously ignored properties](https://dimpact.atlassian.net/browse/DATA-251)
 
 ## v0.1.0
 
