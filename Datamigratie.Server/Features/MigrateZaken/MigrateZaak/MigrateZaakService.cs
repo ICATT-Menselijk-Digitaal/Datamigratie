@@ -100,7 +100,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 await ExecuteBesluitPlansAsync(plan.Besluiten, createdZaak, token);
 
                 // Migrate rollen (e.g. Behandelaar) to OpenZaak
-                await CreateZaakRolesAsync(detZaak, createdZaak, mapping.RoltypeMappings, token);
+                await ExecuteRolPlansAsync(plan.Rollen, createdZaak, token);
 
                 sw.Stop();
 
@@ -153,15 +153,6 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                     statusCode);
             }
         }
-
-
-
-
-
-
-
-
-
 
         private async Task CreateAndLinkDocumentAsync(
             OzDocument ozDocument,
@@ -272,118 +263,13 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
 
             await _openZaakApiClient.CreateStatus(plan);
         }
-        private async Task CreateZaakRolesAsync(DetZaak detZaak, OzZaak createdZaak, Dictionary<DetRolType, Uri> roltypeMappings, CancellationToken token)
+
+        private async Task ExecuteRolPlansAsync(IReadOnlyCollection<OzCreateRolRequest> rollen, OzZaak createdZaak, CancellationToken token)
         {
-            if (roltypeMappings.TryGetValue(DetRolType.behandelaar, out var behandelaarRoltypeUrl))
+            foreach (var rol in rollen)
             {
-                await CreateBehandelaarRolAsync(detZaak, createdZaak, behandelaarRoltypeUrl, token);
-            }
-
-            if (roltypeMappings.TryGetValue(DetRolType.initiator, out var initiatorRoltypeUrl))
-            {
-                await CreateInitiatorRolAsync(detZaak, createdZaak, initiatorRoltypeUrl, token);
-            }
-
-            await CreateBetrokkenenRollenAsync(detZaak, createdZaak, roltypeMappings, token);
-        }
-
-        private async Task CreateBehandelaarRolAsync(DetZaak detZaak, OzZaak createdZaak, Uri roltypeUrl, CancellationToken token)
-        {
-            if (string.IsNullOrWhiteSpace(detZaak.Behandelaar))
-            {
-                return;
-            }
-            await _openZaakApiClient.CreateRol(new OzCreateRolRequest
-            {
-                Zaak = createdZaak.Url,
-                BetrokkeneType = BetrokkeneType.medewerker,
-                Roltype = roltypeUrl,
-                BetrokkeneIdentificatie = new OzBetrokkeneIdentificatie
-                {
-                    Identificatie = detZaak.Behandelaar
-                }
-            }, token);
-        }
-
-        private async Task CreateInitiatorRolAsync(DetZaak detZaak, OzZaak createdZaak, Uri roltypeUrl, CancellationToken token)
-        {
-            var initiator = detZaak.Initiator;
-
-            if (initiator == null || initiator.Subjecttype == null)
-            {
-                return;
-            }
-
-            var subjecttype = initiator.Subjecttype.Value;
-
-            var (betrokkeneType, betrokkeneIdentificatie) = MapBetrokkeneIdentificatie(subjecttype, initiator);
-            var rolRequest = new OzCreateRolRequest
-            {
-                Zaak = createdZaak.Url,
-                Roltype = roltypeUrl,
-                BetrokkeneType = betrokkeneType,
-                BetrokkeneIdentificatie = betrokkeneIdentificatie
-            };
-
-            if (HasEmptyBetrokkeneIdentificatie(rolRequest.BetrokkeneIdentificatie))
-            {
-                logger.LogWarning(
-                    "Skipping initiator with Subjecttype={Subjecttype}: " +
-                    "BetrokkeneIdentificatie has no filled fields (InpBsn, KvkNummer, VestigingsNummer are all empty).",
-                    initiator.Subjecttype);
-                return;
-            }
-
-            await _openZaakApiClient.CreateRol(rolRequest, token);
-        }
-
-        private async Task CreateBetrokkenenRollenAsync(DetZaak detZaak, OzZaak createdZaak, Dictionary<DetRolType, Uri> roltypeMappings, CancellationToken token)
-        {
-            var betrokkenen = detZaak.Betrokkenen;
-
-            if (betrokkenen == null || betrokkenen.Count == 0)
-            {
-                return;
-            }
-
-            foreach (var betrokkene in betrokkenen)
-            {
-
-                var betrokkeneDetails = betrokkene.Betrokkene;
-                var betrokkeneRolType = betrokkene.TypeBetrokkenheid;
-
-                if (betrokkeneRolType == null ||
-                    !roltypeMappings.TryGetValue(betrokkeneRolType.Value, out var roltypeUrl) ||
-                    betrokkeneDetails == null ||
-                    betrokkeneDetails.Subjecttype == null)
-                {
-                    continue;
-                }
-
-                var subjecttype = betrokkeneDetails.Subjecttype;
-
-                var (betrokkeneType, betrokkeneIdentificatie) = MapBetrokkeneIdentificatie(subjecttype.Value, betrokkeneDetails);
-                var rolRequest = new OzCreateRolRequest
-                {
-                    Zaak = createdZaak.Url,
-                    Roltype = roltypeUrl,
-                    BetrokkeneType = betrokkeneType,
-                    BetrokkeneIdentificatie = betrokkeneIdentificatie,
-                    IndicatieMachtiging = betrokkeneRolType == DetRolType.gemachtigde
-                        ? "gemachtigde"
-                        : null
-                };
-
-                if (HasEmptyBetrokkeneIdentificatie(rolRequest.BetrokkeneIdentificatie))
-                {
-                    logger.LogWarning(
-                        "Skipping betrokkene with TypeBetrokkenheid={TypeBetrokkenheid}: " +
-                        "BetrokkeneIdentificatie has no filled fields (InpBsn, KvkNummer, VestigingsNummer are all empty).",
-                        betrokkeneRolType);
-                    continue;
-                }
-
-                await _openZaakApiClient.CreateRol(rolRequest, token);
+                rol.Zaak = createdZaak.Url;
+                await _openZaakApiClient.CreateRol(rol, token);
             }
         }
 
@@ -484,22 +370,6 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 }
             }
         }
-
-        private static bool HasEmptyBetrokkeneIdentificatie(OzBetrokkeneIdentificatie id) =>
-            string.IsNullOrWhiteSpace(id.InpBsn) &&
-            string.IsNullOrWhiteSpace(id.KvkNummer) &&
-            string.IsNullOrWhiteSpace(id.VestigingsNummer) &&
-            string.IsNullOrWhiteSpace(id.Identificatie);
-
-        private static (BetrokkeneType, OzBetrokkeneIdentificatie) MapBetrokkeneIdentificatie(
-            DetSubjecttype subjecttype, DetBetrokkenePersoon persoon) =>
-            subjecttype == DetSubjecttype.persoon
-                ? (BetrokkeneType.natuurlijk_persoon, new OzBetrokkeneIdentificatie { InpBsn = persoon.BurgerServiceNummer })
-                : (BetrokkeneType.niet_natuurlijk_persoon, new OzBetrokkeneIdentificatie
-                {
-                    KvkNummer = persoon.KvkNummer,
-                    VestigingsNummer = persoon.Vestigingsnummer
-                });
 
         private async Task<DetZaak> FetchZaakFromDetAsync(string zaaknummer)
         {

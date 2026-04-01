@@ -10,6 +10,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Plan
         public required OzDocument PdfDocument { get; init; }
         public required IReadOnlyList<DocumentMigrationPlan> Documents { get; init; }
         public required IReadOnlyList<CreateOzBesluitRequest> Besluiten { get; init; }
+        public required IReadOnlyList<OzCreateRolRequest> Rollen { get; init; }
     }
 
     public record DocumentMigrationPlan(IReadOnlyList<DocumentVersionPlan> Versions);

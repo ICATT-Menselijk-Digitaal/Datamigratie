@@ -4,7 +4,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models;
 
 public class OzCreateRolRequest
 {
-    public required Uri Zaak { get; set; }
+    public Uri? Zaak { get; set; }
 
     public required BetrokkeneType BetrokkeneType { get; set; }
 

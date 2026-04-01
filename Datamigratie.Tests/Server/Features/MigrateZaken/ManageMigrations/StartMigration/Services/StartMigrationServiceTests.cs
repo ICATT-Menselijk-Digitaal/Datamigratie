@@ -44,7 +44,7 @@ public class StartMigrationServiceTests
                 new Dictionary<string, Uri>()),
             BesluitMapper = new BesluitMapper("000000000", new Dictionary<string, Uri>()),
             PdfMapper = new PdfMapper("000000000", new Uri("https://openzaak.test/catalogi/api/v1/informatieobjecttypen/00000000-0000-0000-0000-000000000000")),
-            RoltypeMappings = new(),
+            RolMapper = new([]),
         };
 
     private static StartMigrationService CreateSut(

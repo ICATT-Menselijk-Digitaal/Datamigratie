@@ -16,9 +16,5 @@ public class MigrationQueueItem
     public required BesluitMapper BesluitMapper { get; set; }
     public required PdfMapper PdfMapper { get; set; }
 
-    /// <summary>
-    /// Roltype mappings loaded and validated by StartMigrationController before queuing.
-    /// Dictionary: DetRol -> OzRoltypeUrl. Alleen-PDF rollen are excluded (no OZ rol needed).
-    /// </summary>
-    public required Dictionary<DetRolType, Uri> RoltypeMappings { get; set; }
+    public required RolMapper RolMapper { get; set; }
 }

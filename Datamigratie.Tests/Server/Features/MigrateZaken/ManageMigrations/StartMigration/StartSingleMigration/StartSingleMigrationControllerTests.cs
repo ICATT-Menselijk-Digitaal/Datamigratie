@@ -43,17 +43,17 @@ public class StartSingleMigrationControllerTests
     {
         DetZaaktypeId = ZaaktypeId,
         ZakenSelector = new SingleZaakSelector(Zaaknummer, open: false),
-        ResultaatMapper = new ResultaatMapper(new Dictionary<string, Uri>()),
-        StatusMapper = new StatusMapper(new Dictionary<string, Uri>()),
-        ZaakMapper = new ZaakMapper("000000000", new Uri("https://openzaak.test/catalogi/api/v1/zaaktypen/00000000-0000-0000-0000-000000000000"), new Dictionary<bool, ZaakVertrouwelijkheidaanduiding>()),
+        ResultaatMapper = new ResultaatMapper([]),
+        StatusMapper = new StatusMapper([]),
+        ZaakMapper = new ZaakMapper("000000000", new Uri("https://openzaak.test/catalogi/api/v1/zaaktypen/00000000-0000-0000-0000-000000000000"), []),
         DocumentMapper = new DocumentMapper(
             "000000000",
-            new Dictionary<string, DocumentStatus>(),
-            new Dictionary<string, DocumentVertrouwelijkheidaanduiding>(),
-            new Dictionary<string, Uri>()),
-        BesluitMapper = new BesluitMapper("000000000", new Dictionary<string, Uri>()),
+            [],
+            [],
+            []),
+        BesluitMapper = new BesluitMapper("000000000", []),
         PdfMapper = new PdfMapper("000000000", new Uri("https://openzaak.test/catalogi/api/v1/informatieobjecttypen/00000000-0000-0000-0000-000000000000")),
-        RoltypeMappings = []
+        RolMapper = new([])
     };
 
     private static StartSingleMigrationController CreateSut(

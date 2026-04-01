@@ -87,7 +87,7 @@ public class StartMigrationService(
             DocumentMapper = queueItem.DocumentMapper,
             BesluitMapper = queueItem.BesluitMapper,
             PdfMapper = queueItem.PdfMapper,
-            RoltypeMappings = queueItem.RoltypeMappings
+            RolMapper = queueItem.RolMapper
         };
 
         var result = await migrateZaakService.MigrateZaak(zaakMinimal.FunctioneleIdentificatie, mapping, ct);
