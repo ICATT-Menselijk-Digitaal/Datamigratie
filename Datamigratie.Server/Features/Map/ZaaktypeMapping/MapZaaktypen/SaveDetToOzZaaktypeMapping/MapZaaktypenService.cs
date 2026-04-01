@@ -51,55 +51,10 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.SaveDetT
             // to be revisited: DATA-259 - Cascade delete all the mappings when mapped OZ zaaktype is changed
             if (currentMapping.OzZaaktypeId != newOzZaaktypeId)
             {
-                var statusMappings = await context.StatusMappings
-                    .Where(sm => sm.ZaaktypenMappingId == currentMapping.Id)
-                    .ToListAsync();
-
-                if (statusMappings.Count != 0)
-                {
-                    context.StatusMappings.RemoveRange(statusMappings);
-                    await context.SaveChangesAsync();
-                }
-
-                var resultaattypeMappings = await context.ResultaattypeMappings
-                   .Where(sm => sm.ZaaktypenMappingId == currentMapping.Id)
-                   .ToListAsync();
-
-                if (resultaattypeMappings.Count != 0)
-                {
-                    context.ResultaattypeMappings.RemoveRange(resultaattypeMappings);
-                    await context.SaveChangesAsync();
-                }
-
-                var publicatieNiveauMappings = await context.PublicatieNiveauMappings
-                   .Where(m => m.ZaaktypenMappingId == currentMapping.Id)
-                   .ToListAsync();
-
-                if (publicatieNiveauMappings.Count != 0)
-                {
-                    context.PublicatieNiveauMappings.RemoveRange(publicatieNiveauMappings);
-                    await context.SaveChangesAsync();
-                }
-
-                var documenttypeMappings = await context.DocumenttypeMappings
-                   .Where(m => m.ZaaktypenMappingId == currentMapping.Id)
-                   .ToListAsync();
-
-                if (documenttypeMappings.Count != 0)
-                {
-                    context.DocumenttypeMappings.RemoveRange(documenttypeMappings);
-                    await context.SaveChangesAsync();
-                }
-
-                var besluittypeMappings = await context.BesluittypeMappings
-                   .Where(bm => bm.ZaaktypenMappingId == currentMapping.Id)
-                   .ToListAsync();
-
-                if (besluittypeMappings.Count != 0)
-                {
-                    context.BesluittypeMappings.RemoveRange(besluittypeMappings);
-                    await context.SaveChangesAsync();
-                }
+                await context
+                    .PropertyMappings
+                    .Where(x => x.ZaaktypenMapping!.DetZaaktypeId == detZaaktypeId)
+                    .ExecuteDeleteAsync();
             }
 
             currentMapping.OzZaaktypeId = newOzZaaktypeId;

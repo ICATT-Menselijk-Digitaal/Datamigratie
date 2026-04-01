@@ -28,7 +28,6 @@
       :mapping-id="zaaktypeMapping.id"
       :det-zaaktype="zaaktypeMapping.detZaaktype"
       :oz-zaaktype="zaaktypeMapping.ozZaaktype"
-      :disabled="isThisMigrationRunning"
       @update:complete="statusMappingsComplete = $event"
     />
 
@@ -36,7 +35,6 @@
       :mapping-id="zaaktypeMapping.id"
       :det-zaaktype="zaaktypeMapping.detZaaktype"
       :oz-zaaktype="zaaktypeMapping.ozZaaktype"
-      :disabled="isThisMigrationRunning"
       @update:complete="resultaattypeMappingsComplete = $event"
     />
 
@@ -44,7 +42,6 @@
       :mapping-id="zaaktypeMapping.id"
       :det-zaaktype="zaaktypeMapping.detZaaktype"
       :oz-zaaktype="zaaktypeMapping.ozZaaktype"
-      :disabled="isThisMigrationRunning"
       @update:complete="besluittypeMappingsComplete = $event"
     />
 
@@ -52,7 +49,6 @@
       :mapping-id="zaaktypeMapping.id"
       :det-zaaktype="zaaktypeMapping.detZaaktype"
       :oz-zaaktype="zaaktypeMapping.ozZaaktype"
-      :disabled="isThisMigrationRunning"
       @update:complete="publicatieNiveauMappingsComplete = $event"
     />
 
@@ -60,7 +56,6 @@
       :mapping-id="zaaktypeMapping.id"
       :det-zaaktype="zaaktypeMapping.detZaaktype"
       :oz-zaaktype="zaaktypeMapping.ozZaaktype"
-      :disabled="isThisMigrationRunning"
       @update:complete="documenttypeMappingsComplete = $event"
     />
 
@@ -68,22 +63,13 @@
       :mapping-id="zaaktypeMapping.id"
       :det-zaaktype="zaaktypeMapping.detZaaktype"
       :oz-zaaktype="zaaktypeMapping.ozZaaktype"
-      :disabled="isThisMigrationRunning"
       @update:complete="vertrouwelijkheidMappingsComplete = $event"
-    />
-
-    <pdf-informatieobjecttype-mapping-section
-      :mapping-id="zaaktypeMapping.id"
-      :oz-zaaktype="zaaktypeMapping.ozZaaktype"
-      :disabled="isThisMigrationRunning"
-      @update:complete="generatedPdfMappingComplete = $event"
     />
 
     <roltype-mapping-section
       :mapping-id="zaaktypeMapping.id"
       :det-zaaktype="zaaktypeMapping.detZaaktype"
       :oz-zaaktype="zaaktypeMapping.ozZaaktype"
-      :disabled="isThisMigrationRunning"
       @update:complete="roltypeMappingsComplete = $event"
     />
 
@@ -111,7 +97,6 @@ import ResultaattypeMappingSection from "@/components/ResultaattypeMappingSectio
 import PublicatieNiveauMappingSection from "@/components/PublicatieNiveauMappingSection.vue";
 import DocumenttypeMappingSection from "@/components/DocumenttypeMappingSection.vue";
 import VertrouwelijkheidMappingSection from "@/components/VertrouwelijkheidMappingSection.vue";
-import PdfInformatieobjecttypeMappingSection from "@/components/PdfInformatieobjecttypeMappingSection.vue";
 import RoltypeMappingSection from "@/components/RoltypeMappingSection.vue";
 import MigrationHistoryTable from "@/components/MigrationHistoryTable.vue";
 import ZaaktypeMappingSection, {
@@ -136,7 +121,6 @@ const besluittypeMappingsComplete = ref(false);
 const publicatieNiveauMappingsComplete = ref(false);
 const documenttypeMappingsComplete = ref(false);
 const vertrouwelijkheidMappingsComplete = ref(false);
-const generatedPdfMappingComplete = ref(false);
 const roltypeMappingsComplete = ref(false);
 
 const { error, migration } = useMigration();
@@ -164,8 +148,8 @@ const allIsComplete = computed(
     publicatieNiveauMappingsComplete.value &&
     documenttypeMappingsComplete.value &&
     vertrouwelijkheidMappingsComplete.value &&
-    generatedPdfMappingComplete.value &&
-    roltypeMappingsComplete.value
+    roltypeMappingsComplete.value &&
+    isGeneralConfigComplete.value
 );
 
 const canStartMigration = computed(

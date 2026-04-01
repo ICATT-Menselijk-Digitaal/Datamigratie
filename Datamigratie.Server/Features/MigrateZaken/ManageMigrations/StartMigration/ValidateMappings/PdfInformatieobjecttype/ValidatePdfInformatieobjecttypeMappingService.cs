@@ -1,4 +1,4 @@
-using Datamigratie.Common.Services.Det.Models;
+﻿using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,12 +14,15 @@ public class ValidatePdfInformatieobjecttypeMappingService(
 {
     public async Task<(bool IsValid, Guid? OzInformatieobjecttypeId)> ValidateAndGetPdfInformatieobjecttypeMapping(DetZaaktypeDetail detZaaktype)
     {
-        var mapping = await context.PdfInformatieobjecttypeMappings
-            .Where(m => m.ZaaktypenMapping.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie)
+        var mapping = await context.PropertyMappings
+            .Where(m => m.ZaaktypenMapping!.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie && m.Property == "documenttype" && m.SourceId == "export-pdf")
+            .Select(m => m.TargetId)
             .FirstOrDefaultAsync();
 
-        return mapping is null
+        var lastPathPart = mapping?.Split('/').LastOrDefault();
+
+        return !Guid.TryParse(lastPathPart, out var uuid)
             ? (false, null)
-            : (true, mapping.OzInformatieobjecttypeId);
+            : (true, uuid);
     }
 }

@@ -83,8 +83,9 @@ public class BuildMigrationQueueItemService(
 
     private async Task<RsinMapping> GetRsinMappingAsync()
     {
-        var rsinMapping = await dbContext.RsinConfigurations
-            .Select(x => new RsinMapping { Rsin = x.Rsin! })
+        var rsinMapping = await dbContext.PropertyMappings
+            .Where(m => m.Property == "rsin")
+            .Select(x => new RsinMapping { Rsin = x.TargetId })
             .FirstOrDefaultAsync()
             ?? throw new InvalidOperationException("Geen rsin configuratie gevonden.");
 
