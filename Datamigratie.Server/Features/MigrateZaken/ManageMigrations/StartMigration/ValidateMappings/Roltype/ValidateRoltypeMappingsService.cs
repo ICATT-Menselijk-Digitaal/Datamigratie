@@ -24,7 +24,7 @@ public class ValidateRoltypeMappingsService(
             DetRol = Enum.Parse<DetRolType>(x.DetRol, true),
             x.OzRoltypeUrl,
             x.AlleenPdf
-        }).ToList();
+        }).DistinctBy(x => x.DetRol).ToList();
 
         var missingRollen = Enum.GetValues<DetRolType>()
             .Where(rol => !enumValues.Any(e => e.DetRol == rol))
