@@ -131,6 +131,23 @@ namespace Datamigratie.Common.Services.Det.Models
     {
         public required bool IndCorrespondentie { get; set; }
         public DateOnly? Startdatum { get; set; }
+        public string? TypeBetrokkenheid { get; set; }
+        public DetBetrokkenePersoon? Betrokkene { get; set; }
+    }
+
+    public class DetBetrokkenePersoon
+    {
+        public DetSubjecttype? Subjecttype { get; set; }
+        public string? BurgerServiceNummer { get; set; }
+        public string? KvkNummer { get; set; }
+        public string? Vestigingsnummer { get; set; }
+    }
+
+    [JsonConverter(typeof(JsonStringEnumConverter<DetSubjecttype>))]
+    public enum DetSubjecttype
+    {
+        persoon,
+        bedrijf,
     }
 
     public class DetZaakdata

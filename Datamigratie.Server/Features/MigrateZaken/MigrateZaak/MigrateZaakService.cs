@@ -426,6 +426,8 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
             {
                 await CreateBehandelaarRolAsync(detZaak, createdZaak, behandelaarRoltypeUrl, token);
             }
+
+            await CreateBetrokkenenRollenAsync(detZaak, createdZaak, roltypeMappings, token);
         }
 
         private async Task CreateBehandelaarRolAsync(DetZaak detZaak, OzZaak createdZaak, Uri roltypeUrl, CancellationToken token)
@@ -444,6 +446,52 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                     Identificatie = detZaak.Behandelaar
                 }
             }, token);
+        }
+
+        private async Task CreateBetrokkenenRollenAsync(DetZaak detZaak, OzZaak createdZaak, Dictionary<string, Uri> roltypeMappings, CancellationToken token)
+        {
+            if (detZaak.Betrokkenen == null || detZaak.Betrokkenen.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var betrokkene in detZaak.Betrokkenen)
+            {
+
+                if (string.IsNullOrWhiteSpace(betrokkene.TypeBetrokkenheid) ||
+                    !roltypeMappings.TryGetValue(betrokkene.TypeBetrokkenheid, out var roltypeUrl))
+                {
+                    continue;
+                }
+
+                var subjecttype = betrokkene.Betrokkene?.Subjecttype;
+
+                if (subjecttype is null)
+                {
+                    continue;
+                }
+
+                var rolRequest = new OzCreateRolRequest
+                {
+                    Zaak = createdZaak.Url,
+                    Roltype = roltypeUrl,
+                    BetrokkeneType = subjecttype == DetSubjecttype.persoon
+                        ? BetrokkeneType.natuurlijk_persoon
+                        : BetrokkeneType.niet_natuurlijk_persoon,
+                    BetrokkeneIdentificatie = subjecttype == DetSubjecttype.persoon
+                        ? new OzBetrokkeneIdentificatie { InpBsn = betrokkene.Betrokkene?.BurgerServiceNummer }
+                        : new OzBetrokkeneIdentificatie
+                        {
+                            KvkNummer = betrokkene.Betrokkene?.KvkNummer,
+                            VestigingsNummer = betrokkene.Betrokkene?.Vestigingsnummer
+                        },
+                    IndicatieMachtiging = betrokkene.TypeBetrokkenheid.Equals("gemachtigde", StringComparison.OrdinalIgnoreCase)
+                        ? "gemachtigde"
+                        : null
+                };
+
+                await _openZaakApiClient.CreateRol(rolRequest, token);
+            }
         }
 
         /// <summary>
