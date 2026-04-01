@@ -288,7 +288,7 @@ public class ZaakMigrationPlanBuilderTests
                 documenttypeMappings ?? new Dictionary<string, Uri>()),
             BesluitMapper = new BesluitMapper(Rsin, besluittypeMappings ?? new Dictionary<string, Uri>()),
             PdfMapper = new PdfMapper(Rsin, pdfInfoObjectTypeUrl),
-            RoltypeMappings = []
+            RolMapper = new([])
         };
     }
 

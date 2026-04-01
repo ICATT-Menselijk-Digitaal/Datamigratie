@@ -11,6 +11,6 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models
         public required DocumentMapper DocumentMapper { get; set; }
         public required BesluitMapper BesluitMapper { get; set; }
         public required PdfMapper PdfMapper { get; set; }
-        public required Dictionary<DetRolType, Uri> RoltypeMappings { get; set; }
+        public required RolMapper RolMapper { get; set; }
     }
 }

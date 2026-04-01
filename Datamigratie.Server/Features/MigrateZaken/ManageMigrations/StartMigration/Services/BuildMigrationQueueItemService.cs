@@ -17,6 +17,7 @@ using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Mappers;
 using Datamigratie.Server.Helpers;
 using Microsoft.EntityFrameworkCore;
+using Datamigratie.Server.Constants;
 
 namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Services;
 
@@ -60,7 +61,7 @@ public class BuildMigrationQueueItemService(
         var besluitMapper = new BesluitMapper(rsin, await GetBesluittypeMappingsAsync(detZaaktype));
         var pdfInformatieobjecttypeUri = await GetPdfInformatieobjecttypeUriAsync(detZaaktype);
         var pdfMapper = new PdfMapper(rsin, pdfInformatieobjecttypeUri);
-        var roltypeMappings = await GetRoltypeMappingsAsync(detZaaktypeId);
+        var rolMapper = new RolMapper(await GetRoltypeMappingsAsync(detZaaktypeId));
 
         return new MigrationQueueItem
         {
@@ -72,7 +73,7 @@ public class BuildMigrationQueueItemService(
             DocumentMapper = documentMapper,
             BesluitMapper = besluitMapper,
             PdfMapper = pdfMapper,
-            RoltypeMappings = roltypeMappings
+            RolMapper = rolMapper
         };
     }
 

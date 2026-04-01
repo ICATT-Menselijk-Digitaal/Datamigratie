@@ -15,6 +15,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Plan
             var pdfDocument = mapping.PdfMapper.Map(detZaak);
             var documents = detZaak.Documenten?.Select(mapping.DocumentMapper.Map).ToList() ?? [];
             var besluiten = detZaak.Besluiten?.Select(mapping.BesluitMapper.Map).ToList() ?? [];
+            var rollen = mapping.RolMapper.MapRoles(detZaak).ToList();
 
             return new ZaakMigrationPlan
             {
@@ -23,7 +24,8 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Plan
                 Status = status,
                 PdfDocument = pdfDocument,
                 Documents = documents,
-                Besluiten = besluiten
+                Besluiten = besluiten,
+                Rollen = rollen
             };
         }
     }

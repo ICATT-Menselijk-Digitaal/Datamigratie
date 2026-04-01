@@ -3,6 +3,7 @@ using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
+using Datamigratie.Server.Constants;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf;
@@ -108,10 +109,10 @@ public class MigrateRollenTests
             PdfMapper = new(rsin, new Uri("https://example.com")),
             ResultaatMapper = new([]),
             StatusMapper = new([]),
-            RoltypeMappings = roltypeMappings ?? new()
+            RolMapper = new(roltypeMappings ?? new()
             {
                 { DetRolType.behandelaar, new Uri(BehandelaarRoltypeUrl) }
-            },
+            })
         };
 
     private static DetZaak CreateDetZaak(string? behandelaar = "medewerker-123") =>
