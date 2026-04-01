@@ -427,6 +427,11 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 await CreateBehandelaarRolAsync(detZaak, createdZaak, behandelaarRoltypeUrl, token);
             }
 
+            if (roltypeMappings.TryGetValue(nameof(DetRolType.Initiator), out var initiatorRoltypeUrl))
+            {
+                await CreateInitiatorRolAsync(detZaak, createdZaak, initiatorRoltypeUrl, token);
+            }
+
             await CreateBetrokkenenRollenAsync(detZaak, createdZaak, roltypeMappings, token);
         }
 
@@ -446,6 +451,43 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                     Identificatie = detZaak.Behandelaar
                 }
             }, token);
+        }
+
+        private async Task CreateInitiatorRolAsync(DetZaak detZaak, OzZaak createdZaak, Uri roltypeUrl, CancellationToken token)
+        {
+            if (detZaak.Initiator == null || detZaak.Initiator.Subjecttype == null)
+            {
+                return;
+            }
+
+            var subjecttype = detZaak.Initiator.Subjecttype;
+
+            var rolRequest = new OzCreateRolRequest
+            {
+                Zaak = createdZaak.Url,
+                Roltype = roltypeUrl,
+                BetrokkeneType = subjecttype == DetSubjecttype.persoon
+                        ? BetrokkeneType.natuurlijk_persoon
+                        : BetrokkeneType.niet_natuurlijk_persoon,
+                BetrokkeneIdentificatie = subjecttype == DetSubjecttype.persoon
+                        ? new OzBetrokkeneIdentificatie { InpBsn = detZaak.Initiator?.BurgerServiceNummer }
+                        : new OzBetrokkeneIdentificatie
+                        {
+                            KvkNummer = detZaak.Initiator?.KvkNummer,
+                            VestigingsNummer = detZaak.Initiator?.Vestigingsnummer
+                        }
+            };
+
+            if (HasEmptyBetrokkeneIdentificatie(rolRequest.BetrokkeneIdentificatie))
+            {
+                logger.LogWarning(
+                    "Skipping initiator with Subjecttype={Subjecttype}: " +
+                    "BetrokkeneIdentificatie has no filled fields (InpBsn, KvkNummer, VestigingsNummer are all empty).",
+                    detZaak.Initiator?.Subjecttype);
+                return;
+            }
+
+            await _openZaakApiClient.CreateRol(rolRequest, token);
         }
 
         private async Task CreateBetrokkenenRollenAsync(DetZaak detZaak, OzZaak createdZaak, Dictionary<string, Uri> roltypeMappings, CancellationToken token)
@@ -490,10 +532,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                         : null
                 };
 
-                var id = rolRequest.BetrokkeneIdentificatie;
-                if (string.IsNullOrWhiteSpace(id.InpBsn) &&
-                    string.IsNullOrWhiteSpace(id.KvkNummer) &&
-                    string.IsNullOrWhiteSpace(id.VestigingsNummer))
+                if (HasEmptyBetrokkeneIdentificatie(rolRequest.BetrokkeneIdentificatie))
                 {
                     logger.LogWarning(
                         "Skipping betrokkene with TypeBetrokkenheid={TypeBetrokkenheid}: " +
@@ -744,6 +783,11 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
 
             return ozVertrouwelijkheidaanduiding;
         }
+
+        private static bool HasEmptyBetrokkeneIdentificatie(OzBetrokkeneIdentificatie id) =>
+            string.IsNullOrWhiteSpace(id.InpBsn) &&
+            string.IsNullOrWhiteSpace(id.KvkNummer) &&
+            string.IsNullOrWhiteSpace(id.VestigingsNummer);
 
         /// <summary>
         /// Truncates the string when the length of the input string exceeds the maxLength
