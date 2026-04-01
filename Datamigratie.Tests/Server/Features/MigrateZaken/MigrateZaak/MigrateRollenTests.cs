@@ -385,4 +385,64 @@ public class MigrateRollenTests
         clientMock.Verify(c => c.CreateRol(It.IsAny<OzCreateRolRequest>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
+
+    [Fact]
+    public async Task MigrateZaak_WithPersoonMissingBsn_SkipsBetrokkene()
+    {
+        var clientMock = CreateOpenZaakClientMock();
+        var service = CreateService(clientMock);
+
+        const string belanghebbendeRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/belanghebbende-uuid";
+        var mapping = CreateMapping(new Dictionary<string, Uri>
+        {
+            { "Behandelaar", new Uri(BehandelaarRoltypeUrl) },
+            { "Belanghebbende", new Uri(belanghebbendeRoltypeUrl) }
+        });
+
+        var zaak = CreateDetZaak(behandelaar: null);
+        zaak.Betrokkenen =
+        [
+            new DetBetrokkene
+            {
+                IndCorrespondentie = false,
+                TypeBetrokkenheid = "Belanghebbende",
+                Betrokkene = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = null }
+            }
+        ];
+
+        await service.MigrateZaak(zaak, mapping);
+
+        clientMock.Verify(c => c.CreateRol(It.IsAny<OzCreateRolRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task MigrateZaak_WithBedrijfMissingKvkNummer_SkipsBetrokkene()
+    {
+        var clientMock = CreateOpenZaakClientMock();
+        var service = CreateService(clientMock);
+
+        const string melderRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/melder-uuid";
+        var mapping = CreateMapping(new Dictionary<string, Uri>
+        {
+            { "Behandelaar", new Uri(BehandelaarRoltypeUrl) },
+            { "Melder", new Uri(melderRoltypeUrl) }
+        });
+
+        var zaak = CreateDetZaak(behandelaar: null);
+        zaak.Betrokkenen =
+        [
+            new DetBetrokkene
+            {
+                IndCorrespondentie = false,
+                TypeBetrokkenheid = "Melder",
+                Betrokkene = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.bedrijf, KvkNummer = null }
+            }
+        ];
+
+        await service.MigrateZaak(zaak, mapping);
+
+        clientMock.Verify(c => c.CreateRol(It.IsAny<OzCreateRolRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }

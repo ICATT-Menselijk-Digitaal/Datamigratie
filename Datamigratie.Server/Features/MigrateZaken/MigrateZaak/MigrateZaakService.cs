@@ -490,6 +490,18 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                         : null
                 };
 
+                var id = rolRequest.BetrokkeneIdentificatie;
+                if (string.IsNullOrWhiteSpace(id.InpBsn) &&
+                    string.IsNullOrWhiteSpace(id.KvkNummer) &&
+                    string.IsNullOrWhiteSpace(id.VestigingsNummer))
+                {
+                    logger.LogWarning(
+                        "Skipping betrokkene with TypeBetrokkenheid={TypeBetrokkenheid}: " +
+                        "BetrokkeneIdentificatie has no filled fields (InpBsn, KvkNummer, VestigingsNummer are all empty).",
+                        betrokkene.TypeBetrokkenheid);
+                    continue;
+                }
+
                 await _openZaakApiClient.CreateRol(rolRequest, token);
             }
         }
