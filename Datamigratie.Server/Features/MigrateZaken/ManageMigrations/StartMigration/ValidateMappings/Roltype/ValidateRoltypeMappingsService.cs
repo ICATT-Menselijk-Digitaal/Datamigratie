@@ -19,12 +19,27 @@ public class ValidateRoltypeMappingsService(
             .Where(m => m.ZaaktypenMapping.DetZaaktypeId == detZaaktypeId)
             .ToListAsync();
 
-        var enumValues = roltypeMappings.Select(x => new
+        var enumValues = new List<(DetRolType DetRol, string? OzRoltypeUrl, bool AlleenPdf)>();
+        var invalidDetRolValues = new List<string?>();
+
+        foreach (var mapping in roltypeMappings)
         {
-            DetRol = Enum.Parse<DetRolType>(x.DetRol, true),
-            x.OzRoltypeUrl,
-            x.AlleenPdf
-        }).DistinctBy(x => x.DetRol).ToList();
+            if (!Enum.TryParse<DetRolType>(mapping.DetRol, ignoreCase: true, out var detRol))
+            {
+                invalidDetRolValues.Add(mapping.DetRol);
+                continue;
+            }
+            enumValues.Add((detRol, mapping.OzRoltypeUrl, mapping.AlleenPdf));
+        }
+
+        if (invalidDetRolValues.Count != 0)
+        {
+            logger.LogWarning(
+                "Invalid DetRol values for zaaktype {DetZaaktypeId}: {InvalidDetRolValues}",
+                detZaaktypeId.ReplaceLineEndings(" "),
+                string.Join(", ", invalidDetRolValues.Select(v => v ?? "<null>")));
+            return (false, []);
+        }
 
         var missingRollen = Enum.GetValues<DetRolType>()
             .Where(rol => !enumValues.Any(e => e.DetRol == rol))
