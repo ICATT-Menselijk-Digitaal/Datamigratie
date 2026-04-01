@@ -7,7 +7,6 @@ using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
-using Datamigratie.Server.Constants;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf;
 using Microsoft.Extensions.Logging;
@@ -420,9 +419,9 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
             await _openZaakApiClient.CreateStatus(createStatusRequest);
         }
 
-        private async Task CreateZaakRolesAsync(DetZaak detZaak, OzZaak createdZaak, Dictionary<string, Uri> roltypeMappings, CancellationToken token)
+        private async Task CreateZaakRolesAsync(DetZaak detZaak, OzZaak createdZaak, Dictionary<DetRolType, Uri> roltypeMappings, CancellationToken token)
         {
-            if (roltypeMappings.TryGetValue(nameof(DetRolType.Behandelaar), out var behandelaarRoltypeUrl))
+            if (roltypeMappings.TryGetValue(DetRolType.behandelaar, out var behandelaarRoltypeUrl))
             {
                 await CreateBehandelaarRolAsync(detZaak, createdZaak, behandelaarRoltypeUrl, token);
             }
@@ -448,7 +447,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
             }, token);
         }
 
-        private async Task CreateBetrokkenenRollenAsync(DetZaak detZaak, OzZaak createdZaak, Dictionary<string, Uri> roltypeMappings, CancellationToken token)
+        private async Task CreateBetrokkenenRollenAsync(DetZaak detZaak, OzZaak createdZaak, Dictionary<DetRolType, Uri> roltypeMappings, CancellationToken token)
         {
             if (detZaak.Betrokkenen == null || detZaak.Betrokkenen.Count == 0)
             {
@@ -458,8 +457,8 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
             foreach (var betrokkene in detZaak.Betrokkenen)
             {
 
-                if (string.IsNullOrWhiteSpace(betrokkene.TypeBetrokkenheid) ||
-                    !roltypeMappings.TryGetValue(betrokkene.TypeBetrokkenheid, out var roltypeUrl))
+                if (betrokkene.TypeBetrokkenheid == null ||
+                    !roltypeMappings.TryGetValue(betrokkene.TypeBetrokkenheid.Value, out var roltypeUrl))
                 {
                     continue;
                 }
@@ -485,7 +484,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                             KvkNummer = betrokkene.Betrokkene?.KvkNummer,
                             VestigingsNummer = betrokkene.Betrokkene?.Vestigingsnummer
                         },
-                    IndicatieMachtiging = betrokkene.TypeBetrokkenheid.Equals("gemachtigde", StringComparison.OrdinalIgnoreCase)
+                    IndicatieMachtiging = betrokkene.TypeBetrokkenheid == DetRolType.gemachtigde
                         ? "gemachtigde"
                         : null
                 };

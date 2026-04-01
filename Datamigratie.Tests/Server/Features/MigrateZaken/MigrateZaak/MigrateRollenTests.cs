@@ -95,7 +95,7 @@ public class MigrateRollenTests
         return mock;
     }
 
-    private static MigrateZaakMappingModel CreateMapping(Dictionary<string, Uri>? roltypeMappings = null) =>
+    private static MigrateZaakMappingModel CreateMapping(Dictionary<DetRolType, Uri>? roltypeMappings = null) =>
         new()
         {
             Rsin = "123456789",
@@ -107,9 +107,9 @@ public class MigrateRollenTests
             },
             BesluittypeMappings = new Dictionary<string, Guid>(),
             PdfInformatieobjecttypeId = Guid.NewGuid(),
-            RoltypeMappings = roltypeMappings ?? new Dictionary<string, Uri>
+            RoltypeMappings = roltypeMappings ?? new ()
             {
-                { "Behandelaar", new Uri(BehandelaarRoltypeUrl) }
+                { DetRolType.behandelaar, new Uri(BehandelaarRoltypeUrl) }
             }
         };
 
@@ -163,7 +163,7 @@ public class MigrateRollenTests
         var service = CreateService(clientMock);
 
         // Alleen-PDF rollen are excluded from the dictionary by ValidateRoltypeMappingsService
-        var mapping = CreateMapping(new Dictionary<string, Uri>());
+        var mapping = CreateMapping([]);
 
         await service.MigrateZaak(CreateDetZaak("medewerker-123"), mapping);
 
@@ -177,7 +177,7 @@ public class MigrateRollenTests
         var clientMock = CreateOpenZaakClientMock();
         var service = CreateService(clientMock);
 
-        var mapping = CreateMapping(new Dictionary<string, Uri>());
+        var mapping = CreateMapping([]);
 
         await service.MigrateZaak(CreateDetZaak("medewerker-123"), mapping);
 
@@ -191,9 +191,9 @@ public class MigrateRollenTests
         var clientMock = CreateOpenZaakClientMock();
         var service = CreateService(clientMock);
 
-        var mapping = CreateMapping(new Dictionary<string, Uri>
+        var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
-            { "Initiator", new Uri("https://openzaak.example.com/catalogi/api/v1/roltypen/initiator-uuid") }
+            { DetRolType.initiator, new Uri("https://openzaak.example.com/catalogi/api/v1/roltypen/initiator-uuid") }
         });
 
         await service.MigrateZaak(CreateDetZaak("medewerker-123"), mapping);
@@ -209,10 +209,10 @@ public class MigrateRollenTests
         var service = CreateService(clientMock);
 
         const string belanghebbendeRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/belanghebbende-uuid";
-        var mapping = CreateMapping(new Dictionary<string, Uri>
+        var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
-            { "Behandelaar", new Uri(BehandelaarRoltypeUrl) },
-            { "Belanghebbende", new Uri(belanghebbendeRoltypeUrl) }
+            { DetRolType.behandelaar, new Uri(BehandelaarRoltypeUrl) },
+            { DetRolType.belanghebbende, new Uri(belanghebbendeRoltypeUrl) }
         });
 
         var zaak = CreateDetZaak();
@@ -221,7 +221,7 @@ public class MigrateRollenTests
             new DetBetrokkene
             {
                 IndCorrespondentie = false,
-                TypeBetrokkenheid = "Belanghebbende",
+                TypeBetrokkenheid = DetRolType.belanghebbende,
                 Betrokkene = new DetBetrokkenePersoon
                 {
                     Subjecttype = DetSubjecttype.persoon,
@@ -250,10 +250,10 @@ public class MigrateRollenTests
         var service = CreateService(clientMock);
 
         const string melderRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/melder-uuid";
-        var mapping = CreateMapping(new Dictionary<string, Uri>
+        var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
-            { "Behandelaar", new Uri(BehandelaarRoltypeUrl) },
-            { "Melder", new Uri(melderRoltypeUrl) }
+            { DetRolType.behandelaar, new Uri(BehandelaarRoltypeUrl) },
+            { DetRolType.melder, new Uri(melderRoltypeUrl) }
         });
 
         var zaak = CreateDetZaak();
@@ -262,7 +262,7 @@ public class MigrateRollenTests
             new DetBetrokkene
             {
                 IndCorrespondentie = false,
-                TypeBetrokkenheid = "Melder",
+                TypeBetrokkenheid = DetRolType.melder,
                 Betrokkene = new DetBetrokkenePersoon
                 {
                     Subjecttype = DetSubjecttype.bedrijf,
@@ -293,10 +293,10 @@ public class MigrateRollenTests
         var service = CreateService(clientMock);
 
         const string gemachtigdeRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/gemachtigde-uuid";
-        var mapping = CreateMapping(new Dictionary<string, Uri>
+        var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
-            { "Behandelaar", new Uri(BehandelaarRoltypeUrl) },
-            { "Gemachtigde", new Uri(gemachtigdeRoltypeUrl) }
+            { DetRolType.behandelaar, new Uri(BehandelaarRoltypeUrl) },
+            { DetRolType.gemachtigde, new Uri(gemachtigdeRoltypeUrl) }
         });
 
         var zaak = CreateDetZaak();
@@ -305,7 +305,7 @@ public class MigrateRollenTests
             new DetBetrokkene
             {
                 IndCorrespondentie = false,
-                TypeBetrokkenheid = "Gemachtigde",
+                TypeBetrokkenheid = DetRolType.gemachtigde,
                 Betrokkene = new DetBetrokkenePersoon
                 {
                     Subjecttype = DetSubjecttype.persoon,
@@ -334,9 +334,9 @@ public class MigrateRollenTests
         var service = CreateService(clientMock);
 
         // Initiator is alleen-PDF: absent from the dictionary
-        var mapping = CreateMapping(new Dictionary<string, Uri>
+        var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
-            { "Behandelaar", new Uri(BehandelaarRoltypeUrl) }
+            { DetRolType.behandelaar, new Uri(BehandelaarRoltypeUrl) }
         });
 
         var zaak = CreateDetZaak(behandelaar: null);
@@ -345,7 +345,7 @@ public class MigrateRollenTests
             new DetBetrokkene
             {
                 IndCorrespondentie = false,
-                TypeBetrokkenheid = "Initiator",
+                TypeBetrokkenheid = DetRolType.initiator,
                 Betrokkene = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = "111222333" }
             }
         ];
@@ -363,10 +363,10 @@ public class MigrateRollenTests
         var service = CreateService(clientMock);
 
         const string melderRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/melder-uuid";
-        var mapping = CreateMapping(new Dictionary<string, Uri>
+        var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
-            { "Behandelaar", new Uri(BehandelaarRoltypeUrl) },
-            { "Melder", new Uri(melderRoltypeUrl) }
+            { DetRolType.behandelaar, new Uri(BehandelaarRoltypeUrl) },
+            { DetRolType.melder, new Uri(melderRoltypeUrl) }
         });
 
         var zaak = CreateDetZaak(behandelaar: null);
@@ -375,7 +375,7 @@ public class MigrateRollenTests
             new DetBetrokkene
             {
                 IndCorrespondentie = false,
-                TypeBetrokkenheid = "Melder",
+                TypeBetrokkenheid = DetRolType.melder,
                 Betrokkene = new DetBetrokkenePersoon { Subjecttype = null }
             }
         ];
@@ -393,10 +393,10 @@ public class MigrateRollenTests
         var service = CreateService(clientMock);
 
         const string belanghebbendeRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/belanghebbende-uuid";
-        var mapping = CreateMapping(new Dictionary<string, Uri>
+        var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
-            { "Behandelaar", new Uri(BehandelaarRoltypeUrl) },
-            { "Belanghebbende", new Uri(belanghebbendeRoltypeUrl) }
+            { DetRolType.behandelaar, new Uri(BehandelaarRoltypeUrl) },
+            { DetRolType.belanghebbende, new Uri(belanghebbendeRoltypeUrl) }
         });
 
         var zaak = CreateDetZaak(behandelaar: null);
@@ -405,7 +405,7 @@ public class MigrateRollenTests
             new DetBetrokkene
             {
                 IndCorrespondentie = false,
-                TypeBetrokkenheid = "Belanghebbende",
+                TypeBetrokkenheid = DetRolType.belanghebbende,
                 Betrokkene = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = null }
             }
         ];
@@ -423,10 +423,10 @@ public class MigrateRollenTests
         var service = CreateService(clientMock);
 
         const string melderRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/melder-uuid";
-        var mapping = CreateMapping(new Dictionary<string, Uri>
+        var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
-            { "Behandelaar", new Uri(BehandelaarRoltypeUrl) },
-            { "Melder", new Uri(melderRoltypeUrl) }
+            { DetRolType.behandelaar, new Uri(BehandelaarRoltypeUrl) },
+            { DetRolType.melder, new Uri(melderRoltypeUrl) }
         });
 
         var zaak = CreateDetZaak(behandelaar: null);
@@ -435,7 +435,7 @@ public class MigrateRollenTests
             new DetBetrokkene
             {
                 IndCorrespondentie = false,
-                TypeBetrokkenheid = "Melder",
+                TypeBetrokkenheid = DetRolType.melder,
                 Betrokkene = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.bedrijf, KvkNummer = null }
             }
         ];
