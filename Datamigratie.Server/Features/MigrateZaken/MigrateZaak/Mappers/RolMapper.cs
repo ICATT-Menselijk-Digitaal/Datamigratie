@@ -8,17 +8,9 @@ public class RolMapper(Dictionary<DetRolType, Uri> roltypeMappings)
 {
     public IEnumerable<OzCreateRolRequest> MapRoles(DetZaak detZaak)
     {
-        if (!string.IsNullOrWhiteSpace(detZaak.Behandelaar) && roltypeMappings.TryGetValue(DetRolType.behandelaar, out var roltypeUrl))
+        if (TryMapBehandelaarRol(detZaak, out var behandelaar))
         {
-            yield return new OzCreateRolRequest
-            {
-                BetrokkeneType = BetrokkeneType.medewerker,
-                Roltype = roltypeUrl,
-                BetrokkeneIdentificatie = new OzBetrokkeneIdentificatie
-                {
-                    Identificatie = detZaak.Behandelaar
-                }
-            };
+            yield return behandelaar;
         }
 
         if (TryMapInitiatorRol(detZaak, out var initiator))
@@ -30,6 +22,25 @@ public class RolMapper(Dictionary<DetRolType, Uri> roltypeMappings)
         {
             yield return rol;
         }
+    }
+
+    private bool TryMapBehandelaarRol(DetZaak detZaak, [NotNullWhen(true)] out OzCreateRolRequest? rolRequest)
+    {
+        rolRequest = null;
+        if (string.IsNullOrWhiteSpace(detZaak.Behandelaar) || !roltypeMappings.TryGetValue(DetRolType.behandelaar, out var roltypeUrl))
+        {
+            return false;
+        }
+        rolRequest = new OzCreateRolRequest
+        {
+            BetrokkeneType = BetrokkeneType.medewerker,
+            Roltype = roltypeUrl,
+            BetrokkeneIdentificatie = new OzBetrokkeneIdentificatie
+            {
+                Identificatie = detZaak.Behandelaar
+            }
+        };
+        return true;
     }
 
     private bool TryMapInitiatorRol(DetZaak detZaak, [NotNullWhen(true)] out OzCreateRolRequest? rolRequest)
