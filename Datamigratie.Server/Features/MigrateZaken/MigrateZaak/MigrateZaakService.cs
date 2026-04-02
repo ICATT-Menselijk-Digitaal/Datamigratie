@@ -463,20 +463,13 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
 
             var subjecttype = initiator.Subjecttype.Value;
 
+            var (betrokkeneType, betrokkeneIdentificatie) = MapBetrokkeneIdentificatie(subjecttype, initiator);
             var rolRequest = new OzCreateRolRequest
             {
                 Zaak = createdZaak.Url,
                 Roltype = roltypeUrl,
-                BetrokkeneType = subjecttype == DetSubjecttype.persoon
-                        ? BetrokkeneType.natuurlijk_persoon
-                        : BetrokkeneType.niet_natuurlijk_persoon,
-                BetrokkeneIdentificatie = subjecttype == DetSubjecttype.persoon
-                        ? new OzBetrokkeneIdentificatie { InpBsn = initiator.BurgerServiceNummer }
-                        : new OzBetrokkeneIdentificatie
-                        {
-                            KvkNummer = initiator.KvkNummer,
-                            VestigingsNummer = initiator.Vestigingsnummer
-                        }
+                BetrokkeneType = betrokkeneType,
+                BetrokkeneIdentificatie = betrokkeneIdentificatie
             };
 
             if (HasEmptyBetrokkeneIdentificatie(rolRequest.BetrokkeneIdentificatie))
@@ -507,29 +500,22 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 var betrokkeneRolType = betrokkene.TypeBetrokkenheid;
 
                 if (betrokkeneRolType == null ||
-                    !roltypeMappings.TryGetValue(betrokkeneRolType.Value, out var roltypeUrl) || 
+                    !roltypeMappings.TryGetValue(betrokkeneRolType.Value, out var roltypeUrl) ||
                     betrokkeneDetails == null ||
-                    betrokkeneDetails.Subjecttype == null )
+                    betrokkeneDetails.Subjecttype == null)
                 {
                     continue;
                 }
 
                 var subjecttype = betrokkeneDetails.Subjecttype;
 
+                var (betrokkeneType, betrokkeneIdentificatie) = MapBetrokkeneIdentificatie(subjecttype.Value, betrokkeneDetails);
                 var rolRequest = new OzCreateRolRequest
                 {
                     Zaak = createdZaak.Url,
                     Roltype = roltypeUrl,
-                    BetrokkeneType = subjecttype == DetSubjecttype.persoon
-                        ? BetrokkeneType.natuurlijk_persoon
-                        : BetrokkeneType.niet_natuurlijk_persoon,
-                    BetrokkeneIdentificatie = subjecttype == DetSubjecttype.persoon
-                        ? new OzBetrokkeneIdentificatie { InpBsn = betrokkeneDetails.BurgerServiceNummer }
-                        : new OzBetrokkeneIdentificatie
-                        {
-                            KvkNummer = betrokkeneDetails.KvkNummer,
-                            VestigingsNummer = betrokkeneDetails.Vestigingsnummer
-                        },
+                    BetrokkeneType = betrokkeneType,
+                    BetrokkeneIdentificatie = betrokkeneIdentificatie,
                     IndicatieMachtiging = betrokkeneRolType == DetRolType.gemachtigde
                         ? "gemachtigde"
                         : null
@@ -792,6 +778,16 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
             string.IsNullOrWhiteSpace(id.KvkNummer) &&
             string.IsNullOrWhiteSpace(id.VestigingsNummer) &&
             string.IsNullOrWhiteSpace(id.Identificatie);
+
+        private static (BetrokkeneType, OzBetrokkeneIdentificatie) MapBetrokkeneIdentificatie(
+            DetSubjecttype subjecttype, DetBetrokkenePersoon persoon) =>
+            subjecttype == DetSubjecttype.persoon
+                ? (BetrokkeneType.natuurlijk_persoon, new OzBetrokkeneIdentificatie { InpBsn = persoon.BurgerServiceNummer })
+                : (BetrokkeneType.niet_natuurlijk_persoon, new OzBetrokkeneIdentificatie
+                {
+                    KvkNummer = persoon.KvkNummer,
+                    VestigingsNummer = persoon.Vestigingsnummer
+                });
 
         /// <summary>
         /// Truncates the string when the length of the input string exceeds the maxLength
