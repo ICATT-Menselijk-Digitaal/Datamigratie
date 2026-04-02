@@ -94,7 +94,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
 
         public string? Lock { get; set; }
 
-        [GeneratedRegex(@"[\\\""\r\n]")]
+        [GeneratedRegex("[\\\\\"\\r\\n]")]
         private static partial Regex EscapeFileNameRegex();
     }
 
