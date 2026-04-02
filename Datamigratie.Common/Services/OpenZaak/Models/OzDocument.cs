@@ -1,9 +1,10 @@
 ﻿using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using Datamigratie.Common.Helpers;
 
 namespace Datamigratie.Common.Services.OpenZaak.Models
 {
-    public sealed class OzDocument
+    public sealed partial class OzDocument
     {
 
         public Guid Id { get; private set; } = Guid.Empty;
@@ -49,7 +50,9 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
 
         public DateTimeOffset? BeginRegistratie { get; init; }
 
-        public string? Bestandsnaam { get; init; }
+        // handle strange characters in file names that will crash openzaak
+        private string? _bestandsnaam;
+        public string? Bestandsnaam { get => _bestandsnaam; init { _bestandsnaam = value == null ? null : EscapeFileNameRegex().Replace(value, "_"); } }
 
         /// Base64-inhoud voor create; komt normaal niet terug op GET
         public string? Inhoud { get; init; }
@@ -90,6 +93,9 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
         public Expand? Expand { get; init; }
 
         public string? Lock { get; set; }
+
+        [GeneratedRegex(@"[\\\""\r\n]")]
+        private static partial Regex EscapeFileNameRegex();
     }
 
     public sealed class Ondertekening
