@@ -107,7 +107,7 @@ public class MigrateRollenTests
             },
             BesluittypeMappings = new Dictionary<string, Guid>(),
             PdfInformatieobjecttypeId = Guid.NewGuid(),
-            RoltypeMappings = roltypeMappings ?? new ()
+            RoltypeMappings = roltypeMappings ?? new()
             {
                 { DetRolType.behandelaar, new Uri(BehandelaarRoltypeUrl) }
             }
@@ -439,6 +439,162 @@ public class MigrateRollenTests
                 Betrokkene = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.bedrijf, KvkNummer = null }
             }
         ];
+
+        await service.MigrateZaak(zaak, mapping);
+
+        clientMock.Verify(c => c.CreateRol(It.IsAny<OzCreateRolRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    private const string InitiatorRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/initiator-uuid";
+
+    [Fact]
+    public async Task MigrateZaak_WithInitiatorPersoon_CreatesNatuurlijkPersoonRol()
+    {
+        var clientMock = CreateOpenZaakClientMock();
+        var service = CreateService(clientMock);
+
+        var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
+        {
+            { DetRolType.initiator, new Uri(InitiatorRoltypeUrl) }
+        });
+
+        var zaak = CreateDetZaak(behandelaar: null);
+        zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = "123456789" };
+
+        await service.MigrateZaak(zaak, mapping);
+
+        clientMock.Verify(c => c.CreateRol(
+            It.Is<OzCreateRolRequest>(r =>
+                r.BetrokkeneType == BetrokkeneType.natuurlijk_persoon &&
+                r.Roltype == new Uri(InitiatorRoltypeUrl) &&
+                r.BetrokkeneIdentificatie.InpBsn == "123456789" &&
+                r.Zaak == new Uri(ZaakUrl)),
+            It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task MigrateZaak_WithInitiatorBedrijf_CreatesNietNatuurlijkPersoonRol()
+    {
+        var clientMock = CreateOpenZaakClientMock();
+        var service = CreateService(clientMock);
+
+        var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
+        {
+            { DetRolType.initiator, new Uri(InitiatorRoltypeUrl) }
+        });
+
+        var zaak = CreateDetZaak(behandelaar: null);
+        zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.bedrijf, KvkNummer = "87654321", Vestigingsnummer = "000087654321" };
+
+        await service.MigrateZaak(zaak, mapping);
+
+        clientMock.Verify(c => c.CreateRol(
+            It.Is<OzCreateRolRequest>(r =>
+                r.BetrokkeneType == BetrokkeneType.niet_natuurlijk_persoon &&
+                r.Roltype == new Uri(InitiatorRoltypeUrl) &&
+                r.BetrokkeneIdentificatie.KvkNummer == "87654321" &&
+                r.BetrokkeneIdentificatie.VestigingsNummer == "000087654321" &&
+                r.Zaak == new Uri(ZaakUrl)),
+            It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task MigrateZaak_WithInitiatorNull_DoesNotCreateInitiatorRol()
+    {
+        var clientMock = CreateOpenZaakClientMock();
+        var service = CreateService(clientMock);
+
+        var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
+        {
+            { DetRolType.initiator, new Uri(InitiatorRoltypeUrl) }
+        });
+
+        var zaak = CreateDetZaak(behandelaar: null);
+        zaak.Initiator = null;
+
+        await service.MigrateZaak(zaak, mapping);
+
+        clientMock.Verify(c => c.CreateRol(It.IsAny<OzCreateRolRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task MigrateZaak_WithInitiatorMissingSubjecttype_DoesNotCreateInitiatorRol()
+    {
+        var clientMock = CreateOpenZaakClientMock();
+        var service = CreateService(clientMock);
+
+        var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
+        {
+            { DetRolType.initiator, new Uri(InitiatorRoltypeUrl) }
+        });
+
+        var zaak = CreateDetZaak(behandelaar: null);
+        zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = null, BurgerServiceNummer = "123456789" };
+
+        await service.MigrateZaak(zaak, mapping);
+
+        clientMock.Verify(c => c.CreateRol(It.IsAny<OzCreateRolRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task MigrateZaak_WithInitiatorPersoonMissingBsn_SkipsInitiator()
+    {
+        var clientMock = CreateOpenZaakClientMock();
+        var service = CreateService(clientMock);
+
+        var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
+        {
+            { DetRolType.initiator, new Uri(InitiatorRoltypeUrl) }
+        });
+
+        var zaak = CreateDetZaak(behandelaar: null);
+        zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = null };
+
+        await service.MigrateZaak(zaak, mapping);
+
+        clientMock.Verify(c => c.CreateRol(It.IsAny<OzCreateRolRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task MigrateZaak_WithInitiatorBedrijfMissingKvkNummer_SkipsInitiator()
+    {
+        var clientMock = CreateOpenZaakClientMock();
+        var service = CreateService(clientMock);
+
+        var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
+        {
+            { DetRolType.initiator, new Uri(InitiatorRoltypeUrl) }
+        });
+
+        var zaak = CreateDetZaak(behandelaar: null);
+        zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.bedrijf, KvkNummer = null };
+
+        await service.MigrateZaak(zaak, mapping);
+
+        clientMock.Verify(c => c.CreateRol(It.IsAny<OzCreateRolRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task MigrateZaak_WithNoInitiatorMapping_DoesNotCreateInitiatorRol()
+    {
+        var clientMock = CreateOpenZaakClientMock();
+        var service = CreateService(clientMock);
+
+        // No "Initiator" key in mappings
+        var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
+        {
+            { DetRolType.behandelaar, new Uri(BehandelaarRoltypeUrl) }
+        });
+
+        var zaak = CreateDetZaak(behandelaar: null);
+        zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = "123456789" };
 
         await service.MigrateZaak(zaak, mapping);
 
