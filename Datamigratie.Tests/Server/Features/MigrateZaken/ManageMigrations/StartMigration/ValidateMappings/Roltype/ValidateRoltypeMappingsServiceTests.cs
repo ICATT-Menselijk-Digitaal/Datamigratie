@@ -1,4 +1,5 @@
-﻿using Datamigratie.Data;
+﻿using Datamigratie.Common.Services.Det.Models;
+using Datamigratie.Data;
 using Datamigratie.Data.Entities;
 using Datamigratie.Server.Constants;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Roltype;
@@ -122,9 +123,9 @@ public class ValidateRoltypeMappingsServiceTests
 
         var (_, mappings) = await service.ValidateAndGetRoltypeMappings(DetZaaktypeId);
 
-        foreach (var rol in MappingConstants.DetRol.Options)
+        foreach (var rol in Enum.GetValues<DetRolType>())
         {
-            Assert.True(mappings.ContainsKey(rol.Id), $"Expected key '{rol.Id}' in mappings dictionary");
+            Assert.True(mappings.ContainsKey(rol), $"Expected key '{rol}' in mappings dictionary");
         }
     }
 
@@ -150,7 +151,7 @@ public class ValidateRoltypeMappingsServiceTests
         var (isValid, result) = await service.ValidateAndGetRoltypeMappings(DetZaaktypeId);
 
         Assert.True(isValid);
-        Assert.DoesNotContain(MappingConstants.DetRol.Options[0].Id, result.Keys);
+        Assert.DoesNotContain(DetRolType.initiator, result.Keys);
     }
 
     [Fact]

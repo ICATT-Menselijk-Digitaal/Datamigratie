@@ -1,4 +1,5 @@
-﻿using Datamigratie.Common.Services.OpenZaak.Models;
+﻿using Datamigratie.Common.Services.Det.Models;
+using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Roltype;
 
 namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models
@@ -43,6 +44,6 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models
         /// <summary>
         /// Roltype mappings: DetRol -> OzRoltypeUrl. Alleen-PDF rollen are excluded (no OZ rol needed).
         /// </summary>
-        public required Dictionary<string, Uri> RoltypeMappings { get; set; }
+        public required Dictionary<DetRolType, Uri> RoltypeMappings { get; set; }
     }
 }
