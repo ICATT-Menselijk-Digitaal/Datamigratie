@@ -15,6 +15,7 @@
 - [Migrate Behandelaar (Rollen-related)](https://dimpact.atlassian.net/browse/DATA-332)
 - [UI changes: starting a migration](https://dimpact.atlassian.net/browse/DATA-408)
 - [Migrate Betrokkenen (Rollen-related)](https://dimpact.atlassian.net/browse/DATA-333)
+- [Migrate Initiator (Rollen-related)](https://dimpact.atlassian.net/browse/DATA-167)
 
 ## v0.1.0
 
