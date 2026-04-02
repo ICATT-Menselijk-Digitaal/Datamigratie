@@ -107,7 +107,7 @@ public class MigrateRollenTests
             },
             BesluittypeMappings = new Dictionary<string, Guid>(),
             PdfInformatieobjecttypeId = Guid.NewGuid(),
-            RoltypeMappings = roltypeMappings ?? new ()
+            RoltypeMappings = roltypeMappings ?? new()
             {
                 { DetRolType.behandelaar, new Uri(BehandelaarRoltypeUrl) }
             }
@@ -454,9 +454,9 @@ public class MigrateRollenTests
         var clientMock = CreateOpenZaakClientMock();
         var service = CreateService(clientMock);
 
-        var mapping = CreateMapping(new Dictionary<string, Uri>
+        var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
-            { "Initiator", new Uri(InitiatorRoltypeUrl) }
+            { DetRolType.initiator, new Uri(InitiatorRoltypeUrl) }
         });
 
         var zaak = CreateDetZaak(behandelaar: null);
@@ -480,9 +480,9 @@ public class MigrateRollenTests
         var clientMock = CreateOpenZaakClientMock();
         var service = CreateService(clientMock);
 
-        var mapping = CreateMapping(new Dictionary<string, Uri>
+        var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
-            { "Initiator", new Uri(InitiatorRoltypeUrl) }
+            { DetRolType.initiator, new Uri(InitiatorRoltypeUrl) }
         });
 
         var zaak = CreateDetZaak(behandelaar: null);
@@ -507,9 +507,9 @@ public class MigrateRollenTests
         var clientMock = CreateOpenZaakClientMock();
         var service = CreateService(clientMock);
 
-        var mapping = CreateMapping(new Dictionary<string, Uri>
+        var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
-            { "Initiator", new Uri(InitiatorRoltypeUrl) }
+            { DetRolType.initiator, new Uri(InitiatorRoltypeUrl) }
         });
 
         var zaak = CreateDetZaak(behandelaar: null);
@@ -527,9 +527,9 @@ public class MigrateRollenTests
         var clientMock = CreateOpenZaakClientMock();
         var service = CreateService(clientMock);
 
-        var mapping = CreateMapping(new Dictionary<string, Uri>
+        var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
-            { "Initiator", new Uri(InitiatorRoltypeUrl) }
+            { DetRolType.initiator, new Uri(InitiatorRoltypeUrl) }
         });
 
         var zaak = CreateDetZaak(behandelaar: null);
@@ -547,9 +547,9 @@ public class MigrateRollenTests
         var clientMock = CreateOpenZaakClientMock();
         var service = CreateService(clientMock);
 
-        var mapping = CreateMapping(new Dictionary<string, Uri>
+        var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
-            { "Initiator", new Uri(InitiatorRoltypeUrl) }
+            { DetRolType.initiator, new Uri(InitiatorRoltypeUrl) }
         });
 
         var zaak = CreateDetZaak(behandelaar: null);
@@ -567,9 +567,9 @@ public class MigrateRollenTests
         var clientMock = CreateOpenZaakClientMock();
         var service = CreateService(clientMock);
 
-        var mapping = CreateMapping(new Dictionary<string, Uri>
+        var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
-            { "Initiator", new Uri(InitiatorRoltypeUrl) }
+            { DetRolType.initiator, new Uri(InitiatorRoltypeUrl) }
         });
 
         var zaak = CreateDetZaak(behandelaar: null);
@@ -588,9 +588,9 @@ public class MigrateRollenTests
         var service = CreateService(clientMock);
 
         // No "Initiator" key in mappings
-        var mapping = CreateMapping(new Dictionary<string, Uri>
+        var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
         {
-            { "Behandelaar", new Uri(BehandelaarRoltypeUrl) }
+            { DetRolType.behandelaar, new Uri(BehandelaarRoltypeUrl) }
         });
 
         var zaak = CreateDetZaak(behandelaar: null);
