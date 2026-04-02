@@ -15,7 +15,7 @@ namespace Datamigratie.Common.Services.Det.Models
         public string? AangemaaktDoor { get; set; }
         public string? Afdeling { get; set; }
         public string? Behandelaar { get; set; }
-        public DetInitiator? Initiator { get; set; }
+        public DetBetrokkenePersoon? Initiator { get; set; }
         public DetBetaalgegevens? Betaalgegevens { get; set; }
 
         [JsonConverter(typeof(DetZonedDateTimeConverter))]
@@ -274,13 +274,5 @@ namespace Datamigratie.Common.Services.Det.Models
         public required string GekoppeldeZaak { get; set; }
         public required string Relatietype { get; set; }
         public required bool DossierEigenaar { get; set; }
-    }
-
-    public class DetInitiator
-    {
-        public DetSubjecttype? Subjecttype { get; set; }
-        public string? BurgerServiceNummer { get; set; }
-        public string? KvkNummer { get; set; }
-        public string? Vestigingsnummer { get; set; }
     }
 }

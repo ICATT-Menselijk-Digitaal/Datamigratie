@@ -454,12 +454,14 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
 
         private async Task CreateInitiatorRolAsync(DetZaak detZaak, OzZaak createdZaak, Uri roltypeUrl, CancellationToken token)
         {
-            if (detZaak.Initiator == null || detZaak.Initiator.Subjecttype == null)
+            var initiator = detZaak.Initiator;
+
+            if (initiator == null || initiator.Subjecttype == null)
             {
                 return;
             }
 
-            var subjecttype = detZaak.Initiator.Subjecttype;
+            var subjecttype = initiator.Subjecttype.Value;
 
             var rolRequest = new OzCreateRolRequest
             {
@@ -469,11 +471,11 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                         ? BetrokkeneType.natuurlijk_persoon
                         : BetrokkeneType.niet_natuurlijk_persoon,
                 BetrokkeneIdentificatie = subjecttype == DetSubjecttype.persoon
-                        ? new OzBetrokkeneIdentificatie { InpBsn = detZaak.Initiator?.BurgerServiceNummer }
+                        ? new OzBetrokkeneIdentificatie { InpBsn = initiator.BurgerServiceNummer }
                         : new OzBetrokkeneIdentificatie
                         {
-                            KvkNummer = detZaak.Initiator?.KvkNummer,
-                            VestigingsNummer = detZaak.Initiator?.Vestigingsnummer
+                            KvkNummer = initiator.KvkNummer,
+                            VestigingsNummer = initiator.Vestigingsnummer
                         }
             };
 
@@ -482,7 +484,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 logger.LogWarning(
                     "Skipping initiator with Subjecttype={Subjecttype}: " +
                     "BetrokkeneIdentificatie has no filled fields (InpBsn, KvkNummer, VestigingsNummer are all empty).",
-                    detZaak.Initiator?.Subjecttype);
+                    initiator.Subjecttype);
                 return;
             }
 
@@ -491,26 +493,28 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
 
         private async Task CreateBetrokkenenRollenAsync(DetZaak detZaak, OzZaak createdZaak, Dictionary<DetRolType, Uri> roltypeMappings, CancellationToken token)
         {
-            if (detZaak.Betrokkenen == null || detZaak.Betrokkenen.Count == 0)
+            var betrokkenen = detZaak.Betrokkenen;
+
+            if (betrokkenen == null || betrokkenen.Count == 0)
             {
                 return;
             }
 
-            foreach (var betrokkene in detZaak.Betrokkenen)
+            foreach (var betrokkene in betrokkenen)
             {
 
-                if (betrokkene.TypeBetrokkenheid == null ||
-                    !roltypeMappings.TryGetValue(betrokkene.TypeBetrokkenheid.Value, out var roltypeUrl))
+                var betrokkeneDetails = betrokkene.Betrokkene;
+                var betrokkeneRolType = betrokkene.TypeBetrokkenheid;
+
+                if (betrokkeneRolType == null ||
+                    !roltypeMappings.TryGetValue(betrokkeneRolType.Value, out var roltypeUrl) || 
+                    betrokkeneDetails == null ||
+                    betrokkeneDetails.Subjecttype == null )
                 {
                     continue;
                 }
 
-                var subjecttype = betrokkene.Betrokkene?.Subjecttype;
-
-                if (subjecttype is null)
-                {
-                    continue;
-                }
+                var subjecttype = betrokkeneDetails.Subjecttype;
 
                 var rolRequest = new OzCreateRolRequest
                 {
@@ -520,13 +524,13 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                         ? BetrokkeneType.natuurlijk_persoon
                         : BetrokkeneType.niet_natuurlijk_persoon,
                     BetrokkeneIdentificatie = subjecttype == DetSubjecttype.persoon
-                        ? new OzBetrokkeneIdentificatie { InpBsn = betrokkene.Betrokkene?.BurgerServiceNummer }
+                        ? new OzBetrokkeneIdentificatie { InpBsn = betrokkeneDetails.BurgerServiceNummer }
                         : new OzBetrokkeneIdentificatie
                         {
-                            KvkNummer = betrokkene.Betrokkene?.KvkNummer,
-                            VestigingsNummer = betrokkene.Betrokkene?.Vestigingsnummer
+                            KvkNummer = betrokkeneDetails.KvkNummer,
+                            VestigingsNummer = betrokkeneDetails.Vestigingsnummer
                         },
-                    IndicatieMachtiging = betrokkene.TypeBetrokkenheid == DetRolType.gemachtigde
+                    IndicatieMachtiging = betrokkeneRolType == DetRolType.gemachtigde
                         ? "gemachtigde"
                         : null
                 };
@@ -536,7 +540,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                     logger.LogWarning(
                         "Skipping betrokkene with TypeBetrokkenheid={TypeBetrokkenheid}: " +
                         "BetrokkeneIdentificatie has no filled fields (InpBsn, KvkNummer, VestigingsNummer are all empty).",
-                        betrokkene.TypeBetrokkenheid);
+                        betrokkeneRolType);
                     continue;
                 }
 
@@ -786,7 +790,8 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
         private static bool HasEmptyBetrokkeneIdentificatie(OzBetrokkeneIdentificatie id) =>
             string.IsNullOrWhiteSpace(id.InpBsn) &&
             string.IsNullOrWhiteSpace(id.KvkNummer) &&
-            string.IsNullOrWhiteSpace(id.VestigingsNummer);
+            string.IsNullOrWhiteSpace(id.VestigingsNummer) &&
+            string.IsNullOrWhiteSpace(id.Identificatie);
 
         /// <summary>
         /// Truncates the string when the length of the input string exceeds the maxLength

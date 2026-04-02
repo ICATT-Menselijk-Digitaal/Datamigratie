@@ -460,7 +460,7 @@ public class MigrateRollenTests
         });
 
         var zaak = CreateDetZaak(behandelaar: null);
-        zaak.Initiator = new DetInitiator { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = "123456789" };
+        zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = "123456789" };
 
         await service.MigrateZaak(zaak, mapping);
 
@@ -486,7 +486,7 @@ public class MigrateRollenTests
         });
 
         var zaak = CreateDetZaak(behandelaar: null);
-        zaak.Initiator = new DetInitiator { Subjecttype = DetSubjecttype.bedrijf, KvkNummer = "87654321", Vestigingsnummer = "000087654321" };
+        zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.bedrijf, KvkNummer = "87654321", Vestigingsnummer = "000087654321" };
 
         await service.MigrateZaak(zaak, mapping);
 
@@ -533,7 +533,7 @@ public class MigrateRollenTests
         });
 
         var zaak = CreateDetZaak(behandelaar: null);
-        zaak.Initiator = new DetInitiator { Subjecttype = null, BurgerServiceNummer = "123456789" };
+        zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = null, BurgerServiceNummer = "123456789" };
 
         await service.MigrateZaak(zaak, mapping);
 
@@ -553,7 +553,7 @@ public class MigrateRollenTests
         });
 
         var zaak = CreateDetZaak(behandelaar: null);
-        zaak.Initiator = new DetInitiator { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = null };
+        zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = null };
 
         await service.MigrateZaak(zaak, mapping);
 
@@ -573,7 +573,7 @@ public class MigrateRollenTests
         });
 
         var zaak = CreateDetZaak(behandelaar: null);
-        zaak.Initiator = new DetInitiator { Subjecttype = DetSubjecttype.bedrijf, KvkNummer = null };
+        zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.bedrijf, KvkNummer = null };
 
         await service.MigrateZaak(zaak, mapping);
 
@@ -594,7 +594,7 @@ public class MigrateRollenTests
         });
 
         var zaak = CreateDetZaak(behandelaar: null);
-        zaak.Initiator = new DetInitiator { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = "123456789" };
+        zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = "123456789" };
 
         await service.MigrateZaak(zaak, mapping);
 
