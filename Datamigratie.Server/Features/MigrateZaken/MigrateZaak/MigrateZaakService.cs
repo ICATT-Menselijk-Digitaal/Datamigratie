@@ -102,6 +102,26 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 activity?.SetTag("zaak.document.version.count", versionCount);
                 activity?.SetTag("zaak.besluit.count", besluitCount);
 
+                try
+                {
+                    await detClient.SetZaakGemigreerd(detZaak.FunctioneleIdentificatie, true);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Failed to set zaak as gemigreerd in DET for zaak {ZaakIdentificatie}.", detZaak.FunctioneleIdentificatie);
+
+                    var statusCode = ex.InnerException is HttpRequestException httpEx && httpEx.StatusCode.HasValue
+                        ? (int)httpEx.StatusCode.Value
+                        : StatusCodes.Status500InternalServerError;
+
+                    return MigrateZaakResult.Failed(
+                        createdZaak.Identificatie,
+                        "De zaak migratie status kon niet worden bijgewerkt in het bronsysteem.",
+                        ex.Message,
+                        statusCode
+                        );
+                }
+
                 return MigrateZaakResult.Success(createdZaak.Identificatie, "De zaak is aangemaakt in het doelsysteem");
             }
             catch (HttpRequestException httpEx)

@@ -20,6 +20,8 @@ namespace Datamigratie.Common.Services.Det
         Task GetDocumentInhoudAsync(long id, Func<Stream, CancellationToken, Task> handleInhoud, CancellationToken token);
 
         Task<List<DetDocumentstatus>> GetAllDocumentstatussen();
+
+        Task SetZaakGemigreerd(string functioneleIdentificatie, bool gemigreerd);
     }
 
     public class DetApiClient(HttpClient httpClient, ILogger<DetApiClient> logger) : DetPagedApiClient(httpClient), IDetApiClient
@@ -165,6 +167,17 @@ namespace Datamigratie.Common.Services.Det
             _logger.LogInformation("Fetching all documentstatussen.");
             var pagedDocumentstatussen = await GetAllPagedData<DetDocumentstatus>("documentstatussen");
             return pagedDocumentstatussen.Results;
+        }
+
+        /// <summary>
+        /// Sets the gemigreerd flag on a zaak.
+        /// Endpoint: PATCH /zaken/{functioneleIdentificatie}
+        /// </summary>
+        public async Task SetZaakGemigreerd(string functioneleIdentificatie, bool gemigreerd)
+        {
+            var endpoint = $"zaken/{Uri.EscapeDataString(functioneleIdentificatie)}";
+            var response = await _httpClient.PatchAsJsonAsync(endpoint, new { gemigreerd });
+            response.EnsureSuccessStatusCode();
         }
 
         protected override int GetDefaultStartingPage()
