@@ -93,7 +93,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 catch (Exception ex)
                 {
                     throw new Exception(
-                        $"Zaak {detZaak.FunctioneleIdentificatie} gemigreerd to OpenZaak with ID {createdZaak.Identificatie}, but failed to update migration status in DET",
+                        $"Zaak {detZaak.FunctioneleIdentificatie} gemigreerd to OpenZaak with ID {createdZaak.Identificatie}, but failed to update migration status in DET. Original exception message: {ex.Message}",
                         ex);
                 }
 
