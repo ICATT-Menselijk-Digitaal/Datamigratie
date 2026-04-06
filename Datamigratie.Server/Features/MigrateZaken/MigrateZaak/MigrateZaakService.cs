@@ -86,6 +86,17 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 // Migrate rollen (e.g. Behandelaar) to OpenZaak
                 await CreateZaakRolesAsync(detZaak, createdZaak, mapping.RoltypeMappings, token);
 
+                try
+                {
+                    await detClient.SetZaakGemigreerd(detZaak.FunctioneleIdentificatie, true);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(
+                        $"Zaak {detZaak.FunctioneleIdentificatie} gemigreerd to OpenZaak with ID {createdZaak.Identificatie}, but failed to update migration status in DET",
+                        ex);
+                }
+
                 sw.Stop();
 
                 var documentCount = detZaak.Documenten?.Count ?? 0;
@@ -101,26 +112,6 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 activity?.SetTag("zaak.document.count", documentCount);
                 activity?.SetTag("zaak.document.version.count", versionCount);
                 activity?.SetTag("zaak.besluit.count", besluitCount);
-
-                try
-                {
-                    await detClient.SetZaakGemigreerd(detZaak.FunctioneleIdentificatie, true);
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "Failed to set zaak as gemigreerd in DET for zaak {ZaakIdentificatie}.", detZaak.FunctioneleIdentificatie);
-
-                    var statusCode = ex.InnerException is HttpRequestException httpEx && httpEx.StatusCode.HasValue
-                        ? (int)httpEx.StatusCode.Value
-                        : StatusCodes.Status500InternalServerError;
-
-                    return MigrateZaakResult.Failed(
-                        createdZaak.Identificatie,
-                        "De zaak migratie status kon niet worden bijgewerkt in het bronsysteem.",
-                        ex.Message,
-                        statusCode
-                        );
-                }
 
                 return MigrateZaakResult.Success(createdZaak.Identificatie, "De zaak is aangemaakt in het doelsysteem");
             }
