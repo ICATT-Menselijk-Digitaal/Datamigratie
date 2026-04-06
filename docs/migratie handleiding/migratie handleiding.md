@@ -57,3 +57,7 @@ Er bestaan drie soorten migratie knoppen:
 
 3. **Eén zaak**  
    Met deze optie is het mogelijk om één enkele zaak te migreren op basis van het zaaknummer van de e-Suite. Deze functie is vooral bedoeld om te testen of de mapping van het zaaktype goed is geconfigureerd en om te checken of de gekozen zaak correct in OpenZaak terecht komt. Het wordt aangeraden om hier mee te beginnen voordat een volledige migratie wordt gestart, aangezien dat erg lang kan duren.
+
+### Markering als gemigreerd
+
+Wanneer een zaak volledig en succesvol is gemigreerd, wordt deze via de DET gemarkeerd als "gemigreerd". Als het markeren mislukt, is dit terug te vinden in de migratie record van de betreffende zaak.
