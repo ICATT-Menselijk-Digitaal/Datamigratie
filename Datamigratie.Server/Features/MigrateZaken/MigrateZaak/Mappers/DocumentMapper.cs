@@ -13,7 +13,10 @@ public class DocumentMapper(
 {
     public DocumentMigrationPlan Map(DetDocument item)
     {
-        var versions = item.DocumentVersies.Select(v => Map(item, v)).ToList();
+        var versions = item.DocumentVersies
+            .OrderBy(v => v.Versienummer)
+            .Select(v => Map(item, v))
+            .ToList();
         return new DocumentMigrationPlan(versions);
     }
 
