@@ -37,7 +37,6 @@ public class StartMigrationService(
         Meter.CreateHistogram<double>("migration.duration", "ms", "Duration of a full migration run");
 
 
-
     private readonly OpenZaakApiOptions _openZaakApiOptions = openZaakOptions.Value;
 
     public async Task PerformMigrationAsync(MigrationQueueItem migrationQueueItem, CancellationToken stoppingToken)
@@ -219,8 +218,8 @@ public class StartMigrationService(
         }
         else
         {
-            logger.LogWarning("Failed to migrate zaak {DetZaaknummer} to OpenZaak. {ErrorTitle}: {ErrorDetails} (Status: {StatusCode})",
-                detZaaknummer, result.Message, result.Details, result.Statuscode);
+            logger.LogWarning("Failed to migrate zaak {DetZaaknummer} to OpenZaak. {ErrorTitle}, (Status: {StatusCode})",
+                detZaaknummer, result.Message, result.Statuscode);
             migration.FailedRecords++;
             return CreateFailedMigrationRecord(migration, detZaaknummer, result.Message, result.Details, result.Statuscode);
         }
