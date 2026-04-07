@@ -9,7 +9,6 @@ public static class RsinValidator
     /// Validates an RSIN number according to the 11-test and throws ArgumentException if invalid
     /// </summary>
     /// <param name="rsin">The RSIN to validate</param>
-    /// 
     /// <exception cref="ArgumentException">Thrown when RSIN is invalid</exception>
     public static void ValidateRsin(string? rsin)
     {

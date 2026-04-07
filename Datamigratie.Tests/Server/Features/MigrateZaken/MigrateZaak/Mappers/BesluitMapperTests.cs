@@ -81,6 +81,7 @@ public class BesluitMapperTests
 
         var result = mapper.Map(detBesluit);
 
+        Assert.NotNull(result.Identificatie);
         Assert.Equal(50, result.Identificatie.Length);
         Assert.EndsWith("...", result.Identificatie);
     }

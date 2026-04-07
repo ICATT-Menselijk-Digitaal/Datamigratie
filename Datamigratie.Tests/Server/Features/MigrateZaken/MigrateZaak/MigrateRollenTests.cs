@@ -3,7 +3,6 @@ using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
-using Datamigratie.Server.Constants;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf;
@@ -27,13 +26,6 @@ public class MigrateRollenTests
             .ReturnsAsync(zaak ?? CreateDetZaak());
         var pdfGeneratorMock = new Mock<IZaakgegevensPdfGenerator>();
         pdfGeneratorMock.Setup(g => g.GenerateZaakgegevensPdf(It.IsAny<DetZaak>(), It.IsAny<Stream>()));
-
-        var options = Options.Create(new OpenZaakApiOptions
-        {
-            BaseUrl = "https://openzaak.example.com/",
-            ApiKey = "test-key",
-            ApiUser = "test-user"
-        });
 
         return new MigrateZaakService(
             openZaakClientMock.Object,
