@@ -8,7 +8,7 @@ const POLL_INTERVAL_MS = 5_000;
 const migration = ref<Migration>();
 const isLoading = ref(false);
 const error = ref("");
-const previousMigratedZaaktype = ref<string | undefined>();
+const migrationJustCompleted = ref(false);
 
 let pollTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -19,24 +19,24 @@ const stopPolling = () => {
   }
 };
 
+const scheduleNextPoll = () => {
+  pollTimer = setTimeout(() => fetchMigration(false), POLL_INTERVAL_MS);
+};
+
 const fetchMigration = async (showLoading = true) => {
   if (showLoading) isLoading.value = true;
 
   try {
-    const currentMigration = migration.value;
-
+    const previousStatus = migration.value?.status;
     migration.value = await get<Migration>(`/api/migration`);
-    const newMigrationStatus = migration.value.status;
+    const newStatus = migration.value.status;
 
-    if (
-      currentMigration?.status === MigrationStatus.inProgress &&
-      newMigrationStatus !== MigrationStatus.inProgress
-    ) {
-      previousMigratedZaaktype.value = currentMigration.detZaaktypeId;
+    if (previousStatus === MigrationStatus.inProgress && newStatus !== MigrationStatus.inProgress) {
+      migrationJustCompleted.value = true;
       stopPolling();
-    } else if (newMigrationStatus === MigrationStatus.inProgress) {
-      previousMigratedZaaktype.value = undefined;
-      pollTimer = setTimeout(() => fetchMigration(false), POLL_INTERVAL_MS);
+    } else if (newStatus === MigrationStatus.inProgress) {
+      migrationJustCompleted.value = false;
+      scheduleNextPoll();
     }
   } catch (err: unknown) {
     error.value = `Fout bij ophalen van de migratie status - ${err}`;
@@ -45,16 +45,16 @@ const fetchMigration = async (showLoading = true) => {
   }
 };
 
-const dismissFinished = () => {
-  previousMigratedZaaktype.value = undefined;
+const dismissCompletedAlert = () => {
+  migrationJustCompleted.value = false;
 };
 
 export const useMigration = () => ({
   migration: readonly(migration),
   loading: readonly(isLoading),
   error: readonly(error),
-  previousMigratedZaaktype: readonly(previousMigratedZaaktype),
+  migrationJustCompleted: readonly(migrationJustCompleted),
   fetchMigration,
   stopPolling,
-  dismissFinished
+  dismissCompletedAlert
 });

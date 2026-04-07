@@ -3,14 +3,14 @@
 
   <alert-inline v-else-if="error">{{ error }}</alert-inline>
 
-  <alert-inline v-else-if="previousMigratedZaaktype" type="info">
+  <alert-inline v-else-if="migrationJustCompleted" type="info">
     <div class="migration-completed-content">
       <span class="checkmark" aria-hidden="true">✓</span>
       <p>
-        De migratie van zaken voor e-Suite zaaktype <em>{{ previousMigratedZaaktype }}</em> is
+        De migratie van zaken voor e-Suite zaaktype <em>{{ migration?.detZaaktypeId }}</em> is
         voltooid.
       </p>
-      <button type="button" class="secondary" @click="dismissFinished">Sluiten</button>
+      <button type="button" class="secondary" @click="dismissCompletedAlert">Sluiten</button>
     </div>
   </alert-inline>
 
@@ -33,7 +33,7 @@ import AlertInline from "@/components/AlertInline.vue";
 import { MigrationStatus } from "@/types/datamigratie";
 import { useMigration } from "@/composables/migration-store";
 
-const { migration, previousMigratedZaaktype, fetchMigration, dismissFinished, loading, error } =
+const { migration, migrationJustCompleted, fetchMigration, dismissCompletedAlert, loading, error } =
   useMigration();
 onMounted(() => fetchMigration());
 </script>
