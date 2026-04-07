@@ -102,6 +102,17 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 // Migrate rollen (e.g. Behandelaar) to OpenZaak
                 await ExecuteRolPlansAsync(plan.Rollen, createdZaak, token);
 
+                try
+                {
+                    await detClient.SetZaakGemigreerd(detZaak.FunctioneleIdentificatie, true);
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidOperationException(
+                        $"Zaak {detZaak.FunctioneleIdentificatie} gemigreerd to OpenZaak with ID {createdZaak.Identificatie}, but failed to update migration status in DET. Original exception message: {ex.Message}",
+                        ex);
+                }
+
                 sw.Stop();
 
                 var documentCount = detZaak.Documenten?.Count ?? 0;
