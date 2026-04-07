@@ -22,7 +22,7 @@ public class SaveRsinController(
             // Validate RSIN if provided
             if (!string.IsNullOrWhiteSpace(request.Rsin))
             {
-                RsinValidator.ValidateRsin(request.Rsin, logger);
+                RsinValidator.ValidateRsin(request.Rsin);
             }
 
             var config = await dbContext.RsinConfigurations.FirstOrDefaultAsync();

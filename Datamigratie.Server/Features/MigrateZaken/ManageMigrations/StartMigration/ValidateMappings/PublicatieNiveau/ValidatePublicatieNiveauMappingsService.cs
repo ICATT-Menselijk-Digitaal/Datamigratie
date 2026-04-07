@@ -42,12 +42,12 @@ public class ValidatePublicatieNiveauMappingsService(
         }
 
         var invalidMappings = publicatieNiveauMappings
-            .Where(m => !Enum.TryParse<DocumentVertrouwelijkheidaanduiding>(m.Value, true, out _))
+            .Where(m => !Enum.TryParse<DocumentVertrouwelijkheidaanduiding>(m.OzVertrouwelijkheidaanduiding, true, out _))
             .ToList();
 
         if (invalidMappings.Count > 0)
         {
-            var invalidDetails = string.Join(", ", invalidMappings.Select(m => $"'{m.Key}' -> '{m.Value}'"));
+            var invalidDetails = string.Join(", ", invalidMappings.Select(m => $"'{m.DetPublicatieNiveau}' -> '{m.OzVertrouwelijkheidaanduiding}'"));
             var validValues = string.Join(", ", Enum.GetNames(typeof(DocumentVertrouwelijkheidaanduiding)));
             throw new InvalidOperationException(
                 $"Ongeldige OpenZaak vertrouwelijkheidaanduidingen gevonden in mappings: {invalidDetails}. " +
