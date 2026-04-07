@@ -10,11 +10,11 @@ const isLoading = ref(false);
 const error = ref("");
 const previousMigratedZaaktype = ref<string | undefined>();
 
-let pollTimer: ReturnType<typeof setInterval> | undefined;
+let pollTimer: ReturnType<typeof setTimeout> | undefined;
 
 const stopPolling = () => {
   if (pollTimer !== undefined) {
-    clearInterval(pollTimer);
+    clearTimeout(pollTimer);
     pollTimer = undefined;
   }
 };
@@ -23,20 +23,20 @@ const fetchMigration = async (showLoading = true) => {
   if (showLoading) isLoading.value = true;
 
   try {
-    // get the current migration status before fetching the new one, to determine if we need to start or stop polling
     const currentMigration = migration.value;
 
-    // fetch the new migration status
     migration.value = await get<Migration>(`/api/migration`);
+    const newMigrationStatus = migration.value.status;
 
     if (
       currentMigration?.status === MigrationStatus.inProgress &&
-      migration.value.status !== MigrationStatus.inProgress
+      newMigrationStatus !== MigrationStatus.inProgress
     ) {
       previousMigratedZaaktype.value = currentMigration.detZaaktypeId;
       stopPolling();
-    } else if (migration.value.status === MigrationStatus.inProgress && pollTimer === undefined) {
-      pollTimer = setInterval(() => fetchMigration(false), POLL_INTERVAL_MS);
+    } else if (newMigrationStatus === MigrationStatus.inProgress) {
+      previousMigratedZaaktype.value = undefined;
+      pollTimer = setTimeout(() => fetchMigration(false), POLL_INTERVAL_MS);
     }
   } catch (err: unknown) {
     error.value = `Fout bij ophalen van de migratie status - ${err}`;
