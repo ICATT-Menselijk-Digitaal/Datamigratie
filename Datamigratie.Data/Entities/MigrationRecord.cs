@@ -23,6 +23,7 @@ public class MigrationRecord
     
     public string? ErrorTitle { get; set; }
     
+    [MaxLength(10000)]
     public string? ErrorDetails { get; set; }
     
     public int? StatusCode { get; set; }

@@ -227,6 +227,34 @@ public class StartMigrationServiceTests
     }
 
     [Fact]
+    public async Task PerformMigrationAsync_FailedZaakWithLongDetails_TruncatesErrorDetailsTo10000Characters()
+    {
+        // Arrange
+        await using var context = CreateContext();
+        SeedZaaktypeMapping(context, ZaaktypeId);
+
+        var detClient = new Mock<IDetApiClient>();
+        detClient.Setup(c => c.GetZaakByZaaknummer("zaak-001")).ReturnsAsync(CreateDetZaak("zaak-001"));
+
+        var migrateZaak = new Mock<IMigrateZaakService>();
+        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<DetZaak>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(MigrateZaakResult.Failed("zaak-001", "fout", new string('x', 15000), 422));
+
+        var selector = new Mock<IZakenSelector>();
+        selector.Setup(s => s.SelectZakenAsync(ZaaktypeId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new DetZaakMinimal { FunctioneleIdentificatie = "zaak-001", Open = false }]);
+
+        var sut = CreateSut(context, detClient, migrateZaak);
+
+        // Act
+        await sut.PerformMigrationAsync(CreateQueueItem(selector.Object), CancellationToken.None);
+
+        // Assert
+        var record = await context.MigrationRecords.FirstAsync();
+        Assert.Equal(10000, record.ErrorDetails!.Length);
+    }
+
+    [Fact]
     public async Task PerformMigrationAsync_HttpExceptionDuringFetch_CreatesFailedRecordWithHttpStatusCode()
     {
         // Arrange
