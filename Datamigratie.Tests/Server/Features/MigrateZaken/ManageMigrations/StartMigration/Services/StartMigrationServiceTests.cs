@@ -238,7 +238,7 @@ public class StartMigrationServiceTests
 
         var migrateZaak = new Mock<IMigrateZaakService>();
         migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<DetZaak>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(MigrateZaakResult.Failed("zaak-001", "fout", new string('x', 15000), 422));
+            .ReturnsAsync(MigrateZaakResult.Failed("zaak-001", "fout", new string('x', MigrationRecord.MaxErrorDetailsLength + 5000), 422));
 
         var selector = new Mock<IZakenSelector>();
         selector.Setup(s => s.SelectZakenAsync(ZaaktypeId, It.IsAny<CancellationToken>()))
@@ -251,7 +251,7 @@ public class StartMigrationServiceTests
 
         // Assert
         var record = await context.MigrationRecords.FirstAsync();
-        Assert.Equal(10000, record.ErrorDetails!.Length);
+        Assert.Equal(MigrationRecord.MaxErrorDetailsLength, record.ErrorDetails!.Length);
     }
 
     [Fact]

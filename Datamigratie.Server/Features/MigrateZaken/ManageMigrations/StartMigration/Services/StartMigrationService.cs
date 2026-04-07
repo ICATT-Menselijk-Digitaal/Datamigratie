@@ -36,9 +36,7 @@ public class StartMigrationService(
     private static readonly Histogram<double> MigrationDurationHistogram =
         Meter.CreateHistogram<double>("migration.duration", "ms", "Duration of a full migration run");
 
-    private const int MaxMigrationErrorMessageLength = 1000;
 
-    private const int MaxMigrationRecordErrorMessageLength = 10000;
 
     private readonly OpenZaakApiOptions _openZaakApiOptions = openZaakOptions.Value;
 
@@ -250,7 +248,7 @@ public class StartMigrationService(
             IsSuccessful = false,
             DetZaaknummer = detZaaknummer,
             ErrorTitle = errorTitle,
-            ErrorDetails = errorDetails?.Length > MaxMigrationRecordErrorMessageLength ? errorDetails[..MaxMigrationRecordErrorMessageLength] : errorDetails,
+            ErrorDetails = errorDetails?.Length > MigrationRecord.MaxErrorDetailsLength ? errorDetails[..MigrationRecord.MaxErrorDetailsLength] : errorDetails,
             StatusCode = statusCode,
             ProcessedAt = DateTime.UtcNow
         };
@@ -288,8 +286,8 @@ public class StartMigrationService(
 
         if (!string.IsNullOrEmpty(errorMessage))
         {
-            migration.ErrorMessage = errorMessage.Length > MaxMigrationErrorMessageLength
-                ? errorMessage[..MaxMigrationErrorMessageLength]
+            migration.ErrorMessage = errorMessage.Length > Migration.MaxErrorMessageLength
+                ? errorMessage[..Migration.MaxErrorMessageLength]
                 : errorMessage;
         }
 
