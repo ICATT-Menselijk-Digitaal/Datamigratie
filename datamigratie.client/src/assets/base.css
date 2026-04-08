@@ -769,3 +769,13 @@ sub {
   margin-block-start: 0;
   margin-block-end: 1rem;
 }
+
+.notice--warning {
+  background: #fff8e1;
+  border-color: #f9a825;
+}
+
+.notice--info {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+}
