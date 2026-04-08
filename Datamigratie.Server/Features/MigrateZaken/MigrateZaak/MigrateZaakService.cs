@@ -451,7 +451,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
             {
                 return;
             }
-            await _openZaakApiClient.CreateRol(new OzCreateRolRequest
+            await CreateRolAsync(new OzCreateRolRequest
             {
                 Zaak = createdZaak.Url,
                 BetrokkeneType = BetrokkeneType.medewerker,
@@ -460,7 +460,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 {
                     Identificatie = detZaak.Behandelaar
                 }
-            }, token);
+            }, DetRolType.behandelaar, token);
         }
 
         private async Task CreateInitiatorRolAsync(DetZaak detZaak, OzZaak createdZaak, Uri roltypeUrl, CancellationToken token)
@@ -492,7 +492,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 return;
             }
 
-            await _openZaakApiClient.CreateRol(rolRequest, token);
+            await CreateRolAsync(rolRequest, DetRolType.initiator, token);
         }
 
         private async Task CreateBetrokkenenRollenAsync(DetZaak detZaak, OzZaak createdZaak, Dictionary<DetRolType, Uri> roltypeMappings, CancellationToken token)
@@ -541,7 +541,22 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                     continue;
                 }
 
-                await _openZaakApiClient.CreateRol(rolRequest, token);
+                await CreateRolAsync(rolRequest, betrokkeneRolType.Value, token);
+            }
+        }
+
+        private async Task CreateRolAsync(OzCreateRolRequest request, DetRolType rolType, CancellationToken token)
+        {
+            try
+            {
+                await _openZaakApiClient.CreateRol(request, token);
+            }
+            catch (HttpRequestException ex) when (ex.Message.Contains("max-occurences", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException(
+                    $"De rol '{rolType}' kan niet worden aangemaakt omdat OpenZaak het maximale aantal exemplaren voor dit roltype al heeft bereikt. " +
+                    $"Pas de roltypemapping aan zodat het roltype '{rolType}' niet meer dan één keer wordt toegewezen aan dezelfde zaak.",
+                    ex);
             }
         }
 
