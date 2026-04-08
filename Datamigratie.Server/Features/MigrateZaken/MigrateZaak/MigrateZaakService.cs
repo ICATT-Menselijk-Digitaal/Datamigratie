@@ -277,10 +277,26 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
 
         private async Task ExecuteRolPlansAsync(IReadOnlyCollection<OzCreateRolRequest> rollen, OzZaak createdZaak, CancellationToken token)
         {
+            List<OzRoltype>? ozRoltypes = null;
             foreach (var rol in rollen)
             {
                 rol.Zaak = createdZaak.Url;
-                await _openZaakApiClient.CreateRol(rol, token);
+                try
+                {
+                    await _openZaakApiClient.CreateRol(rol, token);
+                }
+                catch (HttpRequestException ex) when (ex.Message.Contains("max-occurences", StringComparison.OrdinalIgnoreCase))
+                {
+                    ozRoltypes ??= await _openZaakApiClient.GetRoltypesForZaaktype(createdZaak.Url);
+                    var rolTypeUrl = rol.Roltype.ToString();
+                    var rolType = ozRoltypes.FirstOrDefault(rt => rt.Url == rolTypeUrl);
+                    var omschrijving = rolType?.Omschrijving ?? "ONBEKEND";
+                    var omschrijvingGeneriek = rolType?.OmschrijvingGeneriek ?? "ONBEKEND";
+                    throw new InvalidOperationException(
+                        $"De rol '{omschrijving}' kan niet worden aangemaakt omdat OpenZaak het maximale aantal exemplaren voor dit roltype '{omschrijvingGeneriek}' al heeft bereikt. " +
+                        $"Pas de roltypemapping aan zodat het roltype '{omschrijvingGeneriek}' niet meer dan één keer wordt toegewezen aan dezelfde zaak.",
+                        ex);
+                }
             }
         }
 
