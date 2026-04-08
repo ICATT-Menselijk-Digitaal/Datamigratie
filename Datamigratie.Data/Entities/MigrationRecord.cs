@@ -5,6 +5,8 @@ namespace Datamigratie.Data.Entities;
 
 public class MigrationRecord
 {
+    public const int MaxErrorDetailsLength = 10000;
+
     [Key]
     public int Id { get; set; }
     
@@ -23,6 +25,7 @@ public class MigrationRecord
     
     public string? ErrorTitle { get; set; }
     
+    [MaxLength(MaxErrorDetailsLength)]
     public string? ErrorDetails { get; set; }
     
     public int? StatusCode { get; set; }
