@@ -4,6 +4,8 @@ namespace Datamigratie.Data.Entities;
 
 public class Migration
 {
+    public const int MaxErrorMessageLength = 1000;
+
     [Key]
     public int Id { get; set; }
 
@@ -19,7 +21,7 @@ public class Migration
 
     public DateTime? CompletedAt { get; set; }
 
-    [MaxLength(1000)]
+    [MaxLength(MaxErrorMessageLength)]
     public string? ErrorMessage { get; set; }
 
     public int? TotalRecords { get; set; }
