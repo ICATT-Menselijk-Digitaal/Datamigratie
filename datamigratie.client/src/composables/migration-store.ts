@@ -20,6 +20,7 @@ const stopPolling = () => {
 };
 
 const scheduleNextPoll = () => {
+  stopPolling();
   pollTimer = setTimeout(() => fetchMigration(false), POLL_INTERVAL_MS);
 };
 
