@@ -287,7 +287,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 }
                 catch (HttpRequestException ex) when (ex.Message.Contains("max-occurences", StringComparison.OrdinalIgnoreCase))
                 {
-                    ozRoltypes ??= await _openZaakApiClient.GetRoltypesForZaaktype(createdZaak.Url);
+                    ozRoltypes ??= await _openZaakApiClient.GetRoltypesForZaaktype(createdZaak.Zaaktype);
                     var rolTypeUrl = rol.Roltype.ToString();
                     var rolType = ozRoltypes.FirstOrDefault(rt => rt.Url == rolTypeUrl);
                     var omschrijving = rolType?.Omschrijving ?? "ONBEKEND";
