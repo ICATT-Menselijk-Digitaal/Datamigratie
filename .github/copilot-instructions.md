@@ -1,3 +1,6 @@
+When performing a code review, check that there is an entry in the `/docs/changelog/changelog.md` with the name of the pull request branch.
+ 
+
 # Project guidelines
 
 ### Administration
