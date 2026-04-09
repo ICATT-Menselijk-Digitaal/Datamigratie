@@ -1,11 +1,11 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Datamigratie.Common.Services.OpenZaak.Models
 {
     public class CreateOzStatusRequest
     {
         [JsonPropertyName("zaak")]
-        public required Uri Zaak { get; set; }
+        public Uri? Zaak { get; set; }
 
         [JsonPropertyName("statustype")]
         public required Uri Statustype { get; set; }

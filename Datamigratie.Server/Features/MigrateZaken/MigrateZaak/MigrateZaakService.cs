@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Metrics;
-using Datamigratie.Common.Config;
 using Datamigratie.Common.Helpers;
 using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
@@ -9,20 +7,18 @@ using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Plan;
 
 namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
 {
     public interface IMigrateZaakService
     {
-        public Task<MigrateZaakResult> MigrateZaak(DetZaak detZaak, MigrateZaakMappingModel mapping, CancellationToken token = default);
+        public Task<MigrateZaakResult> MigrateZaak(string zaaknummer, MigrateZaakMappingModel mapping, CancellationToken token = default);
     }
 
     public class MigrateZaakService(
         IOpenZaakApiClient openZaakApiClient,
         IDetApiClient detClient,
-        IOptions<OpenZaakApiOptions> options,
         IZaakgegevensPdfGenerator pdfGenerator,
         ILogger<MigrateZaakService> logger) : IMigrateZaakService
     {
@@ -40,17 +36,41 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
         private static readonly Histogram<int> ZaakDocumentVersionCountHistogram =
             Meter.CreateHistogram<int>("migration.zaak.document.version.count", "{version}", "Total document versions per zaak");
 
-        private readonly OpenZaakApiOptions _openZaakApiOptions = options.Value;
         private readonly IOpenZaakApiClient _openZaakApiClient = openZaakApiClient;
 
-        public async Task<MigrateZaakResult> MigrateZaak(DetZaak detZaak, MigrateZaakMappingModel mapping, CancellationToken token = default)
+        public async Task<MigrateZaakResult> MigrateZaak(string zaaknummer, MigrateZaakMappingModel mapping, CancellationToken token = default)
         {
             using var activity = ActivitySource.StartActivity("MigrateZaak", ActivityKind.Internal);
-            activity?.SetTag("zaak.identificatie", detZaak.FunctioneleIdentificatie);
+            activity?.SetTag("zaak.identificatie", zaaknummer);
             var sw = Stopwatch.StartNew();
+
+            DetZaak detZaak;
+            try
+            {
+                detZaak = await FetchZaakFromDetAsync(zaaknummer);
+            }
+            catch (HttpRequestException httpEx)
+            {
+                sw.Stop();
+                ZaakDurationHistogram.Record(sw.Elapsed.TotalMilliseconds, new TagList { { "result", "failed" } });
+                activity?.SetTag("zaak.result", "failed");
+                activity?.SetStatus(ActivityStatusCode.Error, httpEx.Message);
+
+                var statusCode = (int?)httpEx.StatusCode ?? StatusCodes.Status500InternalServerError;
+                return MigrateZaakResult.Failed(
+                    zaaknummer,
+                    "De zaak kon niet opgehaald worden uit het bronsysteem.",
+                    $"HTTP {statusCode}: {httpEx.Message}",
+                    statusCode);
+            }
 
             try
             {
+                // Phase A: Pure plan
+                var plan = ZaakMigrationPlanBuilder.Build(detZaak, mapping);
+
+                // Phase B: Execute
+
                 // Check if zaak already exists in OpenZaak and delete it to allow re-run
                 var existingZaak = await _openZaakApiClient.GetZaakByIdentificatie(detZaak.FunctioneleIdentificatie);
                 if (existingZaak != null)
@@ -58,33 +78,29 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                     await DeleteExistingZaakAndRelatedObjectsAsync(existingZaak, token);
                 }
 
-                var createZaakRequest = CreateOzZaakCreationRequest(detZaak, mapping.OpenZaaktypeId, mapping.Rsin, mapping.ZaakVertrouwelijkheidMappings);
-
                 OzZaak createdZaak;
                 using (ActivitySource.StartActivity("CreateZaak"))
                 {
-                    createdZaak = await _openZaakApiClient.CreateZaak(createZaakRequest);
+                    createdZaak = await _openZaakApiClient.CreateZaak(plan.ZaakRequest);
                 }
 
-                var informatieObjectTypen = await _openZaakApiClient.GetInformatieobjecttypenUrlsForZaaktype(createdZaak.Zaaktype);
-                var firstInformatieObjectType = informatieObjectTypen.First();
-
                 // Create resultaat for the zaak based on resultaat mapping (must be run before status)
-                await MigrateResultaatAsync(detZaak, createdZaak, mapping, token);
+                await ExecuteResultaatPlanAsync(plan.Resultaat, createdZaak, token);
 
                 // Create status for the zaak based on status mapping
-                await MigrateStatusAsync(detZaak, createdZaak, mapping, token);
+                await ExecuteStatusPlanAsync(plan.Status, createdZaak, token);
 
-                await UploadZaakgegevensPdfAsync(detZaak, createdZaak, mapping.PdfInformatieobjecttypeId, mapping.Rsin, token);
+                // Generate and upload the zaakgegevens PDF
+                await ExecutePdfPlanAsync(plan.PdfDocument, detZaak, createdZaak, token);
 
                 // Migrate all documents with their versions
-                await MigrateDocumentsAsync(detZaak, createdZaak, firstInformatieObjectType, mapping.Rsin, mapping.DocumentstatusMappings, mapping.PublicatieNiveauMappings, mapping.DocumenttypeMappings, token);
+                await ExecuteDocumentPlansAsync(plan.Documents, createdZaak, token);
 
                 // Migrate all besluiten for the zaak
-                await MigrateBesluitenAsync(detZaak, createdZaak, mapping.Rsin, mapping.BesluittypeMappings, token);
+                await ExecuteBesluitPlansAsync(plan.Besluiten, createdZaak, token);
 
                 // Migrate rollen (e.g. Behandelaar) to OpenZaak
-                await CreateZaakRolesAsync(detZaak, createdZaak, mapping.RoltypeMappings, token);
+                await ExecuteRolPlansAsync(plan.Rollen, createdZaak, token);
 
                 try
                 {
@@ -124,7 +140,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 activity?.SetStatus(ActivityStatusCode.Error, httpEx.Message);
 
                 return MigrateZaakResult.Failed(
-                    detZaak.FunctioneleIdentificatie,
+                    zaaknummer,
                     "De zaak kon niet worden aangemaakt in het doelsysteem.",
                     httpEx.Message,
                     (int?)httpEx.StatusCode ?? StatusCodes.Status500InternalServerError);
@@ -142,136 +158,11 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                     : StatusCodes.Status500InternalServerError;
 
                 return MigrateZaakResult.Failed(
-                    detZaak.FunctioneleIdentificatie,
+                    zaaknummer,
                     "De zaak kon niet worden aangemaakt in het doelsysteem.",
                     ex.Message,
                     statusCode);
             }
-        }
-
-        private static OzDocument MapToOzDocument(DetDocument item, DetDocumentVersie versie, Uri informatieObjectType, string rsin, Dictionary<string, string> documentstatusMappings, Dictionary<string, string> publicatieNiveauMappings, Dictionary<string, string> documenttypeMappings)
-        {
-            // If kenmerk is longer than 40, fail the migration
-            const int MaxIdentificatieLength = 40;
-            if (item.Kenmerk?.Length > MaxIdentificatieLength)
-            {
-                throw new InvalidDataException($"Document '{item.Titel}' migration failed: The 'kenmerk' field length ({item.Kenmerk.Length}) exceeds the maximum allowed length of {MaxIdentificatieLength} characters.");
-            }
-
-            // Apply data transformations
-            const int MaxTitelLength = 200; // 197 + "..."
-            var titel = TruncateWithDots(item.Titel, MaxTitelLength);
-
-            const int MaxBeschijvingLength = 1000; // 997 + "..."
-            var beschrijving = TruncateWithDots(item.Beschrijving, MaxBeschijvingLength);
-
-            beschrijving ??= "";
-
-            var verschijningsvorm = item.DocumentVorm?.Naam ?? "";
-
-            // Map the document status from DET to OpenZaak
-            var ozDocumentStatus = GetOzDocumentStatus(item, documentstatusMappings);
-
-            var vertrouwelijkheidaanduiding = MapPublicatieNiveau(item.Publicatieniveau, publicatieNiveauMappings, item.Titel);
-
-            var informatieobjecttype = MapDocumenttype(item.Documenttype?.Naam, informatieObjectType, documenttypeMappings, item.Titel);
-
-            var taal = item.Taal?.FunctioneelId.ToLower() ?? "dut";
-            var auteur = versie.Auteur ?? "Auteur_onbekend";
-
-            // Map ondertekening if available
-            Ondertekening? ondertekening = null;
-            if (versie.Ondertekeningen?.Count > 0)
-            {
-                var laasteOndertekening = versie.Ondertekeningen.OrderByDescending(o => o.OndertekenDatum).First();
-                ondertekening = new Ondertekening
-                {
-                    Datum = DateOnly.FromDateTime(laasteOndertekening.OndertekenDatum.DateTime),
-                    Soort = "digitaal"
-                };
-            }
-
-            return new OzDocument
-            {
-                Bestandsnaam = versie.Bestandsnaam,
-                Bronorganisatie = rsin,
-                Formaat = versie.Mimetype,
-                Identificatie = item.Kenmerk ?? "",
-                Informatieobjecttype = informatieobjecttype,
-                Taal = taal,
-                Titel = titel,
-                Vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
-                Bestandsomvang = versie.Documentgrootte,
-                Auteur = auteur,
-                Beschrijving = beschrijving,
-                Creatiedatum = versie.Creatiedatum,
-                Status = ozDocumentStatus,
-                Verschijningsvorm = verschijningsvorm,
-                Link = "",
-                Trefwoorden = [],
-                Ondertekening = ondertekening
-            };
-        }
-
-        private static DocumentVertrouwelijkheidaanduiding MapPublicatieNiveau(string? publicatieNiveau, Dictionary<string, string> publicatieNiveauMappings, string documentTitel)
-        {
-            if (string.IsNullOrWhiteSpace(publicatieNiveau))
-            {
-                throw new InvalidOperationException($"Document '{documentTitel}' migration failed: Publicatieniveau is required but was not provided.");
-            }
-
-            if (!publicatieNiveauMappings.TryGetValue(publicatieNiveau, out var mappedValue))
-            {
-                throw new InvalidOperationException($"Document '{documentTitel}' migration failed: Publicatieniveau '{publicatieNiveau}' has not been mapped to an OpenZaak vertrouwelijkheidaanduiding.");
-            }
-
-            if (!Enum.TryParse<DocumentVertrouwelijkheidaanduiding>(mappedValue, true, out var vertrouwelijkheid))
-            {
-                throw new InvalidOperationException($"Document '{documentTitel}' migration failed: Mapped vertrouwelijkheidaanduiding '{mappedValue}' is not a valid value.");
-            }
-
-            return vertrouwelijkheid;
-        }
-
-        private static Uri MapDocumenttype(string? documenttypeNaam, Uri defaultInformatieobjecttype, Dictionary<string, string> documenttypeMappings, string documentTitel)
-        {
-            if (string.IsNullOrWhiteSpace(documenttypeNaam))
-            {
-                throw new InvalidOperationException($"Document '{documentTitel}' migration failed: Documenttype is required but was not provided.");
-            }
-
-            if (!documenttypeMappings.TryGetValue(documenttypeNaam, out var mappedValue))
-            {
-                throw new InvalidOperationException($"Document '{documentTitel}' migration failed: Documenttype '{documenttypeNaam}' is set on this document, but is not mapped. Please add this documenttype to the corresponding zaaktype in the ESuite");
-            }
-
-            if (Guid.TryParse(mappedValue, out var guid))
-            {
-                var baseUri = defaultInformatieobjecttype.GetLeftPart(UriPartial.Path);
-                var uriWithoutId = baseUri.Substring(0, baseUri.LastIndexOf('/') + 1);
-                return new Uri($"{uriWithoutId}{guid}");
-            }
-
-            return Uri.TryCreate(mappedValue, UriKind.Absolute, out var uri)
-                ? uri
-                : throw new InvalidOperationException($"Document '{documentTitel}' migration failed: Mapped informatieobjecttype value '{mappedValue}' is neither a valid GUID nor a valid URI.");
-        }
-
-        private static DocumentStatus GetOzDocumentStatus(DetDocument document, Dictionary<string, string> documentstatusMappings)
-        {
-            // Look up the mapping for this document status
-            if (!documentstatusMappings.TryGetValue(document.Documentstatus.Naam, out var ozStatusString))
-            {
-                throw new InvalidOperationException($"Document '{document.Titel}' migration failed: No mapping found for DET document status '{document.Documentstatus.Naam}'.");
-            }
-
-            // Parse the string to the enum
-            if (!Enum.TryParse<DocumentStatus>(ozStatusString, out var ozStatus))
-            {
-                throw new InvalidOperationException($"Document '{document.Titel}' migration failed: Invalid OpenZaak document status '{ozStatusString}' configured for DET status '{document.Documentstatus.Naam}'.");
-            }
-
-            return ozStatus;
         }
 
         private async Task CreateAndLinkDocumentAsync(
@@ -340,243 +231,89 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
             }
         }
 
-        private async Task UploadZaakgegevensPdfAsync(DetZaak detZaak, OzZaak createdZaak, Guid pdfInformatieobjecttypeId, string rsin, CancellationToken token)
+        private async Task ExecutePdfPlanAsync(OzDocument ozDocument, DetZaak detZaak, OzZaak createdZaak, CancellationToken token)
         {
             using var activity = ActivitySource.StartActivity("UploadZaakgegevensPdf");
 
-            byte[] pdfBytes;
+            using var stream = new MemoryStream();
             using (ActivitySource.StartActivity("GenerateZaakgegevensPdf"))
             {
-                pdfBytes = pdfGenerator.GenerateZaakgegevensPdf(detZaak);
+                pdfGenerator.GenerateZaakgegevensPdf(detZaak, stream);
             }
-            var fileName = $"zaakgegevens_{detZaak.FunctioneleIdentificatie}.pdf";
-            var informatieobjecttypeUri = new Uri($"{_openZaakApiOptions.BaseUrl}catalogi/api/v1/informatieobjecttypen/{pdfInformatieobjecttypeId}");
 
-            var ozDocument = new OzDocument
-            {
-                Bestandsnaam = fileName,
-                Bronorganisatie = rsin,
-                Formaat = "application/pdf",
-                Identificatie = $"zaakgegevens-{detZaak.FunctioneleIdentificatie}",
-                Informatieobjecttype = informatieobjecttypeUri,
-                Taal = "dut",
-                Titel = $"e-Suite zaakgegevens {detZaak.FunctioneleIdentificatie}",
-                Vertrouwelijkheidaanduiding = DocumentVertrouwelijkheidaanduiding.openbaar,
-                Bestandsomvang = pdfBytes.Length,
-                Auteur = "Automatisch gegenereerd bij migratie vanuit e-Suite",
-                Beschrijving = "Automatisch gegenereerd document met basisgegevens van de zaak uit het bronsysteem",
-                Creatiedatum = DateOnly.FromDateTime(DateTime.Now),
-                Status = DocumentStatus.definitief,
-                Link = "",
-                Verschijningsvorm = "",
-                Trefwoorden = [],
-            };
+            // Create document with the actual PDF size
+            ozDocument.Bestandsomvang = stream.Length;
 
             await CreateAndLinkDocumentAsync(
                 ozDocument,
                 createdZaak,
                 async (savedDoc, ct) =>
                 {
-                    using var pdfStream = new MemoryStream(pdfBytes);
-                    await _openZaakApiClient.UploadBestand(savedDoc, pdfStream, ct);
+                    stream.Seek(0, SeekOrigin.Begin);
+                    await _openZaakApiClient.UploadBestand(savedDoc, stream, ct);
                 },
                 token);
         }
 
-        private async Task MigrateResultaatAsync(DetZaak detZaak, OzZaak createdZaak, MigrateZaakMappingModel mapping, CancellationToken token)
+        private async Task ExecuteResultaatPlanAsync(CreateOzResultaatRequest? plan, OzZaak createdZaak, CancellationToken token)
         {
+            if (plan == null) return;
+
             using var activity = ActivitySource.StartActivity("MigrateResultaat");
+            plan.Zaak = createdZaak.Url;
 
-            if (mapping.ResultaattypeUri == null)
-            {
-                return;
-            }
-
-            // Create the resultaat in OpenZaak
-            var createResultaatRequest = new CreateOzResultaatRequest
-            {
-                Zaak = createdZaak.Url,
-                Resultaattype = mapping.ResultaattypeUri,
-                Toelichting = "Resultaat gemigreerd vanuit e-Suite"
-            };
-
-            await _openZaakApiClient.CreateResultaat(createResultaatRequest);
+            await _openZaakApiClient.CreateResultaat(plan);
         }
 
-        private async Task MigrateStatusAsync(DetZaak detZaak, OzZaak createdZaak, MigrateZaakMappingModel mapping, CancellationToken token)
+        private async Task ExecuteStatusPlanAsync(CreateOzStatusRequest? plan, OzZaak createdZaak, CancellationToken token)
         {
+            if (plan == null) return;
+
             using var activity = ActivitySource.StartActivity("MigrateStatus");
+            plan.Zaak = createdZaak.Url;
 
-            if (mapping.StatustypeUri == null)
-            {
-                return;
-            }
-
-            if (!detZaak.Einddatum.HasValue)
-            {
-                throw new InvalidOperationException(
-                    $"Zaak {detZaak.FunctioneleIdentificatie} has no einddatum. Cannot determine datumStatusGezet.");
-            }
-
-            var datumStatusGezet = detZaak.Einddatum.Value.ToDateTime(TimeOnly.MinValue);
-            var createStatusRequest = new CreateOzStatusRequest
-            {
-                Zaak = createdZaak.Url,
-                Statustype = mapping.StatustypeUri,
-                DatumStatusGezet = datumStatusGezet,
-                Statustoelichting = $"Status gemigreerd vanuit e-Suite"
-            };
-
-            await _openZaakApiClient.CreateStatus(createStatusRequest);
+            await _openZaakApiClient.CreateStatus(plan);
         }
 
-        private async Task CreateZaakRolesAsync(DetZaak detZaak, OzZaak createdZaak, Dictionary<DetRolType, Uri> roltypeMappings, CancellationToken token)
+        private async Task ExecuteRolPlansAsync(IReadOnlyCollection<OzCreateRolRequest> rollen, OzZaak createdZaak, CancellationToken token)
         {
-            if (roltypeMappings.TryGetValue(DetRolType.behandelaar, out var behandelaarRoltypeUrl))
+            List<OzRoltype>? ozRoltypes = null;
+            foreach (var rol in rollen)
             {
-                await CreateBehandelaarRolAsync(detZaak, createdZaak, behandelaarRoltypeUrl, token);
-            }
-
-            if (roltypeMappings.TryGetValue(DetRolType.initiator, out var initiatorRoltypeUrl))
-            {
-                await CreateInitiatorRolAsync(detZaak, createdZaak, initiatorRoltypeUrl, token);
-            }
-
-            await CreateBetrokkenenRollenAsync(detZaak, createdZaak, roltypeMappings, token);
-        }
-
-        private async Task CreateBehandelaarRolAsync(DetZaak detZaak, OzZaak createdZaak, Uri roltypeUrl, CancellationToken token)
-        {
-            if (string.IsNullOrWhiteSpace(detZaak.Behandelaar))
-            {
-                return;
-            }
-            await CreateRolAsync(new OzCreateRolRequest
-            {
-                Zaak = createdZaak.Url,
-                BetrokkeneType = BetrokkeneType.medewerker,
-                Roltype = roltypeUrl,
-                BetrokkeneIdentificatie = new OzBetrokkeneIdentificatie
+                rol.Zaak = createdZaak.Url;
+                try
                 {
-                    Identificatie = detZaak.Behandelaar
+                    await _openZaakApiClient.CreateRol(rol, token);
                 }
-            }, DetRolType.behandelaar, token);
-        }
-
-        private async Task CreateInitiatorRolAsync(DetZaak detZaak, OzZaak createdZaak, Uri roltypeUrl, CancellationToken token)
-        {
-            var initiator = detZaak.Initiator;
-
-            if (initiator == null || initiator.Subjecttype == null)
-            {
-                return;
-            }
-
-            var subjecttype = initiator.Subjecttype.Value;
-
-            var (betrokkeneType, betrokkeneIdentificatie) = MapBetrokkeneIdentificatie(subjecttype, initiator);
-            var rolRequest = new OzCreateRolRequest
-            {
-                Zaak = createdZaak.Url,
-                Roltype = roltypeUrl,
-                BetrokkeneType = betrokkeneType,
-                BetrokkeneIdentificatie = betrokkeneIdentificatie
-            };
-
-            if (HasEmptyBetrokkeneIdentificatie(rolRequest.BetrokkeneIdentificatie))
-            {
-                logger.LogWarning(
-                    "Skipping initiator with Subjecttype={Subjecttype}: " +
-                    "BetrokkeneIdentificatie has no filled fields (InpBsn, KvkNummer, VestigingsNummer are all empty).",
-                    initiator.Subjecttype);
-                return;
-            }
-
-            await CreateRolAsync(rolRequest, DetRolType.initiator, token);
-        }
-
-        private async Task CreateBetrokkenenRollenAsync(DetZaak detZaak, OzZaak createdZaak, Dictionary<DetRolType, Uri> roltypeMappings, CancellationToken token)
-        {
-            var betrokkenen = detZaak.Betrokkenen;
-
-            if (betrokkenen == null || betrokkenen.Count == 0)
-            {
-                return;
-            }
-
-            foreach (var betrokkene in betrokkenen)
-            {
-
-                var betrokkeneDetails = betrokkene.Betrokkene;
-                var betrokkeneRolType = betrokkene.TypeBetrokkenheid;
-
-                if (betrokkeneRolType == null ||
-                    !roltypeMappings.TryGetValue(betrokkeneRolType.Value, out var roltypeUrl) ||
-                    betrokkeneDetails == null ||
-                    betrokkeneDetails.Subjecttype == null)
+                catch (HttpRequestException ex) when (ex.Message.Contains("max-occurences", StringComparison.OrdinalIgnoreCase))
                 {
-                    continue;
+                    ozRoltypes ??= await _openZaakApiClient.GetRoltypesForZaaktype(createdZaak.Zaaktype);
+                    var rolTypeUrl = rol.Roltype.ToString();
+                    var rolType = ozRoltypes.FirstOrDefault(rt => rt.Url == rolTypeUrl);
+                    var omschrijving = rolType?.Omschrijving ?? "ONBEKEND";
+                    var omschrijvingGeneriek = rolType?.OmschrijvingGeneriek ?? "ONBEKEND";
+                    throw new InvalidOperationException(
+                        $"De rol '{omschrijving}' kan niet worden aangemaakt omdat OpenZaak het maximale aantal exemplaren voor dit roltype '{omschrijvingGeneriek}' al heeft bereikt. " +
+                        $"Pas de roltypemapping aan zodat het roltype '{omschrijvingGeneriek}' niet meer dan één keer wordt toegewezen aan dezelfde zaak.",
+                        ex);
                 }
-
-                var subjecttype = betrokkeneDetails.Subjecttype;
-
-                var (betrokkeneType, betrokkeneIdentificatie) = MapBetrokkeneIdentificatie(subjecttype.Value, betrokkeneDetails);
-                var rolRequest = new OzCreateRolRequest
-                {
-                    Zaak = createdZaak.Url,
-                    Roltype = roltypeUrl,
-                    BetrokkeneType = betrokkeneType,
-                    BetrokkeneIdentificatie = betrokkeneIdentificatie,
-                    IndicatieMachtiging = betrokkeneRolType == DetRolType.gemachtigde
-                        ? "gemachtigde"
-                        : null
-                };
-
-                if (HasEmptyBetrokkeneIdentificatie(rolRequest.BetrokkeneIdentificatie))
-                {
-                    logger.LogWarning(
-                        "Skipping betrokkene with TypeBetrokkenheid={TypeBetrokkenheid}: " +
-                        "BetrokkeneIdentificatie has no filled fields (InpBsn, KvkNummer, VestigingsNummer are all empty).",
-                        betrokkeneRolType);
-                    continue;
-                }
-
-                await CreateRolAsync(rolRequest, betrokkeneRolType.Value, token);
-            }
-        }
-
-        private async Task CreateRolAsync(OzCreateRolRequest request, DetRolType rolType, CancellationToken token)
-        {
-            try
-            {
-                await _openZaakApiClient.CreateRol(request, token);
-            }
-            catch (HttpRequestException ex) when (ex.Message.Contains("max-occurences", StringComparison.OrdinalIgnoreCase))
-            {
-                throw new InvalidOperationException(
-                    $"De rol '{rolType}' kan niet worden aangemaakt omdat OpenZaak het maximale aantal exemplaren voor dit roltype al heeft bereikt. " +
-                    $"Pas de roltypemapping aan zodat het roltype '{rolType}' niet meer dan één keer wordt toegewezen aan dezelfde zaak.",
-                    ex);
             }
         }
 
         /// <summary>
         /// Migrates all besluiten for a zaak to OpenZaak.
         /// </summary>
-        private async Task MigrateBesluitenAsync(DetZaak detZaak, OzZaak createdZaak, string rsin, Dictionary<string, Guid> besluittypeMappings, CancellationToken token)
+        private async Task ExecuteBesluitPlansAsync(IReadOnlyList<CreateOzBesluitRequest> besluitPlans, OzZaak createdZaak, CancellationToken token)
         {
             using var activity = ActivitySource.StartActivity("MigrateBesluiten");
 
-            if (detZaak.Besluiten == null || detZaak.Besluiten.Count == 0)
-            {
-                return;
-            }
+            if (besluitPlans.Count == 0) return;
 
-            foreach (var detBesluit in detZaak.Besluiten)
+            foreach (var ozBesluitRequest in besluitPlans)
             {
                 try
                 {
-                    var ozBesluitRequest = MapToOzBesluit(detBesluit, createdZaak, rsin, besluittypeMappings);
+                    ozBesluitRequest.Zaak = createdZaak.Url;
                     await _openZaakApiClient.CreateBesluit(ozBesluitRequest);
                 }
                 catch (Exception ex)
@@ -588,90 +325,45 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                         : $" | {ex.GetType().Name}: {ex.Message}";
 
                     throw new Exception(
-                        $"Migratie onderbroken: besluit '{detBesluit.FunctioneleIdentificatie}' kon niet worden gemigreerd{httpStatusInfo}",
+                        $"Migratie onderbroken: besluit '{ozBesluitRequest.Identificatie}' kon niet worden gemigreerd{httpStatusInfo}",
                         ex);
                 }
             }
-        }
-
-        private CreateOzBesluitRequest MapToOzBesluit(DetBesluit detBesluit, OzZaak createdZaak, string rsin, Dictionary<string, Guid> besluittypeMappings)
-        {
-            // Truncate identificatie to 47 characters + "..." = 50 max (OpenZaak limit)
-            const int MaxIdentificatieLength = 50;
-            var identificatie = TruncateWithDots(detBesluit.FunctioneleIdentificatie, MaxIdentificatieLength);
-
-            // Get the besluittype URI based on the mapping
-            var besluittypeUri = GetBesluittypeUri(detBesluit.Besluittype.Naam, besluittypeMappings, detBesluit.FunctioneleIdentificatie);
-
-            // Use ingangsdatum if available, otherwise fall back to 01-01-0001
-            var ingangsdatum = detBesluit.Ingangsdatum ?? new DateOnly(1, 1, 1);
-
-            return new CreateOzBesluitRequest
-            {
-                Identificatie = identificatie,
-                VerantwoordelijkeOrganisatie = rsin,
-                Besluittype = besluittypeUri,
-                Zaak = createdZaak.Url,
-                Datum = detBesluit.BesluitDatum,
-                Toelichting = detBesluit.Toelichting ?? "",
-                Bestuursorgaan = "",
-                Ingangsdatum = ingangsdatum,
-                Vervaldatum = detBesluit.Vervaldatum,
-                Publicatiedatum = detBesluit.Publicatiedatum,
-                UiterlijkeReactiedatum = detBesluit.Reactiedatum,
-                Vervalreden = Vervalreden.Blank
-            };
-        }
-
-        private Uri GetBesluittypeUri(string detBesluittypeNaam, Dictionary<string, Guid> besluittypeMappings, string besluitIdentificatie)
-        {
-            if (!besluittypeMappings.TryGetValue(detBesluittypeNaam, out var ozBesluittypeId))
-            {
-                throw new InvalidOperationException(
-                    $"Besluit '{besluitIdentificatie}' migration failed: No mapping found for DET besluittype '{detBesluittypeNaam}'.");
-            }
-
-            var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
-            return new Uri($"{openZaakBaseUrl}catalogi/api/v1/besluittypen/{ozBesluittypeId}");
         }
 
         /// <summary>
         /// Migrates all documents with their versions in the correct order.
         /// First version is created, next versions update the same document (OpenZaak auto-increments version).
         /// </summary>
-        private async Task MigrateDocumentsAsync(DetZaak detZaak, OzZaak createdZaak, Uri informatieObjectType, string rsin, Dictionary<string, string> documentstatusMappings, Dictionary<string, string> publicatieNiveauMappings, Dictionary<string, string> documenttypeMappings, CancellationToken token)
+        private async Task ExecuteDocumentPlansAsync(IReadOnlyList<DocumentMigrationPlan> documentPlans, OzZaak createdZaak, CancellationToken token)
         {
             using var activity = ActivitySource.StartActivity("MigrateDocuments");
-            activity?.SetTag("zaak.document_count", detZaak?.Documenten?.Count ?? 0);
+            activity?.SetTag("zaak.document_count", documentPlans.Count);
 
-            foreach (var document in detZaak?.Documenten ?? [])
+            foreach (var documentPlan in documentPlans)
             {
-                var sortedVersions = document.DocumentVersies.OrderBy(v => v.Versienummer).ToList();
-
                 OzDocument? mainDocument = null;
 
-                for (var i = 0; i < sortedVersions.Count; i++)
+                for (var i = 0; i < documentPlan.Versions.Count; i++)
                 {
-                    var detVersie = sortedVersions[i];
+                    var versionPlan = documentPlan.Versions[i];
                     var isFirstVersion = i == 0;
 
                     try
                     {
-                        var ozDocument = MapToOzDocument(document, detVersie, informatieObjectType, rsin, documentstatusMappings, publicatieNiveauMappings, documenttypeMappings);
-
                         if (isFirstVersion)
                         {
                             // create new document and link to zaak
                             OzDocument? capturedDocument = null;
 
                             await CreateAndLinkDocumentAsync(
-                                ozDocument,
+                                versionPlan.Document,
                                 createdZaak,
                                 async (savedDoc, ct) =>
                                 {
                                     capturedDocument = savedDoc;
                                     await detClient.GetDocumentInhoudAsync(
-                                        detVersie.DocumentInhoudID,
+                                        versionPlan.DocumentInhoudId,
                                         async (stream, streamCt) => await _openZaakApiClient.UploadBestand(savedDoc, stream, streamCt),
                                         ct);
                                 },
@@ -687,9 +379,8 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                                 throw new InvalidOperationException("First document version must be created before updating");
                             }
 
-                            await UpdateDocumentVersionAsync(mainDocument.Id, ozDocument, detVersie.DocumentInhoudID, token);
+                            await UpdateDocumentVersionAsync(mainDocument.Id, versionPlan.Document, versionPlan.DocumentInhoudId, token);
                         }
-
                     }
                     catch (Exception ex)
                     {
@@ -700,158 +391,37 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                             : $" | {ex.GetType().Name}: {ex.Message}";
 
                         throw new Exception(
-                            $"Migratie onderbroken: versie {detVersie.Versienummer} van document '{document.Titel}' (bestand: {detVersie.Bestandsnaam}) kon niet worden gemigreerd{httpStatusInfo}",
+                            $"Migratie onderbroken: versie {i + 1} van document '{versionPlan.Document.Titel}' (bestand: {versionPlan.Document.Bestandsnaam}) kon niet worden gemigreerd{httpStatusInfo}",
                             ex);
                     }
                 }
             }
         }
 
-        private CreateOzZaakRequest CreateOzZaakCreationRequest(DetZaak detZaak, Guid ozZaaktypeId, string rsin, Dictionary<bool, ZaakVertrouwelijkheidaanduiding> vertrouwelijkheidMappings)
+        private async Task<DetZaak> FetchZaakFromDetAsync(string zaaknummer)
         {
-            const int MaxZaaknummerLength = 40;
-            if (detZaak.FunctioneleIdentificatie.Length > MaxZaaknummerLength)
+            logger.LogDebug("Fetching full details for zaak {Zaaknummer} from DET", zaaknummer);
+
+            try
             {
-                throw new InvalidDataException($"Zaak '{detZaak.FunctioneleIdentificatie}' migration failed: The 'zaaknummer' field length ({detZaak.FunctioneleIdentificatie.Length}) exceeds the maximum allowed length of {MaxZaaknummerLength} characters.");
+                var zaak = await detClient.GetZaakByZaaknummer(zaaknummer);
+                return zaak ?? throw new InvalidOperationException($"This zaaknumber '{zaaknummer}' is not found in the DET API");
             }
-
-            // First apply data transformation to follow OpenZaak constraints
-            var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
-            var url = new Uri($"{openZaakBaseUrl}catalogi/api/v1/zaaktypen/{ozZaaktypeId}");
-
-            var registratieDatum = detZaak.CreatieDatumTijd.ToString("yyyy-MM-dd");
-
-            var startDatum = detZaak.Startdatum.ToString("yyyy-MM-dd");
-
-            const int MaxOmschrijvingLength = 80;
-            var omschrijving = TruncateWithDots(detZaak.Omschrijving, MaxOmschrijvingLength);
-
-            const int MaxToelichtingLength = 1000;
-            var toelichting = TruncateWithDots(detZaak.RedenStart, MaxToelichtingLength);
-
-            var communicatiekanaalNaam = detZaak.Kanaal?.Naam;
-
-            var einddatumGepland = detZaak.Streefdatum.ToString("yyyy-MM-dd");
-            var uiterlijkeEinddatumAfdoening = detZaak.Fataledatum?.ToString("yyyy-MM-dd");
-            var archiefactiedatum = detZaak.ArchiveerGegevens?.BewaartermijnEinddatum?.ToString("yyyy-MM-dd");
-            var laatsteBetaaldatum = detZaak.Betaalgegevens?.TransactieDatum?.ToString("yyyy-MM-dd");
-
-            List<OzZaakKenmerk>? kenmerken = null;
-            if (!string.IsNullOrWhiteSpace(detZaak.ExterneIdentificatie))
+            catch (HttpRequestException ex)
             {
-                kenmerken =
-                [
-                    new OzZaakKenmerk
-                    {
-                        Kenmerk = detZaak.ExterneIdentificatie,
-                        Bron = "e-Suite"
-                    }
-                ];
+                throw new HttpRequestException($"Failed to fetch zaak from DET API: {ex.Message}", ex, ex.StatusCode);
             }
-
-            OzZaakgeometrie? zaakgeometrie = null;
-            if (detZaak.Geolocatie?.Type != null && detZaak.Geolocatie?.Point2D != null)
-            {
-                zaakgeometrie = new OzZaakgeometrie
-                {
-                    Type = detZaak.Geolocatie.Type,
-                    Coordinates = detZaak.Geolocatie.Point2D
-                };
-            }
-
-            var vertrouwelijkheidaanduiding = MapVertrouwelijkheid(detZaak.Vertrouwelijk, vertrouwelijkheidMappings, detZaak.FunctioneleIdentificatie);
-
-            // Now create the request
-            var createRequest = new CreateOzZaakRequest
-            {
-                Identificatie = detZaak.FunctioneleIdentificatie,
-                Bronorganisatie = rsin, // moet een valide rsin zijn
-                Omschrijving = omschrijving,
-                Zaaktype = url,
-                VerantwoordelijkeOrganisatie = rsin,  // moet een valide rsin zijn
-                Startdatum = startDatum,
-
-                //verplichte velden, ookal zeggen de specs van niet
-                Registratiedatum = registratieDatum,
-                Vertrouwelijkheidaanduiding = vertrouwelijkheidaanduiding,
-                Betalingsindicatie = "",
-                Archiefstatus = "nog_te_archiveren",
-                EinddatumGepland = einddatumGepland,
-                UiterlijkeEinddatumAfdoening = uiterlijkeEinddatumAfdoening,
-                Toelichting = toelichting ?? "",
-                Archiefactiedatum = archiefactiedatum,
-                LaatsteBetaaldatum = laatsteBetaaldatum,
-                Zaakgeometrie = zaakgeometrie,
-                CommunicatiekanaalNaam = communicatiekanaalNaam,
-                Kenmerken = kenmerken
-            };
-
-            return createRequest;
-        }
-
-        private static ZaakVertrouwelijkheidaanduiding MapVertrouwelijkheid(bool detVertrouwelijk, Dictionary<bool, ZaakVertrouwelijkheidaanduiding> vertrouwelijkheidMappings, string zaakIdentificatie)
-        {
-            if (!vertrouwelijkheidMappings.TryGetValue(detVertrouwelijk, out var ozVertrouwelijkheidaanduiding))
-            {
-                throw new InvalidOperationException($"Zaak '{zaakIdentificatie}' migration failed: No mapping found for vertrouwelijkheid '{detVertrouwelijk}'.");
-            }
-
-            return ozVertrouwelijkheidaanduiding;
-        }
-
-        private static bool HasEmptyBetrokkeneIdentificatie(OzBetrokkeneIdentificatie id) =>
-            string.IsNullOrWhiteSpace(id.InpBsn) &&
-            string.IsNullOrWhiteSpace(id.KvkNummer) &&
-            string.IsNullOrWhiteSpace(id.VestigingsNummer) &&
-            string.IsNullOrWhiteSpace(id.Identificatie);
-
-        private static (BetrokkeneType, OzBetrokkeneIdentificatie) MapBetrokkeneIdentificatie(
-            DetSubjecttype subjecttype, DetBetrokkenePersoon persoon) =>
-            subjecttype == DetSubjecttype.persoon
-                ? (BetrokkeneType.natuurlijk_persoon, new OzBetrokkeneIdentificatie { InpBsn = persoon.BurgerServiceNummer })
-                : (BetrokkeneType.niet_natuurlijk_persoon, new OzBetrokkeneIdentificatie
-                {
-                    KvkNummer = persoon.KvkNummer,
-                    VestigingsNummer = persoon.Vestigingsnummer
-                });
-
-        /// <summary>
-        /// Truncates the string when the length of the input string exceeds the maxLength
-        /// If this happen three dots are added to the end to indiciate that the orignal value was truncated
-        ///
-        /// The maxLength param will be the length of the string with dots
-        /// Example: input: [hello world], maxlength[5] -> output: he... [length=5]
-        /// </summary>
-        [return: NotNullIfNotNull(nameof(input))]
-        private static string? TruncateWithDots(string? input, int maxLength)
-        {
-            if (string.IsNullOrWhiteSpace(input) || input.Length <= maxLength)
-                return input;
-
-            var dots = "...";
-
-            // edge case if the max length is equal or smaller than the size of the dots
-            // this would not happen unless the allowed input is really tiny, but lets return the dots just incase
-            // so we can safely substract dots.length from maxLength later without it becoming negative
-            if (dots.Length >= maxLength)
-            {
-                return dots;
-            }
-
-            var truncatedInput = input[..(maxLength - dots.Length)].TrimEnd();
-
-            return truncatedInput + dots;
         }
 
         /// <summary>
         /// Deletes an existing zaak and all its related objects from OpenZaak.
-        /// 
+        ///
         /// Note: The DELETE zaak endpoint automatically cascades and deletes:
         /// - All statussen (statuses)
         /// - The resultaat (result)
         /// - All zaakinformatieobjecten (document links)
         /// - All rollen, zaakobjecten, zaakeigenschappen, zaakkenmerken, klantcontacten
-        /// 
+        ///
         /// We must manually delete:
         /// - Besluiten
         /// - The actual documents (enkelvoudiginformatieobjecten)

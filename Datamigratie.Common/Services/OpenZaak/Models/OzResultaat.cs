@@ -1,4 +1,4 @@
-namespace Datamigratie.Common.Services.OpenZaak.Models
+﻿namespace Datamigratie.Common.Services.OpenZaak.Models
 {
     public class OzResultaat
     {
@@ -10,7 +10,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
 
     public class CreateOzResultaatRequest
     {
-        public required Uri Zaak { get; set; }
+        public Uri? Zaak { get; set; }
         public required Uri Resultaattype { get; set; }
         public string? Toelichting { get; set; }
     }

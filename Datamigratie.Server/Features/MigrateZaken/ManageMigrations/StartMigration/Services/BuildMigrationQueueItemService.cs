@@ -1,8 +1,9 @@
-﻿using Datamigratie.Common.Services.Det;
+﻿using Datamigratie.Common.Config;
+using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak.Models;
+using Microsoft.Extensions.Options;
 using Datamigratie.Data;
-using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Models;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Queues.Items;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Besluittype;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Documentstatus;
@@ -13,6 +14,7 @@ using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Roltype;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Status;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Vertrouwelijkheid;
+using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Mappers;
 using Datamigratie.Server.Helpers;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,93 +37,95 @@ public class BuildMigrationQueueItemService(
     IValidateBesluittypeMappingsService validateBesluittypeMappingsService,
     IValidatePdfInformatieobjecttypeMappingService validatePdfInformatieobjecttypeMappingService,
     IValidateRoltypeMappingsService validateRoltypeMappingsService,
-    ILogger<BuildMigrationQueueItemService> logger) : IBuildMigrationQueueItemService
+    IOptions<OpenZaakApiOptions> openZaakOptions) : IBuildMigrationQueueItemService
 {
+    private readonly string _openZaakBaseUrl = openZaakOptions.Value.BaseUrl;
     public async Task<MigrationQueueItem> ValidateAndBuildAsync(string detZaaktypeId, IZakenSelector zakenSelector)
     {
         var detZaaktype = await detApiClient.GetZaaktypeDetail(detZaaktypeId)
             ?? throw new InvalidOperationException($"DET Zaaktype '{detZaaktypeId}' not found.");
 
-        await ValidateZaaktypeMappingAsync(detZaaktype);
+        var ozZaaktypeId = await GetOzZaaktypeIdAsync(detZaaktype);
 
-        var rsinMapping = await GetRsinMappingAsync();
-        var statusMappings = await GetStatusMappingsAsync(detZaaktype);
-        var resultaatMappings = await GetResultaattypeMappingsAsync(detZaaktype);
-        var documentstatusMappings = await GetDocumentstatusMappingsAsync();
-        var publicatieNiveauMappings = await GetPublicatieNiveauMappingsAsync(detZaaktype);
-        var documenttypeMappings = await GetDocumenttypeMappingsAsync(detZaaktype);
-        var vertrouwelijkheidMappings = await GetVertrouwelijkheidMappingsAsync(detZaaktype);
-        var besluittypeMappings = await GetBesluittypeMappingsAsync(detZaaktype);
-        var pdfInformatieobjecttypeId = await GetPdfInformatieobjecttypeIdAsync(detZaaktype);
-        var roltypeMappings = await GetRoltypeMappingsAsync(detZaaktypeId);
+        var rsin = await GetRsinAsync();
+        var ozZaaktypeUrl = new Uri($"{_openZaakBaseUrl}catalogi/api/v1/zaaktypen/{ozZaaktypeId}");
+        var statusMapper = new StatusMapper(await GetStatusMappingsAsync(detZaaktype));
+        var resultaatMapper = new ResultaatMapper(await GetResultaattypeMappingsAsync(detZaaktype));
+        var zaakMapper = new ZaakMapper(rsin, ozZaaktypeUrl, await GetVertrouwelijkheidMappingsAsync(detZaaktype));
+        var documentMapper = new DocumentMapper(
+            rsin,
+            await GetDocumentstatusMappingsAsync(),
+            await GetPublicatieNiveauMappingsAsync(detZaaktype),
+            await GetDocumenttypeMappingsAsync(detZaaktype));
+        var besluitMapper = new BesluitMapper(rsin, await GetBesluittypeMappingsAsync(detZaaktype));
+        var pdfInformatieobjecttypeUri = await GetPdfInformatieobjecttypeUriAsync(detZaaktype);
+        var pdfMapper = new PdfMapper(rsin, pdfInformatieobjecttypeUri);
+        var rolMapper = new RolMapper(await GetRoltypeMappingsAsync(detZaaktypeId));
 
         return new MigrationQueueItem
         {
             DetZaaktypeId = detZaaktypeId,
             ZakenSelector = zakenSelector,
-            RsinMapping = rsinMapping,
-            StatusMappings = statusMappings,
-            ResultaatMappings = resultaatMappings,
-            DocumentstatusMappings = documentstatusMappings,
-            PublicatieNiveauMappings = publicatieNiveauMappings,
-            DocumenttypeMappings = documenttypeMappings,
-            ZaakVertrouwelijkheidMappings = vertrouwelijkheidMappings,
-            BesluittypeMappings = besluittypeMappings,
-            PdfInformatieobjecttypeId = pdfInformatieobjecttypeId,
-            RoltypeMappings = roltypeMappings
+            ResultaatMapper = resultaatMapper,
+            StatusMapper = statusMapper,
+            ZaakMapper = zaakMapper,
+            DocumentMapper = documentMapper,
+            BesluitMapper = besluitMapper,
+            PdfMapper = pdfMapper,
+            RolMapper = rolMapper
         };
     }
 
-    private async Task ValidateZaaktypeMappingAsync(DetZaaktypeDetail detZaaktype)
+    private async Task<Guid> GetOzZaaktypeIdAsync(DetZaaktypeDetail detZaaktype)
     {
-        var exists = await dbContext.Mappings
-            .AnyAsync(m => m.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie);
+        var mapping = await dbContext.Mappings
+            .FirstOrDefaultAsync(m => m.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie)
+            ?? throw new InvalidOperationException("No zaaktype mapping found. Please configure the zaaktype mapping first.");
 
-        if (!exists)
-            throw new InvalidOperationException("No zaaktype mapping found. Please configure the zaaktype mapping first.");
+        return mapping.OzZaaktypeId;
     }
 
-    private async Task<RsinMapping> GetRsinMappingAsync()
+    private async Task<string> GetRsinAsync()
     {
-        var rsinMapping = await dbContext.RsinConfigurations
-            .Select(x => new RsinMapping { Rsin = x.Rsin! })
+        var rsin = await dbContext.RsinConfigurations
+            .Select(x => x.Rsin)
             .FirstOrDefaultAsync()
             ?? throw new InvalidOperationException("Geen rsin configuratie gevonden.");
 
-        RsinValidator.ValidateRsin(rsinMapping.Rsin, logger);
+        RsinValidator.ValidateRsin(rsin);
 
-        return rsinMapping;
+        return rsin;
     }
 
-    private async Task<Dictionary<string, Guid>> GetStatusMappingsAsync(DetZaaktypeDetail detZaaktype)
+    private async Task<Dictionary<string, Uri>> GetStatusMappingsAsync(DetZaaktypeDetail detZaaktype)
     {
         var (isValid, mappings) = await validateStatusMappingsService.ValidateAndGetStatusMappings(detZaaktype);
         return isValid ? mappings
             : throw new InvalidOperationException("Not all DET statuses have been mapped to OZ statuses. Please configure status mappings first.");
     }
 
-    private async Task<Dictionary<string, Guid>> GetResultaattypeMappingsAsync(DetZaaktypeDetail detZaaktype)
+    private async Task<Dictionary<string, Uri>> GetResultaattypeMappingsAsync(DetZaaktypeDetail detZaaktype)
     {
         var (isValid, mappings) = await validateResultaattypeMappingsService.ValidateAndGetResultaattypeMappings(detZaaktype);
         return isValid ? mappings
             : throw new InvalidOperationException("Not all DET Resultaattypen have been mapped to OZ resultaattypen. Please configure resultaattypen mappings first.");
     }
 
-    private async Task<Dictionary<string, string>> GetDocumentstatusMappingsAsync()
+    private async Task<Dictionary<string, DocumentStatus>> GetDocumentstatusMappingsAsync()
     {
         var (isValid, mappings) = await validateDocumentstatusMappingsService.ValidateAndGetDocumentstatusMappings();
         return isValid ? mappings
             : throw new InvalidOperationException("Not all DET document statuses have been mapped to OZ document statuses. Please configure document status mappings first.");
     }
 
-    private async Task<Dictionary<string, string>> GetPublicatieNiveauMappingsAsync(DetZaaktypeDetail detZaaktype)
+    private async Task<Dictionary<string, DocumentVertrouwelijkheidaanduiding>> GetPublicatieNiveauMappingsAsync(DetZaaktypeDetail detZaaktype)
     {
         var (isValid, mappings) = await validatePublicatieNiveauMappingsService.ValidateAndGetPublicatieNiveauMappings(detZaaktype);
         return isValid ? mappings
             : throw new InvalidOperationException("Not all publicatieniveaus have been mapped. Please configure publicatieniveau mappings first.");
     }
 
-    private async Task<Dictionary<string, string>> GetDocumenttypeMappingsAsync(DetZaaktypeDetail detZaaktype)
+    private async Task<Dictionary<string, Uri>> GetDocumenttypeMappingsAsync(DetZaaktypeDetail detZaaktype)
     {
         var (isValid, mappings) = await validateDocumenttypeMappingsService.ValidateAndGetDocumenttypeMappings(detZaaktype);
         return isValid ? mappings
@@ -135,17 +139,17 @@ public class BuildMigrationQueueItemService(
             : throw new InvalidOperationException("Not all vertrouwelijkheid values have been mapped. Please configure vertrouwelijkheid mappings first.");
     }
 
-    private async Task<Dictionary<string, Guid>> GetBesluittypeMappingsAsync(DetZaaktypeDetail detZaaktype)
+    private async Task<Dictionary<string, Uri>> GetBesluittypeMappingsAsync(DetZaaktypeDetail detZaaktype)
     {
         var (isValid, mappings) = await validateBesluittypeMappingsService.ValidateAndGetBesluittypeMappings(detZaaktype);
         return isValid ? mappings
             : throw new InvalidOperationException("Not all DET besluittypen have been mapped to OZ besluittypen. Please configure besluittype mappings first.");
     }
 
-    private async Task<Guid> GetPdfInformatieobjecttypeIdAsync(DetZaaktypeDetail detZaaktype)
+    private async Task<Uri> GetPdfInformatieobjecttypeUriAsync(DetZaaktypeDetail detZaaktype)
     {
-        var (isValid, id) = await validatePdfInformatieobjecttypeMappingService.ValidateAndGetPdfInformatieobjecttypeMapping(detZaaktype);
-        return isValid && id is not null ? id.Value
+        var (isValid, url) = await validatePdfInformatieobjecttypeMappingService.ValidateAndGetPdfInformatieobjecttypeMapping(detZaaktype);
+        return isValid && url is not null ? url
             : throw new InvalidOperationException("No informatieobjecttype has been configured for the generated PDF. Please configure the PDF informatieobjecttype mapping first.");
     }
 

@@ -1,49 +1,16 @@
-﻿using Datamigratie.Common.Services.Det.Models;
-using Datamigratie.Common.Services.OpenZaak.Models;
-using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Roltype;
+﻿using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Mappers;
+using Datamigratie.Common.Services.Det.Models;
 
 namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models
 {
     public class MigrateZaakMappingModel
     {
-        public required string Rsin { get; set; }
-        public Guid OpenZaaktypeId { get; internal set; }
-        public Uri? ResultaattypeUri { get; set; }
-        public Uri? StatustypeUri { get; set; }
-
-        /// <summary>
-        /// Document status mappings: DetDocumentstatusNaam -> OzDocumentstatus (e.g., "in_bewerking", "definitief")
-        /// </summary>
-        public required Dictionary<string, string> DocumentstatusMappings { get; set; }
-
-        /// <summary>
-        /// Publicatieniveau mappings: DetPublicatieNiveau -> OzVertrouwelijkheidaanduiding
-        /// </summary>
-        public Dictionary<string, string> PublicatieNiveauMappings { get; set; } = new();
-
-        /// <summary>
-        /// Documenttype mappings: DetDocumenttypeNaam -> OzInformatieobjecttypeUrl
-        /// </summary>
-        public Dictionary<string, string> DocumenttypeMappings { get; set; } = new();
-
-        /// <summary>
-        /// Vertrouwelijkheid mappings: DetVertrouwelijkheid (true/false) -> OzVertrouwelijkheidaanduiding
-        /// </summary>
-        public required Dictionary<bool, ZaakVertrouwelijkheidaanduiding> ZaakVertrouwelijkheidMappings { get; set; }
-
-        /// <summary>
-        /// Besluittype mappings: DetBesluittypeNaam -> OzBesluittypeId
-        /// </summary>
-        public required Dictionary<string, Guid> BesluittypeMappings { get; set; }
-
-        /// <summary>
-        /// The OZ informatieobjecttype ID to assign to the generated PDF document.
-        /// </summary>
-        public required Guid PdfInformatieobjecttypeId { get; set; }
-
-        /// <summary>
-        /// Roltype mappings: DetRol -> OzRoltypeUrl. Alleen-PDF rollen are excluded (no OZ rol needed).
-        /// </summary>
-        public required Dictionary<DetRolType, Uri> RoltypeMappings { get; set; }
+        public required ResultaatMapper ResultaatMapper { get; set; }
+        public required StatusMapper StatusMapper { get; set; }
+        public required ZaakMapper ZaakMapper { get; set; }
+        public required DocumentMapper DocumentMapper { get; set; }
+        public required BesluitMapper BesluitMapper { get; set; }
+        public required PdfMapper PdfMapper { get; set; }
+        public required RolMapper RolMapper { get; set; }
     }
 }
