@@ -19,12 +19,14 @@ public class ValidatePdfInformatieobjecttypeMappingService(
 
     public async Task<(bool IsValid, Uri? OzInformatieobjecttypeUri)> ValidateAndGetPdfInformatieobjecttypeMapping(DetZaaktypeDetail detZaaktype)
     {
-        var mapping = await context.PdfInformatieobjecttypeMappings
-            .Where(m => m.ZaaktypenMapping.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie)
+        var mapping = await context.PropertyMappings
+            .Where(m => m.ZaaktypenMapping!.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie && m.Property == "documenttype" && m.SourceId == "export-pdf")
+            .Select(m => m.TargetId)
             .FirstOrDefaultAsync();
+
 
         return mapping is null
             ? (false, null)
-            : (true, new Uri($"{_openZaakBaseUrl}catalogi/api/v1/informatieobjecttypen/{mapping.OzInformatieobjecttypeId}"));
+            : (true, new Uri(mapping));
     }
 }

@@ -29,13 +29,9 @@ public class ValidateStatusMappingsService(
             return (true, new Dictionary<string, Uri>());
         }
 
-        var mappings = await context.StatusMappings
-            .Where(sm => sm.ZaaktypenMapping.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie)
-            .ToListAsync();
-
-        var mappingDictionary = mappings.ToDictionary(
-            m => m.DetStatusNaam,
-            m => new Uri($"{_openZaakBaseUrl}catalogi/api/v1/statustypen/{m.OzStatustypeId}"));
+        var mappingDictionary = await context.PropertyMappings
+            .Where(sm => sm.ZaaktypenMapping!.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie && sm.Property == "status" && sm.SourceId != null)
+            .ToDictionaryAsync(x => x.SourceId!, x => new Uri($"{_openZaakBaseUrl}catalogi/api/v1/statustypen/{x.TargetId}"));
 
         // checking if all DET statuses are mapped
         var allMapped = detStatuses.All(status => mappingDictionary.ContainsKey(status));

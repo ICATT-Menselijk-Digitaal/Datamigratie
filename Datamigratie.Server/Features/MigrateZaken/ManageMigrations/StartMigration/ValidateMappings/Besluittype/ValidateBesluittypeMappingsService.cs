@@ -29,22 +29,14 @@ public class ValidateBesluittypeMappingsService(
             return (true, new Dictionary<string, Uri>());
         }
 
-        var zaaktypenMapping = await context.Mappings
-            .FirstOrDefaultAsync(m => m.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie);
-
-        if (zaaktypenMapping == null)
-            return (false, new Dictionary<string, Uri>());
-
-        var mappings = await context.BesluittypeMappings
-            .Where(bm => bm.ZaaktypenMappingId == zaaktypenMapping.Id)
+        var mappings = await context.PropertyMappings
+            .Where(bm => bm.ZaaktypenMapping!.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie && bm.Property == "besluittype" && bm.SourceId != null)
             .ToListAsync();
 
-        var mappingDictionary = mappings.ToDictionary(
-            x => x.DetBesluittypeNaam,
-            x => new Uri($"{_openZaakBaseUrl}catalogi/api/v1/besluittypen/{x.OzBesluittypeId}"));
+        var mappingDictionary = mappings.ToDictionary(x => x.SourceId!, x => new Uri($"{_openZaakBaseUrl}catalogi/api/v1/besluittypen/{x.TargetId}"));
 
         // checking if all active DET besluittypen are mapped
-        var allMapped = detBesluittypen.All(besluittype => mappingDictionary.ContainsKey(besluittype));
+        var allMapped = detBesluittypen.All(mappingDictionary.ContainsKey);
 
         return (allMapped, mappingDictionary);
     }

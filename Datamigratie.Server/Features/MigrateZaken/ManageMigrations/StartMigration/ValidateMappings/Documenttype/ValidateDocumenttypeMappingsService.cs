@@ -17,15 +17,6 @@ public class ValidateDocumenttypeMappingsService(
 {
     public async Task<(bool IsValid, Dictionary<string, Uri> Mappings)> ValidateAndGetDocumenttypeMappings(DetZaaktypeDetail detZaaktype)
     {
-        var zaaktypenMapping = await dbContext.Mappings
-            .FirstOrDefaultAsync(m => m.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie);
-
-        if (zaaktypenMapping == null)
-        {
-            logger.LogWarning("No zaaktype mapping found for zaaktype {DetZaaktypeFunctioneleIdentificatie}", detZaaktype.FunctioneleIdentificatie);
-            return (false, new Dictionary<string, Uri>());
-        }
-
         var documenttypen = detZaaktype.Documenttypen?.ToList() ?? [];
 
         if (documenttypen.Count == 0)
@@ -33,12 +24,12 @@ public class ValidateDocumenttypeMappingsService(
             return (true, new Dictionary<string, Uri>());
         }
 
-        var documenttypeMappings = await dbContext.DocumenttypeMappings
-            .Where(m => m.ZaaktypenMappingId == zaaktypenMapping.Id)
-            .ToListAsync();
+        var documenttypeMappings = await dbContext.PropertyMappings
+            .Where(m => m.ZaaktypenMapping!.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie && m.Property == "documenttype" && m.SourceId != null)
+            .ToDictionaryAsync(x => x.SourceId!, m => new Uri(m.TargetId));
 
         var missingDocumenttypen = documenttypen
-            .Where(dt => !documenttypeMappings.Any(m => m.DetDocumenttypeNaam == dt.Documenttype.Naam))
+            .Where(dt => !documenttypeMappings.Any(m => m.Key == dt.Documenttype.Naam))
             .Select(dt => dt.Documenttype.Naam)
             .ToList();
 
@@ -49,6 +40,6 @@ public class ValidateDocumenttypeMappingsService(
             return (false, new Dictionary<string, Uri>());
         }
 
-        return (true, documenttypeMappings.ToDictionary(m => m.DetDocumenttypeNaam, m => new Uri(m.OzInformatieobjecttypeUrl)));
+        return (true, documenttypeMappings);
     }
 }

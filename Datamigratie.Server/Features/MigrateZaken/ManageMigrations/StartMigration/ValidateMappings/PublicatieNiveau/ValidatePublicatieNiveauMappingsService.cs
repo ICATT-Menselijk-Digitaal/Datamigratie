@@ -17,21 +17,12 @@ public class ValidatePublicatieNiveauMappingsService(
 {
     public async Task<(bool IsValid, Dictionary<string, DocumentVertrouwelijkheidaanduiding> Mappings)> ValidateAndGetPublicatieNiveauMappings(DetZaaktypeDetail detZaaktype)
     {
-        var zaaktypenMapping = await dbContext.Mappings
-            .FirstOrDefaultAsync(m => m.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie);
-
-        if (zaaktypenMapping == null)
-        {
-            logger.LogWarning("No zaaktype mapping found for zaaktype {DetZaaktypeFunctioneleIdentificatie}", detZaaktype.FunctioneleIdentificatie);
-            return (false, new Dictionary<string, DocumentVertrouwelijkheidaanduiding>());
-        }
-
-        var publicatieNiveauMappings = await dbContext.PublicatieNiveauMappings
-            .Where(m => m.ZaaktypenMappingId == zaaktypenMapping.Id)
-            .ToListAsync();
+        var publicatieNiveauMappings = await dbContext.PropertyMappings
+            .Where(m => m.ZaaktypenMapping!.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie && m.Property == "publicatieniveau" && m.SourceId != null)
+            .ToDictionaryAsync(x => x.SourceId!, x => x.TargetId);
 
         var missingPublicatieNiveaus = MappingConstants.PublicatieNiveau.Options
-            .Where(pn => !publicatieNiveauMappings.Any(m => m.DetPublicatieNiveau == pn.Id))
+            .Where(pn => !publicatieNiveauMappings.Any(m => m.Key == pn.Id))
             .ToList();
 
         if (missingPublicatieNiveaus.Count != 0)
@@ -42,12 +33,12 @@ public class ValidatePublicatieNiveauMappingsService(
         }
 
         var invalidMappings = publicatieNiveauMappings
-            .Where(m => !Enum.TryParse<DocumentVertrouwelijkheidaanduiding>(m.OzVertrouwelijkheidaanduiding, true, out _))
+            .Where(m => !Enum.TryParse<DocumentVertrouwelijkheidaanduiding>(m.Value, true, out _))
             .ToList();
 
         if (invalidMappings.Count > 0)
         {
-            var invalidDetails = string.Join(", ", invalidMappings.Select(m => $"'{m.DetPublicatieNiveau}' -> '{m.OzVertrouwelijkheidaanduiding}'"));
+            var invalidDetails = string.Join(", ", invalidMappings.Select(m => $"'{m.Key}' -> '{m.Value}'"));
             var validValues = string.Join(", ", Enum.GetNames(typeof(DocumentVertrouwelijkheidaanduiding)));
             throw new InvalidOperationException(
                 $"Ongeldige OpenZaak vertrouwelijkheidaanduidingen gevonden in mappings: {invalidDetails}. " +
@@ -55,8 +46,8 @@ public class ValidatePublicatieNiveauMappingsService(
         }
 
         var parsedMappings = publicatieNiveauMappings.ToDictionary(
-            m => m.DetPublicatieNiveau,
-            m => Enum.Parse<DocumentVertrouwelijkheidaanduiding>(m.OzVertrouwelijkheidaanduiding, true));
+            m => m.Key,
+            m => Enum.Parse<DocumentVertrouwelijkheidaanduiding>(m.Value, true));
 
         return (true, parsedMappings);
     }

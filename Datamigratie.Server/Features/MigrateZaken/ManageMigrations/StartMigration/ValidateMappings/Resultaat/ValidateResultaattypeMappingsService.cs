@@ -29,16 +29,12 @@ public class ValidateResultaattypeMappingsService(
             return (true, new Dictionary<string, Uri>());
         }
 
-        var mappings = await context.ResultaattypeMappings
-            .Where(rm => rm.ZaaktypenMapping.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie)
-            .ToListAsync();
-
-        var mappingDictionary = mappings.ToDictionary(
-            m => m.DetResultaattypeNaam,
-            m => new Uri($"{_openZaakBaseUrl}catalogi/api/v1/resultaattypen/{m.OzResultaattypeId}"));
+        var mappingDictionary = await context.PropertyMappings
+            .Where(rm => rm.ZaaktypenMapping!.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie && rm.Property == "resultaattype" && rm.SourceId != null)
+            .ToDictionaryAsync(x => x.SourceId!, x => new Uri($"{_openZaakBaseUrl}catalogi/api/v1/resultaattypen/{x.TargetId}"));
 
         // checking if all DET resultaattypen are mapped
-        var allMapped = detResultaattypen.All(resultaat => mappingDictionary.ContainsKey(resultaat));
+        var allMapped = detResultaattypen.All(mappingDictionary.ContainsKey);
 
         return (allMapped, mappingDictionary);
     }

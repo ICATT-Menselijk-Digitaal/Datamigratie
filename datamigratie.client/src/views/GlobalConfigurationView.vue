@@ -54,52 +54,23 @@
       </template>
     </details>
 
-    <documentstatus-mapping-section
-      :det-documentstatussen="detDocumentstatussen"
-      :documentstatus-mappings="documentstatusMappingsFromServer"
-      :all-mapped="allDocumentstatusesMapped"
-      :loading="documentstatusLoading"
-      :show-warning="!allDocumentstatusesMapped"
-      @save="saveDocumentstatusMappings"
-    />
+    <documentstatus-mapping-section />
   </template>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, useTemplateRef } from "vue";
+import { ref, onMounted, useTemplateRef } from "vue";
 import { get, put } from "@/utils/fetchWrapper";
-import type {
-  RsinConfiguration,
-  UpdateRsinConfiguration,
-  DocumentstatusMappingItem,
-  DocumentstatusMappingResponse,
-  SaveDocumentstatusMappingsRequest
-} from "@/types/datamigratie";
-import { detService, type DetDocumentstatus } from "@/services/detService";
 import SimpleSpinner from "@/components/SimpleSpinner.vue";
 import DocumentstatusMappingSection from "@/components/DocumentstatusMappingSection.vue";
 import toast from "@/components/toast/toast";
+import type { Mapping } from "@/components/MappingGrid.vue";
 
 const loading = ref(true);
 const rsin = ref("");
 const originalRsin = ref("");
 const isEditingRsin = ref(false);
-const rsinConfiguration = ref<RsinConfiguration>({});
 const rsinInput = useTemplateRef<HTMLInputElement>("rsinInput");
-
-const detDocumentstatussen = ref<DetDocumentstatus[]>([]);
-const documentstatusMappingsFromServer = ref<DocumentstatusMappingItem[]>([]);
-const documentstatusLoading = ref(false);
-
-const allDocumentstatusesMapped = computed(() => {
-  if (detDocumentstatussen.value.length === 0) return true;
-  return detDocumentstatussen.value.every((status) => {
-    const mapping = documentstatusMappingsFromServer.value.find(
-      (m) => m.detDocumentstatus === status.naam
-    );
-    return mapping && mapping.ozDocumentstatus;
-  });
-});
 
 function validateRsin() {
   if (!rsinInput.value) {
@@ -139,34 +110,20 @@ function cancelRsinEdit() {
   isEditingRsin.value = false;
 }
 
+const serverUrl = `/api/mappings/properties/rsin`;
+
 async function loadConfiguration() {
   loading.value = true;
 
   try {
-    const [rsinConfig, detStatuses, savedMappings] = await Promise.all([
-      get<RsinConfiguration>(`/api/globalmapping/rsin`),
-      detService.getAllDocumentstatussen(),
-      get<DocumentstatusMappingResponse[]>(`/api/globalmapping/documentstatuses`)
-    ]);
-
-    rsinConfiguration.value = rsinConfig;
-    rsin.value = rsinConfig.rsin || "";
-    originalRsin.value = rsinConfig.rsin || "";
-    isEditingRsin.value = !rsinConfig.rsin; // Start in edit mode if no RSIN is set
+    const rsinConfig = await get<Mapping[]>(serverUrl);
+    const rsinValue = rsinConfig[0]?.targetId || "";
+    rsin.value = rsinValue;
+    originalRsin.value = rsinValue;
+    isEditingRsin.value = !rsinValue; // Start in edit mode if no RSIN is set
     if (rsin.value) {
       validateRsin();
     }
-
-    detDocumentstatussen.value = detStatuses;
-
-    // Initialize mappings from saved data
-    documentstatusMappingsFromServer.value = detStatuses.map((status: DetDocumentstatus) => {
-      const existingMapping = savedMappings.find((m) => m.detDocumentstatus === status.naam);
-      return {
-        detDocumentstatus: status.naam,
-        ozDocumentstatus: existingMapping?.ozDocumentstatus || null
-      };
-    });
   } catch (error: unknown) {
     toast.add({ text: `Fout bij laden van de configuratie - ${error}`, type: "error" });
   } finally {
@@ -182,49 +139,17 @@ async function saveRsinConfiguration() {
     }
   }
 
-  loading.value = true;
-
   try {
-    const updated = await put<RsinConfiguration>(`/api/globalmapping/rsin`, {
-      rsin: rsin.value || undefined
-    } as UpdateRsinConfiguration);
-    rsinConfiguration.value = updated;
-    originalRsin.value = updated.rsin || "";
+    originalRsin.value = rsin.value || "";
     isEditingRsin.value = false;
-    toast.add({ text: "RSIN configuratie succesvol opgeslagen." });
+    await put(serverUrl, [
+      {
+        targetId: rsin.value || undefined
+      }
+    ]);
   } catch (error: unknown) {
     toast.add({ text: `Fout bij opslaan van de RSIN - ${error}`, type: "error" });
-  } finally {
-    loading.value = false;
-  }
-}
-
-async function saveDocumentstatusMappings(mappings: DocumentstatusMappingItem[]) {
-  documentstatusLoading.value = true;
-
-  try {
-    const mappingsToSave = mappings
-      .filter((m) => m.ozDocumentstatus)
-      .map((m) => ({
-        detDocumentstatus: m.detDocumentstatus,
-        ozDocumentstatus: m.ozDocumentstatus as string
-      }));
-
-    await put<DocumentstatusMappingResponse[]>(`/api/globalmapping/documentstatuses`, {
-      mappings: mappingsToSave
-    } as SaveDocumentstatusMappingsRequest);
-
-    toast.add({ text: "Documentstatus mappings succesvol opgeslagen." });
-
-    documentstatusMappingsFromServer.value = mappings;
-  } catch (error: unknown) {
-    toast.add({
-      text: `Fout bij opslaan van de documentstatus mappings - ${error}`,
-      type: "error"
-    });
-    throw error;
-  } finally {
-    documentstatusLoading.value = false;
+    isEditingRsin.value = true;
   }
 }
 

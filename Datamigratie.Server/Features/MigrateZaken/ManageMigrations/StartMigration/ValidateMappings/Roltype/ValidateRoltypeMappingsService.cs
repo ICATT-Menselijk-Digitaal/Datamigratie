@@ -15,21 +15,21 @@ public class ValidateRoltypeMappingsService(
 {
     public async Task<(bool IsValid, Dictionary<DetRolType, Uri> Mappings)> ValidateAndGetRoltypeMappings(string detZaaktypeId)
     {
-        var roltypeMappings = await dbContext.RoltypeMappings
-            .Where(m => m.ZaaktypenMapping.DetZaaktypeId == detZaaktypeId)
-            .ToListAsync();
+        var roltypeMappings = await dbContext.PropertyMappings
+            .Where(m => m.ZaaktypenMapping!.DetZaaktypeId == detZaaktypeId && m.Property == "roltype" && m.SourceId != null)
+            .ToDictionaryAsync(m => m.SourceId!, m => m.TargetId);
 
-        var enumValues = new List<(DetRolType DetRol, string? OzRoltypeUrl, bool AlleenPdf)>();
+        var enumValues = new List<(DetRolType DetRol, string? OzRoltypeUrl)>();
         var invalidDetRolValues = new List<string?>();
 
         foreach (var mapping in roltypeMappings)
         {
-            if (!Enum.TryParse<DetRolType>(mapping.DetRol, ignoreCase: true, out var detRol))
+            if (!Enum.TryParse<DetRolType>(mapping.Key, ignoreCase: true, out var detRol))
             {
-                invalidDetRolValues.Add(mapping.DetRol);
+                invalidDetRolValues.Add(mapping.Key);
                 continue;
             }
-            enumValues.Add((detRol, mapping.OzRoltypeUrl, mapping.AlleenPdf));
+            enumValues.Add((detRol, mapping.Value));
         }
 
         if (invalidDetRolValues.Count != 0)
@@ -53,7 +53,7 @@ public class ValidateRoltypeMappingsService(
         }
 
         return (true, enumValues
-            .Where(m => !m.AlleenPdf && m.OzRoltypeUrl is not null)
+            .Where(m => m.OzRoltypeUrl != "alleen_pdf")
             .ToDictionary(m => m.DetRol, m => new Uri(m.OzRoltypeUrl!)));
     }
 }
