@@ -74,7 +74,7 @@ public class StartMigrationServiceTests
         ]);
 
         var migrateZaak = new Mock<IMigrateZaakService>();
-        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()))
+        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<Mappers>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(MigrateZaakResult.Success("zaak-001", "ok"));
 
         // Use a FullMigrationZakenSelector with the mocked detClient
@@ -86,7 +86,7 @@ public class StartMigrationServiceTests
         await sut.PerformMigrationAsync(CreateQueueItem(selector), CancellationToken.None);
 
         // Assert: only closed zaken (zaak-001 and zaak-003) are migrated
-        migrateZaak.Verify(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+        migrateZaak.Verify(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<Mappers>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
         var migration = await context.Migrations.FirstAsync();
         Assert.Equal(2, migration.TotalRecords);
     }
@@ -103,7 +103,7 @@ public class StartMigrationServiceTests
             .ReturnsAsync([new DetZaakMinimal { FunctioneleIdentificatie = "zaak-001", Open = false }]);
 
         var migrateZaak = new Mock<IMigrateZaakService>();
-        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()))
+        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<Mappers>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(MigrateZaakResult.Success("zaak-001", "ok"));
 
         var sut = CreateSut(context, migrateZaak);
@@ -113,7 +113,7 @@ public class StartMigrationServiceTests
 
         // Assert: selector called, one zaak migrated
         selectorMock.Verify(s => s.SelectZakenAsync(ZaaktypeId, It.IsAny<CancellationToken>()), Times.Once);
-        migrateZaak.Verify(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()), Times.Once);
+        migrateZaak.Verify(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<Mappers>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     // --- Group 2: Record counter correctness ---
@@ -125,7 +125,7 @@ public class StartMigrationServiceTests
         await using var context = CreateContext();
 
         var migrateZaak = new Mock<IMigrateZaakService>();
-        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()))
+        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<Mappers>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(MigrateZaakResult.Success("zaak-001", "ok"));
 
         var selector = new Mock<IZakenSelector>();
@@ -154,7 +154,7 @@ public class StartMigrationServiceTests
         await using var context = CreateContext();
 
         var migrateZaak = new Mock<IMigrateZaakService>();
-        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()))
+        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<Mappers>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(MigrateZaakResult.Failed("zaak-001", "fout", "details", 422));
 
         var selector = new Mock<IZakenSelector>();
@@ -184,7 +184,7 @@ public class StartMigrationServiceTests
         await using var context = CreateContext();
 
         var migrateZaak = new Mock<IMigrateZaakService>();
-        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()))
+        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<Mappers>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(MigrateZaakResult.Failed("zaak-001", "fout", new string('x', MigrationRecord.MaxErrorDetailsLength + 5000), 422));
 
         var selector = new Mock<IZakenSelector>();
@@ -208,7 +208,7 @@ public class StartMigrationServiceTests
         await using var context = CreateContext();
 
         var migrateZaak = new Mock<IMigrateZaakService>();
-        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()))
+        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<Mappers>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(MigrateZaakResult.Failed("zaak-001", "De zaak kon niet opgehaald worden uit het bronsysteem.", "Not found", 404));
 
         var selector = new Mock<IZakenSelector>();
@@ -240,7 +240,7 @@ public class StartMigrationServiceTests
         await using var context = CreateContext();
 
         var migrateZaak = new Mock<IMigrateZaakService>();
-        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()))
+        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<Mappers>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(MigrateZaakResult.Failed("zaak-001", "Unexpected error", "Unexpected", 500));
 
         var selector = new Mock<IZakenSelector>();
@@ -271,7 +271,7 @@ public class StartMigrationServiceTests
         await using var context = CreateContext();
 
         var migrateZaak = new Mock<IMigrateZaakService>();
-        migrateZaak.SetupSequence(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()))
+        migrateZaak.SetupSequence(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<Mappers>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(MigrateZaakResult.Success("zaak-001", "ok"))
             .ReturnsAsync(MigrateZaakResult.Failed("zaak-002", "fout", "details", 500))
             .ReturnsAsync(MigrateZaakResult.Success("zaak-003", "ok"));

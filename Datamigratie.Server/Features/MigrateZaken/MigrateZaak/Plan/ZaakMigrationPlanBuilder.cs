@@ -7,7 +7,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Plan
     {
         public static ZaakMigrationPlan Build(
             DetZaak detZaak,
-            MigrateZaakMappingModel mapping)
+            Models.Mappers mapping)
         {
             var zaakRequest = mapping.ZaakMapper.Map(detZaak);
             var resultaat = detZaak.Resultaat is { } detResultaat ? mapping.ResultaatMapper.Map(detResultaat) : null;

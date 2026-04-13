@@ -3,7 +3,7 @@ using Datamigratie.Common.Services.Det.Models;
 
 namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models
 {
-    public class MigrateZaakMappingModel
+    public class Mappers
     {
         public required ResultaatMapper ResultaatMapper { get; set; }
         public required StatusMapper StatusMapper { get; set; }

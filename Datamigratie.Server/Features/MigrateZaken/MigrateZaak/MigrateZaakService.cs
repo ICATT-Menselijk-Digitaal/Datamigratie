@@ -13,7 +13,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
 {
     public interface IMigrateZaakService
     {
-        public Task<MigrateZaakResult> MigrateZaak(string zaaknummer, MigrateZaakMappingModel mapping, CancellationToken token = default);
+        public Task<MigrateZaakResult> MigrateZaak(string zaaknummer, Models.Mappers mapping, CancellationToken token = default);
     }
 
     public class MigrateZaakService(
@@ -38,7 +38,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
 
         private readonly IOpenZaakApiClient _openZaakApiClient = openZaakApiClient;
 
-        public async Task<MigrateZaakResult> MigrateZaak(string zaaknummer, MigrateZaakMappingModel mapping, CancellationToken token = default)
+        public async Task<MigrateZaakResult> MigrateZaak(string zaaknummer, Models.Mappers mapping, CancellationToken token = default)
         {
             using var activity = ActivitySource.StartActivity("MigrateZaak", ActivityKind.Internal);
             activity?.SetTag("zaak.identificatie", zaaknummer);

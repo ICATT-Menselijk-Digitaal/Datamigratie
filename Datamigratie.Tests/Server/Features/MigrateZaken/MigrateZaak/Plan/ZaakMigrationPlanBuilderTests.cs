@@ -263,7 +263,7 @@ public class ZaakMigrationPlanBuilderTests
         };
     }
 
-    private static MigrateZaakMappingModel CreateMinimalMapping(
+    private static Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models.Mappers CreateMinimalMapping(
         Dictionary<string, Uri>? resultaatMappings = null,
         Dictionary<string, Uri>? statusMappings = null,
         Dictionary<string, Uri>? besluittypeMappings = null,
@@ -272,7 +272,7 @@ public class ZaakMigrationPlanBuilderTests
         var zaaktypeUrl = new Uri($"{OpenZaakBaseUrl}catalogi/api/v1/zaaktypen/{ZaaktypeId}");
         var pdfInfoObjectTypeUrl = new Uri($"{OpenZaakBaseUrl}catalogi/api/v1/informatieobjecttypen/{PdfInfoObjectTypeId}");
 
-        return new MigrateZaakMappingModel
+        return new Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models.Mappers
         {
             ResultaatMapper = new ResultaatMapper(resultaatMappings ?? new Dictionary<string, Uri>()),
             StatusMapper = new StatusMapper(statusMappings ?? new Dictionary<string, Uri>()),

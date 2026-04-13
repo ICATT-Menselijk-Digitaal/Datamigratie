@@ -79,7 +79,7 @@ public class StartMigrationService(
 
     private async Task MigrateSingleZaakAsync(Migration migration, DetZaakMinimal zaakMinimal, MigrationQueueItem queueItem, CancellationToken ct)
     {
-        var mapping = new MigrateZaakMappingModel
+        var mapping = new Mappers
         {
             ResultaatMapper = queueItem.ResultaatMapper,
             StatusMapper = queueItem.StatusMapper,

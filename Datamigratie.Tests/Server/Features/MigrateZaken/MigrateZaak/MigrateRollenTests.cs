@@ -88,7 +88,7 @@ public class MigrateRollenTests
         return mock;
     }
 
-    private static MigrateZaakMappingModel CreateMapping(Dictionary<DetRolType, Uri>? roltypeMappings = null, string rsin = "123456789") =>
+    private static Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models.Mappers CreateMapping(Dictionary<DetRolType, Uri>? roltypeMappings = null, string rsin = "123456789") =>
         new()
         {
             DocumentMapper = new(rsin, [], [], []),
