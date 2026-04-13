@@ -25,6 +25,8 @@
   --danger-text: var(--bg);
   --danger-hover: #ee4444;
   --success: #89cf5e;
+  --warning-bg: #fff8e1;
+  --warning-border: #f9a825;
   --input-padding: 0.75rem;
 }
 
@@ -43,6 +45,8 @@
     --code: #f06292;
     --preformatted: #ccc;
     --disabled: #111;
+    --warning-bg: #3a2e00;
+    --warning-border: #f9a825;
   }
   /* Add a bit of transparency so light media isn't so glaring in dark mode */
   img,
@@ -771,8 +775,8 @@ sub {
 }
 
 .notice--warning {
-  background: #fff8e1;
-  border-color: #f9a825;
+  background: var(--warning-bg);
+  border-color: var(--warning-border);
 }
 
 .notice--info {
