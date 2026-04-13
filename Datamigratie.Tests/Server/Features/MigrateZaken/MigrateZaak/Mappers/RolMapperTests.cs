@@ -1,4 +1,4 @@
-﻿using Datamigratie.Common.Services.Det.Models;
+using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Mappers;
 
@@ -11,6 +11,7 @@ public class RolMapperTests
     private static readonly Uri s_belangRoltypeUrl = new("https://openzaak.example.com/catalogi/api/v1/roltypen/belanghebbende-uuid");
     private static readonly Uri s_melderRoltypeUrl = new("https://openzaak.example.com/catalogi/api/v1/roltypen/melder-uuid");
     private static readonly Uri s_gemachtigdeRoltypeUrl = new("https://openzaak.example.com/catalogi/api/v1/roltypen/gemachtigde-uuid");
+    private static readonly Uri s_openZaakZaakUri = new("https://openzaak.example.com/zaken/api/v1/zaken/12345678-1234-1234-1234-123456789012");
 
     private static DetZaak CreateDetZaak(string? behandelaar = null) => new()
     {
@@ -32,7 +33,7 @@ public class RolMapperTests
         var mapper = new RolMapper(new() { { DetRolType.behandelaar, s_behandelaarRoltypeUrl } });
         var zaak = CreateDetZaak("medewerker-123");
 
-        var rollen = mapper.MapRoles(zaak).ToList();
+        var rollen = mapper.MapRoles(zaak, s_openZaakZaakUri).ToList();
 
         var rol = Assert.Single(rollen);
         Assert.Equal(BetrokkeneType.medewerker, rol.BetrokkeneType);
@@ -46,7 +47,7 @@ public class RolMapperTests
         var mapper = new RolMapper(new() { { DetRolType.behandelaar, s_behandelaarRoltypeUrl } });
         var zaak = CreateDetZaak(behandelaar: null);
 
-        Assert.Empty(mapper.MapRoles(zaak));
+        Assert.Empty(mapper.MapRoles(zaak, s_openZaakZaakUri));
     }
 
     [Fact]
@@ -55,7 +56,7 @@ public class RolMapperTests
         var mapper = new RolMapper([]);
         var zaak = CreateDetZaak("medewerker-123");
 
-        Assert.Empty(mapper.MapRoles(zaak));
+        Assert.Empty(mapper.MapRoles(zaak, s_openZaakZaakUri));
     }
 
     // --- Betrokkenen ---
@@ -75,7 +76,7 @@ public class RolMapperTests
             }
         ];
 
-        var rollen = mapper.MapRoles(zaak).ToList();
+        var rollen = mapper.MapRoles(zaak, s_openZaakZaakUri).ToList();
 
         var rol = Assert.Single(rollen);
         Assert.Equal(BetrokkeneType.natuurlijk_persoon, rol.BetrokkeneType);
@@ -99,7 +100,7 @@ public class RolMapperTests
             }
         ];
 
-        var rollen = mapper.MapRoles(zaak).ToList();
+        var rollen = mapper.MapRoles(zaak, s_openZaakZaakUri).ToList();
 
         var rol = Assert.Single(rollen);
         Assert.Equal(BetrokkeneType.niet_natuurlijk_persoon, rol.BetrokkeneType);
@@ -124,7 +125,7 @@ public class RolMapperTests
             }
         ];
 
-        var rollen = mapper.MapRoles(zaak).ToList();
+        var rollen = mapper.MapRoles(zaak, s_openZaakZaakUri).ToList();
 
         var rol = Assert.Single(rollen);
         Assert.Equal(BetrokkeneType.natuurlijk_persoon, rol.BetrokkeneType);
@@ -148,7 +149,7 @@ public class RolMapperTests
             }
         ];
 
-        Assert.Empty(mapper.MapRoles(zaak));
+        Assert.Empty(mapper.MapRoles(zaak, s_openZaakZaakUri));
     }
 
     [Fact]
@@ -166,7 +167,7 @@ public class RolMapperTests
             }
         ];
 
-        Assert.Empty(mapper.MapRoles(zaak));
+        Assert.Empty(mapper.MapRoles(zaak, s_openZaakZaakUri));
     }
 
     [Fact]
@@ -184,7 +185,7 @@ public class RolMapperTests
             }
         ];
 
-        Assert.Empty(mapper.MapRoles(zaak));
+        Assert.Empty(mapper.MapRoles(zaak, s_openZaakZaakUri));
     }
 
     [Fact]
@@ -202,7 +203,7 @@ public class RolMapperTests
             }
         ];
 
-        Assert.Empty(mapper.MapRoles(zaak));
+        Assert.Empty(mapper.MapRoles(zaak, s_openZaakZaakUri));
     }
 
     // --- Initiator ---
@@ -214,7 +215,7 @@ public class RolMapperTests
         var zaak = CreateDetZaak();
         zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = "123456789" };
 
-        var rollen = mapper.MapRoles(zaak).ToList();
+        var rollen = mapper.MapRoles(zaak, s_openZaakZaakUri).ToList();
 
         var rol = Assert.Single(rollen);
         Assert.Equal(BetrokkeneType.natuurlijk_persoon, rol.BetrokkeneType);
@@ -229,7 +230,7 @@ public class RolMapperTests
         var zaak = CreateDetZaak();
         zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.bedrijf, KvkNummer = "87654321", Vestigingsnummer = "000087654321" };
 
-        var rollen = mapper.MapRoles(zaak).ToList();
+        var rollen = mapper.MapRoles(zaak, s_openZaakZaakUri).ToList();
 
         var rol = Assert.Single(rollen);
         Assert.Equal(BetrokkeneType.niet_natuurlijk_persoon, rol.BetrokkeneType);
@@ -245,7 +246,7 @@ public class RolMapperTests
         var zaak = CreateDetZaak();
         zaak.Initiator = null;
 
-        Assert.Empty(mapper.MapRoles(zaak));
+        Assert.Empty(mapper.MapRoles(zaak, s_openZaakZaakUri));
     }
 
     [Fact]
@@ -255,7 +256,7 @@ public class RolMapperTests
         var zaak = CreateDetZaak();
         zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = null, BurgerServiceNummer = "123456789" };
 
-        Assert.Empty(mapper.MapRoles(zaak));
+        Assert.Empty(mapper.MapRoles(zaak, s_openZaakZaakUri));
     }
 
     [Fact]
@@ -265,7 +266,7 @@ public class RolMapperTests
         var zaak = CreateDetZaak();
         zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = null };
 
-        Assert.Empty(mapper.MapRoles(zaak));
+        Assert.Empty(mapper.MapRoles(zaak, s_openZaakZaakUri));
     }
 
     [Fact]
@@ -275,7 +276,7 @@ public class RolMapperTests
         var zaak = CreateDetZaak();
         zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.bedrijf, KvkNummer = null };
 
-        Assert.Empty(mapper.MapRoles(zaak));
+        Assert.Empty(mapper.MapRoles(zaak, s_openZaakZaakUri));
     }
 
     [Fact]
@@ -285,6 +286,6 @@ public class RolMapperTests
         var zaak = CreateDetZaak();
         zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = "123456789" };
 
-        Assert.Empty(mapper.MapRoles(zaak));
+        Assert.Empty(mapper.MapRoles(zaak, s_openZaakZaakUri));
     }
 }

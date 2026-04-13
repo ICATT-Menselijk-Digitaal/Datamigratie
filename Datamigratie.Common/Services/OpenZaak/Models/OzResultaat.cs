@@ -10,7 +10,7 @@
 
     public class CreateOzResultaatRequest
     {
-        public Uri? Zaak { get; set; }
+        public required Uri Zaak { get; set; }
         public required Uri Resultaattype { get; set; }
         public string? Toelichting { get; set; }
     }

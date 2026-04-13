@@ -5,9 +5,8 @@ using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
-using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models;
+using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Mappers;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf;
-using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Plan;
 
 namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
 {
@@ -66,10 +65,8 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
 
             try
             {
-                // Phase A: Pure plan
-                var plan = ZaakMigrationPlanBuilder.Build(detZaak, mapping);
+                var zaakRequest = mapping.ZaakMapper.Map(detZaak);
 
-                // Phase B: Execute
 
                 // Check if zaak already exists in OpenZaak and delete it to allow re-run
                 var existingZaak = await _openZaakApiClient.GetZaakByIdentificatie(detZaak.FunctioneleIdentificatie);
@@ -81,26 +78,46 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 OzZaak createdZaak;
                 using (ActivitySource.StartActivity("CreateZaak"))
                 {
-                    createdZaak = await _openZaakApiClient.CreateZaak(plan.ZaakRequest);
+                    createdZaak = await _openZaakApiClient.CreateZaak(zaakRequest);
                 }
 
+                var resultaatRequest = detZaak.Resultaat == null 
+                    ? null 
+                    : mapping.ResultaatMapper.Map(detZaak.Resultaat, createdZaak.Url);
+
+                var statusRequest = detZaak.ZaakStatus == null
+                    ? null
+                    : mapping.StatusMapper.Map(detZaak.ZaakStatus, detZaak, createdZaak.Url);
+
+                var pdfRequest = mapping.PdfMapper.Map(detZaak);
+
+                var documentRequests = detZaak.Documenten?
+                    .Select(mapping.DocumentMapper.Map)
+                    .ToList() ?? [];
+
+                var besluitRequests = detZaak.Besluiten?
+                    .Select(x=> mapping.BesluitMapper.Map(x, createdZaak.Url))
+                    .ToList() ?? [];
+
+                var rolRequests = mapping.RolMapper.MapRoles(detZaak, createdZaak.Url).ToList();
+
                 // Create resultaat for the zaak based on resultaat mapping (must be run before status)
-                await ExecuteResultaatPlanAsync(plan.Resultaat, createdZaak, token);
+                await CreateResultaatAsync(resultaatRequest, token);
 
                 // Create status for the zaak based on status mapping
-                await ExecuteStatusPlanAsync(plan.Status, createdZaak, token);
+                await ExecuteStatusPlanAsync(statusRequest, token);
 
                 // Generate and upload the zaakgegevens PDF
-                await ExecutePdfPlanAsync(plan.PdfDocument, detZaak, createdZaak, token);
+                await ExecutePdfPlanAsync(pdfRequest, detZaak, createdZaak, token);
 
                 // Migrate all documents with their versions
-                await ExecuteDocumentPlansAsync(plan.Documents, createdZaak, token);
+                await SaveDocumentsAsync(documentRequests, createdZaak, token);
 
                 // Migrate all besluiten for the zaak
-                await ExecuteBesluitPlansAsync(plan.Besluiten, createdZaak, token);
+                await SaveBesluitenAsync(besluitRequests, createdZaak, token);
 
                 // Migrate rollen (e.g. Behandelaar) to OpenZaak
-                await ExecuteRolPlansAsync(plan.Rollen, createdZaak, token);
+                await ExecuteRolPlansAsync(rolRequests, createdZaak, token);
 
                 try
                 {
@@ -255,22 +272,19 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 token);
         }
 
-        private async Task ExecuteResultaatPlanAsync(CreateOzResultaatRequest? plan, OzZaak createdZaak, CancellationToken token)
+        private async Task CreateResultaatAsync(CreateOzResultaatRequest? plan, CancellationToken token)
         {
             if (plan == null) return;
 
             using var activity = ActivitySource.StartActivity("MigrateResultaat");
-            plan.Zaak = createdZaak.Url;
-
             await _openZaakApiClient.CreateResultaat(plan);
         }
 
-        private async Task ExecuteStatusPlanAsync(CreateOzStatusRequest? plan, OzZaak createdZaak, CancellationToken token)
+        private async Task ExecuteStatusPlanAsync(CreateOzStatusRequest? plan, CancellationToken token)
         {
             if (plan == null) return;
 
             using var activity = ActivitySource.StartActivity("MigrateStatus");
-            plan.Zaak = createdZaak.Url;
 
             await _openZaakApiClient.CreateStatus(plan);
         }
@@ -280,7 +294,6 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
             List<OzRoltype>? ozRoltypes = null;
             foreach (var rol in rollen)
             {
-                rol.Zaak = createdZaak.Url;
                 try
                 {
                     await _openZaakApiClient.CreateRol(rol, token);
@@ -303,7 +316,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
         /// <summary>
         /// Migrates all besluiten for a zaak to OpenZaak.
         /// </summary>
-        private async Task ExecuteBesluitPlansAsync(IReadOnlyList<CreateOzBesluitRequest> besluitPlans, OzZaak createdZaak, CancellationToken token)
+        private async Task SaveBesluitenAsync(IReadOnlyList<CreateOzBesluitRequest> besluitPlans, OzZaak createdZaak, CancellationToken token)
         {
             using var activity = ActivitySource.StartActivity("MigrateBesluiten");
 
@@ -335,7 +348,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
         /// Migrates all documents with their versions in the correct order.
         /// First version is created, next versions update the same document (OpenZaak auto-increments version).
         /// </summary>
-        private async Task ExecuteDocumentPlansAsync(IReadOnlyList<DocumentMigrationPlan> documentPlans, OzZaak createdZaak, CancellationToken token)
+        private async Task SaveDocumentsAsync(List<DocumentVersions> documentPlans, OzZaak createdZaak, CancellationToken token)
         {
             using var activity = ActivitySource.StartActivity("MigrateDocuments");
             activity?.SetTag("zaak.document_count", documentPlans.Count);
@@ -363,7 +376,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                                 {
                                     capturedDocument = savedDoc;
                                     await detClient.GetDocumentInhoudAsync(
-                                        versionPlan.DocumentInhoudId,
+                                        versionPlan.DetInhoudId,
                                         async (stream, streamCt) => await _openZaakApiClient.UploadBestand(savedDoc, stream, streamCt),
                                         ct);
                                 },
@@ -379,7 +392,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                                 throw new InvalidOperationException("First document version must be created before updating");
                             }
 
-                            await UpdateDocumentVersionAsync(mainDocument.Id, versionPlan.Document, versionPlan.DocumentInhoudId, token);
+                            await UpdateDocumentVersionAsync(mainDocument.Id, versionPlan.Document, versionPlan.DetInhoudId, token);
                         }
                     }
                     catch (Exception ex)

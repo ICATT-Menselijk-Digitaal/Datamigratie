@@ -1,6 +1,5 @@
 ﻿using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak.Models;
-using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Plan;
 
 namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Mappers;
 

@@ -6,7 +6,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Mappers;
 
 public class BesluitMapper(string rsin, Dictionary<string, Uri> besluittypeMappings)
 {
-    public CreateOzBesluitRequest Map(DetBesluit detBesluit)
+    public CreateOzBesluitRequest Map(DetBesluit detBesluit, Uri openZaakZaakUri)
     {
         const int MaxIdentificatieLength = 50;
         var identificatie = TruncateWithDots(detBesluit.FunctioneleIdentificatie, MaxIdentificatieLength);
@@ -19,6 +19,7 @@ public class BesluitMapper(string rsin, Dictionary<string, Uri> besluittypeMappi
 
         return new CreateOzBesluitRequest
         {
+            Zaak = openZaakZaakUri,
             Identificatie = identificatie,
             Besluittype = besluittypeUri,
             VerantwoordelijkeOrganisatie = rsin,

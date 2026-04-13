@@ -5,7 +5,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Mappers;
 
 public class StatusMapper(Dictionary<string, Uri> mappings)
 {
-    public CreateOzStatusRequest? Map(DetStatus detStatus, DetZaak detZaak)
+    public CreateOzStatusRequest? Map(DetStatus detStatus, DetZaak detZaak, Uri openzaakZaakUri)
     {
         if (!mappings.TryGetValue(detStatus.Naam, out var uri))
         {
@@ -22,6 +22,7 @@ public class StatusMapper(Dictionary<string, Uri> mappings)
 
         return new CreateOzStatusRequest
         {
+            Zaak = openzaakZaakUri,
             Statustype = uri,
             DatumStatusGezet = datumStatusGezet,
             Statustoelichting = "Status gemigreerd vanuit e-Suite"

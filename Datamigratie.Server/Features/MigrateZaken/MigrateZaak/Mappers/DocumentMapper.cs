@@ -1,9 +1,11 @@
 ﻿using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak.Models;
-using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Plan;
 using static Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Mappers.StringTruncationHelper;
 
 namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Mappers;
+
+public record DocumentWithInhoudId(OzDocument Document, long DetInhoudId);
+public record DocumentVersions(IReadOnlyList<DocumentWithInhoudId> Versions);
 
 public class DocumentMapper(
     string rsin,
@@ -11,16 +13,16 @@ public class DocumentMapper(
     Dictionary<string, DocumentVertrouwelijkheidaanduiding> publicatieNiveauMappings,
     Dictionary<string, Uri> documenttypeMappings)
 {
-    public DocumentMigrationPlan Map(DetDocument item)
+    public DocumentVersions Map(DetDocument item)
     {
         var versions = item.DocumentVersies
             .OrderBy(v => v.Versienummer)
             .Select(v => Map(item, v))
             .ToList();
-        return new DocumentMigrationPlan(versions);
+        return new DocumentVersions(versions);
     }
 
-    private DocumentVersionPlan Map(DetDocument item, DetDocumentVersie versie)
+    private DocumentWithInhoudId Map(DetDocument item, DetDocumentVersie versie)
     {
         const int MaxIdentificatieLength = 40;
         if (item.Kenmerk?.Length > MaxIdentificatieLength)
@@ -93,6 +95,6 @@ public class DocumentMapper(
             Ondertekening = ondertekening
         };
 
-        return new DocumentVersionPlan(doc, versie.DocumentInhoudID);
+        return new DocumentWithInhoudId(doc, versie.DocumentInhoudID);
     }
 }

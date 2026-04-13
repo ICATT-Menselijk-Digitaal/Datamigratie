@@ -5,6 +5,8 @@ namespace Datamigratie.Tests.Server.Features.MigrateZaken.MigrateZaak.Mappers;
 
 public class StatusMapperTests
 {
+    private static readonly Uri s_openzaakZaakUri = new("https://openzaak.example.com/zaken/api/v1/zaken/12345678-1234-1234-1234-123456789012");
+
     [Fact]
     public void Map_ValidMapping_ReturnsPlanWithDate()
     {
@@ -22,7 +24,7 @@ public class StatusMapperTests
             Historie = []
         };
 
-        var result = mapper.Map(new DetStatus { Uitwisselingscode = "", Naam = "Afgehandeld", Actief = false }, detZaak);
+        var result = mapper.Map(new DetStatus { Uitwisselingscode = "", Naam = "Afgehandeld", Actief = false }, detZaak, s_openzaakZaakUri);
 
         Assert.NotNull(result);
         Assert.Equal(uri, result.Statustype);
@@ -43,7 +45,7 @@ public class StatusMapperTests
             Historie = []
         };
 
-        Assert.Null(mapper.Map(new DetStatus { Uitwisselingscode = "", Naam = "Onbekend", Actief = false }, detZaak));
+        Assert.Null(mapper.Map(new DetStatus { Uitwisselingscode = "", Naam = "Onbekend", Actief = false }, detZaak, s_openzaakZaakUri));
     }
 
     [Fact]
@@ -63,7 +65,7 @@ public class StatusMapperTests
         };
 
         var ex = Assert.Throws<InvalidOperationException>(() =>
-            mapper.Map(new DetStatus { Uitwisselingscode = "", Naam = "Afgehandeld", Actief = false }, detZaak));
+            mapper.Map(new DetStatus { Uitwisselingscode = "", Naam = "Afgehandeld", Actief = false }, detZaak, s_openzaakZaakUri));
         Assert.Contains("einddatum", ex.Message);
     }
 }

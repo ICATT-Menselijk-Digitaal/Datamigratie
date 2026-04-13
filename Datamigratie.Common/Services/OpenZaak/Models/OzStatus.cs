@@ -5,7 +5,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
     public class CreateOzStatusRequest
     {
         [JsonPropertyName("zaak")]
-        public Uri? Zaak { get; set; }
+        public required Uri Zaak { get; set; }
 
         [JsonPropertyName("statustype")]
         public required Uri Statustype { get; set; }

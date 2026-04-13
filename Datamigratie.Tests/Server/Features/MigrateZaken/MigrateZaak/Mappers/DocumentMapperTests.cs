@@ -1,7 +1,6 @@
-using Datamigratie.Common.Services.Det.Models;
+﻿using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Mappers;
-using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Plan;
 
 namespace Datamigratie.Tests.Server.Features.MigrateZaken.MigrateZaak.Mappers;
 
@@ -75,9 +74,9 @@ public class DocumentMapperTests
         var plan = mapper.Map(document);
 
         Assert.Equal(3, plan.Versions.Count);
-        Assert.Equal(100, plan.Versions[0].DocumentInhoudId);
-        Assert.Equal(200, plan.Versions[1].DocumentInhoudId);
-        Assert.Equal(300, plan.Versions[2].DocumentInhoudId);
+        Assert.Equal(100, plan.Versions[0].DetInhoudId);
+        Assert.Equal(200, plan.Versions[1].DetInhoudId);
+        Assert.Equal(300, plan.Versions[2].DetInhoudId);
     }
 
     [Fact]

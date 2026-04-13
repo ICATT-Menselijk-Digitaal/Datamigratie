@@ -5,8 +5,8 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Mappers;
 
 public class ResultaatMapper(Dictionary<string, Uri> mappings)
 {
-    public CreateOzResultaatRequest? Map(DetResultaat detResultaat)
+    public CreateOzResultaatRequest? Map(DetResultaat detResultaat, Uri openzaakZaakUri)
     {
-        return mappings.TryGetValue(detResultaat.Naam, out var uri) ? new CreateOzResultaatRequest { Resultaattype = uri, Toelichting = "Resultaat gemigreerd vanuit e-Suite" } : null;
+        return mappings.TryGetValue(detResultaat.Naam, out var uri) ? new CreateOzResultaatRequest { Zaak = openzaakZaakUri, Resultaattype = uri, Toelichting = "Resultaat gemigreerd vanuit e-Suite" } : null;
     }
 }

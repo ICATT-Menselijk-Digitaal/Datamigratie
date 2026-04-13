@@ -7,6 +7,7 @@ public class BesluitMapperTests
 {
     private const string OpenZaakBaseUrl = "https://openzaak.example.com/";
     private const string Rsin = "123456782";
+    private static readonly Uri s_openZaakZaakUri = new("https://openzaak.example.com/zaken/api/v1/zaken/12345678-1234-1234-1234-123456789012");
 
     [Fact]
     public void Map_ValidBesluit_MapsFields()
@@ -27,7 +28,7 @@ public class BesluitMapperTests
             Reactiedatum = new DateOnly(2024, 3, 1),
         };
 
-        var result = mapper.Map(detBesluit);
+        var result = mapper.Map(detBesluit, s_openZaakZaakUri);
 
         Assert.Equal("BESLUIT-001", result.Identificatie);
         Assert.Equal(besluitUri, result.Besluittype);
@@ -57,7 +58,7 @@ public class BesluitMapperTests
             Ingangsdatum = null,
         };
 
-        var result = mapper.Map(detBesluit);
+        var result = mapper.Map(detBesluit, s_openZaakZaakUri);
 
         Assert.Equal(new DateOnly(1, 1, 1), result.Ingangsdatum);
     }
@@ -79,7 +80,7 @@ public class BesluitMapperTests
             BesluitDatum = new DateOnly(2024, 1, 15),
         };
 
-        var result = mapper.Map(detBesluit);
+        var result = mapper.Map(detBesluit, s_openZaakZaakUri);
 
         Assert.NotNull(result.Identificatie);
         Assert.Equal(50, result.Identificatie.Length);
