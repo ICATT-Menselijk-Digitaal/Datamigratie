@@ -6,7 +6,6 @@ import { readonly, ref } from "vue";
 const POLL_INTERVAL_MS = 5_000;
 
 const migration = ref<Migration>();
-const isLoading = ref(false);
 const error = ref("");
 const migrationJustCompleted = ref(false);
 
@@ -21,12 +20,10 @@ const stopPolling = () => {
 
 const scheduleNextPoll = () => {
   stopPolling();
-  pollTimer = setTimeout(() => fetchMigration(false), POLL_INTERVAL_MS);
+  pollTimer = setTimeout(() => fetchMigration(), POLL_INTERVAL_MS);
 };
 
-const fetchMigration = async (showLoading = true) => {
-  if (showLoading) isLoading.value = true;
-
+const fetchMigration = async () => {
   try {
     const previousStatus = migration.value?.status;
     migration.value = await get<Migration>(`/api/migration`);
@@ -41,8 +38,6 @@ const fetchMigration = async (showLoading = true) => {
     }
   } catch (err: unknown) {
     error.value = `Fout bij ophalen van de migratie status - ${err}`;
-  } finally {
-    isLoading.value = false;
   }
 };
 
@@ -52,7 +47,6 @@ const dismissCompletedAlert = () => {
 
 export const useMigration = () => ({
   migration: readonly(migration),
-  loading: readonly(isLoading),
   error: readonly(error),
   migrationJustCompleted: readonly(migrationJustCompleted),
   fetchMigration,

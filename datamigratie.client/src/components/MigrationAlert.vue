@@ -1,7 +1,5 @@
 <template>
-  <simple-spinner v-if="loading"></simple-spinner>
-
-  <alert-inline v-else-if="error">{{ error }}</alert-inline>
+  <alert-inline v-if="error">{{ error }}</alert-inline>
 
   <alert-inline v-else-if="migrationJustCompleted" type="info">
     <div class="migration-completed-content">
@@ -28,12 +26,11 @@
 
 <script lang="ts" setup>
 import { onMounted } from "vue";
-import SimpleSpinner from "@/components/SimpleSpinner.vue";
 import AlertInline from "@/components/AlertInline.vue";
 import { MigrationStatus } from "@/types/datamigratie";
 import { useMigration } from "@/composables/migration-store";
 
-const { migration, migrationJustCompleted, fetchMigration, dismissCompletedAlert, loading, error } =
+const { migration, migrationJustCompleted, fetchMigration, dismissCompletedAlert, error } =
   useMigration();
 onMounted(() => fetchMigration());
 </script>
