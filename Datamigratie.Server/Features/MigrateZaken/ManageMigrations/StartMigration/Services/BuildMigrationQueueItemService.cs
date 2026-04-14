@@ -149,7 +149,7 @@ public class BuildMigrationQueueItemService(
             : throw new InvalidOperationException("No informatieobjecttype has been configured for the generated PDF. Please configure the PDF informatieobjecttype mapping first.");
     }
 
-    private async Task<Dictionary<string, Uri>> GetRoltypeMappingsAsync(string detZaaktypeId)
+    private async Task<Dictionary<DetRolType, Uri>> GetRoltypeMappingsAsync(string detZaaktypeId)
     {
         var (isValid, mappings) = await validateRoltypeMappingsService.ValidateAndGetRoltypeMappings(detZaaktypeId);
         return isValid ? mappings

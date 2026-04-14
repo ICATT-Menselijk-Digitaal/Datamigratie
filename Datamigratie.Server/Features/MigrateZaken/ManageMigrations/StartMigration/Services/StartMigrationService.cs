@@ -36,7 +36,7 @@ public class StartMigrationService(
     private static readonly Histogram<double> MigrationDurationHistogram =
         Meter.CreateHistogram<double>("migration.duration", "ms", "Duration of a full migration run");
 
-    private const int MaxErrorMessageLength = 1000;
+
     private readonly OpenZaakApiOptions _openZaakApiOptions = openZaakOptions.Value;
 
     public async Task PerformMigrationAsync(MigrationQueueItem migrationQueueItem, CancellationToken stoppingToken)
@@ -218,8 +218,8 @@ public class StartMigrationService(
         }
         else
         {
-            logger.LogWarning("Failed to migrate zaak {DetZaaknummer} to OpenZaak. {ErrorTitle}: {ErrorDetails} (Status: {StatusCode})",
-                detZaaknummer, result.Message, result.Details, result.Statuscode);
+            logger.LogWarning("Failed to migrate zaak {DetZaaknummer} to OpenZaak. {ErrorTitle}, (Status: {StatusCode})",
+                detZaaknummer, result.Message, result.Statuscode);
             migration.FailedRecords++;
             return CreateFailedMigrationRecord(migration, detZaaknummer, result.Message, result.Details, result.Statuscode);
         }
@@ -247,7 +247,7 @@ public class StartMigrationService(
             IsSuccessful = false,
             DetZaaknummer = detZaaknummer,
             ErrorTitle = errorTitle,
-            ErrorDetails = errorDetails,
+            ErrorDetails = errorDetails?.Length > MigrationRecord.MaxErrorDetailsLength ? errorDetails[..MigrationRecord.MaxErrorDetailsLength] : errorDetails,
             StatusCode = statusCode,
             ProcessedAt = DateTime.UtcNow
         };
@@ -285,8 +285,8 @@ public class StartMigrationService(
 
         if (!string.IsNullOrEmpty(errorMessage))
         {
-            migration.ErrorMessage = errorMessage.Length > MaxErrorMessageLength
-                ? errorMessage[..MaxErrorMessageLength]
+            migration.ErrorMessage = errorMessage.Length > Migration.MaxErrorMessageLength
+                ? errorMessage[..Migration.MaxErrorMessageLength]
                 : errorMessage;
         }
 

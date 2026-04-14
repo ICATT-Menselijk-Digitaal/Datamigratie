@@ -89,19 +89,7 @@
 
     <menu class="reset" v-if="!error && !isThisMigrationRunning && canStartMigration">
       <li>
-        <start-migration-button
-          :det-zaaktype-id="detZaaktypeId"
-          :zaaktype-naam="zaaktypeMapping?.detZaaktype?.naam ?? ''"
-        />
-      </li>
-      <li>
-        <start-partial-migration-button
-          :det-zaaktype-id="detZaaktypeId"
-          :zaaktype-naam="zaaktypeMapping?.detZaaktype?.naam ?? ''"
-        />
-      </li>
-      <li>
-        <start-single-migration-button
+        <migreren-button
           :det-zaaktype-id="detZaaktypeId"
           :zaaktype-naam="zaaktypeMapping?.detZaaktype?.naam ?? ''"
         />
@@ -118,9 +106,7 @@ import { useRoute } from "vue-router";
 import AlertInline from "@/components/AlertInline.vue";
 import StatusMappingSection from "@/components/StatusMappingSection.vue";
 import BesluittypeMappingSection from "@/components/BesluittypeMappingSection.vue";
-import StartMigrationButton from "@/components/StartMigrationButton.vue";
-import StartPartialMigrationButton from "@/components/StartPartialMigrationButton.vue";
-import StartSingleMigrationButton from "@/components/StartSingleMigrationButton.vue";
+import MigrerenButton from "@/components/MigrerenButton.vue";
 import ResultaattypeMappingSection from "@/components/ResultaattypeMappingSection.vue";
 import PublicatieNiveauMappingSection from "@/components/PublicatieNiveauMappingSection.vue";
 import DocumenttypeMappingSection from "@/components/DocumenttypeMappingSection.vue";
