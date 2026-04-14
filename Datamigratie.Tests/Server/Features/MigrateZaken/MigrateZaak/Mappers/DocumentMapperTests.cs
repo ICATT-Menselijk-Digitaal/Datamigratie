@@ -93,6 +93,20 @@ public class DocumentMapperTests
         Assert.Equal(expectedUri, result.Informatieobjecttype);
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Map_GeautoriseerdVoorMedewerkers_MapsToIndicatieGebruiksrecht(bool geautoriseerd)
+    {
+        var mapper = CreateMapper();
+        var document = CreateMinimalDetDocument(geautoriseerdVoorMedewerkers: geautoriseerd);
+
+        var plan = mapper.Map(document);
+        var result = plan.Versions[0].Document;
+
+        Assert.Equal(geautoriseerd, result.IndicatieGebruiksrecht);
+    }
+
     private static DetDocument CreateMinimalDetDocument(
         string titel = "Test Doc",
         string? kenmerk = null,
@@ -100,7 +114,8 @@ public class DocumentMapperTests
         string documentstatusNaam = "Definitief",
         string publicatieniveau = "Publiek",
         string documenttypeNaam = "Brief",
-        List<DetDocumentVersie>? versies = null)
+        List<DetDocumentVersie>? versies = null,
+        bool geautoriseerdVoorMedewerkers = false)
     {
         return new DetDocument
         {
@@ -112,7 +127,8 @@ public class DocumentMapperTests
             Documenttype = new DetDocumenttype { Naam = documenttypeNaam },
             DocumentVersies = versies ?? [CreateMinimalDetDocumentVersie()],
             AanvraagDocument = false,
-            Historie = []
+            Historie = [],
+            GeautoriseerdVoorMedewerkers = geautoriseerdVoorMedewerkers
         };
     }
 

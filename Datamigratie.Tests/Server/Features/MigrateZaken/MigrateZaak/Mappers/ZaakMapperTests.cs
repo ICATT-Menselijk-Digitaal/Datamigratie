@@ -85,6 +85,63 @@ public class ZaakMapperTests
     }
 
     [Fact]
+    public void Map_OnlyBewaartermijnEinddatum_MapsArchiefactiedatum()
+    {
+        var mapper = CreateMapper();
+        var detZaak = CreateMinimalDetZaak();
+        detZaak.ArchiveerGegevens = new DetArchiveerGegevens
+        {
+            BewaartermijnEinddatum = new DateOnly(2030, 6, 15)
+        };
+
+        var result = mapper.Map(detZaak);
+
+        Assert.Equal("2030-06-15", result.Archiefactiedatum);
+    }
+
+    [Fact]
+    public void Map_OnlyOverbrengenOp_MapsArchiefactiedatum()
+    {
+        var mapper = CreateMapper();
+        var detZaak = CreateMinimalDetZaak();
+        detZaak.ArchiveerGegevens = new DetArchiveerGegevens
+        {
+            OverbrengenOp = new DateOnly(2031, 3, 20)
+        };
+
+        var result = mapper.Map(detZaak);
+
+        Assert.Equal("2031-03-20", result.Archiefactiedatum);
+    }
+
+    [Fact]
+    public void Map_NoArchiveerGegevens_ArchiefactiedatumNull()
+    {
+        var mapper = CreateMapper();
+        var detZaak = CreateMinimalDetZaak();
+
+        var result = mapper.Map(detZaak);
+
+        Assert.Null(result.Archiefactiedatum);
+    }
+
+    [Fact]
+    public void Map_BothBewaartermijnAndOverbrengenOp_Throws()
+    {
+        var mapper = CreateMapper();
+        var detZaak = CreateMinimalDetZaak();
+        detZaak.ArchiveerGegevens = new DetArchiveerGegevens
+        {
+            BewaartermijnEinddatum = new DateOnly(2030, 1, 1),
+            OverbrengenOp = new DateOnly(2031, 1, 1)
+        };
+
+        var ex = Assert.Throws<InvalidDataException>(() => mapper.Map(detZaak));
+        Assert.Contains("bewaartermijnEinddatum", ex.Message);
+        Assert.Contains("overbrengenOp", ex.Message);
+    }
+
+    [Fact]
     public void Map_WithGeometry_MapsGeometry()
     {
         var mapper = CreateMapper();
