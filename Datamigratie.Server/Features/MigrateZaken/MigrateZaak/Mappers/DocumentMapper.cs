@@ -92,7 +92,8 @@ public class DocumentMapper(
             Verschijningsvorm = verschijningsvorm,
             Link = "",
             Trefwoorden = [],
-            Ondertekening = ondertekening
+            Ondertekening = ondertekening,
+            IndicatieGebruiksrecht = item.GeautoriseerdVoorMedewerkers
         };
 
         return new DocumentWithInhoudId(doc, versie.DocumentInhoudID);

@@ -72,6 +72,8 @@ namespace Datamigratie.Common.Services.Det.Models
         public required bool AanvraagDocument { get; set; }
         public List<DetDocumentMetadata>? DocumentMetadata { get; set; }
         public required List<DetDocumentHistorie> Historie { get; set; }
+        public bool GeautoriseerdVoorMedewerkers { get; set; }
+
     }
 
     public class DetDocumentMetadata
@@ -217,6 +219,9 @@ namespace Datamigratie.Common.Services.Det.Models
         public string? OverbrengenDoor { get; set; }
         public string? OverbrengenNaar { get; set; }
         public string? OverbrengenType { get; set; }
+
+        public DateOnly? OverbrengenOp { get; set; }
+
         public string? SelectielijstItemNaam { get; set; }
         public DetOvergebrachteGegevens? OvergebrachteGegevens { get; set; }
     }

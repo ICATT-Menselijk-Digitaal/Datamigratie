@@ -1,4 +1,4 @@
-using Datamigratie.Common.Services.Det.Models;
+﻿using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using static Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Mappers.StringTruncationHelper;
 
@@ -27,7 +27,16 @@ public class ZaakMapper(string rsin, Uri ozZaaktypeUrl, Dictionary<bool, ZaakVer
 
         var einddatumGepland = detZaak.Streefdatum.ToString("yyyy-MM-dd");
         var uiterlijkeEinddatumAfdoening = detZaak.Fataledatum?.ToString("yyyy-MM-dd");
-        var archiefactiedatum = detZaak.ArchiveerGegevens?.BewaartermijnEinddatum?.ToString("yyyy-MM-dd");
+
+        var bewaartermijnEinddatum = detZaak.ArchiveerGegevens?.BewaartermijnEinddatum;
+
+        var overbrengenOp = detZaak.ArchiveerGegevens?.OverbrengenOp;
+
+        if (bewaartermijnEinddatum.HasValue && overbrengenOp.HasValue)
+            throw new InvalidDataException($"Zaak '{detZaak.FunctioneleIdentificatie}' bevat zowel 'bewaartermijnEinddatum' als 'overbrengenOp'. Slechts één mag aanwezig zijn.");
+
+        var archiefactiedatum = (bewaartermijnEinddatum ?? overbrengenOp)?.ToString("yyyy-MM-dd");
+
         var laatsteBetaaldatum = detZaak.Betaalgegevens?.TransactieDatum?.ToString("yyyy-MM-dd");
 
         List<OzZaakKenmerk>? kenmerken = null;
