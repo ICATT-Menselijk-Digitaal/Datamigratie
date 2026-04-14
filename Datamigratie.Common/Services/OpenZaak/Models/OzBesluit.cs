@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using Datamigratie.Common.Converters;
 
 namespace Datamigratie.Common.Services.OpenZaak.Models
@@ -29,7 +29,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
         /// URL-referentie naar de ZAAK (in de Zaken API) waarvan dit besluit uitkomst is. Max 200 characters.
         /// </summary>
         [JsonPropertyName("zaak")]
-        public Uri? Zaak { get; set; }
+        public required Uri Zaak { get; set; }
 
         /// <summary>
         /// De beslisdatum (AWB) van het besluit. Required.

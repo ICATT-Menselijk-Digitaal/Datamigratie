@@ -57,7 +57,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
         /// Base64-inhoud voor create; komt normaal niet terug op GET
         public string? Inhoud { get; init; }
 
-        public long? Bestandsomvang { get; init; }
+        public long? Bestandsomvang { get; set; }
 
         // This is a required field in OpenZaak (can be whitespace), but this is not documented in the OZ documentation
         public required string Link { get; init; }

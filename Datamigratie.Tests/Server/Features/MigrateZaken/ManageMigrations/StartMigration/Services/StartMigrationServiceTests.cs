@@ -1,20 +1,18 @@
-﻿using System.Net;
-using Datamigratie.Common.Config;
-using Datamigratie.Common.Services.Det;
+﻿using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Data;
 using Datamigratie.Data.Entities;
-using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Models;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.StartFullMigration;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Queues.Items;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Services;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.State;
+using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak;
+using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Mappers;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 using Moq;
 
 namespace Datamigratie.Tests.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Services;
@@ -31,58 +29,33 @@ public class StartMigrationServiceTests
         return new DatamigratieDbContext(options);
     }
 
-    private static void SeedZaaktypeMapping(DatamigratieDbContext context, string zaaktypeId)
-    {
-        context.Mappings.Add(new ZaaktypenMapping
-        {
-            DetZaaktypeId = zaaktypeId,
-            OzZaaktypeId = Guid.NewGuid()
-        });
-        context.SaveChanges();
-    }
-
     private static MigrationQueueItem CreateQueueItem(IZakenSelector selector)
         => new()
         {
             DetZaaktypeId = ZaaktypeId,
             ZakenSelector = selector,
-            RsinMapping = new RsinMapping { Rsin = "000000000" },
-            StatusMappings = new(),
-            ResultaatMappings = new(),
-            DocumentstatusMappings = new(),
-            PublicatieNiveauMappings = new(),
-            DocumenttypeMappings = new(),
-            ZaakVertrouwelijkheidMappings = new(),
-            BesluittypeMappings = new(),
-            PdfInformatieobjecttypeId = Guid.NewGuid(),
-            RoltypeMappings = new(),
-        };
-
-    private static DetZaak CreateDetZaak(string zaaknummer)
-        => new()
-        {
-            FunctioneleIdentificatie = zaaknummer,
-            Open = false,
-            Omschrijving = "test",
-            CreatieDatumTijd = DateTimeOffset.UtcNow,
-            Startdatum = DateOnly.FromDateTime(DateTime.Today),
-            Streefdatum = DateOnly.FromDateTime(DateTime.Today),
-            Historie = [],
+            ResultaatMapper = new ResultaatMapper(new Dictionary<string, Uri>()),
+            StatusMapper = new StatusMapper(new Dictionary<string, Uri>()),
+            ZaakMapper = new ZaakMapper("000000000", new Uri("https://openzaak.test/catalogi/api/v1/zaaktypen/00000000-0000-0000-0000-000000000000"), new Dictionary<bool, ZaakVertrouwelijkheidaanduiding>()),
+            DocumentMapper = new DocumentMapper(
+                "000000000",
+                new Dictionary<string, DocumentStatus>(),
+                new Dictionary<string, DocumentVertrouwelijkheidaanduiding>(),
+                new Dictionary<string, Uri>()),
+            BesluitMapper = new BesluitMapper("000000000", new Dictionary<string, Uri>()),
+            PdfMapper = new PdfMapper("000000000", new Uri("https://openzaak.test/catalogi/api/v1/informatieobjecttypen/00000000-0000-0000-0000-000000000000")),
+            RolMapper = new([]),
         };
 
     private static StartMigrationService CreateSut(
         DatamigratieDbContext context,
-        Mock<IDetApiClient> detClient,
         Mock<IMigrateZaakService> migrateZaakService)
     {
-        var options = Options.Create(new OpenZaakApiOptions { BaseUrl = "https://openzaak.test/" });
         return new StartMigrationService(
             context,
-            detClient.Object,
             NullLogger<StartMigrationService>.Instance,
             migrateZaakService.Object,
-            new MigrationWorkerState(),
-            options);
+            new MigrationWorkerState());
     }
 
     // --- Group 1: Migration type branching ---
@@ -92,7 +65,6 @@ public class StartMigrationServiceTests
     {
         // Arrange
         await using var context = CreateContext();
-        SeedZaaktypeMapping(context, ZaaktypeId);
 
         var detClient = new Mock<IDetApiClient>();
         detClient.Setup(c => c.GetZakenByZaaktype(ZaaktypeId)).ReturnsAsync([
@@ -100,23 +72,21 @@ public class StartMigrationServiceTests
             new DetZaakMinimal { FunctioneleIdentificatie = "zaak-002", Open = true },
             new DetZaakMinimal { FunctioneleIdentificatie = "zaak-003", Open = false },
         ]);
-        detClient.Setup(c => c.GetZaakByZaaknummer(It.IsAny<string>()))
-            .ReturnsAsync((string id) => CreateDetZaak(id));
 
         var migrateZaak = new Mock<IMigrateZaakService>();
-        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<DetZaak>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()))
+        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<Mappers>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(MigrateZaakResult.Success("zaak-001", "ok"));
 
         // Use a FullMigrationZakenSelector with the mocked detClient
         var selector = new FullMigrationZakenSelector(detClient.Object);
 
-        var sut = CreateSut(context, detClient, migrateZaak);
+        var sut = CreateSut(context, migrateZaak);
 
         // Act
         await sut.PerformMigrationAsync(CreateQueueItem(selector), CancellationToken.None);
 
         // Assert: only closed zaken (zaak-001 and zaak-003) are migrated
-        migrateZaak.Verify(s => s.MigrateZaak(It.IsAny<DetZaak>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+        migrateZaak.Verify(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<Mappers>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
         var migration = await context.Migrations.FirstAsync();
         Assert.Equal(2, migration.TotalRecords);
     }
@@ -126,11 +96,6 @@ public class StartMigrationServiceTests
     {
         // Arrange
         await using var context = CreateContext();
-        SeedZaaktypeMapping(context, ZaaktypeId);
-
-        var detClient = new Mock<IDetApiClient>();
-        detClient.Setup(c => c.GetZaakByZaaknummer("zaak-001"))
-            .ReturnsAsync(CreateDetZaak("zaak-001"));
 
         // Use a custom selector that returns only zaak-001
         var selectorMock = new Mock<IZakenSelector>();
@@ -138,19 +103,17 @@ public class StartMigrationServiceTests
             .ReturnsAsync([new DetZaakMinimal { FunctioneleIdentificatie = "zaak-001", Open = false }]);
 
         var migrateZaak = new Mock<IMigrateZaakService>();
-        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<DetZaak>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()))
+        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<Mappers>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(MigrateZaakResult.Success("zaak-001", "ok"));
 
-
-        var sut = CreateSut(context, detClient, migrateZaak);
+        var sut = CreateSut(context, migrateZaak);
 
         // Act
         await sut.PerformMigrationAsync(CreateQueueItem(selectorMock.Object), CancellationToken.None);
 
-        // Assert: selector called, DET bulk fetch NOT called, one zaak migrated
+        // Assert: selector called, one zaak migrated
         selectorMock.Verify(s => s.SelectZakenAsync(ZaaktypeId, It.IsAny<CancellationToken>()), Times.Once);
-        detClient.Verify(c => c.GetZakenByZaaktype(It.IsAny<string>()), Times.Never);
-        migrateZaak.Verify(s => s.MigrateZaak(It.IsAny<DetZaak>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()), Times.Once);
+        migrateZaak.Verify(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<Mappers>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     // --- Group 2: Record counter correctness ---
@@ -160,22 +123,16 @@ public class StartMigrationServiceTests
     {
         // Arrange
         await using var context = CreateContext();
-        SeedZaaktypeMapping(context, ZaaktypeId);
-
-        var detClient = new Mock<IDetApiClient>();
-        detClient.Setup(c => c.GetZakenByZaaktype(ZaaktypeId))
-            .ReturnsAsync([new DetZaakMinimal { FunctioneleIdentificatie = "zaak-001", Open = false }]);
-        detClient.Setup(c => c.GetZaakByZaaknummer("zaak-001")).ReturnsAsync(CreateDetZaak("zaak-001"));
 
         var migrateZaak = new Mock<IMigrateZaakService>();
-        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<DetZaak>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()))
+        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<Mappers>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(MigrateZaakResult.Success("zaak-001", "ok"));
 
         var selector = new Mock<IZakenSelector>();
         selector.Setup(s => s.SelectZakenAsync(ZaaktypeId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([new DetZaakMinimal { FunctioneleIdentificatie = "zaak-001", Open = false }]);
 
-        var sut = CreateSut(context, detClient, migrateZaak);
+        var sut = CreateSut(context, migrateZaak);
 
         // Act
         await sut.PerformMigrationAsync(CreateQueueItem(selector.Object), CancellationToken.None);
@@ -195,22 +152,16 @@ public class StartMigrationServiceTests
     {
         // Arrange
         await using var context = CreateContext();
-        SeedZaaktypeMapping(context, ZaaktypeId);
-
-        var detClient = new Mock<IDetApiClient>();
-        detClient.Setup(c => c.GetZakenByZaaktype(ZaaktypeId))
-            .ReturnsAsync([new DetZaakMinimal { FunctioneleIdentificatie = "zaak-001", Open = false }]);
-        detClient.Setup(c => c.GetZaakByZaaknummer("zaak-001")).ReturnsAsync(CreateDetZaak("zaak-001"));
 
         var migrateZaak = new Mock<IMigrateZaakService>();
-        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<DetZaak>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()))
+        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<Mappers>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(MigrateZaakResult.Failed("zaak-001", "fout", "details", 422));
 
         var selector = new Mock<IZakenSelector>();
         selector.Setup(s => s.SelectZakenAsync(ZaaktypeId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([new DetZaakMinimal { FunctioneleIdentificatie = "zaak-001", Open = false }]);
 
-        var sut = CreateSut(context, detClient, migrateZaak);
+        var sut = CreateSut(context, migrateZaak);
 
         // Act
         await sut.PerformMigrationAsync(CreateQueueItem(selector.Object), CancellationToken.None);
@@ -231,20 +182,16 @@ public class StartMigrationServiceTests
     {
         // Arrange
         await using var context = CreateContext();
-        SeedZaaktypeMapping(context, ZaaktypeId);
-
-        var detClient = new Mock<IDetApiClient>();
-        detClient.Setup(c => c.GetZaakByZaaknummer("zaak-001")).ReturnsAsync(CreateDetZaak("zaak-001"));
 
         var migrateZaak = new Mock<IMigrateZaakService>();
-        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<DetZaak>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()))
+        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<Mappers>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(MigrateZaakResult.Failed("zaak-001", "fout", new string('x', MigrationRecord.MaxErrorDetailsLength + 5000), 422));
 
         var selector = new Mock<IZakenSelector>();
         selector.Setup(s => s.SelectZakenAsync(ZaaktypeId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([new DetZaakMinimal { FunctioneleIdentificatie = "zaak-001", Open = false }]);
 
-        var sut = CreateSut(context, detClient, migrateZaak);
+        var sut = CreateSut(context, migrateZaak);
 
         // Act
         await sut.PerformMigrationAsync(CreateQueueItem(selector.Object), CancellationToken.None);
@@ -255,25 +202,20 @@ public class StartMigrationServiceTests
     }
 
     [Fact]
-    public async Task PerformMigrationAsync_HttpExceptionDuringFetch_CreatesFailedRecordWithHttpStatusCode()
+    public async Task PerformMigrationAsync_FetchFailure_CreatesFailedRecordWithStatusCode()
     {
         // Arrange
         await using var context = CreateContext();
-        SeedZaaktypeMapping(context, ZaaktypeId);
-
-        var detClient = new Mock<IDetApiClient>();
-        detClient.Setup(c => c.GetZakenByZaaktype(ZaaktypeId))
-            .ReturnsAsync([new DetZaakMinimal { FunctioneleIdentificatie = "zaak-001", Open = false }]);
-        detClient.Setup(c => c.GetZaakByZaaknummer("zaak-001"))
-            .ThrowsAsync(new HttpRequestException("Not found", null, HttpStatusCode.NotFound));
 
         var migrateZaak = new Mock<IMigrateZaakService>();
+        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<Mappers>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(MigrateZaakResult.Failed("zaak-001", "De zaak kon niet opgehaald worden uit het bronsysteem.", "Not found", 404));
 
         var selector = new Mock<IZakenSelector>();
         selector.Setup(s => s.SelectZakenAsync(ZaaktypeId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([new DetZaakMinimal { FunctioneleIdentificatie = "zaak-001", Open = false }]);
 
-        var sut = CreateSut(context, detClient, migrateZaak);
+        var sut = CreateSut(context, migrateZaak);
 
         // Act
         await sut.PerformMigrationAsync(CreateQueueItem(selector.Object), CancellationToken.None);
@@ -292,25 +234,20 @@ public class StartMigrationServiceTests
     }
 
     [Fact]
-    public async Task PerformMigrationAsync_UnhandledExceptionDuringFetch_CreatesFailedRecordWith500()
+    public async Task PerformMigrationAsync_UnhandledFailure_CreatesFailedRecordWith500()
     {
         // Arrange
         await using var context = CreateContext();
-        SeedZaaktypeMapping(context, ZaaktypeId);
-
-        var detClient = new Mock<IDetApiClient>();
-        detClient.Setup(c => c.GetZakenByZaaktype(ZaaktypeId))
-            .ReturnsAsync([new DetZaakMinimal { FunctioneleIdentificatie = "zaak-001", Open = false }]);
-        detClient.Setup(c => c.GetZaakByZaaknummer("zaak-001"))
-            .ThrowsAsync(new InvalidOperationException("Unexpected"));
 
         var migrateZaak = new Mock<IMigrateZaakService>();
+        migrateZaak.Setup(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<Mappers>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(MigrateZaakResult.Failed("zaak-001", "Unexpected error", "Unexpected", 500));
 
         var selector = new Mock<IZakenSelector>();
         selector.Setup(s => s.SelectZakenAsync(ZaaktypeId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([new DetZaakMinimal { FunctioneleIdentificatie = "zaak-001", Open = false }]);
 
-        var sut = CreateSut(context, detClient, migrateZaak);
+        var sut = CreateSut(context, migrateZaak);
 
         // Act
         await sut.PerformMigrationAsync(CreateQueueItem(selector.Object), CancellationToken.None);
@@ -332,24 +269,14 @@ public class StartMigrationServiceTests
     {
         // Arrange: 3 zaken — success, failure, success
         await using var context = CreateContext();
-        SeedZaaktypeMapping(context, ZaaktypeId);
-
-        var detClient = new Mock<IDetApiClient>();
-        detClient.Setup(c => c.GetZakenByZaaktype(ZaaktypeId)).ReturnsAsync([
-            new DetZaakMinimal { FunctioneleIdentificatie = "zaak-001", Open = false },
-            new DetZaakMinimal { FunctioneleIdentificatie = "zaak-002", Open = false },
-            new DetZaakMinimal { FunctioneleIdentificatie = "zaak-003", Open = false },
-        ]);
-        detClient.Setup(c => c.GetZaakByZaaknummer(It.IsAny<string>()))
-            .ReturnsAsync((string id) => CreateDetZaak(id));
 
         var migrateZaak = new Mock<IMigrateZaakService>();
-        migrateZaak.SetupSequence(s => s.MigrateZaak(It.IsAny<DetZaak>(), It.IsAny<MigrateZaakMappingModel>(), It.IsAny<CancellationToken>()))
+        migrateZaak.SetupSequence(s => s.MigrateZaak(It.IsAny<string>(), It.IsAny<Mappers>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(MigrateZaakResult.Success("zaak-001", "ok"))
             .ReturnsAsync(MigrateZaakResult.Failed("zaak-002", "fout", "details", 500))
             .ReturnsAsync(MigrateZaakResult.Success("zaak-003", "ok"));
 
-        var sut = CreateSut(context, detClient, migrateZaak);
+        var sut = CreateSut(context, migrateZaak);
 
         // Act
         var selector = new Mock<IZakenSelector>();
