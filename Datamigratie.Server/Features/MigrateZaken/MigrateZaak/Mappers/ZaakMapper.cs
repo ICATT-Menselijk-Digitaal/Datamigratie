@@ -6,6 +6,8 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Mappers;
 
 public class ZaakMapper(string rsin, Uri ozZaaktypeUrl, Dictionary<bool, ZaakVertrouwelijkheidaanduiding> vertrouwelijkheidMappings)
 {
+    public Uri OzZaaktypeUrl { get; } = ozZaaktypeUrl;
+
     public CreateOzZaakRequest Map(DetZaak detZaak)
     {
         const int MaxZaaknummerLength = 40;
@@ -71,7 +73,7 @@ public class ZaakMapper(string rsin, Uri ozZaaktypeUrl, Dictionary<bool, ZaakVer
             Identificatie = detZaak.FunctioneleIdentificatie,
             Bronorganisatie = rsin,
             Omschrijving = omschrijving,
-            Zaaktype = ozZaaktypeUrl,
+            Zaaktype = OzZaaktypeUrl,
             VerantwoordelijkeOrganisatie = rsin,
             Startdatum = startDatum,
             Registratiedatum = registratieDatum,
