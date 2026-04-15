@@ -1,4 +1,4 @@
-namespace Datamigratie.Common.Services.OpenZaak.Models
+﻿namespace Datamigratie.Common.Services.OpenZaak.Models
 {
     public class OzResultaat
     {

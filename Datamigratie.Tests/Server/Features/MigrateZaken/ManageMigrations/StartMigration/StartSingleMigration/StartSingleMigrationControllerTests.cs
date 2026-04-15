@@ -2,13 +2,13 @@
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration;
-using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Models;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Queues;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Queues.Items;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Services;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.StartSingleMigration;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.StartSingleMigration.Models;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.State;
+using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Mappers;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
@@ -43,16 +43,17 @@ public class StartSingleMigrationControllerTests
     {
         DetZaaktypeId = ZaaktypeId,
         ZakenSelector = new SingleZaakSelector(Zaaknummer, open: false),
-        RsinMapping = new RsinMapping { Rsin = "000000000" },
-        StatusMappings = [],
-        ResultaatMappings = [],
-        DocumentstatusMappings = [],
-        PublicatieNiveauMappings = [],
-        DocumenttypeMappings = [],
-        ZaakVertrouwelijkheidMappings = [],
-        BesluittypeMappings = [],
-        PdfInformatieobjecttypeId = Guid.Empty,
-        RoltypeMappings = []
+        ResultaatMapper = new ResultaatMapper([]),
+        StatusMapper = new StatusMapper([]),
+        ZaakMapper = new ZaakMapper("000000000", new Uri("https://openzaak.test/catalogi/api/v1/zaaktypen/00000000-0000-0000-0000-000000000000"), []),
+        DocumentMapper = new DocumentMapper(
+            "000000000",
+            [],
+            [],
+            []),
+        BesluitMapper = new BesluitMapper("000000000", []),
+        PdfMapper = new PdfMapper("000000000", new Uri("https://openzaak.test/catalogi/api/v1/informatieobjecttypen/00000000-0000-0000-0000-000000000000")),
+        RolMapper = new([])
     };
 
     private static StartSingleMigrationController CreateSut(

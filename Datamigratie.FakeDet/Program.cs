@@ -41,6 +41,7 @@ group.MapGet("documenten/inhoud/{id}", FakeDetEndpoints.DownloadBestand);
 group.MapGet("documentstatussen", FakeDetEndpoints.GetAllDocumentStatussen);
 group.MapDelete("zaken", (ZakenGenerator generator) => generator.Delete());
 group.MapPost("zaken", async (ZakenGenerator generator, [FromBody] int? count) => await generator.Generate(count));
+group.MapPatch("zaken/{zaaknummer}", () => Results.NoContent());
 
 await app.Services.GetRequiredService<ZakenGenerator>().Generate();
 
