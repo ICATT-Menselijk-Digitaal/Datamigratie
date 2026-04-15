@@ -37,7 +37,28 @@
           <tr v-for="record in failedRecords" :key="record.id">
             <td>{{ record.detZaaknummer }}</td>
             <td>{{ record.errorTitle || "-" }}</td>
-            <td class="error-details">{{ record.errorDetails || "-" }}</td>
+            <td class="error-details">
+              <template v-if="record.errorDetails && record.errorDetails.length > 400">
+                {{ record.errorDetails.slice(0, 400)
+                }}<span v-show="expandedRows[record.id]">{{ record.errorDetails.slice(400) }}</span
+                ><span v-show="!expandedRows[record.id]">…</span>
+                <button
+                  v-show="!expandedRows[record.id]"
+                  class="expand-button"
+                  @click="expandedRows[record.id] = true"
+                >
+                  Uitvouwen
+                </button>
+                <button
+                  v-show="expandedRows[record.id]"
+                  class="expand-button"
+                  @click="expandedRows[record.id] = false"
+                >
+                  Inklappen
+                </button>
+              </template>
+              <template v-else>{{ record.errorDetails || "-" }}</template>
+            </td>
             <td>{{ record.statusCode || "-" }}</td>
           </tr>
         </tbody>
@@ -85,6 +106,8 @@ const { migrationId, detZaaktypeId } = defineProps<{
 
 const route = useRoute();
 const search = computed(() => String(route.query.search || "").trim());
+
+const expandedRows = ref<Record<number, boolean>>({});
 
 const loading = ref(false);
 const error = ref("");
@@ -160,6 +183,14 @@ onMounted(() => fetchMigrationRecords());
     .error-details {
       word-break: break-word;
       max-width: 400px;
+    }
+
+    .expand-button {
+      all: unset;
+      color: var(--link-color, currentcolor);
+      text-decoration: underline;
+      cursor: pointer;
+      white-space: nowrap;
     }
   }
 }
