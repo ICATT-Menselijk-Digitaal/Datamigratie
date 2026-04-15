@@ -26,13 +26,25 @@ const scheduleNextPoll = () => {
 const fetchMigration = async () => {
   try {
     const previousStatus = migration.value?.status;
-    migration.value = await get<Migration>(`/api/migration`);
-    const newStatus = migration.value.status;
+    const newStatus = await get<Migration>(`/api/migration`);
 
-    if (previousStatus === MigrationStatus.inProgress && newStatus !== MigrationStatus.inProgress) {
+    if (
+      newStatus.detZaaktypeId === migration.value?.detZaaktypeId &&
+      newStatus.status === migration.value?.status
+    ) {
+      scheduleNextPoll();
+      return;
+    }
+
+    migration.value = newStatus;
+
+    if (
+      previousStatus === MigrationStatus.inProgress &&
+      newStatus.status !== MigrationStatus.inProgress
+    ) {
       migrationJustCompleted.value = true;
       stopPolling();
-    } else if (newStatus === MigrationStatus.inProgress) {
+    } else if (newStatus.status === MigrationStatus.inProgress) {
       migrationJustCompleted.value = false;
       scheduleNextPoll();
     }
