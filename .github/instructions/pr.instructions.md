@@ -1,2 +1,0 @@
-- See [project.md](./guidelines-and-best-practices/project.md) for guidelines when writing code in this project and reviewing PRs
-- See [frontend.md](./guidelines-and-best-practices/frontend.md) for best practices when writing and reviewing frontend code
