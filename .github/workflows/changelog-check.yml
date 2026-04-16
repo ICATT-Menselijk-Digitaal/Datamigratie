@@ -27,24 +27,89 @@ jobs:
             echo "updated=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Find existing comment
-        if: steps.changelog.outputs.updated == 'false'
-        uses: peter-evans/find-comment@v3
-        id: find-comment
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          comment-author: github-actions[bot]
-          body-includes: "<!-- changelog-check -->"
+      - name: Find existing review thread
+        id: find-thread
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          THREAD_ID=$(gh api graphql -f query='
+            query($owner: String!, $repo: String!, $pr: Int!) {
+              repository(owner: $owner, name: $repo) {
+                pullRequest(number: $pr) {
+                  reviewThreads(first: 100) {
+                    nodes {
+                      id
+                      isResolved
+                      comments(first: 1) {
+                        nodes { body }
+                      }
+                    }
+                  }
+                }
+              }
+            }' -f owner="${{ github.repository_owner }}" \
+               -f repo="${{ github.event.repository.name }}" \
+               -F pr=${{ github.event.pull_request.number }} \
+               --jq '.data.repository.pullRequest.reviewThreads.nodes[] | select(.comments.nodes[0].body | contains("<!-- changelog-check -->")) | .id' | head -1)
 
-      - name: Post reminder comment
-        if: steps.changelog.outputs.updated == 'false' && steps.find-comment.outputs.comment-id == ''
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            <!-- changelog-check -->
-            ## 📝 Changelog not updated
+          if [ -n "$THREAD_ID" ]; then
+            echo "thread-id=$THREAD_ID" >> "$GITHUB_OUTPUT"
+            echo "Found existing thread: $THREAD_ID"
+          else
+            echo "thread-id=" >> "$GITHUB_OUTPUT"
+            echo "No existing thread found"
+          fi
 
-            This pull request does not include changes to [`docs/changelog/changelog.md`](../blob/main/docs/changelog/changelog.md).
+      - name: Get first changed file
+        if: steps.changelog.outputs.updated == 'false' && steps.find-thread.outputs.thread-id == ''
+        id: first-file
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          FILE=$(gh api "/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files?per_page=1" --jq '.[0].filename')
+          echo "path=$FILE" >> "$GITHUB_OUTPUT"
+          echo "First changed file: $FILE"
 
-            Please add an entry to the **Current Version** section of the changelog. The entry should consist of the title of the story and a link to the story in Jira. Usually the link has this format: `https://dimpact.atlassian.net/browse/DATA-XXX`. The right value for `DATA-XXX` can be found in the name of the current branch.
+      - name: Post review comment
+        if: steps.changelog.outputs.updated == 'false' && steps.find-thread.outputs.thread-id == ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          jq -n \
+            --arg path "${{ steps.first-file.outputs.path }}" \
+            --arg body "<!-- changelog-check -->
+          ## 📝 Changelog not updated
+
+          This pull request does not include changes to [\`docs/changelog/changelog.md\`](../blob/main/docs/changelog/changelog.md).
+
+          Please add an entry to the **Current Version** section of the changelog. The entry should consist of the title of the story and a link to the story in Jira. Usually the link has this format: \`https://dimpact.atlassian.net/browse/DATA-XXX\`. The right value for \`DATA-XXX\` can be found in the name of the current branch." \
+            '{
+              event: "COMMENT",
+              body: "",
+              comments: [{ path: $path, line: 1, side: "RIGHT", body: $body }]
+            }' | gh api "/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/reviews" \
+              --method POST --input -
+
+      - name: Unresolve thread
+        if: steps.changelog.outputs.updated == 'false' && steps.find-thread.outputs.thread-id != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api graphql -f query='
+            mutation($id: ID!) {
+              unresolveReviewThread(input: { threadId: $id }) {
+                thread { isResolved }
+              }
+            }' -f id="${{ steps.find-thread.outputs.thread-id }}"
+
+      - name: Resolve thread
+        if: steps.changelog.outputs.updated == 'true' && steps.find-thread.outputs.thread-id != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api graphql -f query='
+            mutation($id: ID!) {
+              resolveReviewThread(input: { threadId: $id }) {
+                thread { isResolved }
+              }
+            }' -f id="${{ steps.find-thread.outputs.thread-id }}"
