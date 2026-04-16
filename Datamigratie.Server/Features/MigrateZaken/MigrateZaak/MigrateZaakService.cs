@@ -13,7 +13,6 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
     public interface IMigrateZaakService
     {
         public Task<MigrateZaakResult> MigrateZaak(string zaaknummer, Models.Mappers mapping, CancellationToken token = default);
-        public Task<Uri?> GetFirstInformatieObjectTypeUriAsync(Uri zaaktypeUri, CancellationToken token = default);
     }
 
     public class MigrateZaakService(
@@ -181,12 +180,6 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                     ex.Message,
                     statusCode);
             }
-        }
-
-        public async Task<Uri?> GetFirstInformatieObjectTypeUriAsync(Uri zaaktypeUri, CancellationToken token = default)
-        {
-            var uris = await _openZaakApiClient.GetInformatieobjecttypenUrlsForZaaktype(zaaktypeUri);
-            return uris.FirstOrDefault();
         }
 
         private async Task CreateAndLinkDocumentAsync(

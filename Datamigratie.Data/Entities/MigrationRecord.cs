@@ -13,7 +13,7 @@ public class MigrationRecord
     [Required]
     public int MigrationId { get; set; }
     
-    public Migration? Migration { get; set; }
+    public Migration Migration { get; set; } = null!;
     
     [Required]
     public required string DetZaaknummer { get; set; }

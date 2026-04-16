@@ -45,26 +45,24 @@ public class StartMigrationService(
         await UpdateMigrationTotalRecordsAsync(migration, closedZaken.Count, stoppingToken);
 
         var migrationSw = Stopwatch.StartNew();
-        await ExecuteMigration(migration, closedZaken, migrationQueueItem, stoppingToken);
-        migrationSw.Stop();
-        MigrationDurationHistogram.Record(migrationSw.Elapsed.TotalMilliseconds);
-        await CompleteMigrationAsync(migration);
+        try
+        {
+            await ExecuteMigration(migration, closedZaken, migrationQueueItem, stoppingToken);
+            migrationSw.Stop();
+            MigrationDurationHistogram.Record(migrationSw.Elapsed.TotalMilliseconds);
+            await CompleteMigrationAsync(migration);
+        }
+        catch (OperationCanceledException)
+        {
+            migrationSw.Stop();
+            logger.LogWarning("Migration {MigrationId} was cancelled after {ElapsedMs}ms", migration.Id, migrationSw.ElapsedMilliseconds);
+            
+            await UpdateMigrationStatusAsync(migration, MigrationStatus.Cancelled);
+        }
     }
     private async Task ExecuteMigration(Data.Entities.Migration migration, List<DetZaakMinimal> zaken, MigrationQueueItem queueItem, CancellationToken ct)
     {
         var concurrencyLimit = Math.Max(1, _migrationOptions.ZaakConcurrencyLimit);
-
-        // Same zaaktype for all zaken to avoid redundant HTTP calls to OpenZaak
-        Uri? firstInformatieObjectTypeUri = null;
-        try
-        {
-            firstInformatieObjectTypeUri = await migrateZaakService.GetFirstInformatieObjectTypeUriAsync(queueItem.ZaakMapper.OzZaaktypeUrl, ct);
-        }
-        catch (Exception ex)
-        {
-            logger.LogWarning(ex, "Fetch of first informatieobjecttype URI failed for zaaktype {ZaaktypeUrl}. Will fall back to per-zaak fetch.",
-                queueItem.ZaakMapper.OzZaaktypeUrl);
-        }
 
         var completedRecords = new ConcurrentQueue<MigrationRecord>();
         var successCount = 0;
@@ -77,7 +75,7 @@ public class StartMigrationService(
             new ParallelOptions { MaxDegreeOfParallelism = concurrencyLimit, CancellationToken = ct },
             async (zaak, parallelCt) =>
             {
-                var (record, isSuccess) = await MigrateSingleZaakAsync(migration.Id, zaak, queueItem, firstInformatieObjectTypeUri, parallelCt);
+                var (record, isSuccess) = await MigrateSingleZaakAsync(migration.Id, zaak, queueItem, parallelCt);
                 completedRecords.Enqueue(record);
 
                 if (isSuccess)
@@ -105,7 +103,7 @@ public class StartMigrationService(
             migration.Id, migration.ProcessedRecords, migration.TotalRecords ?? 0, successCount, failedCount, sw.ElapsedMilliseconds, concurrencyLimit);
     }
 
-    private async Task<(MigrationRecord record, bool isSuccess)> MigrateSingleZaakAsync(int migrationId, DetZaakMinimal zaakMinimal, MigrationQueueItem queueItem, Uri? firstInformatieObjectTypeUri, CancellationToken ct)
+    private async Task<(MigrationRecord record, bool isSuccess)> MigrateSingleZaakAsync(int migrationId, DetZaakMinimal zaakMinimal, MigrationQueueItem queueItem, CancellationToken ct)
     {
         var mapping = new Mappers
         {

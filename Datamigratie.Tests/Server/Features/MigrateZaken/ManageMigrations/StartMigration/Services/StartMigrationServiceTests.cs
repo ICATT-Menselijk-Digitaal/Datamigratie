@@ -55,10 +55,6 @@ public class StartMigrationServiceTests
     {
         var migrationOptions = Options.Create(new MigrationOptions { ZaakConcurrencyLimit = 1 });
 
-        migrateZaakService
-            .Setup(s => s.GetFirstInformatieObjectTypeUriAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Uri("https://openzaak.test/catalogi/api/v1/informatieobjecttypen/test-id"));
-
         return new StartMigrationService(
             context,
             NullLogger<StartMigrationService>.Instance,
