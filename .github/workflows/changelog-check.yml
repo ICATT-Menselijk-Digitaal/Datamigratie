@@ -8,29 +8,34 @@ permissions:
   contents: write
   pull-requests: write
 
+concurrency:
+  group: changelog-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   check-changelog:
     runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      PR: ${{ github.event.pull_request.number }}
+      CHANGELOG_PATH: docs/changelog/changelog.md
+      MARKER: "<!-- changelog-check -->"
 
+    steps:
       - name: Check if changelog was updated
         id: changelog
         run: |
-          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- docs/changelog/changelog.md)
-          if [ -z "$CHANGED" ]; then
-            echo "updated=false" >> "$GITHUB_OUTPUT"
-          else
+          if gh api --paginate "/repos/$REPO/pulls/$PR/files" --jq '.[].filename' \
+               | grep -qxF "$CHANGELOG_PATH"; then
             echo "updated=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "updated=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Find existing review thread
         id: find-thread
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           THREAD_ID=$(gh api graphql -f query='
             query($owner: String!, $repo: String!, $pr: Int!) {
@@ -47,10 +52,10 @@ jobs:
                   }
                 }
               }
-            }' -f owner="${{ github.repository_owner }}" \
-               -f repo="${{ github.event.repository.name }}" \
-               -F pr=${{ github.event.pull_request.number }} \
-               --jq '.data.repository.pullRequest.reviewThreads.nodes[] | select(.comments.nodes[0].body | contains("<!-- changelog-check -->")) | .id' | head -1)
+            }' -f owner="${REPO%/*}" \
+               -f repo="${REPO#*/}" \
+               -F pr="$PR" \
+               --jq ".data.repository.pullRequest.reviewThreads.nodes[] | select(.comments.nodes[0].body | contains(\"$MARKER\")) | .id" | head -1)
 
           if [ -n "$THREAD_ID" ]; then
             echo "thread-id=$THREAD_ID" >> "$GITHUB_OUTPUT"
@@ -63,53 +68,54 @@ jobs:
       - name: Get first changed file
         if: steps.changelog.outputs.updated == 'false' && steps.find-thread.outputs.thread-id == ''
         id: first-file
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          FILE=$(gh api "/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files?per_page=1" --jq '.[0].filename')
+          FILE=$(gh api "/repos/$REPO/pulls/$PR/files?per_page=1" --jq '.[0].filename')
           echo "path=$FILE" >> "$GITHUB_OUTPUT"
           echo "First changed file: $FILE"
 
       - name: Post review comment
         if: steps.changelog.outputs.updated == 'false' && steps.find-thread.outputs.thread-id == ''
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FIRST_FILE: ${{ steps.first-file.outputs.path }}
+          CHANGELOG_URL: ${{ github.server_url }}/${{ github.repository }}/blob/main/docs/changelog/changelog.md
         run: |
-          jq -n \
-            --arg path "${{ steps.first-file.outputs.path }}" \
-            --arg body "<!-- changelog-check -->
+          BODY="$MARKER
           ## 📝 Changelog not updated
 
-          This pull request does not include changes to [\`docs/changelog/changelog.md\`](../blob/main/docs/changelog/changelog.md).
+          This pull request does not include changes to [\`$CHANGELOG_PATH\`]($CHANGELOG_URL).
 
-          Please add an entry to the **Current Version** section of the changelog. The entry should consist of the title of the story and a link to the story in Jira. Usually the link has this format: \`https://dimpact.atlassian.net/browse/DATA-XXX\`. The right value for \`DATA-XXX\` can be found in the name of the current branch." \
+          Please add an entry to the **Current Version** section of the changelog. The entry should consist of the title of the story and a link to the story in Jira. Usually the link has this format: \`https://dimpact.atlassian.net/browse/DATA-XXX\`. The right value for \`DATA-XXX\` can be found in the name of the current branch."
+
+          jq -n \
+            --arg path "$FIRST_FILE" \
+            --arg body "$BODY" \
             '{
               event: "COMMENT",
               body: "",
               comments: [{ path: $path, line: 1, side: "RIGHT", body: $body }]
-            }' | gh api "/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/reviews" \
+            }' | gh api "/repos/$REPO/pulls/$PR/reviews" \
               --method POST --input -
 
       - name: Unresolve thread
         if: steps.changelog.outputs.updated == 'false' && steps.find-thread.outputs.thread-id != ''
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          THREAD_ID: ${{ steps.find-thread.outputs.thread-id }}
         run: |
           gh api graphql -f query='
             mutation($id: ID!) {
               unresolveReviewThread(input: { threadId: $id }) {
                 thread { isResolved }
               }
-            }' -f id="${{ steps.find-thread.outputs.thread-id }}"
+            }' -f id="$THREAD_ID"
 
       - name: Resolve thread
         if: steps.changelog.outputs.updated == 'true' && steps.find-thread.outputs.thread-id != ''
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          THREAD_ID: ${{ steps.find-thread.outputs.thread-id }}
         run: |
           gh api graphql -f query='
             mutation($id: ID!) {
               resolveReviewThread(input: { threadId: $id }) {
                 thread { isResolved }
               }
-            }' -f id="${{ steps.find-thread.outputs.thread-id }}"
+            }' -f id="$THREAD_ID"
