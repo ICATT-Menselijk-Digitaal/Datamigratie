@@ -52,16 +52,6 @@ public class ZaakMapper(string rsin, Uri ozZaaktypeUrl, Dictionary<bool, ZaakVer
             ];
         }
 
-        OzZaakgeometrie? zaakgeometrie = null;
-        if (detZaak.Geolocatie?.Type != null && detZaak.Geolocatie?.Point2D != null)
-        {
-            zaakgeometrie = new OzZaakgeometrie
-            {
-                Type = detZaak.Geolocatie.Type,
-                Coordinates = detZaak.Geolocatie.Point2D
-            };
-        }
-
         var vertrouwelijkheidaanduiding = vertrouwelijkheidMappings.TryGetValue(detZaak.Vertrouwelijk, out var v) ? v
             : throw new InvalidOperationException(
                 $"Zaak '{detZaak.FunctioneleIdentificatie}' migration failed: No mapping found for vertrouwelijkheid '{detZaak.Vertrouwelijk}'.");
@@ -83,7 +73,6 @@ public class ZaakMapper(string rsin, Uri ozZaaktypeUrl, Dictionary<bool, ZaakVer
             Toelichting = toelichting ?? "",
             Archiefactiedatum = archiefactiedatum,
             LaatsteBetaaldatum = laatsteBetaaldatum,
-            Zaakgeometrie = zaakgeometrie,
             CommunicatiekanaalNaam = communicatiekanaalNaam,
             Kenmerken = kenmerken
         };

@@ -1,4 +1,4 @@
-using Datamigratie.Common.Services.Det.Models;
+﻿using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Mappers;
 
@@ -139,25 +139,6 @@ public class ZaakMapperTests
         var ex = Assert.Throws<InvalidDataException>(() => mapper.Map(detZaak));
         Assert.Contains("bewaartermijnEinddatum", ex.Message);
         Assert.Contains("overbrengenOp", ex.Message);
-    }
-
-    [Fact]
-    public void Map_WithGeometry_MapsGeometry()
-    {
-        var mapper = CreateMapper();
-
-        var detZaak = CreateMinimalDetZaak();
-        detZaak.Geolocatie = new DetGeolocatie
-        {
-            Type = "Point",
-            Point2D = [5.12m, 52.09m]
-        };
-
-        var result = mapper.Map(detZaak);
-
-        Assert.NotNull(result.Zaakgeometrie);
-        Assert.Equal("Point", result.Zaakgeometrie.Type);
-        Assert.Equal([5.12m, 52.09m], result.Zaakgeometrie.Coordinates);
     }
 
     private static DetZaak CreateMinimalDetZaak(
