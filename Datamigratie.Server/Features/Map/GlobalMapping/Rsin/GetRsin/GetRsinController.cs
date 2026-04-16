@@ -31,4 +31,26 @@ public class GetRsinController(
             return StatusCode(500, "Er is een fout opgetreden bij het ophalen van de rsin.");
         }
     }
+
+
+    [HttpGet]
+    public async Task<ActionResult<GetRsinResponseModel>> GetRsinPlusOne()
+    {
+        try
+        {
+            var config = await dbContext.RsinConfigurations.FirstOrDefaultAsync();
+
+            return config == null
+                ? Ok(new GetRsinResponseModel())
+                : Ok(new GetRsinResponseModel
+                {
+                    Rsin = config.Rsin + "1",
+                });
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error getting rsin configuration");
+            return StatusCode(500, "Er is een fout opgetreden bij het ophalen van de rsin.");
+        }
+    }
 }
