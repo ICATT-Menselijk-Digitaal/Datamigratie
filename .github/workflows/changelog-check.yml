@@ -1,0 +1,50 @@
+name: Changelog Check
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  check-changelog:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Check if changelog was updated
+        id: changelog
+        run: |
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- docs/changelog/changelog.md)
+          if [ -z "$CHANGED" ]; then
+            echo "updated=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "updated=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Find existing comment
+        if: steps.changelog.outputs.updated == 'false'
+        uses: peter-evans/find-comment@v3
+        id: find-comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: github-actions[bot]
+          body-includes: "<!-- changelog-check -->"
+
+      - name: Post reminder comment
+        if: steps.changelog.outputs.updated == 'false' && steps.find-comment.outputs.comment-id == ''
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            <!-- changelog-check -->
+            ## 📝 Changelog not updated
+
+            This pull request does not include changes to [`docs/changelog/changelog.md`](../blob/main/docs/changelog/changelog.md).
+
+            Please add an entry to the **Current Version** section of the changelog. The entry should consist of the title of the story and a link to the story in Jira. Usually the link has this format: `https://dimpact.atlassian.net/browse/DATA-XXX`. The right value for `DATA-XXX` can be found in the name of the current branch.
