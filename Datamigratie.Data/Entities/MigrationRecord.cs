@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Datamigratie.Data.Entities;
@@ -13,7 +13,7 @@ public class MigrationRecord
     [Required]
     public int MigrationId { get; set; }
     
-    public required Migration Migration { get; set; }
+    public Migration Migration { get; set; } = null!;
     
     [Required]
     public required string DetZaaknummer { get; set; }

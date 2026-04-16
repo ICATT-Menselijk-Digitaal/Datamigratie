@@ -40,6 +40,7 @@ namespace Datamigratie.Server.Config
 
         public static IServiceCollection RegisterServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.Configure<MigrationOptions>(configuration.GetSection(MigrationOptions.SectionName));
             services.AddDatamigrationApiClients(configuration);
             services.AddScoped<IMapZaaktypenService, MapZaaktypenService>();
             services.AddScoped<IShowZaaktypenMappingService, ShowZaaktypenMappingService>();

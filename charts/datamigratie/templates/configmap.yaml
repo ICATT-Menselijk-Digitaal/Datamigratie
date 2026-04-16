@@ -29,3 +29,6 @@ data:
 
   # Feature Flags
   FeatureFlags__EnableTestHelpers: {{ .Values.settings.featureFlags.enableTestHelpers | toString | quote }}
+
+  # Migration
+  Migration__ZaakConcurrencyLimit: {{ .Values.settings.migration.zaakConcurrencyLimit | toString | quote }}
