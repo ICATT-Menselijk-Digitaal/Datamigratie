@@ -42,17 +42,13 @@
               <template v-else-if="record.errorDetails.length <= MAX_ERROR_LENGTH">{{
                 record.errorDetails
               }}</template>
-              <template v-else-if="expandedRows[record.id]">
+              <template v-else-if="record.expand">
                 <span>{{ record.errorDetails }}</span>
-                <button class="expand-button" @click="expandedRows[record.id] = false">
-                  Inklappen
-                </button>
+                <button class="expand-button" @click="record.expand = false">Inklappen</button>
               </template>
               <template v-else>
                 <span>{{ record.errorDetails.slice(0, MAX_ERROR_LENGTH) }}...</span>
-                <button class="expand-button" @click="expandedRows[record.id] = true">
-                  Uitvouwen
-                </button>
+                <button class="expand-button" @click="record.expand = true">Uitvouwen</button>
               </template>
             </td>
             <td>{{ record.statusCode || "-" }}</td>
@@ -104,7 +100,6 @@ const route = useRoute();
 const search = computed(() => String(route.query.search || "").trim());
 
 const MAX_ERROR_LENGTH = 400;
-const expandedRows = ref<Record<number, boolean>>({});
 
 const loading = ref(false);
 const error = ref("");
