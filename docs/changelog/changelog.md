@@ -19,6 +19,7 @@
 - [Migrate Initiator (Rollen-related)](https://dimpact.atlassian.net/browse/DATA-167)
 - [Automatic refresh of migration status](https://dimpact.atlassian.net/browse/DATA-403)
 - [Limit error message size](https://dimpact.atlassian.net/browse/DATA-339)
+- [Make error message expandable in UI](https://dimpact.atlassian.net/browse/DATA-379)
 
 ## v0.1.0
 

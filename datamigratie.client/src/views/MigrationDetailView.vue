@@ -37,7 +37,20 @@
           <tr v-for="record in failedRecords" :key="record.id">
             <td>{{ record.detZaaknummer }}</td>
             <td>{{ record.errorTitle || "-" }}</td>
-            <td class="error-details">{{ record.errorDetails || "-" }}</td>
+            <td class="error-details">
+              <template v-if="!record.errorDetails">-</template>
+              <template v-else-if="record.errorDetails.length <= MAX_ERROR_LENGTH">{{
+                record.errorDetails
+              }}</template>
+              <template v-else-if="record.expand">
+                <span>{{ record.errorDetails }}</span>
+                <button class="expand-button" @click="record.expand = false">Inklappen</button>
+              </template>
+              <template v-else>
+                <span>{{ record.errorDetails.slice(0, MAX_ERROR_LENGTH) }}...</span>
+                <button class="expand-button" @click="record.expand = true">Uitvouwen</button>
+              </template>
+            </td>
             <td>{{ record.statusCode || "-" }}</td>
           </tr>
         </tbody>
@@ -86,9 +99,11 @@ const { migrationId, detZaaktypeId } = defineProps<{
 const route = useRoute();
 const search = computed(() => String(route.query.search || "").trim());
 
+const MAX_ERROR_LENGTH = 400;
+
 const loading = ref(false);
 const error = ref("");
-const records = ref<MigrationRecordItem[]>([]);
+const records = ref<Array<MigrationRecordItem & { expand?: boolean }>>([]);
 
 const failedRecords = computed(() => records.value.filter((r) => !r.isSuccessful));
 const successfulRecords = computed(() => records.value.filter((r) => r.isSuccessful));
@@ -160,6 +175,15 @@ onMounted(() => fetchMigrationRecords());
     .error-details {
       word-break: break-word;
       max-width: 400px;
+    }
+
+    .expand-button {
+      all: unset;
+      color: var(--link-color, currentcolor);
+      text-decoration: underline;
+      cursor: pointer;
+      white-space: nowrap;
+      margin-inline-start: var(--spacing-small);
     }
   }
 }
