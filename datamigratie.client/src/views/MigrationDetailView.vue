@@ -108,7 +108,7 @@ const expandedRows = ref<Record<number, boolean>>({});
 
 const loading = ref(false);
 const error = ref("");
-const records = ref<MigrationRecordItem[]>([]);
+const records = ref<Array<MigrationRecordItem & { expand?: boolean }>>([]);
 
 const failedRecords = computed(() => records.value.filter((r) => !r.isSuccessful));
 const successfulRecords = computed(() => records.value.filter((r) => r.isSuccessful));
@@ -188,6 +188,7 @@ onMounted(() => fetchMigrationRecords());
       text-decoration: underline;
       cursor: pointer;
       white-space: nowrap;
+      margin-inline-start: var(--spacing-small);
     }
   }
 }
