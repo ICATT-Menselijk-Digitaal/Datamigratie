@@ -191,6 +191,7 @@ onMounted(() => fetchMigrationRecords());
       text-decoration: underline;
       cursor: pointer;
       white-space: nowrap;
+      margin-inline-start: var(--spacing-small);
     }
   }
 }
