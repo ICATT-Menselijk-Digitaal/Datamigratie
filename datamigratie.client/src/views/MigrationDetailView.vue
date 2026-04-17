@@ -38,26 +38,22 @@
             <td>{{ record.detZaaknummer }}</td>
             <td>{{ record.errorTitle || "-" }}</td>
             <td class="error-details">
-              <template v-if="record.errorDetails && record.errorDetails.length > 400">
-                {{ record.errorDetails.slice(0, 400)
-                }}<span v-show="expandedRows[record.id]">{{ record.errorDetails.slice(400) }}</span
-                ><span v-show="!expandedRows[record.id]">…</span>
-                <button
-                  v-show="!expandedRows[record.id]"
-                  class="expand-button"
-                  @click="expandedRows[record.id] = true"
-                >
-                  Uitvouwen
-                </button>
-                <button
-                  v-show="expandedRows[record.id]"
-                  class="expand-button"
-                  @click="expandedRows[record.id] = false"
-                >
+              <template v-if="!record.errorDetails">-</template>
+              <template v-else-if="record.errorDetails.length <= MAX_ERROR_LENGTH">{{
+                record.errorDetails
+              }}</template>
+              <template v-else-if="expandedRows[record.id]">
+                <span>{{ record.errorDetails }}</span>
+                <button class="expand-button" @click="expandedRows[record.id] = false">
                   Inklappen
                 </button>
               </template>
-              <template v-else>{{ record.errorDetails || "-" }}</template>
+              <template v-else>
+                <span>{{ record.errorDetails.slice(0, MAX_ERROR_LENGTH) }}...</span>
+                <button class="expand-button" @click="expandedRows[record.id] = true">
+                  Uitvouwen
+                </button>
+              </template>
             </td>
             <td>{{ record.statusCode || "-" }}</td>
           </tr>
@@ -107,6 +103,7 @@ const { migrationId, detZaaktypeId } = defineProps<{
 const route = useRoute();
 const search = computed(() => String(route.query.search || "").trim());
 
+const MAX_ERROR_LENGTH = 400;
 const expandedRows = ref<Record<number, boolean>>({});
 
 const loading = ref(false);
