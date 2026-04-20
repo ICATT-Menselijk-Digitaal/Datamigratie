@@ -455,6 +455,14 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
             // finally delete documents
             foreach (var zio in zaakInformatieobjecten)
             {
+                if (string.IsNullOrEmpty(zio.Informatieobject))
+                {
+                    logger.LogWarning("Skipping document deletion: zaakinformatieobject linked to zaak {ZaakUrl} has a null/empty informatieobject URL (broken link in OpenZaak)", zaak.Url);
+                    continue;
+                }
+
+                logger.LogInformation("Deleting document with url {DocumentUrl} linked to existing zaak {ZaakUrl}",
+                    zio.Informatieobject, zaak.Url);
                 var documentId = OzUrlToGuidConverter.ExtractUuidFromUrl(zio.Informatieobject);
                 await _openZaakApiClient.DeleteDocument(documentId);
             }

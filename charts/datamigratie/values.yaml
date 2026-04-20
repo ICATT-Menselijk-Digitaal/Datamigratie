@@ -144,6 +144,9 @@ settings:
   featureFlags:
     enableTestHelpers: false
 
+  migration:
+    zaakConcurrencyLimit: 5
+
 postgresql:
   enabled: false
   auth:
