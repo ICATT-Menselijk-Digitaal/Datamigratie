@@ -37,6 +37,8 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf
                             Row(table, "omschrijving", zaak.Omschrijving);
                             Row(table, "aangemaaktDoor", zaak.AangemaaktDoor);
                             Row(table, "afdeling", zaak.Afdeling);
+                            Row(table, "groep", zaak.Groep);
+                            Row(table, "behandelaar", zaak.Behandelaar);
                             Row(table, "externeIdentificatie", zaak.ExterneIdentificatie);
                             Row(table, "organisatie", zaak.Organisatie);
                             Row(table, "redenStart", zaak.RedenStart);
