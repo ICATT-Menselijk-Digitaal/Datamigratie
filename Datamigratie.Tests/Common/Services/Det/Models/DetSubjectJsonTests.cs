@@ -231,5 +231,84 @@ namespace Datamigratie.Tests.Common.Services.Det.Models
             Assert.Equal("99887766", bedrijf.KvkNummer);
             Assert.Equal("Gemachtigde BV", bedrijf.Bedrijfsnaam);
         }
+
+        [Fact]
+        public void Deserialize_ContactWithPersoonAanvrager_MapsCorrectly()
+        {
+            var json = """
+                {
+                    "functioneleIdentificatie": "CONTACT-001",
+                    "indicatieVertrouwelijk": false,
+                    "aangemaaktDoor": "medewerker",
+                    "startdatumTijd": "2024-01-01T09:00:00+01:00",
+                    "aanvrager": {
+                        "subjecttype": "persoon",
+                        "handmatigToegevoegd": false,
+                        "burgerServiceNummer": "123456789",
+                        "voornamen": "Jan",
+                        "geslachtsNaam": "Jansen",
+                        "geblokkeerd": false,
+                        "curateleRegister": false,
+                        "inOnderzoek": false,
+                        "beperkingVerstrekking": false,
+                        "afnemerIndicatie": false
+                    }
+                }
+                """;
+
+            var contact = JsonSerializer.Deserialize<DetContact>(json, Options);
+
+            var persoon = Assert.IsType<DetPersoon>(contact!.Aanvrager);
+            Assert.Equal("123456789", persoon.BurgerServiceNummer);
+            Assert.Equal("Jan", persoon.Voornamen);
+            Assert.Equal("Jansen", persoon.GeslachtsNaam);
+        }
+
+        [Fact]
+        public void Deserialize_ContactWithBedrijfAanvrager_MapsCorrectly()
+        {
+            var json = """
+                {
+                    "functioneleIdentificatie": "CONTACT-001",
+                    "indicatieVertrouwelijk": false,
+                    "aangemaaktDoor": "medewerker",
+                    "startdatumTijd": "2024-01-01T09:00:00+01:00",
+                    "aanvrager": {
+                        "subjecttype": "bedrijf",
+                        "handmatigToegevoegd": false,
+                        "kvkNummer": "12345678",
+                        "bedrijfsnaam": "Acme BV",
+                        "inSurceance": false,
+                        "failliet": false,
+                        "ingangsdatum": "2020-01-01",
+                        "vestigingstype": "hoofdvestiging"
+                    }
+                }
+                """;
+
+            var contact = JsonSerializer.Deserialize<DetContact>(json, Options);
+
+            var bedrijf = Assert.IsType<DetBedrijf>(contact!.Aanvrager);
+            Assert.Equal("12345678", bedrijf.KvkNummer);
+            Assert.Equal("Acme BV", bedrijf.Bedrijfsnaam);
+        }
+
+        [Fact]
+        public void Deserialize_ContactWithNullAanvrager_AanvragerIsNull()
+        {
+            var json = """
+                {
+                    "functioneleIdentificatie": "CONTACT-001",
+                    "indicatieVertrouwelijk": false,
+                    "aangemaaktDoor": "medewerker",
+                    "startdatumTijd": "2024-01-01T09:00:00+01:00",
+                    "aanvrager": null
+                }
+                """;
+
+            var contact = JsonSerializer.Deserialize<DetContact>(json, Options);
+
+            Assert.Null(contact!.Aanvrager);
+        }
     }
 }

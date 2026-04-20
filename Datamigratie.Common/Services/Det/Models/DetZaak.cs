@@ -311,6 +311,7 @@ namespace Datamigratie.Common.Services.Det.Models
         public List<DetContactHistorie>? Historie { get; set; }
         public List<DetVoorlopigAntwoord>? VoorlopigeAntwoorden { get; set; }
         public DetKanaal? Kanaal { get; set; }
+        public DetSubject? Aanvrager { get; set; }
         public List<DetBagObject>? BagObjecten { get; set; }
         public List<string>? GekoppeldeContacten { get; set; }
     }

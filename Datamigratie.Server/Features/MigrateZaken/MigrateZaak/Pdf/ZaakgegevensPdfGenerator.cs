@@ -309,6 +309,11 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf
                                     Row(table, "kanaal.omschrijving", contact.Kanaal?.Omschrijving);
                                 });
 
+                                if (contact.Aanvrager != null)
+                                {
+                                    AddSubjectSections(col, $"Contact {i + 1} — Aanvrager", contact.Aanvrager);
+                                }
+
                                 if (contact.VoorlopigeAntwoorden != null)
                                 {
                                     for (var v = 0; v < contact.VoorlopigeAntwoorden.Count; v++)
