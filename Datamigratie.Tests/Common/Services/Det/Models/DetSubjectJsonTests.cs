@@ -146,5 +146,90 @@ namespace Datamigratie.Tests.Common.Services.Det.Models
 
             Assert.Null(zaak!.Initiator);
         }
+
+        [Fact]
+        public void Deserialize_BetrokkeneWithPersoon_MapsCorrectly()
+        {
+            var json = """
+                {
+                    "functioneleIdentificatie": "ZAAK-004",
+                    "open": true,
+                    "omschrijving": "Test zaak",
+                    "startdatum": "2024-01-01",
+                    "streefdatum": "2024-06-01",
+                    "handmatigToegevoegd": false,
+                    "historie": [],
+                    "betrokkenen": [
+                        {
+                            "indCorrespondentie": true,
+                            "startdatum": "2024-02-01",
+                            "typeBetrokkenheid": "belanghebbende",
+                            "toelichting": "Aanvrager",
+                            "betrokkene": {
+                                "subjecttype": "persoon",
+                                "handmatigToegevoegd": false,
+                                "burgerServiceNummer": "111222333",
+                                "voornamen": "Anna",
+                                "geblokkeerd": false,
+                                "curateleRegister": false,
+                                "inOnderzoek": false,
+                                "beperkingVerstrekking": false,
+                                "afnemerIndicatie": false
+                            }
+                        }
+                    ]
+                }
+                """;
+
+            var zaak = JsonSerializer.Deserialize<DetZaak>(json, Options);
+
+            var betrokkene = Assert.Single(zaak!.Betrokkenen!);
+            Assert.True(betrokkene.IndCorrespondentie);
+            Assert.Equal("belanghebbende", betrokkene.TypeBetrokkenheid);
+            var persoon = Assert.IsType<DetPersoon>(betrokkene.Betrokkene);
+            Assert.Equal("111222333", persoon.BurgerServiceNummer);
+            Assert.Equal("Anna", persoon.Voornamen);
+        }
+
+        [Fact]
+        public void Deserialize_BetrokkeneWithBedrijf_MapsCorrectly()
+        {
+            var json = """
+                {
+                    "functioneleIdentificatie": "ZAAK-005",
+                    "open": true,
+                    "omschrijving": "Test zaak",
+                    "startdatum": "2024-01-01",
+                    "streefdatum": "2024-06-01",
+                    "handmatigToegevoegd": false,
+                    "historie": [],
+                    "betrokkenen": [
+                        {
+                            "indCorrespondentie": false,
+                            "typeBetrokkenheid": "gemachtigde",
+                            "betrokkene": {
+                                "subjecttype": "bedrijf",
+                                "handmatigToegevoegd": false,
+                                "kvkNummer": "99887766",
+                                "bedrijfsnaam": "Gemachtigde BV",
+                                "inSurceance": false,
+                                "failliet": false,
+                                "ingangsdatum": "2021-06-01",
+                                "vestigingstype": "hoofdvestiging"
+                            }
+                        }
+                    ]
+                }
+                """;
+
+            var zaak = JsonSerializer.Deserialize<DetZaak>(json, Options);
+
+            var betrokkene = Assert.Single(zaak!.Betrokkenen!);
+            Assert.False(betrokkene.IndCorrespondentie);
+            Assert.Equal("gemachtigde", betrokkene.TypeBetrokkenheid);
+            var bedrijf = Assert.IsType<DetBedrijf>(betrokkene.Betrokkene);
+            Assert.Equal("99887766", bedrijf.KvkNummer);
+            Assert.Equal("Gemachtigde BV", bedrijf.Bedrijfsnaam);
+        }
     }
 }

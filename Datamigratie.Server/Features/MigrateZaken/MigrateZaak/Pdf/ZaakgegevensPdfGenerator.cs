@@ -171,6 +171,8 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf
                                     Row(table, "indCorrespondentie", bt.IndCorrespondentie.ToString());
                                     Row(table, "toelichting", bt.Toelichting);
                                 });
+
+                                AddSubjectSections(col, $"Betrokkene {i + 1}", bt.Betrokkene);
                             }
                         }
 
@@ -364,216 +366,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf
                         // Initiator
                         if (zaak.Initiator != null)
                         {
-                            var ini = zaak.Initiator;
-                            AddSection(col, "Initiator", table =>
-                            {
-                                Row(table, "subjecttype", ini.Subjecttype);
-                                Row(table, "identifier", ini.Identifier?.ToString());
-                                Row(table, "telefoonnummer", ini.Telefoonnummer);
-                                Row(table, "telefoonnummerAlternatief", ini.TelefoonnummerAlternatief);
-                                Row(table, "rekeningnummer", ini.Rekeningnummer);
-                                Row(table, "emailadres", ini.Emailadres);
-                                Row(table, "ontvangenZaakNotificaties", ini.OntvangenZaakNotificaties?.ToString());
-                                Row(table, "toestemmingZaakNotificatiesAlleenDigitaal", ini.ToestemmingZaakNotificatiesAlleenDigitaal?.ToString());
-                                Row(table, "handmatigToegevoegd", ini.HandmatigToegevoegd.ToString());
-
-                                if (ini is DetPersoon p)
-                                {
-                                    Row(table, "burgerServiceNummer", p.BurgerServiceNummer);
-                                    Row(table, "voornamen", p.Voornamen);
-                                    Row(table, "voorletters", p.Voorletters);
-                                    Row(table, "geslachtsNaam", p.GeslachtsNaam);
-                                    Row(table, "voorvoegsel", p.Voorvoegsel);
-                                    Row(table, "geslacht", p.Geslacht);
-                                    Row(table, "aanhefAanschrijving", p.AanhefAanschrijving);
-                                    Row(table, "adelijkeTitel", p.AdelijkeTitel);
-                                    Row(table, "preAcademischeTitel", p.PreAcademischeTitel);
-                                    Row(table, "postAcademischeTitel", p.PostAcademischeTitel);
-                                    Row(table, "naamgebruik", p.Naamgebruik);
-                                    Row(table, "geslachtsNaamPartner", p.GeslachtsNaamPartner);
-                                    Row(table, "voorvoegselPartner", p.VoorvoegselPartner);
-                                    Row(table, "geboortedatum", FormatDate(p.Geboortedatum));
-                                    Row(table, "geboortedatumVolledig", p.GeboortedatumVolledig);
-                                    Row(table, "geboorteplaats", p.Geboorteplaats);
-                                    Row(table, "geboorteland.naam", p.Geboorteland?.Naam);
-                                    Row(table, "overlijdensdatum", FormatDate(p.Overlijdensdatum));
-                                    Row(table, "overlijdensdatumVolledig", p.OverlijdensdatumVolledig);
-                                    Row(table, "overlijdensplaats", p.Overlijdensplaats);
-                                    Row(table, "overlijdensland.naam", p.Overlijdensland?.Naam);
-                                    Row(table, "aNummer", p.ANummer);
-                                    Row(table, "opschortingsReden", p.OpschortingsReden);
-                                    Row(table, "opschortingsDatum", FormatDate(p.OpschortingsDatum));
-                                    Row(table, "geblokkeerd", p.Geblokkeerd.ToString());
-                                    Row(table, "curateleRegister", p.CurateleRegister.ToString());
-                                    Row(table, "inOnderzoek", p.InOnderzoek.ToString());
-                                    Row(table, "beperkingVerstrekking", p.BeperkingVerstrekking.ToString());
-                                    Row(table, "nietIngezeteneAanduiding", p.NietIngezeteneAanduiding);
-                                    Row(table, "afnemerIndicatie", p.AfnemerIndicatie.ToString());
-                                    Row(table, "anpIdentificatie", p.AnpIdentificatie?.ToString());
-                                    Row(table, "gemeentecode", p.Gemeentecode);
-                                    Row(table, "burgerlijkeStaat.naam", p.BurgerlijkeStaat?.Naam);
-                                }
-                                else if (ini is DetBedrijf b)
-                                {
-                                    Row(table, "kvkNummer", b.KvkNummer);
-                                    Row(table, "vestigingsnummer", b.Vestigingsnummer);
-                                    Row(table, "buitenlandsHandelsregisternummer", b.BuitenlandsHandelsregisternummer);
-                                    Row(table, "bedrijfsnaam", b.Bedrijfsnaam);
-                                    Row(table, "vennootschapsnaam", b.Vennootschapsnaam);
-                                    Row(table, "statutaireZetel", b.StatutaireZetel);
-                                    Row(table, "datumVestiging", FormatDate(b.DatumVestiging));
-                                    Row(table, "datumOpheffing", FormatDate(b.DatumOpheffing));
-                                    Row(table, "datumVoortzetting", FormatDate(b.DatumVoortzetting));
-                                    Row(table, "faxnummer", b.Faxnummer);
-                                    Row(table, "aantalWerknemers", b.AantalWerknemers?.ToString());
-                                    Row(table, "inSurceance", b.InSurceance.ToString());
-                                    Row(table, "failliet", b.Failliet.ToString());
-                                    Row(table, "rsinummer", b.Rsinummer);
-                                    Row(table, "vestigingsstatus", b.Vestigingsstatus);
-                                    Row(table, "ingangsdatum", FormatDate(b.Ingangsdatum));
-                                    Row(table, "mutatiedatum", FormatDate(b.Mutatiedatum));
-                                    Row(table, "vestigingstype", b.Vestigingstype);
-                                    Row(table, "hoofdactiviteit.naam", b.Hoofdactiviteit?.Naam);
-                                    Row(table, "hoofdactiviteit.code", b.Hoofdactiviteit?.Code);
-                                    Row(table, "rechtsvorm.naam", b.Rechtsvorm?.Naam);
-                                    Row(table, "rechtsvorm.code", b.Rechtsvorm?.Code);
-                                }
-                            });
-
-                            if (ini.Adressen != null)
-                            {
-                                for (var i = 0; i < ini.Adressen.Count; i++)
-                                {
-                                    var adres = ini.Adressen[i];
-                                    AddSection(col, $"Initiator — Adres {i + 1}", table =>
-                                    {
-                                        Row(table, "type", adres.Type);
-                                        Row(table, "straatnaam", adres.Straatnaam);
-                                        Row(table, "huisnummer", adres.Huisnummer?.ToString());
-                                        Row(table, "huisletter", adres.Huisletter);
-                                        Row(table, "huisnummertoevoeging", adres.Huisnummertoevoeging);
-                                        Row(table, "huisnummeraanduiding", adres.Huisnummeraanduiding);
-                                        Row(table, "postcode", adres.Postcode);
-                                        Row(table, "plaatsnaam", adres.Plaatsnaam);
-                                        Row(table, "buitenlandsAdres", adres.BuitenlandsAdres.ToString());
-                                        Row(table, "adresbuitenland1", adres.Adresbuitenland1);
-                                        Row(table, "adresbuitenland2", adres.Adresbuitenland2);
-                                        Row(table, "adresbuitenland3", adres.Adresbuitenland3);
-                                        Row(table, "land.naam", adres.Land.Naam);
-                                    });
-                                }
-                            }
-
-                            if (ini is DetPersoon persoon)
-                            {
-                                if (persoon.Nationaliteiten != null)
-                                {
-                                    for (var i = 0; i < persoon.Nationaliteiten.Count; i++)
-                                    {
-                                        var nat = persoon.Nationaliteiten[i];
-                                        AddSection(col, $"Initiator — Nationaliteit {i + 1}", table =>
-                                        {
-                                            Row(table, "naam", nat.Naam);
-                                            Row(table, "gbaCode", nat.GbaCode);
-                                            Row(table, "redenVerkrijging", nat.RedenVerkrijging);
-                                            Row(table, "datumVerkrijging", FormatDate(nat.DatumVerkrijging));
-                                        });
-                                    }
-                                }
-
-                                if (persoon.Reisdocumenten != null)
-                                {
-                                    for (var i = 0; i < persoon.Reisdocumenten.Count; i++)
-                                    {
-                                        var rd = persoon.Reisdocumenten[i];
-                                        AddSection(col, $"Initiator — Reisdocument {i + 1}", table =>
-                                        {
-                                            Row(table, "naam", rd.Naam);
-                                            Row(table, "gbaCode", rd.GbaCode);
-                                            Row(table, "reisdocumentnummer", rd.Reisdocumentnummer);
-                                            Row(table, "uitgiftedatum", FormatDate(rd.Uitgiftedatum));
-                                            Row(table, "einddatumGeldigheid", FormatDate(rd.EinddatumGeldigheid));
-                                            Row(table, "indicatieOnttrekking", rd.IndicatieOnttrekking.ToString());
-                                            Row(table, "autoriteitOntrekking", rd.AutoriteitOntrekking);
-                                            Row(table, "indicatieVervallen", rd.IndicatieVervallen);
-                                            Row(table, "autoriteitVervallen", rd.AutoriteitVervallen);
-                                            Row(table, "autoriteitUitgifte", rd.AutoriteitUitgifte);
-                                        });
-                                    }
-                                }
-
-                                if (persoon.Relaties != null)
-                                {
-                                    for (var i = 0; i < persoon.Relaties.Count; i++)
-                                    {
-                                        var rel = persoon.Relaties[i];
-                                        AddSection(col, $"Initiator — Relatie {i + 1}", table =>
-                                        {
-                                            Row(table, "type", rel.Type);
-                                            Row(table, "soortVerbintenis", rel.SoortVerbintenis);
-                                            Row(table, "datumSluitingVerbintenis", FormatDate(rel.DatumSluitingVerbintenis));
-                                            Row(table, "plaatsSluitingVerbintenis", rel.PlaatsSluitingVerbintenis);
-                                            Row(table, "landSluitingVerbintenis.naam", rel.LandSluitingVerbintenis?.Naam);
-                                            Row(table, "datumOntbindingVerbintenis", FormatDate(rel.DatumOntbindingVerbintenis));
-                                            Row(table, "redenOntbindingVerbintenis", rel.RedenOntbindingVerbintenis);
-                                            Row(table, "plaatsOntbindingVerbintenis", rel.PlaatsOntbindingVerbintenis);
-                                            Row(table, "landOntbindingVerbintenis.naam", rel.LandOntbindingVerbintenis?.Naam);
-                                            Row(table, "identifierPersoon", rel.IdentifierPersoon?.ToString());
-                                        });
-                                    }
-                                }
-                            }
-                            else if (ini is DetBedrijf bedrijf)
-                            {
-                                if (bedrijf.Nevenactiviteiten != null)
-                                {
-                                    for (var i = 0; i < bedrijf.Nevenactiviteiten.Count; i++)
-                                    {
-                                        var nev = bedrijf.Nevenactiviteiten[i];
-                                        AddSection(col, $"Initiator — Nevenactiviteit {i + 1}", table =>
-                                        {
-                                            Row(table, "naam", nev.Naam);
-                                            Row(table, "code", nev.Code);
-                                        });
-                                    }
-                                }
-
-                                if (bedrijf.Contactpersonen != null)
-                                {
-                                    for (var i = 0; i < bedrijf.Contactpersonen.Count; i++)
-                                    {
-                                        var cp = bedrijf.Contactpersonen[i];
-                                        AddSection(col, $"Initiator — Contactpersoon {i + 1}", table =>
-                                        {
-                                            Row(table, "naam", cp.Naam);
-                                            Row(table, "geslacht", cp.Geslacht);
-                                            Row(table, "emailadres", cp.Emailadres);
-                                            Row(table, "telefoonnummer", cp.Telefoonnummer);
-                                            Row(table, "faxnummer", cp.Faxnummer);
-                                            Row(table, "functie", cp.Functie);
-                                        });
-                                    }
-                                }
-                            }
-
-                            if (ini.Notities != null)
-                            {
-                                for (var i = 0; i < ini.Notities.Count; i++)
-                                {
-                                    var sn = ini.Notities[i];
-                                    AddSection(col, $"Initiator — Notitie {i + 1}", table =>
-                                    {
-                                        Row(table, "titel", sn.Titel);
-                                        Row(table, "inhoud", sn.Inhoud);
-                                        Row(table, "aangemaaktDoor", sn.AangemaaktDoor);
-                                        Row(table, "aangemaaktOp", FormatDate(sn.AangemaaktOp));
-                                        Row(table, "afdeling", sn.Afdeling);
-                                        Row(table, "groep", sn.Groep);
-                                        Row(table, "ingangsdatumGeldigheid", FormatDate(sn.IngangsdatumGeldigheid));
-                                        Row(table, "einddatumGeldigheid", FormatDate(sn.EinddatumGeldigheid));
-                                    });
-                                }
-                            }
+                            AddSubjectSections(col, "Initiator", zaak.Initiator);
                         }
 
                         // Documenten
@@ -746,5 +539,220 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf
         private static string FormatDateTime(DateTimeOffset? dt) => dt?.ToString("dd-MM-yyyy HH:mm") ?? "-";
 
         private static string FormatDateTime(DateTimeOffset dt) => dt.ToString("dd-MM-yyyy HH:mm");
+
+        private static void AddSubjectSections(ColumnDescriptor col, string prefix, DetSubject subject)
+        {
+            AddSection(col, prefix, table => SubjectRows(table, subject));
+
+            if (subject.Adressen != null)
+            {
+                for (var i = 0; i < subject.Adressen.Count; i++)
+                {
+                    var adres = subject.Adressen[i];
+                    AddSection(col, $"{prefix} — Adres {i + 1}", table =>
+                    {
+                        Row(table, "type", adres.Type);
+                        Row(table, "straatnaam", adres.Straatnaam);
+                        Row(table, "huisnummer", adres.Huisnummer?.ToString());
+                        Row(table, "huisletter", adres.Huisletter);
+                        Row(table, "huisnummertoevoeging", adres.Huisnummertoevoeging);
+                        Row(table, "huisnummeraanduiding", adres.Huisnummeraanduiding);
+                        Row(table, "postcode", adres.Postcode);
+                        Row(table, "plaatsnaam", adres.Plaatsnaam);
+                        Row(table, "buitenlandsAdres", adres.BuitenlandsAdres.ToString());
+                        Row(table, "adresbuitenland1", adres.Adresbuitenland1);
+                        Row(table, "adresbuitenland2", adres.Adresbuitenland2);
+                        Row(table, "adresbuitenland3", adres.Adresbuitenland3);
+                        Row(table, "land.naam", adres.Land.Naam);
+                    });
+                }
+            }
+
+            if (subject is DetPersoon persoon)
+            {
+                if (persoon.Nationaliteiten != null)
+                {
+                    for (var i = 0; i < persoon.Nationaliteiten.Count; i++)
+                    {
+                        var nat = persoon.Nationaliteiten[i];
+                        AddSection(col, $"{prefix} — Nationaliteit {i + 1}", table =>
+                        {
+                            Row(table, "naam", nat.Naam);
+                            Row(table, "gbaCode", nat.GbaCode);
+                            Row(table, "redenVerkrijging", nat.RedenVerkrijging);
+                            Row(table, "datumVerkrijging", FormatDate(nat.DatumVerkrijging));
+                        });
+                    }
+                }
+
+                if (persoon.Reisdocumenten != null)
+                {
+                    for (var i = 0; i < persoon.Reisdocumenten.Count; i++)
+                    {
+                        var rd = persoon.Reisdocumenten[i];
+                        AddSection(col, $"{prefix} — Reisdocument {i + 1}", table =>
+                        {
+                            Row(table, "naam", rd.Naam);
+                            Row(table, "gbaCode", rd.GbaCode);
+                            Row(table, "reisdocumentnummer", rd.Reisdocumentnummer);
+                            Row(table, "uitgiftedatum", FormatDate(rd.Uitgiftedatum));
+                            Row(table, "einddatumGeldigheid", FormatDate(rd.EinddatumGeldigheid));
+                            Row(table, "indicatieOnttrekking", rd.IndicatieOnttrekking.ToString());
+                            Row(table, "autoriteitOntrekking", rd.AutoriteitOntrekking);
+                            Row(table, "indicatieVervallen", rd.IndicatieVervallen);
+                            Row(table, "autoriteitVervallen", rd.AutoriteitVervallen);
+                            Row(table, "autoriteitUitgifte", rd.AutoriteitUitgifte);
+                        });
+                    }
+                }
+
+                if (persoon.Relaties != null)
+                {
+                    for (var i = 0; i < persoon.Relaties.Count; i++)
+                    {
+                        var rel = persoon.Relaties[i];
+                        AddSection(col, $"{prefix} — Relatie {i + 1}", table =>
+                        {
+                            Row(table, "type", rel.Type);
+                            Row(table, "soortVerbintenis", rel.SoortVerbintenis);
+                            Row(table, "datumSluitingVerbintenis", FormatDate(rel.DatumSluitingVerbintenis));
+                            Row(table, "plaatsSluitingVerbintenis", rel.PlaatsSluitingVerbintenis);
+                            Row(table, "landSluitingVerbintenis.naam", rel.LandSluitingVerbintenis?.Naam);
+                            Row(table, "datumOntbindingVerbintenis", FormatDate(rel.DatumOntbindingVerbintenis));
+                            Row(table, "redenOntbindingVerbintenis", rel.RedenOntbindingVerbintenis);
+                            Row(table, "plaatsOntbindingVerbintenis", rel.PlaatsOntbindingVerbintenis);
+                            Row(table, "landOntbindingVerbintenis.naam", rel.LandOntbindingVerbintenis?.Naam);
+                            Row(table, "identifierPersoon", rel.IdentifierPersoon?.ToString());
+                        });
+                    }
+                }
+            }
+            else if (subject is DetBedrijf bedrijf)
+            {
+                if (bedrijf.Nevenactiviteiten != null)
+                {
+                    for (var i = 0; i < bedrijf.Nevenactiviteiten.Count; i++)
+                    {
+                        var nev = bedrijf.Nevenactiviteiten[i];
+                        AddSection(col, $"{prefix} — Nevenactiviteit {i + 1}", table =>
+                        {
+                            Row(table, "naam", nev.Naam);
+                            Row(table, "code", nev.Code);
+                        });
+                    }
+                }
+
+                if (bedrijf.Contactpersonen != null)
+                {
+                    for (var i = 0; i < bedrijf.Contactpersonen.Count; i++)
+                    {
+                        var cp = bedrijf.Contactpersonen[i];
+                        AddSection(col, $"{prefix} — Contactpersoon {i + 1}", table =>
+                        {
+                            Row(table, "naam", cp.Naam);
+                            Row(table, "geslacht", cp.Geslacht);
+                            Row(table, "emailadres", cp.Emailadres);
+                            Row(table, "telefoonnummer", cp.Telefoonnummer);
+                            Row(table, "faxnummer", cp.Faxnummer);
+                            Row(table, "functie", cp.Functie);
+                        });
+                    }
+                }
+            }
+
+            if (subject.Notities != null)
+            {
+                for (var i = 0; i < subject.Notities.Count; i++)
+                {
+                    var sn = subject.Notities[i];
+                    AddSection(col, $"{prefix} — Notitie {i + 1}", table =>
+                    {
+                        Row(table, "titel", sn.Titel);
+                        Row(table, "inhoud", sn.Inhoud);
+                        Row(table, "aangemaaktDoor", sn.AangemaaktDoor);
+                        Row(table, "aangemaaktOp", FormatDate(sn.AangemaaktOp));
+                        Row(table, "afdeling", sn.Afdeling);
+                        Row(table, "groep", sn.Groep);
+                        Row(table, "ingangsdatumGeldigheid", FormatDate(sn.IngangsdatumGeldigheid));
+                        Row(table, "einddatumGeldigheid", FormatDate(sn.EinddatumGeldigheid));
+                    });
+                }
+            }
+        }
+
+        private static void SubjectRows(TableDescriptor table, DetSubject subject)
+        {
+            Row(table, "subjecttype", subject.Subjecttype);
+            Row(table, "identifier", subject.Identifier?.ToString());
+            Row(table, "telefoonnummer", subject.Telefoonnummer);
+            Row(table, "telefoonnummerAlternatief", subject.TelefoonnummerAlternatief);
+            Row(table, "rekeningnummer", subject.Rekeningnummer);
+            Row(table, "emailadres", subject.Emailadres);
+            Row(table, "ontvangenZaakNotificaties", subject.OntvangenZaakNotificaties?.ToString());
+            Row(table, "toestemmingZaakNotificatiesAlleenDigitaal", subject.ToestemmingZaakNotificatiesAlleenDigitaal?.ToString());
+            Row(table, "handmatigToegevoegd", subject.HandmatigToegevoegd.ToString());
+
+            if (subject is DetPersoon p)
+            {
+                Row(table, "burgerServiceNummer", p.BurgerServiceNummer);
+                Row(table, "voornamen", p.Voornamen);
+                Row(table, "voorletters", p.Voorletters);
+                Row(table, "geslachtsNaam", p.GeslachtsNaam);
+                Row(table, "voorvoegsel", p.Voorvoegsel);
+                Row(table, "geslacht", p.Geslacht);
+                Row(table, "aanhefAanschrijving", p.AanhefAanschrijving);
+                Row(table, "adelijkeTitel", p.AdelijkeTitel);
+                Row(table, "preAcademischeTitel", p.PreAcademischeTitel);
+                Row(table, "postAcademischeTitel", p.PostAcademischeTitel);
+                Row(table, "naamgebruik", p.Naamgebruik);
+                Row(table, "geslachtsNaamPartner", p.GeslachtsNaamPartner);
+                Row(table, "voorvoegselPartner", p.VoorvoegselPartner);
+                Row(table, "geboortedatum", FormatDate(p.Geboortedatum));
+                Row(table, "geboortedatumVolledig", p.GeboortedatumVolledig);
+                Row(table, "geboorteplaats", p.Geboorteplaats);
+                Row(table, "geboorteland.naam", p.Geboorteland?.Naam);
+                Row(table, "overlijdensdatum", FormatDate(p.Overlijdensdatum));
+                Row(table, "overlijdensdatumVolledig", p.OverlijdensdatumVolledig);
+                Row(table, "overlijdensplaats", p.Overlijdensplaats);
+                Row(table, "overlijdensland.naam", p.Overlijdensland?.Naam);
+                Row(table, "aNummer", p.ANummer);
+                Row(table, "opschortingsReden", p.OpschortingsReden);
+                Row(table, "opschortingsDatum", FormatDate(p.OpschortingsDatum));
+                Row(table, "geblokkeerd", p.Geblokkeerd.ToString());
+                Row(table, "curateleRegister", p.CurateleRegister.ToString());
+                Row(table, "inOnderzoek", p.InOnderzoek.ToString());
+                Row(table, "beperkingVerstrekking", p.BeperkingVerstrekking.ToString());
+                Row(table, "nietIngezeteneAanduiding", p.NietIngezeteneAanduiding);
+                Row(table, "afnemerIndicatie", p.AfnemerIndicatie.ToString());
+                Row(table, "anpIdentificatie", p.AnpIdentificatie?.ToString());
+                Row(table, "gemeentecode", p.Gemeentecode);
+                Row(table, "burgerlijkeStaat.naam", p.BurgerlijkeStaat?.Naam);
+            }
+            else if (subject is DetBedrijf b)
+            {
+                Row(table, "kvkNummer", b.KvkNummer);
+                Row(table, "vestigingsnummer", b.Vestigingsnummer);
+                Row(table, "buitenlandsHandelsregisternummer", b.BuitenlandsHandelsregisternummer);
+                Row(table, "bedrijfsnaam", b.Bedrijfsnaam);
+                Row(table, "vennootschapsnaam", b.Vennootschapsnaam);
+                Row(table, "statutaireZetel", b.StatutaireZetel);
+                Row(table, "datumVestiging", FormatDate(b.DatumVestiging));
+                Row(table, "datumOpheffing", FormatDate(b.DatumOpheffing));
+                Row(table, "datumVoortzetting", FormatDate(b.DatumVoortzetting));
+                Row(table, "faxnummer", b.Faxnummer);
+                Row(table, "aantalWerknemers", b.AantalWerknemers?.ToString());
+                Row(table, "inSurceance", b.InSurceance.ToString());
+                Row(table, "failliet", b.Failliet.ToString());
+                Row(table, "rsinummer", b.Rsinummer);
+                Row(table, "vestigingsstatus", b.Vestigingsstatus);
+                Row(table, "ingangsdatum", FormatDate(b.Ingangsdatum));
+                Row(table, "mutatiedatum", FormatDate(b.Mutatiedatum));
+                Row(table, "vestigingstype", b.Vestigingstype);
+                Row(table, "hoofdactiviteit.naam", b.Hoofdactiviteit?.Naam);
+                Row(table, "hoofdactiviteit.code", b.Hoofdactiviteit?.Code);
+                Row(table, "rechtsvorm.naam", b.Rechtsvorm?.Naam);
+                Row(table, "rechtsvorm.code", b.Rechtsvorm?.Code);
+            }
+        }
     }
 }
