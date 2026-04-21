@@ -40,6 +40,12 @@ Let op: De API- en andere environment variabelen gebruiken dubbele underscores (
 
 De applicatie gebruikt feature flags om bepaalde functionaliteit in of uit te schakelen. Deze kunnen geconfigureerd worden via environment variabelen.
 
-| Flag                | Environment Variable              | Standaard | Beschrijving                                                                    |
-| ------------------- | --------------------------------- | --------- | ------------------------------------------------------------------------------- |
-| `EnableTestHelpers` | `FeatureFlags__EnableTestHelpers` | `false`   | Schakelt test helper UI in voor batch selectie bij het mappen van grote aantallen documenttypes. Biedt een pre-selectie optie om het mapping proces te versnellen.                                                                                             |
+| Flag                | Environment Variable              | Standaard | Beschrijving                                                                                                                                                       |
+| ------------------- | --------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `EnableTestHelpers` | `FeatureFlags__EnableTestHelpers` | `false`   | Schakelt test helper UI in voor batch selectie bij het mappen van grote aantallen documenttypes. Biedt een pre-selectie optie om het mapping proces te versnellen. |
+
+### Migratie configuratie
+
+| Optie                  | Environment Variable              | Standaard | Beschrijving                                                                                                                                           |
+| ---------------------- | --------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `ZaakConcurrencyLimit` | `Migration__ZaakConcurrencyLimit` | `1`       | Aantal zaken dat gelijktijdig gemigreerd wordt. Een hogere waarde kan de migratiesnelheid verhogen, maar vergroot ook de belasting op de OpenZaak API. |
