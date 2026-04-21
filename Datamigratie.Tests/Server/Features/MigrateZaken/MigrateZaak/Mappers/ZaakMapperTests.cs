@@ -1,4 +1,4 @@
-using Datamigratie.Common.Services.Det.Models;
+﻿using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Mappers;
 
@@ -142,10 +142,9 @@ public class ZaakMapperTests
     }
 
     [Fact]
-    public void Map_WithGeometry_MapsGeometry()
+    public void Map_WithGeolocatie_ZaakgeometrieIsNull()
     {
         var mapper = CreateMapper();
-
         var detZaak = CreateMinimalDetZaak();
         detZaak.Geolocatie = new DetGeolocatie
         {
@@ -155,9 +154,7 @@ public class ZaakMapperTests
 
         var result = mapper.Map(detZaak);
 
-        Assert.NotNull(result.Zaakgeometrie);
-        Assert.Equal("Point", result.Zaakgeometrie.Type);
-        Assert.Equal([5.12m, 52.09m], result.Zaakgeometrie.Coordinates);
+        Assert.Null(result.Zaakgeometrie);
     }
 
     private static DetZaak CreateMinimalDetZaak(
