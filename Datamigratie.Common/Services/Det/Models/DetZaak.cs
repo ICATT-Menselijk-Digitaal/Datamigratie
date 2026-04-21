@@ -159,13 +159,6 @@ namespace Datamigratie.Common.Services.Det.Models
         public string? Toelichting { get; set; }
     }
 
-    public class DetZaakdata
-    {
-        public required string Type { get; set; }
-        public required string Naam { get; set; }
-        public string? Omschrijving { get; set; }
-    }
-
     public class DetTaak
     {
         public required string FunctioneelIdentificatie { get; set; }

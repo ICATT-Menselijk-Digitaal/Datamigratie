@@ -225,6 +225,43 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf
                                     Row(table, "type", zd.Type);
                                     Row(table, "naam", zd.Naam);
                                     Row(table, "omschrijving", zd.Omschrijving);
+
+                                    switch (zd)
+                                    {
+                                        case DetStringDataElement s:
+                                            Row(table, "waarde", s.Waarde);
+                                            break;
+                                        case DetBooleanDataElement b:
+                                            Row(table, "waarde", b.Waarde?.ToString());
+                                            break;
+                                        case DetCalendarDataElement c:
+                                            Row(table, "waarde", FormatDateTime(c.Waarde));
+                                            break;
+                                        case DetDecimaalDataElement d:
+                                            Row(table, "waarde", d.Waarde?.ToString());
+                                            Row(table, "formattering", d.Formattering);
+                                            break;
+                                        case DetComplexDataElement cx:
+                                            Row(table, "waarde", cx.Waarde);
+                                            break;
+                                        case DetDecimalenDataElement dn:
+                                            Row(table, "waarden", dn.Waarden != null ? string.Join(", ", dn.Waarden) : null);
+                                            break;
+                                        case DetStringListDataElement sl:
+                                            Row(table, "waarden", sl.Waarden != null ? string.Join(", ", sl.Waarden) : null);
+                                            break;
+                                        case DetAanvullijstDataElement al:
+                                            if (al.Waarden != null)
+                                            {
+                                                foreach (var record in al.Waarden)
+                                                {
+                                                    Row(table, "recordNummer", record.RecordNummer?.ToString());
+                                                    Row(table, "itemIdentificatie", record.ItemIdentificatie);
+                                                    Row(table, "itemWaarde", record.ItemWaarde);
+                                                }
+                                            }
+                                            break;
+                                    }
                                 });
                             }
                         }
