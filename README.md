@@ -90,6 +90,8 @@ settings:
     zaakConcurrencyLimit: 5
 ```
 
+Een hogere waarde is niet altijd beter. Als de OpenZaak API overbelast raakt, gaat de ingebouwde circuit breaker open en krijg je `BrokenCircuitException`-fouten in de logs. Dit is een teken dat de waarde te hoog is. Verlaag in dat geval de waarde en herstart de migratie.
+
 ### Opstarten
 
 ## Optie 1: Visual Studio + vscode

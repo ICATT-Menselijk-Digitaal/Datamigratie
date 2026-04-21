@@ -7,7 +7,7 @@ Voor het deployen van de applicatie met Helm:
 1. Kopieer [`charts/datamigratie/values.yaml`](https://github.com/ICATT-Menselijk-Digitaal/Datamigratie/blob/main/charts/datamigratie/values.yaml) naar je eigen values bestand
 2. Pas de waardes aan voor jouw omgeving (API keys, database, etc.)
 3. Waardes die al goed staan kan je weglaten
-3. Installeer met Helm:
+4. Installeer met Helm:
 
 ```bash
 helm install jouw-release-naam-voor-datamigratie oci://ghcr.io/icatt-menselijk-digitaal/datamigratie -f jouw-values.yaml
@@ -49,3 +49,5 @@ De applicatie gebruikt feature flags om bepaalde functionaliteit in of uit te sc
 | Optie                  | Environment Variable              | Standaard | Beschrijving                                                                                                                                           |
 | ---------------------- | --------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `ZaakConcurrencyLimit` | `Migration__ZaakConcurrencyLimit` | `1`       | Aantal zaken dat gelijktijdig gemigreerd wordt. Een hogere waarde kan de migratiesnelheid verhogen, maar vergroot ook de belasting op de OpenZaak API. |
+
+Een hogere waarde is niet altijd beter. Als de OpenZaak API overbelast raakt, gaat de ingebouwde circuit breaker open en krijg je `BrokenCircuitException`-fouten in de logs. Dit is een teken dat de waarde te hoog is. Verlaag in dat geval de waarde en herstart de migratie.
