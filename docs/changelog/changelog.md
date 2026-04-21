@@ -21,6 +21,7 @@
 - [Limit error message size](https://dimpact.atlassian.net/browse/DATA-339)
 - [Parallel zaak migration](https://dimpact.atlassian.net/browse/DATA-617)
 - [Make error message expandable in UI](https://dimpact.atlassian.net/browse/DATA-379)
+- [Un-migrate geolocatie](https://dimpact.atlassian.net/browse/DATA-511)
 
 ## v0.1.0
 

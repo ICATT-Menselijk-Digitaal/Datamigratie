@@ -141,6 +141,22 @@ public class ZaakMapperTests
         Assert.Contains("overbrengenOp", ex.Message);
     }
 
+    [Fact]
+    public void Map_WithGeolocatie_ZaakgeometrieIsNull()
+    {
+        var mapper = CreateMapper();
+        var detZaak = CreateMinimalDetZaak();
+        detZaak.Geolocatie = new DetGeolocatie
+        {
+            Type = "Point",
+            Point2D = [5.12m, 52.09m]
+        };
+
+        var result = mapper.Map(detZaak);
+
+        Assert.Null(result.Zaakgeometrie);
+    }
+
     private static DetZaak CreateMinimalDetZaak(
         string identificatie = "ZAAK-001",
         string omschrijving = "Test",
