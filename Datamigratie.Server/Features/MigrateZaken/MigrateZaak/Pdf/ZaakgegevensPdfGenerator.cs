@@ -11,13 +11,12 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf
         /// Generates a PDF document containing basic zaak information
         /// </summary>
         /// <param name="zaak">The DET zaak to generate PDF for</param>
-        /// <returns>PDF document as byte array</returns>
-        byte[] GenerateZaakgegevensPdf(DetZaak zaak);
+        void GenerateZaakgegevensPdf(DetZaak zaak, Stream stream);
     }
 
     public class ZaakgegevensPdfGenerator : IZaakgegevensPdfGenerator
     {
-        public byte[] GenerateZaakgegevensPdf(DetZaak zaak)
+        public void GenerateZaakgegevensPdf(DetZaak zaak, Stream stream)
         {
             QuestPDF.Settings.License = LicenseType.Community;
 
@@ -555,7 +554,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf
                 });
             });
 
-            return document.GeneratePdf();
+            document.GeneratePdf(stream);
         }
 
         private static void AddSection(ColumnDescriptor col, string title, Action<TableDescriptor> tableContent)

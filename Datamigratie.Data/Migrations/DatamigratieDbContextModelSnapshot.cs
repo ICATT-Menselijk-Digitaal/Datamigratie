@@ -168,7 +168,8 @@ namespace Datamigratie.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("ErrorDetails")
-                        .HasColumnType("text");
+                        .HasMaxLength(10000)
+                        .HasColumnType("character varying(10000)");
 
                     b.Property<string>("ErrorTitle")
                         .HasColumnType("text");

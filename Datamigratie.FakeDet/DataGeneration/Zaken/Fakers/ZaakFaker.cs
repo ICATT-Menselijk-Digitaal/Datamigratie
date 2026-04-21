@@ -193,7 +193,7 @@ public sealed class ZaakFaker
 
         return new Persoon
         {
-            Bsn = GenerateBsn(),
+            BurgerServiceNummer = GenerateBsn(),
             Voornaam = _faker.PickRandom(DutchDataSets.Voornamen),
             Voorvoegsel = heeftVoorvoegsel ? _faker.PickRandom(DutchDataSets.Voorvoegsels) : null,
             Achternaam = _faker.PickRandom(DutchDataSets.Achternamen),
@@ -247,27 +247,35 @@ public sealed class ZaakFaker
 
     private string GenerateBsn()
     {
+        // We generate the first 8 digits, the 9th is the check digit
+        const int BsnLength = 9;
+        const int DigitsToGenerate = BsnLength - 1;
+        Span<char> chars = stackalloc char[BsnLength];
+
         while (true)
         {
-            var digits = Enumerable.Range(0, 9).Select(_ => _faker.Random.Int(0, 9)).ToArray();
-            var checksum = 0;
-            for (var i = 0; i < 9; i++)
+            var sum = 0;
+
+            for (var i = 0; i < DigitsToGenerate; i++)
             {
-                checksum += digits[i] * (9 - i);
+                var digit = _faker.Random.Int(0, 9);
+                sum += digit * (BsnLength - i);
+                chars[i] = DigitToChar(digit);
             }
 
-            if (checksum % 11 == 0)
-            {
-                return string.Join("", digits);
-            }
+            // 11-proof
+            var lastDigit = sum % 11;
 
-            digits[8] = (11 - checksum % 11) % 11;
-            if (digits[8] < 10)
-            {
-                return string.Join("", digits);
-            }
+            // only ~9% chance the last number is not a single digit, retry in that case
+            if (lastDigit > 9) continue; 
+
+            chars[DigitsToGenerate] = DigitToChar(lastDigit);
+
+            return new string(chars);
         }
     }
+
+    private static char DigitToChar(int digit) => (char)('0' + digit);
 
     private string GenerateDutchPhoneNumber()
     {

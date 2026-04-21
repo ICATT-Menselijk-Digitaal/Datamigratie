@@ -13,7 +13,15 @@
 - [Configuration of Roltype per Zaaktype](https://dimpact.atlassian.net/browse/DATA-331)
 - [Extend PDF content: un-mapped properties](https://dimpact.atlassian.net/browse/DATA-386)
 - [Migrate Behandelaar (Rollen-related)](https://dimpact.atlassian.net/browse/DATA-332)
+- [Migrate previously ignored properties](https://dimpact.atlassian.net/browse/DATA-251)
 - [UI changes: starting a migration](https://dimpact.atlassian.net/browse/DATA-408)
+- [Migrate Betrokkenen (Rollen-related)](https://dimpact.atlassian.net/browse/DATA-333)
+- [Migrate Initiator (Rollen-related)](https://dimpact.atlassian.net/browse/DATA-167)
+- [Automatic refresh of migration status](https://dimpact.atlassian.net/browse/DATA-403)
+- [Limit error message size](https://dimpact.atlassian.net/browse/DATA-339)
+- [Parallel zaak migration](https://dimpact.atlassian.net/browse/DATA-617)
+- [Make error message expandable in UI](https://dimpact.atlassian.net/browse/DATA-379)
+- [Un-migrate geolocatie](https://dimpact.atlassian.net/browse/DATA-511)
 - [Migrate previously ignored properties](https://dimpact.atlassian.net/browse/DATA-251)
 
 ## v0.1.0

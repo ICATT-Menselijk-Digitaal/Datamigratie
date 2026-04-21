@@ -17,6 +17,7 @@ namespace Datamigratie.Common.Services.Det.Models
         public string? Groep { get; set; }
 
         public string? Behandelaar { get; set; }
+        public DetBetrokkenePersoon? Initiator { get; set; }
         public DetBetaalgegevens? Betaalgegevens { get; set; }
 
         [JsonConverter(typeof(DetZonedDateTimeConverter))]
@@ -217,6 +218,9 @@ namespace Datamigratie.Common.Services.Det.Models
         public string? OverbrengenDoor { get; set; }
         public string? OverbrengenNaar { get; set; }
         public string? OverbrengenType { get; set; }
+
+        public DateOnly? OverbrengenOp { get; set; }
+
         public string? SelectielijstItemNaam { get; set; }
         public string? ZaaktypeNaam { get; set; }
         public DetOvergebrachteGegevens? OvergebrachteGegevens { get; set; }

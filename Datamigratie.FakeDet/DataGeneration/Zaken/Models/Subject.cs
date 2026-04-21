@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Datamigratie.FakeDet.DataGeneration.Zaken.Models;
 
@@ -34,8 +34,8 @@ public abstract record Subject
 
 public record Persoon : Subject
 {
-    [JsonPropertyName("bsn")]
-    public string? Bsn { get; init; }
+    [JsonPropertyName("burgerServiceNummer")]
+    public string? BurgerServiceNummer { get; init; }
 
     [JsonPropertyName("voornaam")]
     public string? Voornaam { get; init; }

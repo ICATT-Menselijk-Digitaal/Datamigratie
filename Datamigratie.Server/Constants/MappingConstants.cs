@@ -1,4 +1,5 @@
-﻿using Datamigratie.Common.Services.OpenZaak.Models;
+﻿using Datamigratie.Common.Services.Det.Models;
+using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Server.Shared.Models;
 
 namespace Datamigratie.Server.Constants

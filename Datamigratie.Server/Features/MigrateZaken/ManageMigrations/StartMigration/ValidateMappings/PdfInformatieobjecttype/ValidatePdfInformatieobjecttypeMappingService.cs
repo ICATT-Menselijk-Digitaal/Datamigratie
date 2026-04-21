@@ -1,18 +1,23 @@
+﻿using Datamigratie.Common.Config;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.PdfInformatieobjecttype;
 
 public interface IValidatePdfInformatieobjecttypeMappingService
 {
-    Task<(bool IsValid, Guid? OzInformatieobjecttypeId)> ValidateAndGetPdfInformatieobjecttypeMapping(DetZaaktypeDetail detZaaktype);
+    Task<(bool IsValid, Uri? OzInformatieobjecttypeUri)> ValidateAndGetPdfInformatieobjecttypeMapping(DetZaaktypeDetail detZaaktype);
 }
 
 public class ValidatePdfInformatieobjecttypeMappingService(
-    DatamigratieDbContext context) : IValidatePdfInformatieobjecttypeMappingService
+    DatamigratieDbContext context,
+    IOptions<OpenZaakApiOptions> openZaakOptions) : IValidatePdfInformatieobjecttypeMappingService
 {
-    public async Task<(bool IsValid, Guid? OzInformatieobjecttypeId)> ValidateAndGetPdfInformatieobjecttypeMapping(DetZaaktypeDetail detZaaktype)
+    private readonly string _openZaakBaseUrl = openZaakOptions.Value.BaseUrl;
+
+    public async Task<(bool IsValid, Uri? OzInformatieobjecttypeUri)> ValidateAndGetPdfInformatieobjecttypeMapping(DetZaaktypeDetail detZaaktype)
     {
         var mapping = await context.PdfInformatieobjecttypeMappings
             .Where(m => m.ZaaktypenMapping.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie)
@@ -20,6 +25,6 @@ public class ValidatePdfInformatieobjecttypeMappingService(
 
         return mapping is null
             ? (false, null)
-            : (true, mapping.OzInformatieobjecttypeId);
+            : (true, new Uri($"{_openZaakBaseUrl}catalogi/api/v1/informatieobjecttypen/{mapping.OzInformatieobjecttypeId}"));
     }
 }

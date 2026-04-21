@@ -11,11 +11,28 @@ public class OzCreateRolRequest
     public required Uri Roltype { get; set; }
 
     public required OzBetrokkeneIdentificatie BetrokkeneIdentificatie { get; set; }
+
+    /// <summary>
+    /// Set to "gemachtigde" when the betrokkene has typeBetrokkenheid == "gemachtigde".
+    /// Leave empty for all other betrokkenen
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? IndicatieMachtiging { get; set; }
 }
 
 public class OzBetrokkeneIdentificatie
 {
-    public required string Identificatie { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Identificatie { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? InpBsn { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? KvkNummer { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? VestigingsNummer { get; set; }
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter<BetrokkeneType>))]

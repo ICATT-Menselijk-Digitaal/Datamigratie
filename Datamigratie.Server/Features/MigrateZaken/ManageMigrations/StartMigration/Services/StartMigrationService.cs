@@ -1,17 +1,14 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.Metrics;
-using Datamigratie.Common.Config;
-using Datamigratie.Common.Services.Det;
+using System.Threading.Channels;
 using Datamigratie.Common.Services.Det.Models;
-using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Data;
 using Datamigratie.Data.Entities;
-using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Models;
+using Datamigratie.Server.Config;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Queues.Items;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.State;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Services;
@@ -24,11 +21,10 @@ public interface IStartMigrationService
 
 public class StartMigrationService(
     DatamigratieDbContext context,
-    IDetApiClient detApiClient,
     ILogger<StartMigrationService> logger,
     IMigrateZaakService migrateZaakService,
     MigrationWorkerState workerState,
-    IOptions<OpenZaakApiOptions> openZaakOptions) : IStartMigrationService
+    IOptions<MigrationOptions> migrationOptions) : IStartMigrationService
 {
     private static readonly Meter Meter = new("Datamigratie.Server");
 
@@ -36,8 +32,7 @@ public class StartMigrationService(
     private static readonly Histogram<double> MigrationDurationHistogram =
         Meter.CreateHistogram<double>("migration.duration", "ms", "Duration of a full migration run");
 
-    private const int MaxErrorMessageLength = 1000;
-    private readonly OpenZaakApiOptions _openZaakApiOptions = openZaakOptions.Value;
+    private readonly MigrationOptions _migrationOptions = migrationOptions.Value;
 
     public async Task PerformMigrationAsync(MigrationQueueItem migrationQueueItem, CancellationToken stoppingToken)
     {
@@ -49,213 +44,114 @@ public class StartMigrationService(
 
         await UpdateMigrationTotalRecordsAsync(migration, closedZaken.Count, stoppingToken);
 
-        var zaakTypeMapping = await context.Mappings.FirstOrDefaultAsync(m => m.DetZaaktypeId == migrationQueueItem.DetZaaktypeId, stoppingToken);
-
-        if (zaakTypeMapping == null)
-        {
-            await FailMigrationAsync(migration, $"mapping was not found for DetZaaktypeId {migrationQueueItem.DetZaaktypeId}");
-            return;
-        }
-
         var migrationSw = Stopwatch.StartNew();
-        await ExecuteMigration(migration, closedZaken, zaakTypeMapping.OzZaaktypeId, migrationQueueItem, stoppingToken);
-        migrationSw.Stop();
-        MigrationDurationHistogram.Record(migrationSw.Elapsed.TotalMilliseconds);
-        await CompleteMigrationAsync(migration);
-    }
-    private async Task ExecuteMigration(Data.Entities.Migration migration, List<DetZaakMinimal> zaken, Guid openZaaktypeId, MigrationQueueItem queueItem, CancellationToken ct)
-    {
-        logger.LogInformation("Starting migration {Id} for DET ZaaktypeId {DetZaaktypeId} to OZ ZaaktypeId {OpenZaaktypeId} with zaken count {Count} to migrate",
-            migration.Id, migration.DetZaaktypeId, openZaaktypeId, zaken.Count);
-
-        foreach (var zaak in zaken)
+        try
         {
-            if (ct.IsCancellationRequested)
-            {
-                await CancelMigrationAsync(migration);
-                return;
-            }
+            await ExecuteMigration(migration, closedZaken, migrationQueueItem, stoppingToken);
+            migrationSw.Stop();
+            MigrationDurationHistogram.Record(migrationSw.Elapsed.TotalMilliseconds);
+            await CompleteMigrationAsync(migration);
+        }
+        catch (OperationCanceledException)
+        {
+            migrationSw.Stop();
+            logger.LogWarning("Migration {MigrationId} was cancelled after {ElapsedMs}ms", migration.Id, migrationSw.ElapsedMilliseconds);
 
-            await MigrateSingleZaakAsync(migration, zaak, openZaaktypeId, queueItem, ct);
-            await ReportProgressAsync(migration, ct);
+            await UpdateMigrationStatusAsync(migration, MigrationStatus.Cancelled);
         }
     }
+    private async Task ExecuteMigration(Data.Entities.Migration migration, List<DetZaakMinimal> zaken, MigrationQueueItem queueItem, CancellationToken ct)
+    {
+        var concurrencyLimit = Math.Max(1, _migrationOptions.ZaakConcurrencyLimit);
 
-    private async Task ReportProgressAsync(Migration migration, CancellationToken ct)
+        var mapping = new Mappers
+        {
+            ResultaatMapper = queueItem.ResultaatMapper,
+            StatusMapper = queueItem.StatusMapper,
+            ZaakMapper = queueItem.ZaakMapper,
+            DocumentMapper = queueItem.DocumentMapper,
+            BesluitMapper = queueItem.BesluitMapper,
+            PdfMapper = queueItem.PdfMapper,
+            RolMapper = queueItem.RolMapper
+        };
+
+        var channel = Channel.CreateUnbounded<MigrationRecord>();
+
+        var sw = Stopwatch.StartNew();
+
+        var readTask = Task.Run(async () =>
+        {
+            await foreach (var record in channel.Reader.ReadAllAsync(ct))
+            {
+                context.MigrationRecords.Add(record);
+                migration.ProcessedRecords++;
+                if (record.IsSuccessful)
+                    migration.SuccessfulRecords++;
+                else
+                    migration.FailedRecords++;
+                migration.LastUpdated = DateTime.UtcNow;
+                await ReportProgressAsync(ct);
+            }
+        }, ct);
+
+        await Parallel.ForEachAsync(
+            zaken,
+            new ParallelOptions { CancellationToken = ct, MaxDegreeOfParallelism = concurrencyLimit },
+            async (zaak, parallelCt) =>
+            {
+                var result = await migrateZaakService.MigrateZaak(zaak.FunctioneleIdentificatie, mapping, parallelCt);
+                LogMigrationResult(zaak.FunctioneleIdentificatie, result);
+                var record = CreateMigrationRecord(migration.Id, zaak.FunctioneleIdentificatie, result);
+                await channel.Writer.WriteAsync(record, parallelCt);
+            });
+
+        channel.Writer.Complete();
+        await readTask;
+
+        sw.Stop();
+
+        logger.LogInformation(
+            "Migration {Id} done — {Processed}/{Total} processed, {Successful} succeeded, {Failed} failed, time elapsed: {Elapsed}ms (concurrency: {Concurrency})",
+            migration.Id, migration.ProcessedRecords, migration.TotalRecords ?? 0, migration.SuccessfulRecords, migration.FailedRecords, sw.ElapsedMilliseconds, concurrencyLimit);
+    }
+
+    private async Task ReportProgressAsync(CancellationToken ct)
     {
         await context.SaveChangesAsync(ct);
-
-        logger.LogInformation("Migration {Id}: {Processed}/{Total} processed ({Percent:F1}%)",
-            migration.Id,
-            migration.ProcessedRecords,
-            migration.TotalRecords ?? 0,
-            migration.TotalRecords.HasValue && migration.TotalRecords.Value > 0
-                ? (double)migration.ProcessedRecords / migration.TotalRecords.Value * 100
-                : 0.0);
     }
 
-    private async Task MigrateSingleZaakAsync(Migration migration, DetZaakMinimal zaakMinimal, Guid openZaaktypeId, MigrationQueueItem queueItem, CancellationToken ct)
-    {
-        MigrationRecord record;
-        try
-        {
-            var fullZaak = await FetchZaakFromDetAsync(zaakMinimal.FunctioneleIdentificatie);
-
-            // Look up the specific resultaat and status mappings for this zaak
-            var resultaattypeUri = GetResultaattypeUriForZaak(fullZaak, queueItem.ResultaatMappings);
-            var statustypeUri = GetStatustypeUriForZaak(fullZaak, queueItem.StatusMappings);
-
-            var result = await migrateZaakService.MigrateZaak(fullZaak, new MigrateZaakMappingModel
-            {
-                OpenZaaktypeId = openZaaktypeId,
-                Rsin = queueItem.RsinMapping.Rsin,
-                ResultaattypeUri = resultaattypeUri,
-                StatustypeUri = statustypeUri,
-                DocumentstatusMappings = queueItem.DocumentstatusMappings,
-                PublicatieNiveauMappings = queueItem.PublicatieNiveauMappings,
-                DocumenttypeMappings = queueItem.DocumenttypeMappings,
-                ZaakVertrouwelijkheidMappings = queueItem.ZaakVertrouwelijkheidMappings,
-                BesluittypeMappings = queueItem.BesluittypeMappings,
-                PdfInformatieobjecttypeId = queueItem.PdfInformatieobjecttypeId,
-                RoltypeMappings = queueItem.RoltypeMappings
-            }, ct);
-
-            record = CreateMigrationRecord(migration, zaakMinimal.FunctioneleIdentificatie, result);
-        }
-        catch (HttpRequestException httpEx)
-        {
-            var statusCode = (int?)httpEx.StatusCode ?? 500;
-            logger.LogError(httpEx, "Failed to fetch zaak {DetZaaknummer}, Status: {StatusCode}",
-                zaakMinimal.FunctioneleIdentificatie, statusCode);
-
-            record = CreateFailedMigrationRecord(migration, zaakMinimal.FunctioneleIdentificatie,
-                "De zaak kon niet opgehaald worden uit het bronsysteem.",
-                $"HTTP {statusCode}: {httpEx.Message}",
-                statusCode);
-
-            migration.FailedRecords++;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Unexpected error while migrating zaak {DetZaaknummer}. Exception: {ExceptionType}",
-                zaakMinimal.FunctioneleIdentificatie, ex.GetType().Name);
-
-            record = CreateFailedMigrationRecord(migration, zaakMinimal.FunctioneleIdentificatie,
-                "Onverwachte fout tijdens migratie",
-                ex.Message,
-                statusCode: 500);
-
-            migration.FailedRecords++;
-        }
-
-        context.MigrationRecords.Add(record);
-        migration.ProcessedRecords++;
-        migration.LastUpdated = DateTime.UtcNow;
-    }
-
-    private Uri? GetResultaattypeUriForZaak(DetZaak zaak, Dictionary<string, Guid> resultaatMappings)
-    {
-        if (zaak.Resultaat == null || string.IsNullOrEmpty(zaak.Resultaat.Naam))
-        {
-            logger.LogWarning("Zaak {Zaaknummer} has no resultaat (Resultaat is null or Naam is empty). Resultaat will not be migrated.",
-                zaak.FunctioneleIdentificatie);
-            return null;
-        }
-
-        if (resultaatMappings.TryGetValue(zaak.Resultaat.Naam, out var resultaattypeId))
-        {
-            var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
-            return new Uri($"{openZaakBaseUrl}catalogi/api/v1/resultaattypen/{resultaattypeId}");
-        }
-
-        logger.LogWarning("No resultaat mapping found for zaak {Zaaknummer} with resultaat '{DetResultaat}'. Available mappings: {AvailableMappings}. Resultaat will not be migrated.",
-            zaak.FunctioneleIdentificatie, zaak.Resultaat.Naam, string.Join(", ", resultaatMappings.Keys));
-        return null;
-    }
-
-    private Uri? GetStatustypeUriForZaak(DetZaak zaak, Dictionary<string, Guid> statusMappings)
-    {
-        if (zaak.ZaakStatus == null || string.IsNullOrEmpty(zaak.ZaakStatus.Naam))
-        {
-            logger.LogWarning("Zaak {Zaaknummer} has no status (ZaakStatus is null or Naam is empty). Status will not be migrated.",
-                zaak.FunctioneleIdentificatie);
-            return null;
-        }
-
-        if (statusMappings.TryGetValue(zaak.ZaakStatus.Naam, out var statustypeId))
-        {
-            var openZaakBaseUrl = _openZaakApiOptions.BaseUrl;
-            return new Uri($"{openZaakBaseUrl}catalogi/api/v1/statustypen/{statustypeId}");
-        }
-
-        logger.LogWarning("No status mapping found for zaak {Zaaknummer} with status '{DetStatus}'. Available mappings: {AvailableMappings}. Status will not be migrated.",
-            zaak.FunctioneleIdentificatie, zaak.ZaakStatus.Naam, string.Join(", ", statusMappings.Keys));
-        return null;
-    }
-
-    private async Task<DetZaak> FetchZaakFromDetAsync(string zaaknummer)
-    {
-        logger.LogDebug("Fetching full details for zaak {Zaaknummer} from DET", zaaknummer);
-
-        try
-        {
-            var zaak = await detApiClient.GetZaakByZaaknummer(zaaknummer);
-            return zaak ?? throw new InvalidOperationException($"This zaaknumber '{zaaknummer}' is not found in the DET API");
-        }
-        catch (HttpRequestException ex)
-        {
-            throw new HttpRequestException($"Failed to fetch zaak from DET API: {ex.Message}", ex, ex.StatusCode);
-        }
-    }
-
-    private MigrationRecord CreateMigrationRecord(Migration migration, string detZaaknummer, MigrateZaakResult result)
+    private void LogMigrationResult(string zaaknummer, MigrateZaakResult result)
     {
         if (result.IsSuccess)
-        {
-            logger.LogInformation("Successfully migrated zaak {DetZaaknummer} to {OzZaaknummer}", detZaaknummer, result.Zaaknummer);
-            migration.SuccessfulRecords++;
-            return CreateSuccessfulMigrationRecord(migration, detZaaknummer, result);
-        }
+            logger.LogInformation("Successfully migrated zaak {DetZaaknummer} to {OzZaaknummer}", zaaknummer, result.Zaaknummer);
         else
-        {
-            logger.LogWarning("Failed to migrate zaak {DetZaaknummer} to OpenZaak. {ErrorTitle}: {ErrorDetails} (Status: {StatusCode})",
-                detZaaknummer, result.Message, result.Details, result.Statuscode);
-            migration.FailedRecords++;
-            return CreateFailedMigrationRecord(migration, detZaaknummer, result.Message, result.Details, result.Statuscode);
-        }
+            logger.LogWarning("Failed to migrate zaak {DetZaaknummer} to OpenZaak. {ErrorTitle}, (Status: {StatusCode})",
+                zaaknummer, result.Message, result.Statuscode);
     }
 
-    private static MigrationRecord CreateSuccessfulMigrationRecord(Migration migration, string detZaaknummer, MigrateZaakResult result)
+    private static MigrationRecord CreateMigrationRecord(int migrationId, string detZaaknummer, MigrateZaakResult result)
     {
-        return new MigrationRecord
-        {
-            MigrationId = migration.Id,
-            Migration = migration,
-            IsSuccessful = true,
-            DetZaaknummer = detZaaknummer,
-            OzZaaknummer = result.Zaaknummer,
-            ProcessedAt = DateTime.UtcNow
-        };
-    }
-
-    private static MigrationRecord CreateFailedMigrationRecord(Migration migration, string detZaaknummer, string? errorTitle, string? errorDetails, int? statusCode)
-    {
-        return new MigrationRecord
-        {
-            MigrationId = migration.Id,
-            Migration = migration,
-            IsSuccessful = false,
-            DetZaaknummer = detZaaknummer,
-            ErrorTitle = errorTitle,
-            ErrorDetails = errorDetails,
-            StatusCode = statusCode,
-            ProcessedAt = DateTime.UtcNow
-        };
-    }
-
-    private async Task CancelMigrationAsync(Migration migration)
-    {
-        await UpdateMigrationStatusAsync(migration, MigrationStatus.Cancelled);
+        return result.IsSuccess
+            ? new MigrationRecord
+            {
+                MigrationId = migrationId,
+                IsSuccessful = true,
+                DetZaaknummer = detZaaknummer,
+                OzZaaknummer = result.Zaaknummer,
+                ProcessedAt = DateTime.UtcNow
+            }
+            : new MigrationRecord
+            {
+                MigrationId = migrationId,
+                IsSuccessful = false,
+                DetZaaknummer = detZaaknummer,
+                ErrorTitle = result.Message,
+                ErrorDetails = result.Details?.Length > MigrationRecord.MaxErrorDetailsLength
+                    ? result.Details[..MigrationRecord.MaxErrorDetailsLength]
+                    : result.Details,
+                StatusCode = result.Statuscode,
+                ProcessedAt = DateTime.UtcNow
+            };
     }
 
     private async Task FailMigrationAsync(Migration migration, string message)
@@ -285,8 +181,8 @@ public class StartMigrationService(
 
         if (!string.IsNullOrEmpty(errorMessage))
         {
-            migration.ErrorMessage = errorMessage.Length > MaxErrorMessageLength
-                ? errorMessage[..MaxErrorMessageLength]
+            migration.ErrorMessage = errorMessage.Length > Migration.MaxErrorMessageLength
+                ? errorMessage[..Migration.MaxErrorMessageLength]
                 : errorMessage;
         }
 

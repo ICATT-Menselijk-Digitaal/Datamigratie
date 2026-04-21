@@ -429,8 +429,6 @@ namespace Datamigratie.Common.Services.OpenZaak
             }
         }
 
-
-
         protected override int GetDefaultStartingPage()
         {
             return DefaultStartingPage;

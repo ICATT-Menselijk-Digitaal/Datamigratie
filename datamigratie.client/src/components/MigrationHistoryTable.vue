@@ -89,15 +89,15 @@ const navigateToMigrationDetail = (migrationId: number) => {
 };
 
 watch(() => props.detZaaktypeId, fetchMigrationHistory, { immediate: true });
-watch(
-  migration,
-  async (_, old) => {
-    if (old?.detZaaktypeId === props.detZaaktypeId) {
-      await fetchMigrationHistory();
-    }
-  },
-  { immediate: true }
-);
+watch(migration, async (newVal, old) => {
+  if (
+    old?.status === MigrationStatus.inProgress &&
+    newVal?.status !== MigrationStatus.inProgress &&
+    old?.detZaaktypeId === props.detZaaktypeId
+  ) {
+    await fetchMigrationHistory();
+  }
+});
 </script>
 
 <style lang="scss" scoped>
