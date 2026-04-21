@@ -17,7 +17,6 @@ namespace Datamigratie.Common.Services.Det.Models
         public string? Groep { get; set; }
 
         public string? Behandelaar { get; set; }
-        public DetBetrokkenePersoon? Initiator { get; set; }
         public DetBetaalgegevens? Betaalgegevens { get; set; }
 
         [JsonConverter(typeof(DetZonedDateTimeConverter))]
@@ -156,7 +155,7 @@ namespace Datamigratie.Common.Services.Det.Models
         public required bool IndCorrespondentie { get; set; }
         public DateOnly? Startdatum { get; set; }
         public required DetSubject Betrokkene { get; set; }
-        public required string TypeBetrokkenheid { get; set; }
+        public required DetRolType TypeBetrokkenheid { get; set; }
         public string? Toelichting { get; set; }
     }
 
@@ -218,9 +217,6 @@ namespace Datamigratie.Common.Services.Det.Models
         public string? OverbrengenDoor { get; set; }
         public string? OverbrengenNaar { get; set; }
         public string? OverbrengenType { get; set; }
-
-        public DateOnly? OverbrengenOp { get; set; }
-
         public string? SelectielijstItemNaam { get; set; }
         public string? ZaaktypeNaam { get; set; }
         public DetOvergebrachteGegevens? OvergebrachteGegevens { get; set; }
@@ -357,13 +353,20 @@ namespace Datamigratie.Common.Services.Det.Models
         public string? Omschrijving { get; set; }
     }
 
+    [JsonConverter(typeof(JsonStringEnumConverter<DetSubjecttype>))]
+    public enum DetSubjecttype
+    {
+        persoon,
+        bedrijf,
+    }
+
     [JsonPolymorphic(TypeDiscriminatorPropertyName = "subjecttype")]
     [JsonDerivedType(typeof(DetPersoon), "persoon")]
     [JsonDerivedType(typeof(DetBedrijf), "bedrijf")]
     public abstract class DetSubject
     {
         public long? Identifier { get; set; }
-        public string? Subjecttype { get; set; }
+        public DetSubjecttype? Subjecttype { get; set; }
         public string? Telefoonnummer { get; set; }
         public string? TelefoonnummerAlternatief { get; set; }
         public string? Rekeningnummer { get; set; }

@@ -167,7 +167,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf
                                 var bt = zaak.Betrokkenen[i];
                                 AddSection(col, $"Betrokkene {i + 1}", table =>
                                 {
-                                    Row(table, "typeBetrokkenheid", bt.TypeBetrokkenheid);
+                                    Row(table, "typeBetrokkenheid", bt.TypeBetrokkenheid.ToString());
                                     Row(table, "startdatum", FormatDate(bt.Startdatum));
                                     Row(table, "indCorrespondentie", bt.IndCorrespondentie.ToString());
                                     Row(table, "toelichting", bt.Toelichting);
@@ -725,7 +725,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf
 
         private static void SubjectRows(TableDescriptor table, DetSubject subject)
         {
-            Row(table, "subjecttype", subject.Subjecttype);
+            Row(table, "subjecttype", subject.Subjecttype?.ToString());
             Row(table, "identifier", subject.Identifier?.ToString());
             Row(table, "telefoonnummer", subject.Telefoonnummer);
             Row(table, "telefoonnummerAlternatief", subject.TelefoonnummerAlternatief);

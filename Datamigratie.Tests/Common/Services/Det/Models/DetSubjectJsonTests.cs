@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using Datamigratie.Common.Services.Det.Models;
 
 namespace Datamigratie.Tests.Common.Services.Det.Models
@@ -185,7 +185,7 @@ namespace Datamigratie.Tests.Common.Services.Det.Models
 
             var betrokkene = Assert.Single(zaak!.Betrokkenen!);
             Assert.True(betrokkene.IndCorrespondentie);
-            Assert.Equal("belanghebbende", betrokkene.TypeBetrokkenheid);
+            Assert.Equal("belanghebbende", betrokkene.TypeBetrokkenheid.ToString());
             var persoon = Assert.IsType<DetPersoon>(betrokkene.Betrokkene);
             Assert.Equal("111222333", persoon.BurgerServiceNummer);
             Assert.Equal("Anna", persoon.Voornamen);
@@ -226,7 +226,7 @@ namespace Datamigratie.Tests.Common.Services.Det.Models
 
             var betrokkene = Assert.Single(zaak!.Betrokkenen!);
             Assert.False(betrokkene.IndCorrespondentie);
-            Assert.Equal("gemachtigde", betrokkene.TypeBetrokkenheid);
+            Assert.Equal("gemachtigde", betrokkene.TypeBetrokkenheid.ToString());
             var bedrijf = Assert.IsType<DetBedrijf>(betrokkene.Betrokkene);
             Assert.Equal("99887766", bedrijf.KvkNummer);
             Assert.Equal("Gemachtigde BV", bedrijf.Bedrijfsnaam);

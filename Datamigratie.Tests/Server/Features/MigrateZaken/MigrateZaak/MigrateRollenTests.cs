@@ -206,11 +206,7 @@ public class MigrateRollenTests
             {
                 IndCorrespondentie = false,
                 TypeBetrokkenheid = DetRolType.belanghebbende,
-                Betrokkene = new DetBetrokkenePersoon
-                {
-                    Subjecttype = DetSubjecttype.persoon,
-                    BurgerServiceNummer = "123456789"
-                }
+                Betrokkene = CreateDetPersoon("123456789")
             }
         ];
         var clientMock = CreateOpenZaakClientMock();
@@ -256,12 +252,7 @@ public class MigrateRollenTests
             {
                 IndCorrespondentie = false,
                 TypeBetrokkenheid = DetRolType.melder,
-                Betrokkene = new DetBetrokkenePersoon
-                {
-                    Subjecttype = DetSubjecttype.bedrijf,
-                    KvkNummer = "12345678",
-                    Vestigingsnummer = "000012345678"
-                }
+                Betrokkene = CreateDetBedrijf("12345678", "000012345678")
             }
         ];
 
@@ -299,11 +290,7 @@ public class MigrateRollenTests
             {
                 IndCorrespondentie = false,
                 TypeBetrokkenheid = DetRolType.gemachtigde,
-                Betrokkene = new DetBetrokkenePersoon
-                {
-                    Subjecttype = DetSubjecttype.persoon,
-                    BurgerServiceNummer = "987654321"
-                }
+                Betrokkene = CreateDetPersoon("987654321")
             }
         ];
 
@@ -339,7 +326,7 @@ public class MigrateRollenTests
             {
                 IndCorrespondentie = false,
                 TypeBetrokkenheid = DetRolType.initiator,
-                Betrokkene = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = "111222333" }
+                Betrokkene = CreateDetPersoon("111222333")
             }
         ];
 
@@ -369,7 +356,7 @@ public class MigrateRollenTests
             {
                 IndCorrespondentie = false,
                 TypeBetrokkenheid = DetRolType.melder,
-                Betrokkene = new DetBetrokkenePersoon { Subjecttype = null }
+                Betrokkene = CreateDetPersoon()
             }
         ];
 
@@ -399,7 +386,7 @@ public class MigrateRollenTests
             {
                 IndCorrespondentie = false,
                 TypeBetrokkenheid = DetRolType.belanghebbende,
-                Betrokkene = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = null }
+                Betrokkene = CreateDetPersoon()
             }
         ];
 
@@ -429,7 +416,7 @@ public class MigrateRollenTests
             {
                 IndCorrespondentie = false,
                 TypeBetrokkenheid = DetRolType.melder,
-                Betrokkene = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.bedrijf, KvkNummer = null }
+                Betrokkene = CreateDetBedrijf()
             }
         ];
 
@@ -453,7 +440,7 @@ public class MigrateRollenTests
         });
 
         var zaak = CreateDetZaak(behandelaar: null);
-        zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = "123456789" };
+        zaak.Initiator = CreateDetPersoon("123456789");
 
         var clientMock = CreateOpenZaakClientMock();
         var service = CreateService(clientMock, zaak);
@@ -479,7 +466,7 @@ public class MigrateRollenTests
         });
 
         var zaak = CreateDetZaak(behandelaar: null);
-        zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.bedrijf, KvkNummer = "87654321", Vestigingsnummer = "000087654321" };
+        zaak.Initiator = CreateDetBedrijf("87654321", "000087654321");
 
         var clientMock = CreateOpenZaakClientMock();
         var service = CreateService(clientMock, zaak);
@@ -518,26 +505,6 @@ public class MigrateRollenTests
     }
 
     [Fact]
-    public async Task MigrateZaak_WithInitiatorMissingSubjecttype_DoesNotCreateInitiatorRol()
-    {
-        var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
-        {
-            { DetRolType.initiator, new Uri(InitiatorRoltypeUrl) }
-        });
-
-        var zaak = CreateDetZaak(behandelaar: null);
-        zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = null, BurgerServiceNummer = "123456789" };
-
-        var clientMock = CreateOpenZaakClientMock();
-        var service = CreateService(clientMock, zaak);
-
-        await service.MigrateZaak("zaak-123", mapping);
-
-        clientMock.Verify(c => c.CreateRol(It.IsAny<OzCreateRolRequest>(), It.IsAny<CancellationToken>()),
-            Times.Never);
-    }
-
-    [Fact]
     public async Task MigrateZaak_WithInitiatorPersoonMissingBsn_SkipsInitiator()
     {
         var mapping = CreateMapping(new Dictionary<DetRolType, Uri>
@@ -546,7 +513,7 @@ public class MigrateRollenTests
         });
 
         var zaak = CreateDetZaak(behandelaar: null);
-        zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = null };
+        zaak.Initiator = CreateDetPersoon();
 
         var clientMock = CreateOpenZaakClientMock();
         var service = CreateService(clientMock, zaak);
@@ -566,7 +533,7 @@ public class MigrateRollenTests
         });
 
         var zaak = CreateDetZaak(behandelaar: null);
-        zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.bedrijf, KvkNummer = null };
+        zaak.Initiator = CreateDetBedrijf();
 
         var clientMock = CreateOpenZaakClientMock();
         var service = CreateService(clientMock, zaak);
@@ -587,7 +554,7 @@ public class MigrateRollenTests
         });
 
         var zaak = CreateDetZaak(behandelaar: null);
-        zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = "123456789" };
+        zaak.Initiator = CreateDetPersoon("123456789");
 
         var clientMock = CreateOpenZaakClientMock();
         var service = CreateService(clientMock, zaak);
@@ -597,4 +564,28 @@ public class MigrateRollenTests
         clientMock.Verify(c => c.CreateRol(It.IsAny<OzCreateRolRequest>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
+
+    private static DetPersoon CreateDetPersoon(string? bsn = null) =>
+        new()
+        {
+            HandmatigToegevoegd = false,
+            Geblokkeerd = false,
+            CurateleRegister = false,
+            InOnderzoek = false,
+            BeperkingVerstrekking = false,
+            AfnemerIndicatie = false,
+            BurgerServiceNummer = bsn
+        };
+
+    private static DetBedrijf CreateDetBedrijf(string? kvkNummer = null, string? vestigingsnummer = null) =>
+        new()
+        {
+            HandmatigToegevoegd = false,
+            InSurceance = false,
+            Failliet = false,
+            Ingangsdatum = new DateOnly(2024, 1, 1),
+            Vestigingstype = "hoofd",
+            KvkNummer = kvkNummer,
+            Vestigingsnummer = vestigingsnummer
+        };
 }

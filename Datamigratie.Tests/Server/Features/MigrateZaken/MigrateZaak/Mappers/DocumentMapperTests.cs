@@ -128,7 +128,8 @@ public class DocumentMapperTests
             DocumentVersies = versies ?? [CreateMinimalDetDocumentVersie()],
             AanvraagDocument = false,
             Historie = [],
-            GeautoriseerdVoorMedewerkers = geautoriseerdVoorMedewerkers
+            GeautoriseerdVoorMedewerkers = geautoriseerdVoorMedewerkers,
+            Documentrichting = "uitgaand"
         };
     }
 
