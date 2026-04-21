@@ -6,6 +6,7 @@ image:
   tag: ""
 
 migrations:
+  enabled: true
   image:
     repository: "ghcr.io/icatt-menselijk-digitaal/datamigratie-migrations"
     pullPolicy: IfNotPresent
