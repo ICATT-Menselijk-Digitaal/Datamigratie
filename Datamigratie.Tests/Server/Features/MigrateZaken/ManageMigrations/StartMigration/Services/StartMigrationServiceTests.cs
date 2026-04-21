@@ -1,4 +1,6 @@
 ﻿using Datamigratie.Common.Services.Det;
+using Datamigratie.Server.Config;
+using Microsoft.Extensions.Options;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Data;
 using Datamigratie.Data.Entities;
@@ -51,11 +53,14 @@ public class StartMigrationServiceTests
         DatamigratieDbContext context,
         Mock<IMigrateZaakService> migrateZaakService)
     {
+        var migrationOptions = Options.Create(new MigrationOptions { ZaakConcurrencyLimit = 1 });
+
         return new StartMigrationService(
             context,
             NullLogger<StartMigrationService>.Instance,
             migrateZaakService.Object,
-            new MigrationWorkerState());
+            new MigrationWorkerState(),
+            migrationOptions);
     }
 
     // --- Group 1: Migration type branching ---

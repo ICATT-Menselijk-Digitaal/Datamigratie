@@ -420,3 +420,6 @@ FodyWeavers.xsd
 .idea
 Datamigratie.FakeDet/output
 CLAUDE.md
+
+# macOS
+.DS_Store
