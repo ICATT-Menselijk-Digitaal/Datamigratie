@@ -65,33 +65,6 @@ featureFlags:
 
 Feature flags worden geladen door de frontend via het `/api/app-version` endpoint en zijn beschikbaar via het `featureFlags` object in Vue componenten.
 
-
-### Migratie configuratie
-
-#### Beschikbare opties
-
-| Optie                  | Environment Variable              | Standaard | Beschrijving                                                                                                                                           |
-| ---------------------- | --------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `ZaakConcurrencyLimit` | `Migration__ZaakConcurrencyLimit` | `1`       | Aantal zaken dat gelijktijdig gemigreerd wordt. Een hogere waarde kan de migratiesnelheid verhogen, maar vergroot ook de belasting op de OpenZaak API. |
-
-#### Configuratie
-
-**Via environment variabelen:**
-
-```bash
-export Migration__ZaakConcurrencyLimit=5
-```
-
-**Via Helm (values.yaml):**
-
-```yaml
-settings:
-  migration:
-    zaakConcurrencyLimit: 5
-```
-
-Een hogere waarde is niet altijd beter. Als de OpenZaak API overbelast raakt, gaat de ingebouwde circuit breaker open en krijg je `BrokenCircuitException`-fouten in de logs. Dit is een teken dat de waarde te hoog is. Verlaag in dat geval de waarde en herstart de migratie.
-
 ### Opstarten
 
 ## Optie 1: Visual Studio + vscode
