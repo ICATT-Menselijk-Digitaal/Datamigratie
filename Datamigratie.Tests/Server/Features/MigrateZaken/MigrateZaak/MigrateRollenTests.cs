@@ -38,8 +38,8 @@ public class MigrateRollenTests
     {
         var mock = new Mock<IOpenZaakApiClient>();
 
-        mock.Setup(c => c.GetZaakByIdentificatie(It.IsAny<string>()))
-            .ReturnsAsync((OzZaak?)null);
+        mock.Setup(c => c.GetZakenByIdentificatie(It.IsAny<string>()))
+            .ReturnsAsync([]);
 
         mock.Setup(c => c.CreateZaak(It.IsAny<CreateOzZaakRequest>()))
             .ReturnsAsync(new OzZaak
@@ -596,5 +596,35 @@ public class MigrateRollenTests
 
         clientMock.Verify(c => c.CreateRol(It.IsAny<OzCreateRolRequest>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task MigrateZaak_WithMultipleExistingZaken_DeletesAllBeforeCreating()
+    {
+        var zaakUrl1 = new Uri("https://openzaak.example.com/zaken/api/v1/zaken/aaaaaaaa-0000-0000-0000-000000000001");
+        var zaakUrl2 = new Uri("https://openzaak.example.com/zaken/api/v1/zaken/bbbbbbbb-0000-0000-0000-000000000002");
+        var zaakId1 = Guid.Parse("aaaaaaaa-0000-0000-0000-000000000001");
+        var zaakId2 = Guid.Parse("bbbbbbbb-0000-0000-0000-000000000002");
+
+        var clientMock = CreateOpenZaakClientMock();
+        clientMock.Setup(c => c.GetZakenByIdentificatie(It.IsAny<string>()))
+            .ReturnsAsync([
+                new OzZaak { Url = zaakUrl1, Zaaktype = new Uri(ZaaktypeUrl) },
+                new OzZaak { Url = zaakUrl2, Zaaktype = new Uri(ZaaktypeUrl) }
+            ]);
+        clientMock.Setup(c => c.GetZaakInformatieobjectenForZaak(It.IsAny<Uri>()))
+            .ReturnsAsync([]);
+        clientMock.Setup(c => c.GetBesluitenForZaak(It.IsAny<Uri>()))
+            .ReturnsAsync([]);
+        clientMock.Setup(c => c.DeleteZaak(It.IsAny<Guid>()))
+            .Returns(Task.CompletedTask);
+
+        var service = CreateService(clientMock);
+
+        await service.MigrateZaak("zaak-123", CreateMapping());
+
+        clientMock.Verify(c => c.DeleteZaak(zaakId1), Times.Once);
+        clientMock.Verify(c => c.DeleteZaak(zaakId2), Times.Once);
+        clientMock.Verify(c => c.CreateZaak(It.IsAny<CreateOzZaakRequest>()), Times.Once);
     }
 }

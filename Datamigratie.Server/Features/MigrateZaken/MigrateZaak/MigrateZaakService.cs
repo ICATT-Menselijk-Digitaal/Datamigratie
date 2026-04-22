@@ -69,8 +69,8 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
 
 
                 // Check if zaak already exists in OpenZaak and delete it to allow re-run
-                var existingZaak = await _openZaakApiClient.GetZaakByIdentificatie(detZaak.FunctioneleIdentificatie);
-                if (existingZaak != null)
+                var existingZaken = await _openZaakApiClient.GetZakenByIdentificatie(detZaak.FunctioneleIdentificatie);
+                foreach (var existingZaak in existingZaken)
                 {
                     await DeleteExistingZaakAndRelatedObjectsAsync(existingZaak, token);
                 }
