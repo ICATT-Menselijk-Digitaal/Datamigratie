@@ -348,11 +348,6 @@ namespace Datamigratie.Common.Services.Det.Models
         public DateOnly? WijzigingDatum { get; set; }
     }
 
-    public class DetContactKanaal
-    {
-        public string? Omschrijving { get; set; }
-    }
-
     [JsonConverter(typeof(JsonStringEnumConverter<DetSubjecttype>))]
     public enum DetSubjecttype
     {
