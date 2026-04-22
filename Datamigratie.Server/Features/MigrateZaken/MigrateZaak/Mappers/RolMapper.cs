@@ -49,14 +49,12 @@ public class RolMapper(Dictionary<DetRolType, Uri> roltypeMappings)
         rolRequest = null;
         var initiator = detZaak.Initiator;
 
-        if (initiator == null || initiator.Subjecttype == null || !roltypeMappings.TryGetValue(DetRolType.initiator, out var roltypeUrl))
+        if (initiator == null || !roltypeMappings.TryGetValue(DetRolType.initiator, out var roltypeUrl))
         {
             return false;
         }
 
-        var subjecttype = initiator.Subjecttype.Value;
-
-        var (betrokkeneType, betrokkeneIdentificatie) = MapBetrokkeneIdentificatie(subjecttype, initiator);
+        var (betrokkeneType, betrokkeneIdentificatie) = MapBetrokkeneIdentificatie(initiator);
 
         if (HasEmptyBetrokkeneIdentificatie(betrokkeneIdentificatie)) return false;
 
@@ -86,17 +84,12 @@ public class RolMapper(Dictionary<DetRolType, Uri> roltypeMappings)
             var betrokkeneDetails = betrokkene.Betrokkene;
             var betrokkeneRolType = betrokkene.TypeBetrokkenheid;
 
-            if (betrokkeneRolType == null ||
-                !roltypeMappings.TryGetValue(betrokkeneRolType.Value, out var roltypeUrl) ||
-                betrokkeneDetails == null ||
-                betrokkeneDetails.Subjecttype == null)
+            if (!roltypeMappings.TryGetValue(betrokkeneRolType, out var roltypeUrl))
             {
                 continue;
             }
 
-            var subjecttype = betrokkeneDetails.Subjecttype;
-
-            var (betrokkeneType, betrokkeneIdentificatie) = MapBetrokkeneIdentificatie(subjecttype.Value, betrokkeneDetails);
+            var (betrokkeneType, betrokkeneIdentificatie) = MapBetrokkeneIdentificatie(betrokkeneDetails);
             var rolRequest = new OzCreateRolRequest
             {
                 Zaak = openZaakZaakUri,
@@ -123,13 +116,15 @@ public class RolMapper(Dictionary<DetRolType, Uri> roltypeMappings)
             string.IsNullOrWhiteSpace(id.VestigingsNummer) &&
             string.IsNullOrWhiteSpace(id.Identificatie);
 
-    private static (BetrokkeneType, OzBetrokkeneIdentificatie) MapBetrokkeneIdentificatie(
-        DetSubjecttype subjecttype, DetBetrokkenePersoon persoon) =>
-        subjecttype == DetSubjecttype.persoon
-            ? (BetrokkeneType.natuurlijk_persoon, new OzBetrokkeneIdentificatie { InpBsn = persoon.BurgerServiceNummer })
-            : (BetrokkeneType.niet_natuurlijk_persoon, new OzBetrokkeneIdentificatie
+    private static (BetrokkeneType, OzBetrokkeneIdentificatie) MapBetrokkeneIdentificatie(DetSubject subject) =>
+        subject switch
+        {
+            DetPersoon p => (BetrokkeneType.natuurlijk_persoon, new OzBetrokkeneIdentificatie { InpBsn = p.BurgerServiceNummer }),
+            DetBedrijf b => (BetrokkeneType.niet_natuurlijk_persoon, new OzBetrokkeneIdentificatie
             {
-                KvkNummer = persoon.KvkNummer,
-                VestigingsNummer = persoon.Vestigingsnummer
-            });
+                KvkNummer = b.KvkNummer,
+                VestigingsNummer = b.Vestigingsnummer
+            }),
+            _ => throw new ArgumentException($"Unknown subject type: {subject.GetType().Name}")
+        };
 }

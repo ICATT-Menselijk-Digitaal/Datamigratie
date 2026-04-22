@@ -22,6 +22,8 @@ namespace Datamigratie.Common.Services.Det
         Task<List<DetDocumentstatus>> GetAllDocumentstatussen();
 
         Task SetZaakGemigreerd(string functioneleIdentificatie, bool gemigreerd);
+
+        Task<DetContact?> GetContact(string functioneleIdentificatie);
     }
 
     public class DetApiClient(HttpClient httpClient, ILogger<DetApiClient> logger) : DetPagedApiClient(httpClient), IDetApiClient
@@ -143,7 +145,37 @@ namespace Datamigratie.Common.Services.Det
 
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<DetZaak>()
+            var zaak = await response.Content.ReadFromJsonAsync<DetZaak>()
+                ?? throw new SerializationException("Unexpected null response");
+
+            if (zaak.Contacten != null && zaak.Contacten.Count > 0)
+            {
+                var contactTasks = zaak.Contacten.Select(GetContact);
+                var contacten = await Task.WhenAll(contactTasks);
+                zaak.GekoppeldeContacten = [.. contacten.OfType<DetContact>()];
+            }
+
+            return zaak;
+        }
+
+        /// <summary>
+        /// Gets a specific contact by its functionele identificatie.
+        /// Endpoint: /contacten/{functionele_Identificatie}
+        /// </summary>
+        /// <returns>The DetContact object if found, otherwise null.</returns>
+        public async Task<DetContact?> GetContact(string functioneleIdentificatie)
+        {
+            var endpoint = $"contacten/{Uri.EscapeDataString(functioneleIdentificatie)}";
+            var response = await _httpClient.GetAsync(endpoint);
+
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadFromJsonAsync<DetContact>()
                 ?? throw new SerializationException("Unexpected null response");
         }
 

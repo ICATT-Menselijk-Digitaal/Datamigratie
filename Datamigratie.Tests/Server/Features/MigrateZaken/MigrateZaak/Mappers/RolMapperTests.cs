@@ -72,7 +72,7 @@ public class RolMapperTests
             {
                 IndCorrespondentie = false,
                 TypeBetrokkenheid = DetRolType.belanghebbende,
-                Betrokkene = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = "123456789" }
+                Betrokkene = CreateDetPersoon("123456789")
             }
         ];
 
@@ -96,7 +96,7 @@ public class RolMapperTests
             {
                 IndCorrespondentie = false,
                 TypeBetrokkenheid = DetRolType.melder,
-                Betrokkene = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.bedrijf, KvkNummer = "12345678", Vestigingsnummer = "000012345678" }
+                Betrokkene = CreateDetBedrijf("12345678", "000012345678")
             }
         ];
 
@@ -121,7 +121,7 @@ public class RolMapperTests
             {
                 IndCorrespondentie = false,
                 TypeBetrokkenheid = DetRolType.gemachtigde,
-                Betrokkene = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = "987654321" }
+                Betrokkene = CreateDetPersoon("987654321")
             }
         ];
 
@@ -145,7 +145,7 @@ public class RolMapperTests
             {
                 IndCorrespondentie = false,
                 TypeBetrokkenheid = DetRolType.initiator,
-                Betrokkene = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = "111222333" }
+                Betrokkene = CreateDetPersoon("111222333")
             }
         ];
 
@@ -163,7 +163,7 @@ public class RolMapperTests
             {
                 IndCorrespondentie = false,
                 TypeBetrokkenheid = DetRolType.melder,
-                Betrokkene = new DetBetrokkenePersoon { Subjecttype = null }
+                Betrokkene = CreateDetPersoon()
             }
         ];
 
@@ -181,7 +181,7 @@ public class RolMapperTests
             {
                 IndCorrespondentie = false,
                 TypeBetrokkenheid = DetRolType.belanghebbende,
-                Betrokkene = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = null }
+                Betrokkene = CreateDetPersoon()
             }
         ];
 
@@ -199,7 +199,7 @@ public class RolMapperTests
             {
                 IndCorrespondentie = false,
                 TypeBetrokkenheid = DetRolType.melder,
-                Betrokkene = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.bedrijf, KvkNummer = null }
+                Betrokkene = CreateDetBedrijf()
             }
         ];
 
@@ -213,7 +213,7 @@ public class RolMapperTests
     {
         var mapper = new RolMapper(new() { { DetRolType.initiator, s_initiatorRoltypeUrl } });
         var zaak = CreateDetZaak();
-        zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = "123456789" };
+        zaak.Initiator = CreateDetPersoon("123456789");
 
         var rollen = mapper.MapRoles(zaak, s_openZaakZaakUri).ToList();
 
@@ -228,7 +228,7 @@ public class RolMapperTests
     {
         var mapper = new RolMapper(new() { { DetRolType.initiator, s_initiatorRoltypeUrl } });
         var zaak = CreateDetZaak();
-        zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.bedrijf, KvkNummer = "87654321", Vestigingsnummer = "000087654321" };
+        zaak.Initiator = CreateDetBedrijf("87654321", "000087654321");
 
         var rollen = mapper.MapRoles(zaak, s_openZaakZaakUri).ToList();
 
@@ -250,21 +250,11 @@ public class RolMapperTests
     }
 
     [Fact]
-    public void MapRoles_WithInitiatorMissingSubjecttype_ReturnsNoInitiatorRol()
-    {
-        var mapper = new RolMapper(new() { { DetRolType.initiator, s_initiatorRoltypeUrl } });
-        var zaak = CreateDetZaak();
-        zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = null, BurgerServiceNummer = "123456789" };
-
-        Assert.Empty(mapper.MapRoles(zaak, s_openZaakZaakUri));
-    }
-
-    [Fact]
     public void MapRoles_WithInitiatorPersoonMissingBsn_ReturnsNoInitiatorRol()
     {
         var mapper = new RolMapper(new() { { DetRolType.initiator, s_initiatorRoltypeUrl } });
         var zaak = CreateDetZaak();
-        zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = null };
+        zaak.Initiator = CreateDetPersoon();
 
         Assert.Empty(mapper.MapRoles(zaak, s_openZaakZaakUri));
     }
@@ -274,7 +264,7 @@ public class RolMapperTests
     {
         var mapper = new RolMapper(new() { { DetRolType.initiator, s_initiatorRoltypeUrl } });
         var zaak = CreateDetZaak();
-        zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.bedrijf, KvkNummer = null };
+        zaak.Initiator = CreateDetBedrijf();
 
         Assert.Empty(mapper.MapRoles(zaak, s_openZaakZaakUri));
     }
@@ -284,8 +274,32 @@ public class RolMapperTests
     {
         var mapper = new RolMapper(new() { { DetRolType.behandelaar, s_behandelaarRoltypeUrl } });
         var zaak = CreateDetZaak();
-        zaak.Initiator = new DetBetrokkenePersoon { Subjecttype = DetSubjecttype.persoon, BurgerServiceNummer = "123456789" };
+        zaak.Initiator = CreateDetPersoon("123456789");
 
         Assert.Empty(mapper.MapRoles(zaak, s_openZaakZaakUri));
     }
+
+    private static DetPersoon CreateDetPersoon(string? bsn = null) =>
+        new()
+        {
+            HandmatigToegevoegd = false,
+            Geblokkeerd = false,
+            CurateleRegister = false,
+            InOnderzoek = false,
+            BeperkingVerstrekking = false,
+            AfnemerIndicatie = false,
+            BurgerServiceNummer = bsn
+        };
+
+    private static DetBedrijf CreateDetBedrijf(string? kvkNummer = null, string? vestigingsnummer = null) =>
+        new()
+        {
+            HandmatigToegevoegd = false,
+            InSurceance = false,
+            Failliet = false,
+            Ingangsdatum = new DateOnly(2024, 1, 1),
+            Vestigingstype = "hoofd",
+            KvkNummer = kvkNummer,
+            Vestigingsnummer = vestigingsnummer
+        };
 }
