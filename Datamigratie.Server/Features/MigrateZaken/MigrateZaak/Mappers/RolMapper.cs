@@ -84,8 +84,7 @@ public class RolMapper(Dictionary<DetRolType, Uri> roltypeMappings)
             var betrokkeneDetails = betrokkene.Betrokkene;
             var betrokkeneRolType = betrokkene.TypeBetrokkenheid;
 
-            if (!roltypeMappings.TryGetValue(betrokkeneRolType, out var roltypeUrl) ||
-                betrokkeneDetails == null)
+            if (!roltypeMappings.TryGetValue(betrokkeneRolType, out var roltypeUrl))
             {
                 continue;
             }
