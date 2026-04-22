@@ -360,9 +360,7 @@ namespace Datamigratie.Common.Services.Det.Models
         bedrijf,
     }
 
-    [JsonPolymorphic(TypeDiscriminatorPropertyName = "subjecttype")]
-    [JsonDerivedType(typeof(DetPersoon), "persoon")]
-    [JsonDerivedType(typeof(DetBedrijf), "bedrijf")]
+    [JsonConverter(typeof(DetSubjectConverter))]
     public abstract class DetSubject
     {
         public long? Identifier { get; set; }

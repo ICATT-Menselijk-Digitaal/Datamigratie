@@ -310,5 +310,97 @@ namespace Datamigratie.Tests.Common.Services.Det.Models
 
             Assert.Null(contact!.Aanvrager);
         }
+
+        [Fact]
+        public void Deserialize_Persoon_DiscriminatorNotFirstProperty_ReturnsDetPersoon()
+        {
+            // Reproduces the real API response where "subjecttype" is NOT the first property.
+            // System.Text.Json polymorphic deserialization requires the discriminator to be
+            // the first property by default, causing deserialization to fail.
+            var json = """
+                {
+                    "adressen": [],
+                    "telefoonnummer": "0612345678",
+                    "handmatigToegevoegd": false,
+                    "subjecttype": "persoon",
+                    "burgerServiceNummer": "123456789",
+                    "voornamen": "Jan",
+                    "geslachtsNaam": "Jansen",
+                    "geblokkeerd": false,
+                    "curateleRegister": false,
+                    "inOnderzoek": false,
+                    "beperkingVerstrekking": false,
+                    "afnemerIndicatie": true
+                }
+                """;
+
+            var result = JsonSerializer.Deserialize<DetSubject>(json, Options);
+
+            var persoon = Assert.IsType<DetPersoon>(result);
+            Assert.Equal("123456789", persoon.BurgerServiceNummer);
+            Assert.Equal("Jan", persoon.Voornamen);
+        }
+
+        [Fact]
+        public void Deserialize_Bedrijf_DiscriminatorNotFirstProperty_ReturnsDetBedrijf()
+        {
+            var json = """
+                {
+                    "adressen": [],
+                    "telefoonnummer": "0201234567",
+                    "handmatigToegevoegd": false,
+                    "subjecttype": "bedrijf",
+                    "kvkNummer": "12345678",
+                    "bedrijfsnaam": "Acme BV",
+                    "inSurceance": false,
+                    "failliet": false,
+                    "ingangsdatum": "2020-01-01",
+                    "vestigingstype": "hoofdvestiging"
+                }
+                """;
+
+            var result = JsonSerializer.Deserialize<DetSubject>(json, Options);
+
+            var bedrijf = Assert.IsType<DetBedrijf>(result);
+            Assert.Equal("12345678", bedrijf.KvkNummer);
+            Assert.Equal("Acme BV", bedrijf.Bedrijfsnaam);
+        }
+
+        [Fact]
+        public void Deserialize_ZaakWithInitiator_DiscriminatorNotFirstProperty_MapsCorrectly()
+        {
+            var json = """
+                {
+                    "functioneleIdentificatie": "ZAAK-100",
+                    "open": true,
+                    "omschrijving": "Test zaak",
+                    "startdatum": "2024-01-01",
+                    "streefdatum": "2024-06-01",
+                    "handmatigToegevoegd": false,
+                    "historie": [],
+                    "initiator": {
+                        "adressen": [],
+                        "identifier": 12345,
+                        "telefoonnummer": "0612345678",
+                        "emailadres": "jan@example.com",
+                        "handmatigToegevoegd": false,
+                        "subjecttype": "persoon",
+                        "burgerServiceNummer": "987654321",
+                        "voornamen": "Piet",
+                        "geblokkeerd": false,
+                        "curateleRegister": false,
+                        "inOnderzoek": false,
+                        "beperkingVerstrekking": false,
+                        "afnemerIndicatie": false
+                    }
+                }
+                """;
+
+            var zaak = JsonSerializer.Deserialize<DetZaak>(json, Options);
+
+            var persoon = Assert.IsType<DetPersoon>(zaak!.Initiator);
+            Assert.Equal("987654321", persoon.BurgerServiceNummer);
+            Assert.Equal("Piet", persoon.Voornamen);
+        }
     }
 }

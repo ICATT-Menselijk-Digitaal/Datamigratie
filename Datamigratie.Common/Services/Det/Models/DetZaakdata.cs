@@ -3,26 +3,7 @@ using Datamigratie.Common.Converters;
 
 namespace Datamigratie.Common.Services.Det.Models
 {
-    [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
-    [JsonDerivedType(typeof(DetStringDataElement), "string")]
-    [JsonDerivedType(typeof(DetBooleanDataElement), "boolean")]
-    [JsonDerivedType(typeof(DetCalendarDataElement), "calendar")]
-    [JsonDerivedType(typeof(DetDatumMetTijdstipDataElement), "datummettijdstip")]
-    [JsonDerivedType(typeof(DetDecimaalDataElement), "decimaal")]
-    [JsonDerivedType(typeof(DetDecimalenDataElement), "decimalen")]
-    [JsonDerivedType(typeof(DetOptieDataElement), "optie")]
-    [JsonDerivedType(typeof(DetAdresgegevensDataElement), "adresgegevens")]
-    [JsonDerivedType(typeof(DetReferentietabelRecordDataElement), "referentietabel_record")]
-    [JsonDerivedType(typeof(DetAfstandDataElement), "afstand")]
-    [JsonDerivedType(typeof(DetGeneriekeAfspraakDataElement), "generieke_afspraak")]
-    [JsonDerivedType(typeof(DetGeoInformatieDataElement), "geo_informatie")]
-    [JsonDerivedType(typeof(DetDigitaleNotificatiesDataElement), "digitale_notificaties")]
-    [JsonDerivedType(typeof(DetZaakBesluitDataElement), "zaak_besluit")]
-    [JsonDerivedType(typeof(DetOptiesDataElement), "opties")]
-    [JsonDerivedType(typeof(DetStringsDataElement), "strings")]
-    [JsonDerivedType(typeof(DetDocumentDataElement), "zaak_documenten")]
-    [JsonDerivedType(typeof(DetSelectDocumentDataElement), "select_documents")]
-    [JsonDerivedType(typeof(DetAanvullijstDataElement), "aanvullijst")]
+    [JsonConverter(typeof(DetZaakdataConverter))]
     public abstract class DetZaakdata
     {
         public string? Type { get; set; }

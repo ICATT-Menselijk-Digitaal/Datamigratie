@@ -253,5 +253,21 @@ namespace Datamigratie.Tests.Common.Services.Det.Models
 
             Assert.Equal("Toelichting op het veld", result!.Omschrijving);
         }
+
+        // --- Discriminator ordering ---
+
+        [Fact]
+        public void Deserialize_DataElementWithTypeNotFirst_StillDeserializes()
+        {
+            // Regression test: DET API can return "type" after other properties.
+            // [JsonPolymorphic] requires the discriminator to be first; the custom converter handles any order.
+            var json = """{"naam":"Omschrijving","omschrijving":"toelichting","waarde":"Testwaarde","type":"string"}""";
+
+            var result = JsonSerializer.Deserialize<DetZaakdata>(json, Options);
+
+            var element = Assert.IsType<DetStringDataElement>(result);
+            Assert.Equal("Omschrijving", element.Naam);
+            Assert.Equal("Testwaarde", element.Waarde);
+        }
     }
 }
