@@ -36,7 +36,7 @@ namespace Datamigratie.Common.Services.OpenZaak
 
         Task DeleteDocument(Guid documentId);
 
-        Task<OzZaak?> GetZaakByIdentificatie(string zaakNummer);
+        Task<List<OzZaak>> GetZakenByIdentificatie(string zaakNummer);
 
         Task<List<OzBesluit>> GetBesluitenForZaak(Uri zaakUrl);
 
@@ -148,17 +148,13 @@ namespace Datamigratie.Common.Services.OpenZaak
             return pagedRoltypen.Results;
         }
 
-        public async Task<OzZaak?> GetZaakByIdentificatie(string zaakNummer)
+        public async Task<List<OzZaak>> GetZakenByIdentificatie(string zaakNummer)
         {
             // uses icontains filter on identificatie field because the search is case-sensitive otherwise
             // currently there is no openzaak filter that allows case-insensitive exact match
             var pagedZaken = await GetAllPagedData<OzZaak>($"zaken/api/v1/zaken", $"identificatie__icontains={zaakNummer}");
 
-            var zaak = pagedZaken.Results.FirstOrDefault(z =>
-                string.Equals(z.Identificatie, zaakNummer, StringComparison.OrdinalIgnoreCase)
-            );
-
-            return zaak;
+            return [.. pagedZaken.Results.Where(z => string.Equals(z.Identificatie, zaakNummer, StringComparison.OrdinalIgnoreCase))];
         }
 
         /// <summary>
