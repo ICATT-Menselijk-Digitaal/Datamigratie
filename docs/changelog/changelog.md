@@ -22,7 +22,7 @@
 - [Parallel zaak migration](https://dimpact.atlassian.net/browse/DATA-617)
 - [Make error message expandable in UI](https://dimpact.atlassian.net/browse/DATA-379)
 - [Un-migrate geolocatie](https://dimpact.atlassian.net/browse/DATA-511)
-- [Migrate previously ignored properties](https://dimpact.atlassian.net/browse/DATA-251)
+- [Migrate previously ignored properties](https://dimpact.atlassian.net/browse/DATA-252)
 
 ## v0.1.0
 
