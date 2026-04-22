@@ -39,6 +39,7 @@ A Helm chart for the Datamigratie Component
 | livenessProbe.periodSeconds | int | `10` |  |
 | livenessProbe.successThreshold | int | `1` |  |
 | livenessProbe.timeoutSeconds | int | `5` |  |
+| migrations.enabled | bool | `true` |  |
 | migrations.image.pullPolicy | string | `"IfNotPresent"` |  |
 | migrations.image.repository | string | `"ghcr.io/icatt-menselijk-digitaal/datamigratie-migrations"` |  |
 | migrations.image.tag | string | `""` |  |
@@ -95,7 +96,7 @@ A Helm chart for the Datamigratie Component
 | settings.database.port | int | `5432` |  |
 | settings.database.username | string | `""` |  |
 | settings.featureFlags.enableTestHelpers | bool | `false` |  |
-| settings.migration.zaakConcurrencyLimit | int | `5` |  |
+| settings.migration.zaakConcurrencyLimit | int | `1` |  |
 | settings.oidc.authority | string | `""` |  |
 | settings.oidc.clientId | string | `""` |  |
 | settings.oidc.clientSecret | string | `""` |  |

@@ -6,6 +6,7 @@ image:
   tag: ""
 
 migrations:
+  enabled: true
   image:
     repository: "ghcr.io/icatt-menselijk-digitaal/datamigratie-migrations"
     pullPolicy: IfNotPresent
@@ -145,7 +146,7 @@ settings:
     enableTestHelpers: false
 
   migration:
-    zaakConcurrencyLimit: 5
+    zaakConcurrencyLimit: 1
 
 postgresql:
   enabled: false
