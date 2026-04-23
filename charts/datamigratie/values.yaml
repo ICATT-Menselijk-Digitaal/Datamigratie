@@ -146,7 +146,7 @@ settings:
     enableTestHelpers: false
 
   migration:
-    zaakConcurrencyLimit: 5
+    zaakConcurrencyLimit: 1
 
 postgresql:
   enabled: false

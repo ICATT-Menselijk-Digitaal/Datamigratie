@@ -14,8 +14,9 @@ namespace Datamigratie.Common.Services.Det.Models
     {
         public string? AangemaaktDoor { get; set; }
         public string? Afdeling { get; set; }
+        public string? Groep { get; set; }
+
         public string? Behandelaar { get; set; }
-        public DetBetrokkenePersoon? Initiator { get; set; }
         public DetBetaalgegevens? Betaalgegevens { get; set; }
 
         [JsonConverter(typeof(DetZonedDateTimeConverter))]
@@ -35,6 +36,9 @@ namespace Datamigratie.Common.Services.Det.Models
         public DateOnly Streefdatum { get; set; }
         public bool Vernietiging { get; set; }
         public bool Vertrouwelijk { get; set; }
+        public string? Organisatie { get; set; }
+        public DateOnly? OpschorttermijnStartdatum { get; set; }
+        public DateOnly? OpschorttermijnEinddatum { get; set; }
         [JsonConverter(typeof(DetZonedDateTimeConverter))]
         public DateTimeOffset? WijzigDatumTijd { get; set; }
         public DetZaaktype? Zaaktype { get; set; }
@@ -51,6 +55,10 @@ namespace Datamigratie.Common.Services.Det.Models
         public List<DetZaakZaakKoppeling>? GekoppeldeZaken { get; set; }
         public List<DetZaakdata>? Zaakdata { get; set; }
         public List<DetTaak>? Taken { get; set; }
+        public List<string>? Contacten { get; set; }
+        public List<DetContact>? GekoppeldeContacten { get; set; }
+        public List<DetBagObject>? BagObjecten { get; set; }
+        public DetSubject? Initiator { get; set; }
         public required List<DetZaakHistorie> Historie { get; set; } = [];
     }
 
@@ -70,10 +78,20 @@ namespace Datamigratie.Common.Services.Det.Models
         public string? DocumentVersturen { get; set; }
         public string? Locatie { get; set; }
         public required bool AanvraagDocument { get; set; }
+        public required bool GeautoriseerdVoorMedewerkers { get; set; }
+        public required string Documentrichting { get; set; }
+        public DateOnly? DocumentVersturenDatum { get; set; }
+        public DateOnly? OntvangstDatum { get; set; }
+        public DateOnly? VerzendDatum { get; set; }
+        public List<DetDocumentPublicatie>? Publicaties { get; set; }
         public List<DetDocumentMetadata>? DocumentMetadata { get; set; }
         public required List<DetDocumentHistorie> Historie { get; set; }
-        public bool GeautoriseerdVoorMedewerkers { get; set; }
+    }
 
+    public class DetDocumentPublicatie
+    {
+        public required string Bestemming { get; set; }
+        public required DateOnly Publicatiedatum { get; set; }
     }
 
     public class DetDocumentMetadata
@@ -120,6 +138,8 @@ namespace Datamigratie.Common.Services.Det.Models
         public DateTimeOffset OndertekenDatum { get; set; }
         public required bool Gemandateerd { get; set; }
         public string? Opmerking { get; set; }
+        public required string DocumentTitel { get; set; }
+        public required DateOnly CreatieDatum { get; set; }
     }
 
     public class DetZaakNotitie
@@ -134,33 +154,9 @@ namespace Datamigratie.Common.Services.Det.Models
     {
         public required bool IndCorrespondentie { get; set; }
         public DateOnly? Startdatum { get; set; }
-        public DetRolType? TypeBetrokkenheid { get; set; }
-        public DetBetrokkenePersoon? Betrokkene { get; set; }
-    }
-
-    public class DetBetrokkenePersoon
-    {
-        public DetSubjecttype? Subjecttype { get; set; }
-        public string? BurgerServiceNummer { get; set; }
-        public string? KvkNummer { get; set; }
-        public string? Vestigingsnummer { get; set; }
-    }
-
-    [JsonConverter(typeof(JsonStringEnumConverter<DetSubjecttype>))]
-    public enum DetSubjecttype
-    {
-        persoon,
-        bedrijf,
-    }
-
-    public class DetZaakdata
-    {
-        public required string Type { get; set; }
-        public required string Naam { get; set; }
-        public string? Omschrijving { get; set; }
-        public string? Formatering { get; set; }
-        public object? Waarde { get; set; }
-        public List<string>? Waarden { get; set; }
+        public required DetSubject Betrokkene { get; set; }
+        public required DetRolType TypeBetrokkenheid { get; set; }
+        public string? Toelichting { get; set; }
     }
 
     public class DetTaak
@@ -216,13 +212,13 @@ namespace Datamigratie.Common.Services.Det.Models
     public class DetArchiveerGegevens
     {
         public DateOnly? BewaartermijnEinddatum { get; set; }
+        public string? BewaartermijnWaardering { get; set; }
+        public DateOnly? OverbrengenOp { get; set; }
         public string? OverbrengenDoor { get; set; }
         public string? OverbrengenNaar { get; set; }
         public string? OverbrengenType { get; set; }
-
-        public DateOnly? OverbrengenOp { get; set; }
-
         public string? SelectielijstItemNaam { get; set; }
+        public string? ZaaktypeNaam { get; set; }
         public DetOvergebrachteGegevens? OvergebrachteGegevens { get; set; }
     }
 
@@ -236,6 +232,7 @@ namespace Datamigratie.Common.Services.Det.Models
     public class DocumentTaal
     {
         public required string FunctioneelId { get; set; }
+        public required string Naam { get; set; }
     }
 
     public class DocumentVorm
@@ -253,6 +250,8 @@ namespace Datamigratie.Common.Services.Det.Models
         public DateOnly? Reactiedatum { get; set; }
         public DateOnly? Publicatiedatum { get; set; }
         public string? Toelichting { get; set; }
+        public int? ProcestermijnInMaanden { get; set; }
+
     }
 
     public class DetBesluittype
@@ -279,5 +278,282 @@ namespace Datamigratie.Common.Services.Det.Models
         public required string GekoppeldeZaak { get; set; }
         public required string Relatietype { get; set; }
         public required bool DossierEigenaar { get; set; }
+    }
+
+    public class DetBagObject
+    {
+        public required string BagObjectId { get; set; }
+    }
+
+    public class DetContact
+    {
+        public required string FunctioneleIdentificatie { get; set; }
+        public required bool IndicatieVertrouwelijk { get; set; }
+        public string? Emailadres { get; set; }
+        public string? Telefoonnummer { get; set; }
+        public string? TelefoonnummerAlternatief { get; set; }
+        [JsonConverter(typeof(DetZonedDateTimeConverter))]
+        public required DateTimeOffset StartdatumTijd { get; set; }
+        [JsonConverter(typeof(DetZonedDateTimeConverter))]
+        public DateTimeOffset? EinddatumTijd { get; set; }
+        [JsonConverter(typeof(DetZonedDateTimeConverter))]
+        public DateTimeOffset? StreefdatumTijd { get; set; }
+        public string? Vraag { get; set; }
+        public string? Antwoord { get; set; }
+        public DetContacttype? Type { get; set; }
+        public DetContactstatus? Status { get; set; }
+        public DetContactprioriteit? Prioriteit { get; set; }
+        public List<DetContactHistorie>? Historie { get; set; }
+        public List<DetVoorlopigAntwoord>? VoorlopigeAntwoorden { get; set; }
+        public DetKanaal? Kanaal { get; set; }
+        public DetSubject? Aanvrager { get; set; }
+        public List<DetBagObject>? BagObjecten { get; set; }
+        public List<string>? GekoppeldeContacten { get; set; }
+    }
+
+    public class DetVoorlopigAntwoord
+    {
+        public required string Antwoord { get; set; }
+        [JsonConverter(typeof(DetZonedDateTimeConverter))]
+        public required DateTimeOffset AntwoordDatumTijd { get; set; }
+    }
+
+    public class DetContacttype
+    {
+        public required string Naam { get; set; }
+        public string? Omschrijving { get; set; }
+    }
+
+    public class DetContactstatus
+    {
+        public required string Naam { get; set; }
+        public string? Omschrijving { get; set; }
+    }
+
+    public class DetContactprioriteit
+    {
+        public required string Naam { get; set; }
+        public string? Omschrijving { get; set; }
+        public required int Dagen { get; set; }
+    }
+
+    public class DetContactHistorie
+    {
+        public string? GewijzigdDoor { get; set; }
+        public string? TypeWijziging { get; set; }
+        public string? OudeWaarde { get; set; }
+        public string? NieuweWaarde { get; set; }
+
+        public string? Toelichting { get; set; }
+        public DateOnly? WijzigingDatum { get; set; }
+    }
+
+    [JsonConverter(typeof(JsonStringEnumConverter<DetSubjecttype>))]
+    public enum DetSubjecttype
+    {
+        persoon,
+        bedrijf,
+    }
+
+    [JsonConverter(typeof(DetSubjectConverter))]
+    public abstract class DetSubject
+    {
+        public long? Identifier { get; set; }
+        public DetSubjecttype? Subjecttype { get; set; }
+        public string? Telefoonnummer { get; set; }
+        public string? TelefoonnummerAlternatief { get; set; }
+        public string? Rekeningnummer { get; set; }
+        public string? Emailadres { get; set; }
+        public bool? OntvangenZaakNotificaties { get; set; }
+        public bool? ToestemmingZaakNotificatiesAlleenDigitaal { get; set; }
+        public required bool HandmatigToegevoegd { get; set; }
+        public List<DetSubjectNotitie>? Notities { get; set; }
+        public List<DetAdres>? Adressen { get; set; }
+    }
+
+    public class DetPersoon : DetSubject
+    {
+        public string? BurgerServiceNummer { get; set; }
+        public string? Voornamen { get; set; }
+        public string? Voorletters { get; set; }
+        public string? GeslachtsNaam { get; set; }
+        public string? Voorvoegsel { get; set; }
+        public string? Geslacht { get; set; }
+        public string? AanhefAanschrijving { get; set; }
+        public string? AdelijkeTitel { get; set; }
+        public string? PreAcademischeTitel { get; set; }
+        public string? PostAcademischeTitel { get; set; }
+        public string? Naamgebruik { get; set; }
+        public string? GeslachtsNaamPartner { get; set; }
+        public string? VoorvoegselPartner { get; set; }
+        public DateOnly? Geboortedatum { get; set; }
+        public string? Geboorteplaats { get; set; }
+        public DateOnly? Overlijdensdatum { get; set; }
+        public string? Overlijdensplaats { get; set; }
+        public string? ANummer { get; set; }
+        public string? OpschortingsReden { get; set; }
+        public DateOnly? OpschortingsDatum { get; set; }
+        public required bool Geblokkeerd { get; set; }
+        public required bool CurateleRegister { get; set; }
+        public required bool InOnderzoek { get; set; }
+        public string? GeboortedatumVolledig { get; set; }
+        public string? OverlijdensdatumVolledig { get; set; }
+        public required bool BeperkingVerstrekking { get; set; }
+        public string? NietIngezeteneAanduiding { get; set; }
+        public required bool AfnemerIndicatie { get; set; }
+        public long? AnpIdentificatie { get; set; }
+        public string? Gemeentecode { get; set; }
+        public DetLand? Geboorteland { get; set; }
+        public DetLand? Overlijdensland { get; set; }
+        public DetBurgerlijkeStaat? BurgerlijkeStaat { get; set; }
+        public List<DetNationaliteit>? Nationaliteiten { get; set; }
+        public List<DetReisdocument>? Reisdocumenten { get; set; }
+        public List<DetRelatie>? Relaties { get; set; }
+    }
+
+    public class DetBedrijf : DetSubject
+    {
+        public string? KvkNummer { get; set; }
+        public string? Vestigingsnummer { get; set; }
+        public string? BuitenlandsHandelsregisternummer { get; set; }
+        public string? Bedrijfsnaam { get; set; }
+        public string? Vennootschapsnaam { get; set; }
+        public string? StatutaireZetel { get; set; }
+        public DateOnly? DatumVestiging { get; set; }
+        public DateOnly? DatumOpheffing { get; set; }
+        public DateOnly? DatumVoortzetting { get; set; }
+        public string? Faxnummer { get; set; }
+        public int? AantalWerknemers { get; set; }
+        public required bool InSurceance { get; set; }
+        public required bool Failliet { get; set; }
+        public string? Rsinummer { get; set; }
+        public string? Vestigingsstatus { get; set; }
+        public required DateOnly Ingangsdatum { get; set; }
+        public DateOnly? Mutatiedatum { get; set; }
+        public required string Vestigingstype { get; set; }
+        public DetHoofdactiviteit? Hoofdactiviteit { get; set; }
+        public DetRechtsvorm? Rechtsvorm { get; set; }
+        public List<DetNevenactiviteit>? Nevenactiviteiten { get; set; }
+        public List<DetContactpersoon>? Contactpersonen { get; set; }
+    }
+
+    public class DetAdres
+    {
+        public required string Type { get; set; }
+        public string? Straatnaam { get; set; }
+        public string? Postcode { get; set; }
+        public string? Plaatsnaam { get; set; }
+        public string? Huisletter { get; set; }
+        public int? Huisnummer { get; set; }
+        public string? Huisnummertoevoeging { get; set; }
+        public string? Huisnummeraanduiding { get; set; }
+        public string? Adresbuitenland1 { get; set; }
+        public string? Adresbuitenland2 { get; set; }
+        public string? Adresbuitenland3 { get; set; }
+        public required bool BuitenlandsAdres { get; set; }
+        public required DetLand Land { get; set; }
+    }
+
+    public class DetLand
+    {
+        public required string Naam { get; set; }
+        public string? Omschrijving { get; set; }
+        public required bool Actief { get; set; }
+        public required string GbaCode { get; set; }
+    }
+
+    public class DetBurgerlijkeStaat
+    {
+        public required string Naam { get; set; }
+        public string? Omschrijving { get; set; }
+        public required bool Actief { get; set; }
+        public required string GbaCode { get; set; }
+    }
+
+    public class DetNationaliteit
+    {
+        public required string Naam { get; set; }
+        public string? Omschrijving { get; set; }
+        public required bool Actief { get; set; }
+        public required string GbaCode { get; set; }
+        public string? RedenVerkrijging { get; set; }
+        public DateOnly? DatumVerkrijging { get; set; }
+    }
+
+    public class DetReisdocument
+    {
+        public required string Naam { get; set; }
+        public string? Omschrijving { get; set; }
+        public required bool Actief { get; set; }
+        public required string GbaCode { get; set; }
+        public required bool IndicatieOnttrekking { get; set; }
+        public string? AutoriteitOntrekking { get; set; }
+        public string? IndicatieVervallen { get; set; }
+        public string? AutoriteitVervallen { get; set; }
+        public DateOnly? EinddatumGeldigheid { get; set; }
+        public string? Reisdocumentnummer { get; set; }
+        public DateOnly? Uitgiftedatum { get; set; }
+        public string? AutoriteitUitgifte { get; set; }
+    }
+
+    public class DetRelatie
+    {
+        public required string Type { get; set; }
+        public string? SoortVerbintenis { get; set; }
+        public DateOnly? DatumSluitingVerbintenis { get; set; }
+        public string? PlaatsSluitingVerbintenis { get; set; }
+        public DetLand? LandSluitingVerbintenis { get; set; }
+        public DateOnly? DatumOntbindingVerbintenis { get; set; }
+        public string? RedenOntbindingVerbintenis { get; set; }
+        public string? PlaatsOntbindingVerbintenis { get; set; }
+        public DetLand? LandOntbindingVerbintenis { get; set; }
+        public long? IdentifierPersoon { get; set; }
+    }
+
+    public class DetRechtsvorm
+    {
+        public required string Naam { get; set; }
+        public string? Omschrijving { get; set; }
+        public required bool Actief { get; set; }
+        public required string Code { get; set; }
+        public string? NaamNhr { get; set; }
+    }
+
+    public class DetHoofdactiviteit
+    {
+        public required string Naam { get; set; }
+        public string? Omschrijving { get; set; }
+        public required bool Actief { get; set; }
+        public required string Code { get; set; }
+    }
+
+    public class DetNevenactiviteit
+    {
+        public required string Naam { get; set; }
+        public string? Omschrijving { get; set; }
+        public required bool Actief { get; set; }
+        public string? Code { get; set; }
+    }
+
+    public class DetContactpersoon
+    {
+        public string? Naam { get; set; }
+        public string? Geslacht { get; set; }
+        public string? Emailadres { get; set; }
+        public string? Telefoonnummer { get; set; }
+        public string? Faxnummer { get; set; }
+        public string? Functie { get; set; }
+    }
+
+    public class DetSubjectNotitie
+    {
+        public DateOnly? IngangsdatumGeldigheid { get; set; }
+        public string? Afdeling { get; set; }
+        public string? Groep { get; set; }
+        public DateOnly? EinddatumGeldigheid { get; set; }
+        public required DateOnly AangemaaktOp { get; set; }
+        public required string AangemaaktDoor { get; set; }
+        public required string Titel { get; set; }
+        public required string Inhoud { get; set; }
     }
 }

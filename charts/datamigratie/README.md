@@ -96,7 +96,7 @@ A Helm chart for the Datamigratie Component
 | settings.database.port | int | `5432` |  |
 | settings.database.username | string | `""` |  |
 | settings.featureFlags.enableTestHelpers | bool | `false` |  |
-| settings.migration.zaakConcurrencyLimit | int | `5` |  |
+| settings.migration.zaakConcurrencyLimit | int | `1` |  |
 | settings.oidc.authority | string | `""` |  |
 | settings.oidc.clientId | string | `""` |  |
 | settings.oidc.clientSecret | string | `""` |  |
