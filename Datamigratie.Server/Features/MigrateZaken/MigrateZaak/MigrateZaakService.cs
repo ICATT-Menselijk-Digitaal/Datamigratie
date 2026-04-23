@@ -189,6 +189,17 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
             CancellationToken token)
         {
             var savedDocument = await _openZaakApiClient.CreateDocument(ozDocument);
+            try
+            {
+                await _openZaakApiClient.KoppelDocument(zaak, savedDocument, token);
+            }
+            catch
+            {
+                // if the document was created but failed to link to the zaak, we should delete the document to avoid orphan documents in OpenZaak.
+                // We swallow any errors during deletion to not mask the original exception that caused the linking to fail, but we log it just in case.
+                await TryDeleteDocumentIgnoringErrorsAsync(savedDocument.Id);
+                throw;
+            }
 
             try
             {
@@ -204,6 +215,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 await TryDeleteDocumentIgnoringErrorsAsync(savedDocument.Id);
                 throw;
             }
+
 
             await _openZaakApiClient.UnlockDocument(savedDocument.Id, savedDocument.Lock, token);
         }
