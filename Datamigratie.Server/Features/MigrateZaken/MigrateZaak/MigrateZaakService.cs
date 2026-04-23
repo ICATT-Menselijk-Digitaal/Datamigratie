@@ -19,6 +19,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
         IOpenZaakApiClient openZaakApiClient,
         IDetApiClient detClient,
         IZaakgegevensPdfGenerator pdfGenerator,
+        IZaakDocumentMigrator zaakDocumentMigrator,
         ILogger<MigrateZaakService> logger) : IMigrateZaakService
     {
         private static readonly ActivitySource ActivitySource = new("Datamigratie.Server");
@@ -182,100 +183,6 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
             }
         }
 
-        private async Task CreateAndLinkDocumentAsync(
-            OzDocument ozDocument,
-            OzZaak zaak,
-            Func<OzDocument, CancellationToken, Task> uploadContentAction,
-            CancellationToken token)
-        {
-            var savedDocument = await _openZaakApiClient.CreateDocument(ozDocument);
-            try
-            {
-                await _openZaakApiClient.KoppelDocument(zaak, savedDocument, token);
-            }
-            catch
-            {
-                // if the document was created but failed to link to the zaak, we should delete the document to avoid orphan documents in OpenZaak.
-                // We swallow any errors during deletion to not mask the original exception that caused the linking to fail, but we log it just in case.
-                await TryDeleteDocumentIgnoringErrorsAsync(savedDocument.Id);
-                throw;
-            }
-
-            try
-            {
-                await _openZaakApiClient.KoppelDocument(zaak, savedDocument, token);
-                await uploadContentAction(savedDocument, token);
-            }
-            catch
-            {
-                // if the document was created but failed to link to the zaak, we should delete the document to avoid orphan documents in OpenZaak.
-                // We swallow any errors during deletion to not mask the original exception that caused the linking to fail, but we log it just in case.
-                // to delete the document we first need to unlock it
-                await TryUnlockDocumentIgnoringErrorsAsync(savedDocument.Id, savedDocument.Lock, token);
-                await TryDeleteDocumentIgnoringErrorsAsync(savedDocument.Id);
-                throw;
-            }
-
-
-            await _openZaakApiClient.UnlockDocument(savedDocument.Id, savedDocument.Lock, token);
-        }
-
-        private async Task UpdateDocumentVersionAsync(Guid documentId, OzDocument ozDocument, long documentInhoudId, CancellationToken token)
-        {
-            var lockToken = await _openZaakApiClient.LockDocument(documentId, token);
-
-            try
-            {
-                ozDocument.Lock = lockToken;
-
-                // update document to create new version
-                await _openZaakApiClient.UpdateDocument(documentId, ozDocument);
-
-                // after an update the document contains outdated bestandsdelen information.
-                // we need to GET a document again in order to get the latest bestandsdelen
-                var refreshedDocument = await _openZaakApiClient.GetDocument(documentId)
-                    ?? throw new InvalidDataException($"We cannot find the document with id {documentId} that was updated.");
-
-                refreshedDocument.Lock = lockToken;
-
-                await detClient.GetDocumentInhoudAsync(
-                    documentInhoudId,
-                    async (stream, ct) => await _openZaakApiClient.UploadBestand(refreshedDocument, stream, ct),
-                    token);
-            }
-            catch
-            {
-                await TryUnlockDocumentIgnoringErrorsAsync(documentId, lockToken, token);
-                throw;
-            }
-            await _openZaakApiClient.UnlockDocument(documentId, lockToken, token);
-        }
-
-        private async Task TryDeleteDocumentIgnoringErrorsAsync(Guid documentId)
-        {
-            try
-            {
-                await _openZaakApiClient.DeleteDocument(documentId);
-            }
-            catch (Exception ex)
-            {
-                // Swallow unlock failures so the original exception propagates that triggered this unlock attempt
-                logger.LogError(ex, "Failed to delete document {DocumentId} after an error. The document may remain in OpenZaak.", documentId);
-            }
-        }
-
-        private async Task TryUnlockDocumentIgnoringErrorsAsync(Guid documentId, string? lockToken, CancellationToken token)
-        {
-            try
-            {
-                await _openZaakApiClient.UnlockDocument(documentId, lockToken, token);
-            }
-            catch (Exception ex)
-            {
-                // Swallow unlock failures so the original exception propagates that triggered this unlock attempt
-                logger.LogError(ex, "Failed to unlock document {DocumentId} after an error. The document may remain locked in OpenZaak.", documentId);
-            }
-        }
 
         private async Task ExecutePdfPlanAsync(OzDocument ozDocument, DetZaak detZaak, OzZaak createdZaak, CancellationToken token)
         {
@@ -286,18 +193,15 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
             {
                 pdfGenerator.GenerateZaakgegevensPdf(detZaak, stream);
             }
+            stream.Seek(0, SeekOrigin.Begin);
 
             // Create document with the actual PDF size
             ozDocument.Bestandsomvang = stream.Length;
 
-            await CreateAndLinkDocumentAsync(
+            await zaakDocumentMigrator.CreateAndLinkDocumentAsync(
                 ozDocument,
                 createdZaak,
-                async (savedDoc, ct) =>
-                {
-                    stream.Seek(0, SeekOrigin.Begin);
-                    await _openZaakApiClient.UploadBestand(savedDoc, stream, ct);
-                },
+                stream,
                 token);
         }
 
@@ -395,23 +299,10 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                     {
                         if (isFirstVersion)
                         {
-                            // create new document and link to zaak
-                            OzDocument? capturedDocument = null;
-
-                            await CreateAndLinkDocumentAsync(
-                                versionPlan.Document,
-                                createdZaak,
-                                async (savedDoc, ct) =>
-                                {
-                                    capturedDocument = savedDoc;
-                                    await detClient.GetDocumentInhoudAsync(
-                                        versionPlan.DetInhoudId,
-                                        async (stream, streamCt) => await _openZaakApiClient.UploadBestand(savedDoc, stream, streamCt),
-                                        ct);
-                                },
-                                token);
-
-                            mainDocument = capturedDocument;
+                            await detClient.GetDocumentInhoudAsync(versionPlan.DetInhoudId, async (stream, ct) =>
+                            {
+                                mainDocument = await zaakDocumentMigrator.CreateAndLinkDocumentAsync(versionPlan.Document, createdZaak, stream, ct);
+                            }, token);
                         }
                         else
                         {
@@ -421,7 +312,10 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                                 throw new InvalidOperationException("First document version must be created before updating");
                             }
 
-                            await UpdateDocumentVersionAsync(mainDocument.Id, versionPlan.Document, versionPlan.DetInhoudId, token);
+                            await detClient.GetDocumentInhoudAsync(versionPlan.DetInhoudId, async (stream, ct) =>
+                            {
+                                await zaakDocumentMigrator.UpdateDocumentVersionAsync(mainDocument.Id, versionPlan.Document, stream, ct);
+                            }, token);
                         }
                     }
                     catch (Exception ex)

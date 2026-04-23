@@ -1,13 +1,10 @@
-﻿using Datamigratie.Common.Config;
-using Datamigratie.Common.Services.Det;
+﻿using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak;
-using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 using Moq;
 
 namespace Datamigratie.Tests.Server.Features.MigrateZaken.MigrateZaak;
@@ -31,6 +28,7 @@ public class MigrateRollenTests
             openZaakClientMock.Object,
             detClientMock.Object,
             pdfGeneratorMock.Object,
+            Mock.Of<IZaakDocumentMigrator>(),
             NullLogger<MigrateZaakService>.Instance);
     }
 
