@@ -60,7 +60,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf
                             Row(table, "vertrouwelijk", zaak.Vertrouwelijk.ToString());
                             Row(table, "vernietiging", zaak.Vernietiging.ToString());
                             Row(table, "procesGestart", zaak.ProcesGestart.ToString());
-                            Row(table, "geolocatie", zaak.Geolocatie != null ? $"{zaak.Geolocatie.Type} {string.Join(", ", zaak.Geolocatie.Point2D ?? [])}" : null);
+                            Row(table, "geolocatie (coördinaten in Rijksdriehoek-formaat)", zaak.Geolocatie != null ? $"{zaak.Geolocatie.Type} {string.Join(", ", zaak.Geolocatie.Point2D ?? [])}" : null);
                         });
 
                         // Zaaktype
