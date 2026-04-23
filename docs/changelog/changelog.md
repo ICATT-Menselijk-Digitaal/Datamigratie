@@ -23,6 +23,7 @@
 - [Make error message expandable in UI](https://dimpact.atlassian.net/browse/DATA-379)
 - [Un-migrate geolocatie](https://dimpact.atlassian.net/browse/DATA-511)
 - [Migrate previously ignored properties](https://dimpact.atlassian.net/browse/DATA-252)
+- [Un-migrate geolocatie](https://dimpact.atlassian.net/browse/DATA-511)
 
 ## v0.1.0
 
