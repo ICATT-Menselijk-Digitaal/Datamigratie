@@ -197,8 +197,9 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
             }
             catch
             {
-                // if the document was created but failed to link to the zaak, we should delete the document to avoid orphan documents in OpenZaak.
-                // We swallow any errors during deletion to not mask the original exception that caused the linking to fail, but we log it just in case.
+                // If the document was created but failed while linking it to the zaak and/or uploading its content,
+                // we should delete the document to avoid orphan documents or incomplete state in OpenZaak.
+                // We swallow any errors during deletion to not mask the original exception that caused the linking and/or upload to fail, but we log it just in case.
                 // to delete the document we first need to unlock it
                 await TryUnlockDocumentIgnoringErrorsAsync(savedDocument.Id, savedDocument.Lock, token);
                 await TryDeleteDocumentIgnoringErrorsAsync(savedDocument.Id);
@@ -247,7 +248,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
             }
             catch (Exception ex)
             {
-                // Swallow unlock failures so the original exception propagates that triggered this unlock attempt
+                // Swallow delete failures so the original exception propagates that triggered this delete attempt
                 logger.LogError(ex, "Failed to delete document {DocumentId} after an error. The document may remain in OpenZaak.", documentId);
             }
         }
