@@ -32,11 +32,15 @@ public static class Extensions
             // Turn on resilience by default
             http.AddStandardResilienceHandler(options =>
             {
-                // Configure timeouts based on retry attempts to ensure that retries have a chance to succeed within the total request timeout and circuit breaker sampling duration
+                // Configure timeouts based on total attempts (initial attempt + retries)
+                // to ensure retries have a chance to succeed within the total request timeout
+                // and circuit breaker sampling duration.
                 var retryAttempts = options.Retry.MaxRetryAttempts;
-                var requestTimeoutSeconds = builder.Configuration.GetValue<int?>("Migration:RequestTimeoutSeconds") ?? 30;
+                var configuredRequestTimeoutSeconds = builder.Configuration.GetValue<int?>("Migration:RequestTimeoutSeconds") ?? 30;
+                var requestTimeoutSeconds = Math.Max(1, configuredRequestTimeoutSeconds);
                 var requestTimeout = TimeSpan.FromSeconds(requestTimeoutSeconds);
-                var totalTimeout = requestTimeout * retryAttempts;
+                var totalAttempts = Math.Max(1, retryAttempts + 1);
+                var totalTimeout = TimeSpan.FromSeconds(requestTimeout.TotalSeconds * totalAttempts);
                 options.AttemptTimeout.Timeout = requestTimeout;
                 options.TotalRequestTimeout.Timeout = totalTimeout;
                 options.CircuitBreaker.SamplingDuration = totalTimeout;
