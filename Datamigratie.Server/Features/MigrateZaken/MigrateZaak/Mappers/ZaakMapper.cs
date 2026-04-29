@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-using System.Security.Cryptography;
-using Datamigratie.Common.Services.Det.Models;
+﻿using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using static Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Mappers.StringTruncationHelper;
 

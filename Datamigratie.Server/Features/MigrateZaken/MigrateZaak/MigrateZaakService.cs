@@ -71,10 +71,10 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 var existingZaken = await _openZaakApiClient.GetZakenByIdentificatie(detZaak.FunctioneleIdentificatie);
                 foreach (var existingZaak in existingZaken)
                 {
-                    // only delete if the kenmerken match (we add one for the zaak and one for the zaaktype)
-                    if (existingZaak.Kenmerken != null 
-                        && zaakRequest.Kenmerken != null 
-                        && existingZaak.Kenmerken.All(a => zaakRequest.Kenmerken.Any(b => a.Kenmerk == b.Kenmerk && a.Bron == b.Bron)))
+                    // only delete if the existing zaak contains all kenmerken from the new request
+                    if (existingZaak.Kenmerken != null
+                        && zaakRequest.Kenmerken != null
+                        && zaakRequest.Kenmerken.All(a => existingZaak.Kenmerken.Any(b => a.Kenmerk == b.Kenmerk && a.Bron == b.Bron)))
                     {
                         await DeleteExistingZaakAndRelatedObjectsAsync(existingZaak, token);
                     }
