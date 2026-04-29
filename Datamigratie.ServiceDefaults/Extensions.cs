@@ -1,5 +1,6 @@
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
@@ -29,7 +30,17 @@ public static class Extensions
         builder.Services.ConfigureHttpClientDefaults(http =>
         {
             // Turn on resilience by default
-            http.AddStandardResilienceHandler();
+            http.AddStandardResilienceHandler(options =>
+            {
+                // Configure timeouts based on retry attempts to ensure that retries have a chance to succeed within the total request timeout and circuit breaker sampling duration
+                var retryAttempts = options.Retry.MaxRetryAttempts;
+                var requestTimeoutSeconds = builder.Configuration.GetValue<int?>("Migration:RequestTimeoutSeconds") ?? 30;
+                var requestTimeout = TimeSpan.FromSeconds(requestTimeoutSeconds);
+                var totalTimeout = requestTimeout * retryAttempts;
+                options.AttemptTimeout.Timeout = requestTimeout;
+                options.TotalRequestTimeout.Timeout = totalTimeout;
+                options.CircuitBreaker.SamplingDuration = totalTimeout;
+            });
 
             // Turn on service discovery by default
             http.AddServiceDiscovery();
