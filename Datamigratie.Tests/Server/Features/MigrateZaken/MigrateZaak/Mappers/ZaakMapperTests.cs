@@ -12,13 +12,19 @@ public class ZaakMapperTests
 
     private static readonly Uri ZaaktypeUrl = new($"{OpenZaakBaseUrl}catalogi/api/v1/zaaktypen/{ZaaktypeId}");
 
+    private static readonly OzZaakKenmerk DatamigratieKenmerk = new()
+    {
+        Kenmerk = "test-kenmerk",
+        Bron = "Datamigratie"
+    };
+
     private static ZaakMapper CreateMapper(Dictionary<bool, ZaakVertrouwelijkheidaanduiding>? mappings = null)
     {
         return new ZaakMapper(Rsin, ZaaktypeUrl, mappings ?? new Dictionary<bool, ZaakVertrouwelijkheidaanduiding>
         {
             { false, ZaakVertrouwelijkheidaanduiding.openbaar },
             { true, ZaakVertrouwelijkheidaanduiding.vertrouwelijk }
-        });
+        }, DatamigratieKenmerk);
     }
 
     [Fact]
@@ -40,9 +46,11 @@ public class ZaakMapperTests
         Assert.Equal($"{OpenZaakBaseUrl}catalogi/api/v1/zaaktypen/{ZaaktypeId}", result.Zaaktype.ToString());
         Assert.Equal(ZaakVertrouwelijkheidaanduiding.openbaar, result.Vertrouwelijkheidaanduiding);
         Assert.NotNull(result.Kenmerken);
-        Assert.Single(result.Kenmerken);
-        Assert.Equal("EXT-001", result.Kenmerken[0].Kenmerk);
-        Assert.Equal("e-Suite", result.Kenmerken[0].Bron);
+        Assert.Equal(2, result.Kenmerken.Count);
+        Assert.Equal("test-kenmerk", result.Kenmerken[0].Kenmerk);
+        Assert.Equal("Datamigratie", result.Kenmerken[0].Bron);
+        Assert.Equal("EXT-001", result.Kenmerken[1].Kenmerk);
+        Assert.Equal("e-Suite", result.Kenmerken[1].Bron);
     }
 
     [Fact]
@@ -81,7 +89,10 @@ public class ZaakMapperTests
 
         var result = mapper.Map(detZaak);
 
-        Assert.Null(result.Kenmerken);
+        Assert.NotNull(result.Kenmerken);
+        Assert.Single(result.Kenmerken);
+        Assert.Equal("test-kenmerk", result.Kenmerken[0].Kenmerk);
+        Assert.Equal("Datamigratie", result.Kenmerken[0].Bron);
     }
 
     [Fact]

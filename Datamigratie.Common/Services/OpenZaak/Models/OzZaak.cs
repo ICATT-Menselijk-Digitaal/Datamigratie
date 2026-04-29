@@ -103,6 +103,9 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
 
         [JsonPropertyName("startdatum")]
         public DateOnly Startdatum { get; set; }
+
+        [JsonPropertyName("kenmerken")]
+        public List<OzZaakKenmerk>? Kenmerken { get; set; }
     }
 
     public class OzValidationError

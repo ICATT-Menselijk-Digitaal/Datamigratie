@@ -67,12 +67,17 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
             {
                 var zaakRequest = mapping.ZaakMapper.Map(detZaak);
 
-
                 // Check if zaken with the same identificatie already exist in OpenZaak and delete all matches to allow re-run
                 var existingZaken = await _openZaakApiClient.GetZakenByIdentificatie(detZaak.FunctioneleIdentificatie);
                 foreach (var existingZaak in existingZaken)
                 {
-                    await DeleteExistingZaakAndRelatedObjectsAsync(existingZaak, token);
+                    // only delete if the kenmerken match (we add one for the zaak and one for the zaaktype)
+                    if (existingZaak.Kenmerken != null 
+                        && zaakRequest.Kenmerken != null 
+                        && existingZaak.Kenmerken.All(a => zaakRequest.Kenmerken.Any(b => a.Kenmerk == b.Kenmerk && a.Bron == b.Bron)))
+                    {
+                        await DeleteExistingZaakAndRelatedObjectsAsync(existingZaak, token);
+                    }
                 }
 
                 OzZaak createdZaak;
