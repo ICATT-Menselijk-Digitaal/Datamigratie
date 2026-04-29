@@ -81,7 +81,7 @@ public class ZaakMapperTests
     }
 
     [Fact]
-    public void Map_NoExterneIdentificatie_KenmerkenNull()
+    public void Map_NoExterneIdentificatie_SingleKenmerk()
     {
         var mapper = CreateMapper();
 
