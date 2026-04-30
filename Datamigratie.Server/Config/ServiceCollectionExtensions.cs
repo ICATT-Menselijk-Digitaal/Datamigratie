@@ -81,6 +81,8 @@ namespace Datamigratie.Server.Config
             });
             services.AddSingleton<MigrationWorkerState>();
 
+            services.AddScoped<IZaakDocumentMigrator, ZaakDocumentMigrator>();
+
             return services;
 
         }
