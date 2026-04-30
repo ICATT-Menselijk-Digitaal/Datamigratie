@@ -2,6 +2,7 @@
 
 ## Current Version
 
+- [Safely delete zaken](https://dimpact.atlassian.net/browse/DATA-698)
 - [Migrate additional document property](https://dimpact.atlassian.net/browse/DATA-272)
 - [Implement UI changes](https://dimpact.atlassian.net/browse/DATA-256)
 - [Fix 1 hour maximum for migrations (JWT token related)](https://dimpact.atlassian.net/browse/DATA-194)

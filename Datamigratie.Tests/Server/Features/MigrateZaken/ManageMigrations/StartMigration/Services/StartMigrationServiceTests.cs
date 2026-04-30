@@ -38,7 +38,7 @@ public class StartMigrationServiceTests
             ZakenSelector = selector,
             ResultaatMapper = new ResultaatMapper(new Dictionary<string, Uri>()),
             StatusMapper = new StatusMapper(new Dictionary<string, Uri>()),
-            ZaakMapper = new ZaakMapper("000000000", new Uri("https://openzaak.test/catalogi/api/v1/zaaktypen/00000000-0000-0000-0000-000000000000"), new Dictionary<bool, ZaakVertrouwelijkheidaanduiding>()),
+            ZaakMapper = new ZaakMapper("000000000", new Uri("https://openzaak.test/catalogi/api/v1/zaaktypen/00000000-0000-0000-0000-000000000000"), new Dictionary<bool, ZaakVertrouwelijkheidaanduiding>(), new OzZaakKenmerk { Kenmerk = "test", Bron = "Datamigratie" }),
             DocumentMapper = new DocumentMapper(
                 "000000000",
                 new Dictionary<string, DocumentStatus>(),

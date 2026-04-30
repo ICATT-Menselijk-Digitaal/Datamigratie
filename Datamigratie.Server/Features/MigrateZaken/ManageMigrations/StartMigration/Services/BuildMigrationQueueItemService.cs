@@ -1,8 +1,9 @@
-﻿using Datamigratie.Common.Config;
+﻿using System.Diagnostics;
+using System.Security.Cryptography;
+using Datamigratie.Common.Config;
 using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak.Models;
-using Microsoft.Extensions.Options;
 using Datamigratie.Data;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Queues.Items;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Besluittype;
@@ -17,6 +18,7 @@ using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Mappers;
 using Datamigratie.Server.Helpers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Services;
 
@@ -51,7 +53,7 @@ public class BuildMigrationQueueItemService(
         var ozZaaktypeUrl = new Uri($"{_openZaakBaseUrl}catalogi/api/v1/zaaktypen/{ozZaaktypeId}");
         var statusMapper = new StatusMapper(await GetStatusMappingsAsync(detZaaktype));
         var resultaatMapper = new ResultaatMapper(await GetResultaattypeMappingsAsync(detZaaktype));
-        var zaakMapper = new ZaakMapper(rsin, ozZaaktypeUrl, await GetVertrouwelijkheidMappingsAsync(detZaaktype));
+        var zaakMapper = new ZaakMapper(rsin, ozZaaktypeUrl, await GetVertrouwelijkheidMappingsAsync(detZaaktype), CreateDatamigratieKenmerk(detZaaktype.FunctioneleIdentificatie));
         var documentMapper = new DocumentMapper(
             rsin,
             await GetDocumentstatusMappingsAsync(),
@@ -158,5 +160,28 @@ public class BuildMigrationQueueItemService(
         var (isValid, mappings) = await validateRoltypeMappingsService.ValidateAndGetRoltypeMappings(detZaaktypeId);
         return isValid ? mappings
             : throw new InvalidOperationException("Not all DET rollen have been mapped to OZ roltypen. Please configure roltype mappings first.");
+    }
+
+    /// <summary>
+    /// Creates a new OzZaakKenmerk instance for data migration, using a SHA-1 hash of the specified functional
+    /// identifier.
+    /// </summary>
+    /// <remarks>The generated kenmerk is a hexadecimal string representation of the SHA-1 hash of the input
+    /// identifier. SHA-1 was chosen because it results in a 40 character hash, which is exactly the maximum length allowed for a kenmerk. The chance of a collision is extremely low.</remarks>
+    /// <param name="detZaaktypeFunctioneleIdentificatie">The functional identifier of the DET zaaktype to be hashed and used as the kenmerk value. Cannot be null.</param>
+    /// <returns>An OzZaakKenmerk object with the kenmerk set to the SHA-1 hash of the specified identifier and the bron set to
+    /// "Datamigratie".</returns>
+    public static OzZaakKenmerk CreateDatamigratieKenmerk(string detZaaktypeFunctioneleIdentificatie)
+    {
+        const int KenmerkMaxLength = 40;
+        var inputBytes = System.Text.Encoding.UTF8.GetBytes(detZaaktypeFunctioneleIdentificatie);
+        var hashBytes = SHA1.HashData(inputBytes);
+        var kenmerk = Convert.ToHexString(hashBytes);
+        Debug.Assert(kenmerk.Length <= KenmerkMaxLength);
+        return new OzZaakKenmerk
+        {
+            Kenmerk = kenmerk,
+            Bron = "Datamigratie"
+        };
     }
 }
