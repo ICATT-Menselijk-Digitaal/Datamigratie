@@ -1,7 +1,6 @@
 ﻿using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak;
-using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace Datamigratie.Tests.Server.Features.MigrateZaken.MigrateZaak;
@@ -71,7 +70,7 @@ public class ZaakDocumentMigratorTests
     }
 
     private static ZaakDocumentMigrator CreateMigrator(Mock<IOpenZaakApiClient> clientMock) =>
-        new(clientMock.Object, NullLogger<ZaakDocumentMigrator>.Instance);
+        new(clientMock.Object);
 
     #region CreateAndLinkDocumentAsync — happy path
 
@@ -125,6 +124,26 @@ public class ZaakDocumentMigratorTests
 
     #endregion
 
+    #region CreateAndLinkDocumentAsync — CreateDocument fails
+
+    [Fact]
+    public async Task CreateAndLink_WhenCreateDocumentFails_DoesNotCompensate()
+    {
+        var clientMock = CreateClientMock();
+        clientMock.Setup(c => c.CreateDocument(It.IsAny<OzDocument>()))
+            .ThrowsAsync(new HttpRequestException("Create failed"));
+
+        var migrator = CreateMigrator(clientMock);
+
+        await Assert.ThrowsAsync<HttpRequestException>(() =>
+            migrator.CreateAndLinkDocumentAsync(CreateOzDocument(), CreateOzZaak(), Stream.Null, CancellationToken.None));
+
+        clientMock.Verify(c => c.UnlockDocument(It.IsAny<Guid>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Never);
+        clientMock.Verify(c => c.DeleteDocument(It.IsAny<Guid>()), Times.Never);
+    }
+
+    #endregion
+
     #region CreateAndLinkDocumentAsync — KoppelDocument fails
 
     [Fact]
@@ -136,25 +155,11 @@ public class ZaakDocumentMigratorTests
 
         var migrator = CreateMigrator(clientMock);
 
-        await Assert.ThrowsAsync<HttpRequestException>(() =>
-            migrator.CreateAndLinkDocumentAsync(CreateOzDocument(), CreateOzZaak(), Stream.Null, CancellationToken.None));
-
-        clientMock.Verify(c => c.DeleteDocument(DocumentId), Times.Once);
-    }
-
-    [Fact]
-    public async Task CreateAndLink_WhenKoppelFails_RethrowsOriginalException()
-    {
-        var clientMock = CreateClientMock();
-        clientMock.Setup(c => c.KoppelDocument(It.IsAny<OzZaak>(), It.IsAny<OzDocument>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new HttpRequestException("Linking failed"));
-
-        var migrator = CreateMigrator(clientMock);
-
         var ex = await Assert.ThrowsAsync<HttpRequestException>(() =>
             migrator.CreateAndLinkDocumentAsync(CreateOzDocument(), CreateOzZaak(), Stream.Null, CancellationToken.None));
 
         Assert.Equal("Linking failed", ex.Message);
+        clientMock.Verify(c => c.DeleteDocument(DocumentId), Times.Once);
     }
 
     [Fact]
@@ -166,9 +171,10 @@ public class ZaakDocumentMigratorTests
 
         var migrator = CreateMigrator(clientMock);
 
-        await Assert.ThrowsAsync<HttpRequestException>(() =>
+        var ex = await Assert.ThrowsAsync<HttpRequestException>(() =>
             migrator.CreateAndLinkDocumentAsync(CreateOzDocument(), CreateOzZaak(), Stream.Null, CancellationToken.None));
 
+        Assert.Equal("Linking failed", ex.Message);
         clientMock.Verify(c => c.UploadBestand(It.IsAny<OzDocument>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -188,9 +194,10 @@ public class ZaakDocumentMigratorTests
 
         var migrator = CreateMigrator(clientMock);
 
-        await Assert.ThrowsAsync<HttpRequestException>(() =>
+        var ex = await Assert.ThrowsAsync<HttpRequestException>(() =>
             migrator.CreateAndLinkDocumentAsync(CreateOzDocument(), CreateOzZaak(), Stream.Null, CancellationToken.None));
 
+        Assert.Equal("Linking failed", ex.Message);
         Assert.Equal(["UnlockDocument", "DeleteDocument"], callOrder);
     }
 
@@ -205,10 +212,14 @@ public class ZaakDocumentMigratorTests
 
         var migrator = CreateMigrator(clientMock);
 
-        var ex = await Assert.ThrowsAsync<HttpRequestException>(() =>
+        var agg = await Assert.ThrowsAsync<AggregateException>(() =>
             migrator.CreateAndLinkDocumentAsync(CreateOzDocument(), CreateOzZaak(), Stream.Null, CancellationToken.None));
 
-        Assert.Equal("Linking failed", ex.Message);
+        Assert.Equal(2, agg.InnerExceptions.Count);
+        var first = Assert.IsType<HttpRequestException>(agg.InnerExceptions[0]);
+        Assert.Equal("Linking failed", first.Message);
+        var orphaned = Assert.IsType<OrphanedDocumentException>(agg.InnerExceptions[1]);
+        Assert.Equal(DocumentId, orphaned.DocumentId);
     }
 
     #endregion
@@ -224,25 +235,11 @@ public class ZaakDocumentMigratorTests
 
         var migrator = CreateMigrator(clientMock);
 
-        await Assert.ThrowsAsync<HttpRequestException>(() =>
-            migrator.CreateAndLinkDocumentAsync(CreateOzDocument(), CreateOzZaak(), Stream.Null, CancellationToken.None));
-
-        clientMock.Verify(c => c.UnlockDocument(DocumentId, "lock-token-123", It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task CreateAndLink_WhenUploadFails_RethrowsOriginalException()
-    {
-        var clientMock = CreateClientMock();
-        clientMock.Setup(c => c.UploadBestand(It.IsAny<OzDocument>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new HttpRequestException("Upload failed"));
-
-        var migrator = CreateMigrator(clientMock);
-
         var ex = await Assert.ThrowsAsync<HttpRequestException>(() =>
             migrator.CreateAndLinkDocumentAsync(CreateOzDocument(), CreateOzZaak(), Stream.Null, CancellationToken.None));
 
         Assert.Equal("Upload failed", ex.Message);
+        clientMock.Verify(c => c.UnlockDocument(DocumentId, "lock-token-123", It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -256,10 +253,33 @@ public class ZaakDocumentMigratorTests
 
         var migrator = CreateMigrator(clientMock);
 
-        var ex = await Assert.ThrowsAsync<HttpRequestException>(() =>
+        var agg = await Assert.ThrowsAsync<AggregateException>(() =>
             migrator.CreateAndLinkDocumentAsync(CreateOzDocument(), CreateOzZaak(), Stream.Null, CancellationToken.None));
 
-        Assert.Equal("Upload failed", ex.Message);
+        Assert.Contains(agg.InnerExceptions, ex => ex is HttpRequestException { Message: "Upload failed" });
+        var orphaned = Assert.Single(agg.InnerExceptions.OfType<OrphanedDocumentException>());
+        Assert.Equal(DocumentId, orphaned.DocumentId);
+    }
+
+    #endregion
+
+    #region CreateAndLinkDocumentAsync — UnlockDocument (final step) fails
+
+    [Fact]
+    public async Task CreateAndLink_WhenFinalUnlockFails_CompensatesAndRethrows()
+    {
+        var clientMock = CreateClientMock();
+        clientMock.Setup(c => c.UnlockDocument(It.IsAny<Guid>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new HttpRequestException("Unlock failed"));
+
+        var migrator = CreateMigrator(clientMock);
+
+        var agg = await Assert.ThrowsAsync<AggregateException>(() =>
+            migrator.CreateAndLinkDocumentAsync(CreateOzDocument(), CreateOzZaak(), Stream.Null, CancellationToken.None));
+
+        Assert.Contains(agg.InnerExceptions, ex => ex is HttpRequestException { Message: "Unlock failed" });
+        var orphaned = Assert.Single(agg.InnerExceptions.OfType<OrphanedDocumentException>());
+        Assert.Equal(DocumentId, orphaned.DocumentId);
     }
 
     #endregion
@@ -337,6 +357,38 @@ public class ZaakDocumentMigratorTests
     #region UpdateDocumentVersionAsync — failures
 
     [Fact]
+    public async Task UpdateVersion_WhenLockFails_DoesNotCompensate()
+    {
+        var clientMock = CreateClientMock();
+        clientMock.Setup(c => c.LockDocument(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new HttpRequestException("Lock failed"));
+
+        var migrator = CreateMigrator(clientMock);
+
+        await Assert.ThrowsAsync<HttpRequestException>(() =>
+            migrator.UpdateDocumentVersionAsync(DocumentId, CreateOzDocument(), Stream.Null, CancellationToken.None));
+
+        clientMock.Verify(c => c.UnlockDocument(It.IsAny<Guid>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Never);
+        clientMock.Verify(c => c.UpdateDocument(It.IsAny<Guid>(), It.IsAny<OzDocument>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task UpdateVersion_WhenUpdateDocumentFails_UnlocksDocument()
+    {
+        var clientMock = CreateClientMock();
+        clientMock.Setup(c => c.UpdateDocument(It.IsAny<Guid>(), It.IsAny<OzDocument>()))
+            .ThrowsAsync(new HttpRequestException("Update failed"));
+
+        var migrator = CreateMigrator(clientMock);
+
+        var ex = await Assert.ThrowsAsync<HttpRequestException>(() =>
+            migrator.UpdateDocumentVersionAsync(DocumentId, CreateOzDocument(), Stream.Null, CancellationToken.None));
+
+        Assert.Equal("Update failed", ex.Message);
+        clientMock.Verify(c => c.UnlockDocument(DocumentId, It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task UpdateVersion_WhenGetDocumentReturnsNull_ThrowsInvalidDataException()
     {
         var clientMock = CreateClientMock();
@@ -358,9 +410,10 @@ public class ZaakDocumentMigratorTests
 
         var migrator = CreateMigrator(clientMock);
 
-        await Assert.ThrowsAsync<HttpRequestException>(() =>
+        var ex = await Assert.ThrowsAsync<HttpRequestException>(() =>
             migrator.UpdateDocumentVersionAsync(DocumentId, CreateOzDocument(), Stream.Null, CancellationToken.None));
 
+        Assert.Equal("Upload failed", ex.Message);
         clientMock.Verify(c => c.UnlockDocument(DocumentId, It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -375,10 +428,14 @@ public class ZaakDocumentMigratorTests
 
         var migrator = CreateMigrator(clientMock);
 
-        var ex = await Assert.ThrowsAsync<HttpRequestException>(() =>
+        var agg = await Assert.ThrowsAsync<AggregateException>(() =>
             migrator.UpdateDocumentVersionAsync(DocumentId, CreateOzDocument(), Stream.Null, CancellationToken.None));
 
-        Assert.Equal("Upload failed", ex.Message);
+        Assert.Equal(2, agg.InnerExceptions.Count);
+        var first = Assert.IsType<HttpRequestException>(agg.InnerExceptions[0]);
+        Assert.Equal("Upload failed", first.Message);
+        var second = Assert.IsType<HttpRequestException>(agg.InnerExceptions[1]);
+        Assert.Equal("Unlock failed", second.Message);
     }
 
     #endregion

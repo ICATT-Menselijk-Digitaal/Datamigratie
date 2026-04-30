@@ -264,14 +264,8 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 }
                 catch (Exception ex)
                 {
-                    var httpStatusInfo = ex.InnerException is HttpRequestException httpEx && httpEx.StatusCode.HasValue
-                        ? $" | HTTP {(int)httpEx.StatusCode}: {httpEx.Message}"
-                        : ex is HttpRequestException httpExOuter && httpExOuter.StatusCode.HasValue
-                        ? $" | HTTP {(int)httpExOuter.StatusCode}: {httpExOuter.Message}"
-                        : $" | {ex.GetType().Name}: {ex.Message}";
-
                     throw new Exception(
-                        $"Migratie onderbroken: besluit '{ozBesluitRequest.Identificatie}' kon niet worden gemigreerd{httpStatusInfo}",
+                        $"Migratie onderbroken: besluit '{ozBesluitRequest.Identificatie}' kon niet worden gemigreerd{FormatHttpStatusInfo(ex)}",
                         ex);
                 }
             }
@@ -320,19 +314,15 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                     }
                     catch (Exception ex)
                     {
-                        var httpStatusInfo = ex.InnerException is HttpRequestException httpEx && httpEx.StatusCode.HasValue
-                            ? $" | HTTP {(int)httpEx.StatusCode}: {httpEx.Message}"
-                            : ex is HttpRequestException httpExOuter && httpExOuter.StatusCode.HasValue
-                            ? $" | HTTP {(int)httpExOuter.StatusCode}: {httpExOuter.Message}"
-                            : $" | {ex.GetType().Name}: {ex.Message}";
-
                         throw new Exception(
-                            $"Migratie onderbroken: versie {i + 1} van document '{versionPlan.Document.Titel}' (bestand: {versionPlan.Document.Bestandsnaam}) kon niet worden gemigreerd{httpStatusInfo}",
+                            $"Migratie onderbroken: versie {i + 1} van document '{versionPlan.Document.Titel}' (bestand: {versionPlan.Document.Bestandsnaam}) kon niet worden gemigreerd{FormatHttpStatusInfo(ex)}",
                             ex);
                     }
                 }
             }
         }
+
+        private static string FormatHttpStatusInfo(Exception ex) => ExceptionFormatter.FormatHttpStatusInfo(ex);
 
         private async Task<DetZaak> FetchZaakFromDetAsync(string zaaknummer)
         {
