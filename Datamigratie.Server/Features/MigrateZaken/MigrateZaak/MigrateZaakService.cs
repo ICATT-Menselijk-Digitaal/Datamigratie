@@ -86,8 +86,8 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                     createdZaak = await _openZaakApiClient.CreateZaak(zaakRequest);
                 }
 
-                var resultaatRequest = detZaak.Resultaat == null 
-                    ? null 
+                var resultaatRequest = detZaak.Resultaat == null
+                    ? null
                     : mapping.ResultaatMapper.Map(detZaak.Resultaat, createdZaak.Url);
 
                 var statusRequest = detZaak.ZaakStatus == null
@@ -101,7 +101,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                     .ToList() ?? [];
 
                 var besluitRequests = detZaak.Besluiten?
-                    .Select(x=> mapping.BesluitMapper.Map(x, createdZaak.Url))
+                    .Select(x => mapping.BesluitMapper.Map(x, createdZaak.Url))
                     .ToList() ?? [];
 
                 var rolRequests = mapping.RolMapper.MapRoles(detZaak, createdZaak.Url).ToList();
@@ -197,16 +197,21 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
 
             try
             {
+                await _openZaakApiClient.KoppelDocument(zaak, savedDocument, token);
                 await uploadContentAction(savedDocument, token);
             }
             catch
             {
+                // If the document was created but failed while linking it to the zaak and/or uploading its content,
+                // we should delete the document to avoid orphan documents or incomplete state in OpenZaak.
+                // We swallow any errors during deletion to not mask the original exception that caused the linking and/or upload to fail, but we log it just in case.
+                // to delete the document we first need to unlock it
                 await TryUnlockDocumentIgnoringErrorsAsync(savedDocument.Id, savedDocument.Lock, token);
+                await TryDeleteDocumentIgnoringErrorsAsync(savedDocument.Id);
                 throw;
             }
-            await _openZaakApiClient.UnlockDocument(savedDocument.Id, savedDocument.Lock, token);
 
-            await _openZaakApiClient.KoppelDocument(zaak, savedDocument, token);
+            await _openZaakApiClient.UnlockDocument(savedDocument.Id, savedDocument.Lock, token);
         }
 
         private async Task UpdateDocumentVersionAsync(Guid documentId, OzDocument ozDocument, long documentInhoudId, CancellationToken token)
@@ -238,6 +243,19 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 throw;
             }
             await _openZaakApiClient.UnlockDocument(documentId, lockToken, token);
+        }
+
+        private async Task TryDeleteDocumentIgnoringErrorsAsync(Guid documentId)
+        {
+            try
+            {
+                await _openZaakApiClient.DeleteDocument(documentId);
+            }
+            catch (Exception ex)
+            {
+                // Swallow delete failures so the original exception propagates that triggered this delete attempt
+                logger.LogError(ex, "Failed to delete document {DocumentId} after an error. The document may remain in OpenZaak.", documentId);
+            }
         }
 
         private async Task TryUnlockDocumentIgnoringErrorsAsync(Guid documentId, string? lockToken, CancellationToken token)
