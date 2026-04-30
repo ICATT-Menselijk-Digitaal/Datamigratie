@@ -49,5 +49,8 @@ De applicatie gebruikt feature flags om bepaalde functionaliteit in of uit te sc
 | Optie                  | Environment Variable              | Standaard | Beschrijving                                                                                                                                           |
 | ---------------------- | --------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `ZaakConcurrencyLimit` | `Migration__ZaakConcurrencyLimit` | `1`       | Aantal zaken dat gelijktijdig gemigreerd wordt. Een hogere waarde kan de migratiesnelheid verhogen, maar vergroot ook de belasting op de OpenZaak API. |
+| `RequestTimeoutSeconds` | `Migration__RequestTimeoutSeconds` | `30`      | Timeout in seconden per HTTP-request naar externe API's. |
 
-Een hogere waarde is niet altijd beter. Als de OpenZaak API overbelast raakt, gaat de ingebouwde circuit breaker open en krijg je `BrokenCircuitException`-fouten in de logs. Dit is een teken dat de waarde te hoog is. Verlaag in dat geval de waarde en herstart de migratie.
+Een hogere `ZaakConcurrencyLimit` is niet altijd beter. Als de OpenZaak API overbelast raakt, gaat de ingebouwde circuit breaker open en krijg je `BrokenCircuitException`-fouten in de logs. Dit is een teken dat de waarde te hoog is. Verlaag in dat geval de waarde en herstart de migratie.
+
+Als requests regelmatig een timeout krijgen terwijl de API wel bereikbaar is, kan het helpen om `RequestTimeoutSeconds` te verhogen. De standaardwaarde van 30 seconden is geschikt voor de meeste omgevingen.
