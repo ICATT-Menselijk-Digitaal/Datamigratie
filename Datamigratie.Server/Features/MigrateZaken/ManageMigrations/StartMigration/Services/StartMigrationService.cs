@@ -100,7 +100,7 @@ public class StartMigrationService(
             async (zaak, parallelCt) =>
             {
                 var result = await migrateZaakService.MigrateZaak(zaak.FunctioneleIdentificatie, mapping, parallelCt);
-                LogMigrationResult(zaak.FunctioneleIdentificatie, result);
+                LogMigrationResult(zaak.FunctioneleIdentificatie, result, migration.ProcessedRecords, migration.TotalRecords);
                 var record = CreateMigrationRecord(migration.Id, zaak.FunctioneleIdentificatie, result);
                 await channel.Writer.WriteAsync(record, parallelCt);
             });
@@ -120,13 +120,14 @@ public class StartMigrationService(
         await context.SaveChangesAsync(ct);
     }
 
-    private void LogMigrationResult(string zaaknummer, MigrateZaakResult result)
+    private void LogMigrationResult(string zaaknummer, MigrateZaakResult result, int processedSoFar, int? totalRecords)
     {
         if (result.IsSuccess)
             logger.LogInformation("Successfully migrated zaak {DetZaaknummer} to {OzZaaknummer}", zaaknummer, result.Zaaknummer);
         else
-            logger.LogWarning("Failed to migrate zaak {DetZaaknummer} to OpenZaak. {ErrorTitle}, (Status: {StatusCode})",
-                zaaknummer, result.Message, result.Statuscode);
+            logger.LogWarning(
+                "Failed to migrate zaak {DetZaaknummer} to OpenZaak. {ErrorTitle} (Status: {StatusCode}). Progress at time of failure: {ProcessedSoFar}/{TotalRecords}",
+                zaaknummer, result.Message, result.Statuscode, processedSoFar, totalRecords ?? 0);
     }
 
     private static MigrationRecord CreateMigrationRecord(int migrationId, string detZaaknummer, MigrateZaakResult result)

@@ -7,6 +7,7 @@ using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Mappers;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf;
+using Polly.CircuitBreaker;
 
 namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
 {
@@ -166,6 +167,30 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                     "De zaak kon niet worden aangemaakt in het doelsysteem.",
                     httpEx.Message,
                     (int?)httpEx.StatusCode ?? StatusCodes.Status500InternalServerError);
+            }
+            catch (BrokenCircuitException ex)
+            {
+                sw.Stop();
+                ZaakDurationHistogram.Record(sw.Elapsed.TotalMilliseconds, new TagList { { "result", "failed" } });
+                activity?.SetTag("zaak.result", "failed");
+                activity?.SetTag("zaak.duration_ms", sw.Elapsed.TotalMilliseconds);
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+
+                logger.LogError(ex, "Circuit breaker triggered while migrating zaak {Zaaknummer}: too many failing OpenZaak requests", zaaknummer);
+
+                var details = new System.Text.StringBuilder($"BrokenCircuitException: {ex.Message}");
+                var inner = ex.InnerException;
+                while (inner != null)
+                {
+                    details.Append($"\nCaused by {inner.GetType().Name}: {inner.Message}");
+                    inner = inner.InnerException;
+                }
+
+                return MigrateZaakResult.Failed(
+                    zaaknummer,
+                    "De migratie is onderbroken: het circuit is geopend door te veel mislukte verzoeken aan OpenZaak.",
+                    details.ToString(),
+                    StatusCodes.Status503ServiceUnavailable);
             }
             catch (Exception ex)
             {
