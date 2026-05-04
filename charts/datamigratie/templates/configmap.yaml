@@ -32,3 +32,4 @@ data:
 
   # Migration
   Migration__ZaakConcurrencyLimit: {{ .Values.settings.migration.zaakConcurrencyLimit | toString | quote }}
+  Migration__RequestTimeoutSeconds: {{ .Values.settings.migration.requestTimeoutSeconds | toString | quote }}

@@ -96,7 +96,7 @@ public class MigrateRollenTests
             {
                 { false, ZaakVertrouwelijkheidaanduiding.openbaar },
                 { true, ZaakVertrouwelijkheidaanduiding.vertrouwelijk }
-            }),
+            }, new OzZaakKenmerk { Kenmerk = "test", Bron = "Datamigratie" }),
             BesluitMapper = new(rsin, []),
             PdfMapper = new(rsin, new Uri("https://example.com")),
             ResultaatMapper = new([]),
@@ -600,8 +600,8 @@ public class MigrateRollenTests
         var clientMock = CreateOpenZaakClientMock();
         clientMock.Setup(c => c.GetZakenByIdentificatie(It.IsAny<string>()))
             .ReturnsAsync([
-                new OzZaak { Url = zaakUrl1, Zaaktype = new Uri(ZaaktypeUrl) },
-                new OzZaak { Url = zaakUrl2, Zaaktype = new Uri(ZaaktypeUrl) }
+                new OzZaak { Url = zaakUrl1, Zaaktype = new Uri(ZaaktypeUrl), Kenmerken = [new OzZaakKenmerk { Kenmerk = "test", Bron = "Datamigratie" }] },
+                new OzZaak { Url = zaakUrl2, Zaaktype = new Uri(ZaaktypeUrl), Kenmerken = [new OzZaakKenmerk { Kenmerk = "test", Bron = "Datamigratie" }] }
             ]);
         clientMock.Setup(c => c.GetZaakInformatieobjectenForZaak(It.IsAny<Uri>()))
             .ReturnsAsync([]);

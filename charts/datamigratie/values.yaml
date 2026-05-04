@@ -147,6 +147,7 @@ settings:
 
   migration:
     zaakConcurrencyLimit: 1
+    requestTimeoutSeconds: 30
 
 postgresql:
   enabled: false

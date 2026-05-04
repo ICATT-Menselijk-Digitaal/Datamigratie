@@ -4,7 +4,7 @@ using static Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Mappers.Strin
 
 namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Mappers;
 
-public class ZaakMapper(string rsin, Uri ozZaaktypeUrl, Dictionary<bool, ZaakVertrouwelijkheidaanduiding> vertrouwelijkheidMappings)
+public class ZaakMapper(string rsin, Uri ozZaaktypeUrl, Dictionary<bool, ZaakVertrouwelijkheidaanduiding> vertrouwelijkheidMappings, OzZaakKenmerk datamigratieKenmerk)
 {
     public CreateOzZaakRequest Map(DetZaak detZaak)
     {
@@ -39,17 +39,15 @@ public class ZaakMapper(string rsin, Uri ozZaaktypeUrl, Dictionary<bool, ZaakVer
 
         var laatsteBetaaldatum = detZaak.Betaalgegevens?.TransactieDatum?.ToString("yyyy-MM-dd");
 
-        List<OzZaakKenmerk>? kenmerken = null;
+        List<OzZaakKenmerk> kenmerken = [datamigratieKenmerk];
+
         if (!string.IsNullOrWhiteSpace(detZaak.ExterneIdentificatie))
         {
-            kenmerken =
-            [
-                new OzZaakKenmerk
-                {
-                    Kenmerk = detZaak.ExterneIdentificatie,
-                    Bron = "e-Suite"
-                }
-            ];
+            kenmerken.Add(new OzZaakKenmerk
+            {
+                Kenmerk = detZaak.ExterneIdentificatie,
+                Bron = "e-Suite"
+            });
         }
 
         var vertrouwelijkheidaanduiding = vertrouwelijkheidMappings.TryGetValue(detZaak.Vertrouwelijk, out var v) ? v

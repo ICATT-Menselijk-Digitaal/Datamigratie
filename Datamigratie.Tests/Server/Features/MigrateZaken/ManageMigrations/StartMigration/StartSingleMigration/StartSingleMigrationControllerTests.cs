@@ -45,7 +45,7 @@ public class StartSingleMigrationControllerTests
         ZakenSelector = new SingleZaakSelector(Zaaknummer, open: false),
         ResultaatMapper = new ResultaatMapper([]),
         StatusMapper = new StatusMapper([]),
-        ZaakMapper = new ZaakMapper("000000000", new Uri("https://openzaak.test/catalogi/api/v1/zaaktypen/00000000-0000-0000-0000-000000000000"), []),
+        ZaakMapper = new ZaakMapper("000000000", new Uri("https://openzaak.test/catalogi/api/v1/zaaktypen/00000000-0000-0000-0000-000000000000"), [], new OzZaakKenmerk { Kenmerk = "test", Bron = "Datamigratie" }),
         DocumentMapper = new DocumentMapper(
             "000000000",
             [],
