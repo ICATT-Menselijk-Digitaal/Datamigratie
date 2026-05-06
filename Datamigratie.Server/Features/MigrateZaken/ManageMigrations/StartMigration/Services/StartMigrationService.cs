@@ -104,7 +104,7 @@ public class StartMigrationService(
             using var ctSource = CancellationTokenSource.CreateLinkedTokenSource(ct);
             await Parallel.ForEachAsync(
                 zaken,
-                new ParallelOptions { CancellationToken = ct, MaxDegreeOfParallelism = concurrencyLimit },
+                new ParallelOptions { CancellationToken = ctSource.Token, MaxDegreeOfParallelism = concurrencyLimit },
                 async (zaak, parallelCt) =>
                 {
                     var result = await migrateZaakService.MigrateZaak(zaak.FunctioneleIdentificatie, mapping, parallelCt);
@@ -114,6 +114,8 @@ public class StartMigrationService(
                     await channel.Writer.WriteAsync(record, CancellationToken.None);
                     if (result.CircuitOpen)
                     {
+                        // if the circuit is open, we want to stop processing more zaken for this migration and let it fail fast,
+                        // to give the system a chance to recover and the user to look into the issues
                         await ctSource.CancelAsync();
                     }
                 });
