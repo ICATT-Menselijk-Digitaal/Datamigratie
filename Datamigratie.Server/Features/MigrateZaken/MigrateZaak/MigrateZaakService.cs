@@ -364,14 +364,8 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 }
                 catch (Exception ex)
                 {
-                    var httpStatusInfo = ex.InnerException is HttpRequestException httpEx && httpEx.StatusCode.HasValue
-                        ? $" | HTTP {(int)httpEx.StatusCode}: {httpEx.Message}"
-                        : ex is HttpRequestException httpExOuter && httpExOuter.StatusCode.HasValue
-                        ? $" | HTTP {(int)httpExOuter.StatusCode}: {httpExOuter.Message}"
-                        : $" | {ex.GetType().Name}: {ex.Message}";
-
                     throw new Exception(
-                        $"Migratie onderbroken: besluit '{ozBesluitRequest.Identificatie}' kon niet worden gemigreerd{httpStatusInfo}",
+                        $"Migratie onderbroken: besluit '{ozBesluitRequest.Identificatie}' kon niet worden gemigreerd",
                         ex);
                 }
             }
@@ -430,14 +424,8 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                     }
                     catch (Exception ex)
                     {
-                        var httpStatusInfo = ex.InnerException is HttpRequestException httpEx && httpEx.StatusCode.HasValue
-                            ? $" | HTTP {(int)httpEx.StatusCode}: {httpEx.Message}"
-                            : ex is HttpRequestException httpExOuter && httpExOuter.StatusCode.HasValue
-                            ? $" | HTTP {(int)httpExOuter.StatusCode}: {httpExOuter.Message}"
-                            : $" | {ex.GetType().Name}: {ex.Message}";
-
                         throw new Exception(
-                            $"Migratie onderbroken: versie {i + 1} van document '{versionPlan.Document.Titel}' (bestand: {versionPlan.Document.Bestandsnaam}) kon niet worden gemigreerd{httpStatusInfo}",
+                            $"Migratie onderbroken: versie {i + 1} van document '{versionPlan.Document.Titel}' (bestand: {versionPlan.Document.Bestandsnaam}) kon niet worden gemigreerd",
                             ex);
                     }
                 }
@@ -455,7 +443,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
             }
             catch (HttpRequestException ex)
             {
-                throw new HttpRequestException($"Failed to fetch zaak from DET API: {ex.Message}", ex, ex.StatusCode);
+                throw new HttpRequestException($"Failed to fetch zaak from DET API", ex, ex.StatusCode);
             }
         }
 
