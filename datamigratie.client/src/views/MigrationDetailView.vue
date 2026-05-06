@@ -175,6 +175,7 @@ onMounted(() => fetchMigrationRecords());
     .error-details {
       word-break: break-word;
       max-width: 400px;
+      white-space: pre-wrap;
     }
 
     .expand-button {
