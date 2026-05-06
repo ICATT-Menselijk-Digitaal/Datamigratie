@@ -7,6 +7,7 @@ using Datamigratie.Common.Services.OpenZaak;
 using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Mappers;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Pdf;
+using Polly.CircuitBreaker;
 
 namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
 {
@@ -41,26 +42,18 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
         {
             using var activity = ActivitySource.StartActivity("MigrateZaak", ActivityKind.Internal);
             activity?.SetTag("zaak.identificatie", zaaknummer);
-            var sw = Stopwatch.StartNew();
+            var startTime = Stopwatch.GetTimestamp();
 
             DetZaak detZaak;
+            OzZaak createdZaak;
+
             try
             {
                 detZaak = await FetchZaakFromDetAsync(zaaknummer);
             }
-            catch (HttpRequestException httpEx)
+            catch (Exception ex)
             {
-                sw.Stop();
-                ZaakDurationHistogram.Record(sw.Elapsed.TotalMilliseconds, new TagList { { "result", "failed" } });
-                activity?.SetTag("zaak.result", "failed");
-                activity?.SetStatus(ActivityStatusCode.Error, httpEx.Message);
-
-                var statusCode = (int?)httpEx.StatusCode ?? StatusCodes.Status500InternalServerError;
-                return MigrateZaakResult.Failed(
-                    zaaknummer,
-                    "De zaak kon niet opgehaald worden uit het bronsysteem.",
-                    $"HTTP {statusCode}: {httpEx.Message}",
-                    statusCode);
+                return HandleException(activity, zaaknummer, "De zaak kon niet worden opgehaald uit het bronsysteem.", ex, startTime);
             }
 
             try
@@ -80,7 +73,6 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                     }
                 }
 
-                OzZaak createdZaak;
                 using (ActivitySource.StartActivity("CreateZaak"))
                 {
                     createdZaak = await _openZaakApiClient.CreateZaak(zaakRequest);
@@ -124,66 +116,81 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 // Migrate rollen (e.g. Behandelaar) to OpenZaak
                 await ExecuteRolPlansAsync(rolRequests, createdZaak, token);
 
-                try
-                {
-                    await detClient.SetZaakGemigreerd(detZaak.FunctioneleIdentificatie, true);
-                }
-                catch (Exception ex)
-                {
-                    throw new InvalidOperationException(
-                        $"Zaak {detZaak.FunctioneleIdentificatie} gemigreerd to OpenZaak with ID {createdZaak.Identificatie}, but failed to update migration status in DET. Original exception message: {ex.Message}",
-                        ex);
-                }
-
-                sw.Stop();
-
-                var documentCount = detZaak.Documenten?.Count ?? 0;
-                var versionCount = detZaak.Documenten?.Sum(d => d.DocumentVersies.Count) ?? 0;
-                var besluitCount = detZaak.Besluiten?.Count ?? 0;
-
-                ZaakDurationHistogram.Record(sw.Elapsed.TotalMilliseconds, new TagList { { "result", "succeeded" } });
-                ZaakDocumentCountHistogram.Record(documentCount, new TagList { { "has_documents", documentCount > 0 } });
-                ZaakDocumentVersionCountHistogram.Record(versionCount, new TagList { { "has_documents", documentCount > 0 } });
-
-                activity?.SetTag("zaak.result", "succeeded");
-                activity?.SetTag("zaak.duration_ms", sw.Elapsed.TotalMilliseconds);
-                activity?.SetTag("zaak.document.count", documentCount);
-                activity?.SetTag("zaak.document.version.count", versionCount);
-                activity?.SetTag("zaak.besluit.count", besluitCount);
-
-                return MigrateZaakResult.Success(createdZaak.Identificatie, "De zaak is aangemaakt in het doelsysteem");
-            }
-            catch (HttpRequestException httpEx)
-            {
-                sw.Stop();
-                ZaakDurationHistogram.Record(sw.Elapsed.TotalMilliseconds, new TagList { { "result", "failed" } });
-                activity?.SetTag("zaak.result", "failed");
-                activity?.SetTag("zaak.duration_ms", sw.Elapsed.TotalMilliseconds);
-                activity?.SetStatus(ActivityStatusCode.Error, httpEx.Message);
-
-                return MigrateZaakResult.Failed(
-                    zaaknummer,
-                    "De zaak kon niet worden aangemaakt in het doelsysteem.",
-                    httpEx.Message,
-                    (int?)httpEx.StatusCode ?? StatusCodes.Status500InternalServerError);
             }
             catch (Exception ex)
             {
-                sw.Stop();
-                ZaakDurationHistogram.Record(sw.Elapsed.TotalMilliseconds, new TagList { { "result", "failed" } });
-                activity?.SetTag("zaak.result", "failed");
-                activity?.SetTag("zaak.duration_ms", sw.Elapsed.TotalMilliseconds);
-                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                return HandleException(activity, zaaknummer, "De zaak kon niet worden aangemaakt in het doelsysteem.", ex, startTime);
+            }
 
-                var statusCode = ex.InnerException is HttpRequestException innerHttpEx
-                    ? (int?)innerHttpEx.StatusCode ?? StatusCodes.Status500InternalServerError
-                    : StatusCodes.Status500InternalServerError;
+            try
+            {
+                await detClient.SetZaakGemigreerd(detZaak.FunctioneleIdentificatie, true);
+            }
+            catch (Exception ex)
+            {
+                return HandleException(activity, zaaknummer, "De zaak is aangemaakt in het doelsysteem, maar het bijwerken van de migratiestatus in het bronsysteem is mislukt.", ex, startTime);
+            }
 
-                return MigrateZaakResult.Failed(
-                    zaaknummer,
-                    "De zaak kon niet worden aangemaakt in het doelsysteem.",
-                    ex.Message,
-                    statusCode);
+            var elapsed = Stopwatch.GetElapsedTime(startTime);
+
+            var documentCount = detZaak.Documenten?.Count ?? 0;
+            var versionCount = detZaak.Documenten?.Sum(d => d.DocumentVersies.Count) ?? 0;
+            var besluitCount = detZaak.Besluiten?.Count ?? 0;
+
+            ZaakDurationHistogram.Record(elapsed.TotalMilliseconds, new TagList { { "result", "succeeded" } });
+            ZaakDocumentCountHistogram.Record(documentCount, new TagList { { "has_documents", documentCount > 0 } });
+            ZaakDocumentVersionCountHistogram.Record(versionCount, new TagList { { "has_documents", documentCount > 0 } });
+
+            activity?.SetTag("zaak.result", "succeeded");
+            activity?.SetTag("zaak.duration_ms", elapsed.TotalMilliseconds);
+            activity?.SetTag("zaak.document.count", documentCount);
+            activity?.SetTag("zaak.document.version.count", versionCount);
+            activity?.SetTag("zaak.besluit.count", besluitCount);
+
+            return MigrateZaakResult.Success(createdZaak.Identificatie, "De zaak is aangemaakt in het doelsysteem");
+        }
+
+        private static MigrateZaakResult HandleException(Activity? activity, string zaaknummer, string message, Exception exception, long startTime)
+        {
+            var elapsed = Stopwatch.GetElapsedTime(startTime);
+            ZaakDurationHistogram.Record(elapsed.TotalMilliseconds, new TagList { { "result", "failed" } });
+            activity?.SetTag("zaak.result", "failed");
+            activity?.SetTag("zaak.duration_ms", elapsed.TotalMilliseconds);
+            activity?.SetStatus(ActivityStatusCode.Error, exception.Message);
+            activity?.AddException(exception);
+            var unwrappedExceptions = UnwrapExceptions(exception).ToList();
+            var details = string.Join(" | ", unwrappedExceptions.Select(ex => $"{ex.GetType}: {ex.Message}"));
+            var statusCode = unwrappedExceptions.OfType<HttpRequestException>().Select(x => x.StatusCode).FirstOrDefault(x => x != null);
+            return MigrateZaakResult.Failed(zaaknummer, message, details, (int?)statusCode, exception is BrokenCircuitException);
+        }
+
+        /// <summary>
+        /// Enumerates the specified exception and all inner exceptions, including those contained within any
+        /// AggregateException instances.
+        /// </summary>
+        /// <remarks>This method recursively traverses inner exceptions, flattening AggregateException instances
+        /// to ensure all contained exceptions are included in the result.</remarks>
+        /// <param name="ex">The exception to unwrap. This can be an AggregateException or any exception with inner exceptions.</param>
+        /// <returns>An enumerable collection of Exception objects, including the original exception and all nested inner exceptions.</returns>
+        private static IEnumerable<Exception> UnwrapExceptions(Exception ex)
+        {
+            yield return ex;
+            if (ex is AggregateException aggEx)
+            {
+                foreach (var innerEx in aggEx.Flatten().InnerExceptions)
+                {
+                    foreach (var unwrapped in UnwrapExceptions(innerEx))
+                    {
+                        yield return unwrapped;
+                    }
+                }
+            }
+            else if (ex.InnerException != null)
+            {
+                foreach (var unwrapped in UnwrapExceptions(ex.InnerException))
+                {
+                    yield return unwrapped;
+                }
             }
         }
 
@@ -494,22 +501,24 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
 
     public class MigrateZaakResult
     {
-        public bool IsSuccess { get; private set; }
-        public string? Message { get; private set; }
-        public string Zaaknummer { get; private set; }
-        public string? Details { get; private set; }
-        public int? Statuscode { get; private set; }
+        public bool IsSuccess { get; }
+        public string? Message { get; }
+        public string Zaaknummer { get; }
+        public string? Details { get; }
+        public int? Statuscode { get; }
+        public bool CircuitOpen { get; }
 
-        private MigrateZaakResult(bool isSuccess, string zaaknummer, string? message = null, string? details = null, int? statuscode = null)
+        private MigrateZaakResult(bool isSuccess, string zaaknummer, string? message = null, string? details = null, int? statuscode = null, bool circuitOpen = false)
         {
             IsSuccess = isSuccess;
             Zaaknummer = zaaknummer;
             Message = message;
             Details = details;
+            CircuitOpen = circuitOpen;
             Statuscode = statuscode;
         }
         public static MigrateZaakResult Success(string zaaknummer, string messsage) => new(true, zaaknummer, messsage);
-        public static MigrateZaakResult Failed(string zaaknummer, string messsage, string details, int? statuscode) => new(false, zaaknummer, messsage, details, statuscode);
+        public static MigrateZaakResult Failed(string zaaknummer, string messsage, string details, int? statuscode, bool circuitOpen = false) => new(false, zaaknummer, messsage, details, statuscode, circuitOpen);
     }
 
 
