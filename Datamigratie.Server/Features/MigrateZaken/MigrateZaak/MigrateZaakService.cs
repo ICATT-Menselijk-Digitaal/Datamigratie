@@ -159,7 +159,7 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
             activity?.SetStatus(ActivityStatusCode.Error, exception.Message);
             activity?.AddException(exception);
             var unwrappedExceptions = UnwrapExceptions(exception).ToList();
-            var details = string.Join(" | ", unwrappedExceptions.Select(ex => $"{ex.GetType}: {ex.Message}"));
+            var details = string.Join("\n | ", unwrappedExceptions.Select(ex => $"{ex.GetType().Name}: {ex.Message}"));
             var statusCode = unwrappedExceptions.OfType<HttpRequestException>().Select(x => x.StatusCode).FirstOrDefault(x => x != null);
             return MigrateZaakResult.Failed(zaaknummer, message, details, (int?)statusCode, exception is BrokenCircuitException);
         }
