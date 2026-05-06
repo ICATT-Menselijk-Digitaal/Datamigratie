@@ -10,6 +10,7 @@ using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.State;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak;
 using Datamigratie.Server.Features.MigrateZaken.MigrateZaak.Models;
 using Microsoft.Extensions.Options;
+using Polly.CircuitBreaker;
 
 namespace Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.Services;
 
@@ -79,6 +80,7 @@ public class StartMigrationService(
 
         var sw = Stopwatch.StartNew();
 
+
         var readTask = Task.Run(async () =>
         {
             await foreach (var record in channel.Reader.ReadAllAsync(ct))
@@ -90,29 +92,43 @@ public class StartMigrationService(
                 else
                     migration.FailedRecords++;
                 migration.LastUpdated = DateTime.UtcNow;
-                await ReportProgressAsync(ct);
+                // don't use the cancellationtoken here, otherwise we might not register this attempt in the database if the whole migration fails!
+                await ReportProgressAsync(CancellationToken.None);
             }
         }, ct);
 
-        await Parallel.ForEachAsync(
-            zaken,
-            new ParallelOptions { CancellationToken = ct, MaxDegreeOfParallelism = concurrencyLimit },
-            async (zaak, parallelCt) =>
-            {
-                var result = await migrateZaakService.MigrateZaak(zaak.FunctioneleIdentificatie, mapping, parallelCt);
-                LogMigrationResult(zaak.FunctioneleIdentificatie, result);
-                var record = CreateMigrationRecord(migration.Id, zaak.FunctioneleIdentificatie, result);
-                await channel.Writer.WriteAsync(record, parallelCt);
-            });
+        // we always want to complete the channel and wait for the readTask to finish, even if there are exceptions during the migration
+        // so we wrap this in a try/finally
+        try
+        {
+            using var ctSource = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            await Parallel.ForEachAsync(
+                zaken,
+                new ParallelOptions { CancellationToken = ct, MaxDegreeOfParallelism = concurrencyLimit },
+                async (zaak, parallelCt) =>
+                {
+                    var result = await migrateZaakService.MigrateZaak(zaak.FunctioneleIdentificatie, mapping, parallelCt);
+                    LogMigrationResult(zaak.FunctioneleIdentificatie, result);
+                    var record = CreateMigrationRecord(migration.Id, zaak.FunctioneleIdentificatie, result);
+                    // don't use the cancellationtoken here, otherwise we might not register this attempt in the database if the whole migration fails!
+                    await channel.Writer.WriteAsync(record, CancellationToken.None);
+                    if (result.CircuitOpen)
+                    {
+                        await ctSource.CancelAsync();
+                    }
+                });
+        }
+        finally
+        {
+            channel.Writer.Complete();
+            await readTask;
 
-        channel.Writer.Complete();
-        await readTask;
+            sw.Stop();
 
-        sw.Stop();
-
-        logger.LogInformation(
-            "Migration {Id} done — {Processed}/{Total} processed, {Successful} succeeded, {Failed} failed, time elapsed: {Elapsed}ms (concurrency: {Concurrency})",
-            migration.Id, migration.ProcessedRecords, migration.TotalRecords ?? 0, migration.SuccessfulRecords, migration.FailedRecords, sw.ElapsedMilliseconds, concurrencyLimit);
+            logger.LogInformation(
+                "Migration {Id} done — {Processed}/{Total} processed, {Successful} succeeded, {Failed} failed, time elapsed: {Elapsed}ms (concurrency: {Concurrency})",
+                migration.Id, migration.ProcessedRecords, migration.TotalRecords ?? 0, migration.SuccessfulRecords, migration.FailedRecords, sw.ElapsedMilliseconds, concurrencyLimit);
+        }
     }
 
     private async Task ReportProgressAsync(CancellationToken ct)
