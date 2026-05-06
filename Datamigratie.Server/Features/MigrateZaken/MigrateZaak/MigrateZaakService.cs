@@ -45,7 +45,8 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
             var startTime = Stopwatch.GetTimestamp();
 
             DetZaak detZaak;
-            
+            OzZaak createdZaak;
+
             try
             {
                 detZaak = await FetchZaakFromDetAsync(zaaknummer);
@@ -72,7 +73,6 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                     }
                 }
 
-                OzZaak createdZaak;
                 using (ActivitySource.StartActivity("CreateZaak"))
                 {
                     createdZaak = await _openZaakApiClient.CreateZaak(zaakRequest);
@@ -116,39 +116,38 @@ namespace Datamigratie.Server.Features.MigrateZaken.MigrateZaak
                 // Migrate rollen (e.g. Behandelaar) to OpenZaak
                 await ExecuteRolPlansAsync(rolRequests, createdZaak, token);
 
-                try
-                {
-                    await detClient.SetZaakGemigreerd(detZaak.FunctioneleIdentificatie, true);
-                }
-                catch (Exception ex)
-                {
-                    throw new InvalidOperationException(
-                        $"Zaak {detZaak.FunctioneleIdentificatie} gemigreerd to OpenZaak with ID {createdZaak.Identificatie}, but failed to update migration status in DET. Original exception message: {ex.Message}",
-                        ex);
-                }
-
-                var elapsed = Stopwatch.GetElapsedTime(startTime);
-
-                var documentCount = detZaak.Documenten?.Count ?? 0;
-                var versionCount = detZaak.Documenten?.Sum(d => d.DocumentVersies.Count) ?? 0;
-                var besluitCount = detZaak.Besluiten?.Count ?? 0;
-
-                ZaakDurationHistogram.Record(elapsed.TotalMilliseconds, new TagList { { "result", "succeeded" } });
-                ZaakDocumentCountHistogram.Record(documentCount, new TagList { { "has_documents", documentCount > 0 } });
-                ZaakDocumentVersionCountHistogram.Record(versionCount, new TagList { { "has_documents", documentCount > 0 } });
-
-                activity?.SetTag("zaak.result", "succeeded");
-                activity?.SetTag("zaak.duration_ms", elapsed.TotalMilliseconds);
-                activity?.SetTag("zaak.document.count", documentCount);
-                activity?.SetTag("zaak.document.version.count", versionCount);
-                activity?.SetTag("zaak.besluit.count", besluitCount);
-
-                return MigrateZaakResult.Success(createdZaak.Identificatie, "De zaak is aangemaakt in het doelsysteem");
             }
             catch (Exception ex)
             {
                 return HandleException(activity, zaaknummer, "De zaak kon niet worden aangemaakt in het doelsysteem.", ex, startTime);
             }
+
+            try
+            {
+                await detClient.SetZaakGemigreerd(detZaak.FunctioneleIdentificatie, true);
+            }
+            catch (Exception ex)
+            {
+                return HandleException(activity, zaaknummer, "De zaak is aangemaakt in het doelsysteem, maar het bijwerken van de migratiestatus in het bronsysteem is mislukt.", ex, startTime);
+            }
+
+            var elapsed = Stopwatch.GetElapsedTime(startTime);
+
+            var documentCount = detZaak.Documenten?.Count ?? 0;
+            var versionCount = detZaak.Documenten?.Sum(d => d.DocumentVersies.Count) ?? 0;
+            var besluitCount = detZaak.Besluiten?.Count ?? 0;
+
+            ZaakDurationHistogram.Record(elapsed.TotalMilliseconds, new TagList { { "result", "succeeded" } });
+            ZaakDocumentCountHistogram.Record(documentCount, new TagList { { "has_documents", documentCount > 0 } });
+            ZaakDocumentVersionCountHistogram.Record(versionCount, new TagList { { "has_documents", documentCount > 0 } });
+
+            activity?.SetTag("zaak.result", "succeeded");
+            activity?.SetTag("zaak.duration_ms", elapsed.TotalMilliseconds);
+            activity?.SetTag("zaak.document.count", documentCount);
+            activity?.SetTag("zaak.document.version.count", versionCount);
+            activity?.SetTag("zaak.besluit.count", besluitCount);
+
+            return MigrateZaakResult.Success(createdZaak.Identificatie, "De zaak is aangemaakt in het doelsysteem");
         }
 
         private static MigrateZaakResult HandleException(Activity? activity, string zaaknummer, string message, Exception exception, long startTime)
