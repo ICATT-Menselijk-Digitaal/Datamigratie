@@ -61,3 +61,7 @@ Er bestaan drie soorten migratie knoppen:
 ### Markering als gemigreerd
 
 Wanneer een zaak volledig en succesvol is gemigreerd, wordt deze via de DET gemarkeerd als "gemigreerd". Als het markeren mislukt, is dit terug te vinden in de migratie record van de betreffende zaak.
+
+### Fouten
+
+De datamigratie applicatie toont een migratiegeschiedenis per zaaktype. Hierin wordt aangegeven welke fout er optreedt als een zaak niet gemigreerd kon worden. Een zaak bestaat uit meerdere onderdelen. Wanneer een zaak niet volledig gemigreerd kan worden, probeert de applicatie de losse onderdelen van de zaak die al zijn aangemaakt in OpenZaak weer te verwijderen. Er zijn situaties waarin dat niet volledig mogelijk is. Het gaat dan vooral om bestanden die gekoppeld zijn aan de zaak. In bepaalde gevallen kan de datamigratie applicatie ook niet aangeven welke bestanden niet opgeruimd konden worden. Dat kan pas aangegeven worden bij een volgende migratie poging. De gebruiker zal deze bestanden dan zelf moeten opzoeken in OpenZaak en handmatig verwijderen.
