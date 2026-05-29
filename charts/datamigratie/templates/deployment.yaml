@@ -34,12 +34,12 @@ spec:
       serviceAccountName: {{ include "datamigratie.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- if .Values.postgresql.enabled }}
+      {{- if .Values.migrations.enabled }}
       initContainers:
       - name: "{{ .Chart.Name }}-wait-for-migrations"
         image: "ghcr.io/groundnuty/k8s-wait-for:v2.0"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        args: 
+        args:
         - "job"
         - "{{ include "datamigratie.fullname" . }}-migrations-{{ .Release.Revision }}"
       {{- end }}
