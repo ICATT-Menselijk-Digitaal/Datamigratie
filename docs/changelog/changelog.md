@@ -1,6 +1,15 @@
 # Changelog
 
-## Current Version
+## v0.3.0
+
+### Helm chart improvements
+- Support configurable initContainer image for wait-for containers in both API deployment and migrations job (enables ACR compatibility for restricted registry environments)
+- Add nodeSelector support to migrations job for custom node scheduling
+
+## v0.2.1
+- Bugfix in helm chart: waiting for the migrations job did not work correctly
+
+## v0.2.0
 
 - [Safely delete zaken](https://dimpact.atlassian.net/browse/DATA-698)
 - [Migrate additional document property](https://dimpact.atlassian.net/browse/DATA-272)

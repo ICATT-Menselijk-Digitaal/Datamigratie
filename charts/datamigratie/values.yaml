@@ -12,6 +12,8 @@ migrations:
     pullPolicy: IfNotPresent
     tag: ""
   restartPolicy: Never
+   # -- Node selector for scheduling the migrations job
+  nodeSelector: {}
 
 imagePullSecrets: []
 nameOverride: ""
@@ -108,6 +110,14 @@ persistence:
   existingClaim: null
 
 existingSecret: null
+
+initContainers:
+  # -- Wait-for initContainer image (used by both deployment and migrations job)
+  waitFor:
+    image:
+      repository: "ghcr.io/groundnuty/k8s-wait-for"
+      tag: "v2.0"
+      pullPolicy: IfNotPresent
 
 settings:
   database:
