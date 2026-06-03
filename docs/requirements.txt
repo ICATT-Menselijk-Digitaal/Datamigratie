@@ -4,7 +4,7 @@ alabaster==1.0.0
     # via sphinx
 babel==2.18.0
     # via sphinx
-certifi==2026.2.25
+certifi==2026.5.20
     # via requests
 charset-normalizer==3.4.7
     # via requests
@@ -15,7 +15,7 @@ docutils==0.22.4
     #   myst-parser
     #   sphinx
     #   sphinx-rtd-theme
-idna==3.11
+idna==3.18
     # via requests
 imagesize==2.0.0
     # via sphinx
@@ -23,29 +23,29 @@ jinja2==3.1.6
     # via
     #   myst-parser
     #   sphinx
-markdown-it-py==4.0.0
+markdown-it-py==4.2.0
     # via
     #   mdit-py-plugins
     #   myst-parser
 markupsafe==3.0.3
     # via jinja2
-mdit-py-plugins==0.5.0
+mdit-py-plugins==0.6.1
     # via myst-parser
 mdurl==0.1.2
     # via markdown-it-py
-myst-parser==5.0.0
+myst-parser==5.1.0
     # via -r requirements.in
-packaging==26.0
+packaging==26.2
     # via sphinx
 pygments==2.20.0
     # via sphinx
 pyyaml==6.0.3
     # via myst-parser
-requests==2.33.1
+requests==2.34.2
     # via sphinx
 roman-numerals==4.1.0
     # via sphinx
-snowballstemmer==3.0.1
+snowballstemmer==3.1.1
     # via sphinx
 sphinx==9.1.0
     # via
@@ -69,5 +69,5 @@ sphinxcontrib-qthelp==2.0.0
     # via sphinx
 sphinxcontrib-serializinghtml==2.0.0
     # via sphinx
-urllib3==2.6.3
+urllib3==2.7.0
     # via requests
