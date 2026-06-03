@@ -34,6 +34,7 @@ A Helm chart for the Datamigratie Component
 | ingress.enabled | bool | `false` |  |
 | ingress.hosts | list | `[]` |  |
 | ingress.tls | list | `[]` |  |
+| initContainers.waitFor | object | `{"image":{"pullPolicy":"IfNotPresent","repository":"ghcr.io/groundnuty/k8s-wait-for","tag":"v2.0"}}` | Wait-for initContainer image (used by both deployment and migrations job) |
 | livenessProbe.failureThreshold | int | `6` |  |
 | livenessProbe.initialDelaySeconds | int | `60` |  |
 | livenessProbe.periodSeconds | int | `10` |  |
@@ -43,6 +44,7 @@ A Helm chart for the Datamigratie Component
 | migrations.image.pullPolicy | string | `"IfNotPresent"` |  |
 | migrations.image.repository | string | `"ghcr.io/icatt-menselijk-digitaal/datamigratie-migrations"` |  |
 | migrations.image.tag | string | `""` |  |
+| migrations.nodeSelector | object | `{}` | Node selector for scheduling the migrations job |
 | migrations.restartPolicy | string | `"Never"` |  |
 | nameOverride | string | `""` |  |
 | nodeSelector | object | `{}` |  |
