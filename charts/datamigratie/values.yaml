@@ -12,7 +12,7 @@ migrations:
     pullPolicy: IfNotPresent
     tag: ""
   restartPolicy: Never
-   # -- Node selector for scheduling the migrations job
+  # -- Node selector for scheduling the migrations job
   nodeSelector: {}
 
 imagePullSecrets: []
