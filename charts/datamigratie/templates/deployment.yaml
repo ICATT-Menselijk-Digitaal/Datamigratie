@@ -40,7 +40,7 @@ spec:
         image: "{{ .Values.initContainers.waitFor.image.repository }}:{{ .Values.initContainers.waitFor.image.tag }}"
         imagePullPolicy: {{ .Values.initContainers.waitFor.image.pullPolicy }}
         args:
-        - "job"
+        - "job-wr"
         - "{{ include "datamigratie.fullname" . }}-migrations-{{ .Release.Revision }}"
       {{- end }}
       containers:
