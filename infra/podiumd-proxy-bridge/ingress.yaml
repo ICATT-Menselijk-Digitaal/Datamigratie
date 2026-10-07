@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: podiumd-proxy
+  annotations:
+    nginx.ingress.kubernetes.io/whitelist-source-range: "81.24.7.198/32" # IP from the Cyso cloud k8n cluster
+    cert-manager.io/cluster-issuer: letsencrypt-production-http
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - podiumd-proxy.test.icatt.nl
+      secretName: podiumd-proxy-tls
+  rules:
+    - host: podiumd-proxy.test.icatt.nl
+      http:
+        paths:
+          - path: /det/
+            pathType: Prefix
+            backend:
+              service:
+                name: podiumd-proxy
+                port:
+                  number: 80

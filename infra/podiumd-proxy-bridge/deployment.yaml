@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: podiumd-proxy
+  namespace: default
+  labels:
+    app: podiumd-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: podiumd-proxy
+  template:
+    metadata:
+      labels:
+        app: podiumd-proxy
+    spec:
+      containers:
+        - name: podiumd-proxy
+          image: nginx:alpine
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: conf
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+      volumes:
+        - name: conf
+          configMap:
+            name: podiumd-proxy-conf
