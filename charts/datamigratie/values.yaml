@@ -161,6 +161,10 @@ settings:
 
 postgresql:
   enabled: false
+  # Bitnami heeft de versioned images van docker.io/bitnami gehaald; zelfde image staat nog onder bitnamilegacy
+  image:
+    repository: bitnamilegacy/postgresql
+    tag: 15.3.0-debian-11-r7
   auth:
     username: "datamigratie"
     password: "changeme"

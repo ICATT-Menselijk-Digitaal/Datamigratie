@@ -63,6 +63,8 @@ A Helm chart for the Datamigratie Component
 | postgresql.auth.postgresPassword | string | `"changeme"` |  |
 | postgresql.auth.username | string | `"datamigratie"` |  |
 | postgresql.enabled | bool | `false` |  |
+| postgresql.image.repository | string | `"bitnamilegacy/postgresql"` |  |
+| postgresql.image.tag | string | `"15.3.0-debian-11-r7"` |  |
 | postgresql.metrics.enabled | bool | `false` |  |
 | postgresql.primary.persistence.enabled | bool | `true` |  |
 | postgresql.primary.persistence.size | string | `"8Gi"` |  |
