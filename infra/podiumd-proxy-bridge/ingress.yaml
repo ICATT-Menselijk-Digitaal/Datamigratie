@@ -2,6 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: podiumd-proxy
+  namespace: default
   annotations:
     nginx.ingress.kubernetes.io/whitelist-source-range: "81.24.7.198/32" # IP from the Cyso cloud k8s cluster
     cert-manager.io/cluster-issuer: letsencrypt-production-http
