@@ -4,7 +4,7 @@ Infrastructuur-manifesten die het draaien van Datamigratie ondersteunen, maar ge
 
 ## podiumd-proxy-bridge
 
-Specifiek voor interne test doeleinden van ICATT toegevoegd.
+Specifiek voor interne testdoeleinden van ICATT toegevoegd.
 
 Een tijdelijke proxy waarmee de applicatie het DET/esuite-systeem kan bereiken via een bestaand netwerkpad dat nog niet rechtstreeks bereikbaar is.
 
