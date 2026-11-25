@@ -110,6 +110,33 @@ public class MapZaaktypenServiceTests
     }
 
     [Fact]
+    public async Task CreateZaaktypenMapping_PicksNewestVersion_RegardlessOfTheOrderOpenZaakReturns()
+    {
+        var new2017 = Versie("ZT-001", Procestype2017, new DateOnly(2019, 1, 1));
+        var old2017 = Versie("ZT-001", Procestype2017, new DateOnly(2018, 1, 1));
+        SetupOzZaaktype(new2017, old2017);
+
+        await CreateService().CreateZaaktypenMapping(DetZaaktypeId, new2017.Id);
+
+        var versie = await _context.ZaaktypeVersieMappings.SingleAsync();
+        Assert.Equal(new2017.Id, versie.OzZaaktypeVersieId);
+    }
+
+    [Fact]
+    public async Task CreateZaaktypenMapping_PicksLaterVersion_WhenItReturnsToAnEarlierSelectielijstJaar()
+    {
+        var first2017 = Versie("ZT-001", Procestype2017, new DateOnly(2018, 1, 1));
+        var only2020 = Versie("ZT-001", Procestype2020, new DateOnly(2021, 1, 1));
+        var back2017 = Versie("ZT-001", Procestype2017, new DateOnly(2023, 1, 1));
+        SetupOzZaaktype(first2017, only2020, back2017);
+
+        await CreateService().CreateZaaktypenMapping(DetZaaktypeId, first2017.Id);
+
+        var versies = await _context.ZaaktypeVersieMappings.OrderBy(v => v.SelectielijstJaar).ToListAsync();
+        Assert.Equal([back2017.Id, only2020.Id], versies.Select(v => v.OzZaaktypeVersieId));
+    }
+
+    [Fact]
     public async Task CreateZaaktypenMapping_IgnoresVersionsWithoutSelectielijstProcestype()
     {
         var withoutProcestype = Versie("ZT-001", null, new DateOnly(2022, 1, 1));
