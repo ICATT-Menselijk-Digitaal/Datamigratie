@@ -17,5 +17,5 @@ public class SelectielijstResultaat
     /// </summary>
     public required string VolledigNummer { get; set; }
 
-    public string? Naam { get; set; }
+    public required string Naam { get; set; }
 }

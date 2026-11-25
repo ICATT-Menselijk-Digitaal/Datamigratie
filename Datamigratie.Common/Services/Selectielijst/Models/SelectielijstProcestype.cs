@@ -17,5 +17,5 @@ public class SelectielijstProcestype
     /// </summary>
     public required int Jaar { get; set; }
 
-    public string? Naam { get; set; }
+    public required string Naam { get; set; }
 }
