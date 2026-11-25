@@ -62,7 +62,6 @@ public class GetPublishedZaaktypeVersiesTests
         Assert.Equal(new DateOnly(2026, 3, 12), first.Versiedatum);
         Assert.Equal(new DateOnly(2026, 3, 12), first.BeginGeldigheid);
         Assert.Equal(new DateOnly(2026, 4, 8), first.EindeGeldigheid);
-        Assert.False(first.Concept);
         Assert.Null(versies[1].EindeGeldigheid);
     }
 }

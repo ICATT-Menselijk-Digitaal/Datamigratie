@@ -43,10 +43,5 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
         public required DateOnly BeginGeldigheid { get; set; }
 
         public DateOnly? EindeGeldigheid { get; set; }
-
-        /// <summary>
-        /// True when this version is not published yet.
-        /// </summary>
-        public required bool Concept { get; set; }
     }
 }
