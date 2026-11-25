@@ -3,8 +3,16 @@ using Datamigratie.Server.Shared.Models;
 
 namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.ShowOzZaaktypeInfo.Models
 {
-    public class EnrichedOzZaaktype : OzZaaktype
+    public class EnrichedOzZaaktype
     {
+        public required string Url { get; set; }
+
+        public required Guid Id { get; set; }
+
+        public required string Identificatie { get; set; }
+
+        public required string Omschrijving { get; set; }
+
         public List<OzStatustype> Statustypes { get; set; } = [];
 
         public List<OzResultaattype> Resultaattypen { get; set; } = [];

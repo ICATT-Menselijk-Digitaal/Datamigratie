@@ -2,6 +2,7 @@
 using Datamigratie.Common.Config;
 using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.OpenZaak;
+using Datamigratie.Common.Services.Selectielijst;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -32,6 +33,12 @@ namespace Datamigratie.Common.Extensions
                 client.DefaultRequestHeaders.Add("Accept-Crs", "EPSG:4326");
             })
             .AddHttpMessageHandler<OpenZaakAuthHandler>();
+
+            // No base address: OpenZaak hands out absolute Selectielijst URLs, which are public and need no authentication
+            services.AddHttpClient<ISelectielijstApiClient, SelectielijstApiClient>(client =>
+            {
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            });
 
             return services;
         }

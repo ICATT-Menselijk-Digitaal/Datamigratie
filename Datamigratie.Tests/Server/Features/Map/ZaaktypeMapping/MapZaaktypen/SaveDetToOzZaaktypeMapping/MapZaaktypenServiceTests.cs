@@ -29,7 +29,10 @@ public class MapZaaktypenServiceTests
         {
             Url = $"https://openzaak.example.com/catalogi/api/v1/zaaktypen/{id}",
             Identificatie = "ZT-001",
-            Omschrijving = "Test zaaktype"
+            Omschrijving = "Test zaaktype",
+            Catalogus = "https://openzaak.example.com/catalogi/api/v1/catalogussen/00000000-0000-0000-0000-000000000001",
+            Versiedatum = new DateOnly(2017, 1, 1),
+            BeginGeldigheid = new DateOnly(2017, 1, 1)
         });
 
         var det = new Mock<IDetApiClient>();

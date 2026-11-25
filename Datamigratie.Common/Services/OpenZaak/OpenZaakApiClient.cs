@@ -14,6 +14,8 @@ namespace Datamigratie.Common.Services.OpenZaak
 
         Task<OzZaaktype?> GetZaaktype(Guid zaaktypeId);
 
+        Task<List<OzZaaktype>> GetPublishedZaaktypeVersies(string identificatie, string catalogusUrl);
+
         Task<List<OzResultaattype>> GetResultaattypenForZaaktype(Uri zaaktypeUri);
 
         Task<List<OzStatustype>> GetStatustypesForZaaktype(Uri zaaktypeUri);
@@ -102,6 +104,19 @@ namespace Datamigratie.Common.Services.OpenZaak
 
             return await response.Content.ReadFromJsonAsync<OzZaaktype>()
                 ?? throw new SerializationException("Unexpected null response");
+        }
+
+        /// <summary>
+        /// Gets all published (non-concept) versions of a zaaktype. Versions share the same identificatie within a catalogus.
+        /// </summary>
+        /// <returns>All published versions, in the order OpenZaak returns them</returns>
+        public async Task<List<OzZaaktype>> GetPublishedZaaktypeVersies(string identificatie, string catalogusUrl)
+        {
+            var query = $"identificatie={Uri.EscapeDataString(identificatie)}" +
+                $"&catalogus={Uri.EscapeDataString(catalogusUrl)}" +
+                "&status=definitief";
+            var pagedZaaktypen = await GetAllPagedData<OzZaaktype>("catalogi/api/v1/zaaktypen", query);
+            return pagedZaaktypen.Results;
         }
 
         /// <summary>

@@ -28,6 +28,7 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Sh
             var enrichedOzZaaktype = new EnrichedOzZaaktype
             {
                 Url = ozZaaktype.Url,
+                Id = ozZaaktype.Id,
                 Identificatie = ozZaaktype.Identificatie,
                 Statustypes = ozStatustypes.OrderBy(st => st.Volgnummer).ToList(),
                 Resultaattypen = ozResultaattypes,
