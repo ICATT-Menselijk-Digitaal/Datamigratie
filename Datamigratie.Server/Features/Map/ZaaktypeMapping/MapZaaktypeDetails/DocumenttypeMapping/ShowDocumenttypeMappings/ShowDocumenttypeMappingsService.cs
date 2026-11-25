@@ -6,15 +6,15 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Do
 
 public interface IShowDocumenttypeMappingsService
 {
-    Task<List<DocumenttypeMappingResponse>> GetDocumenttypeMappings(Guid zaaktypenMappingId);
+    Task<List<DocumenttypeMappingResponse>> GetDocumenttypeMappings(Guid zaaktypeVersieMappingId);
 }
 
 public class ShowDocumenttypeMappingsService(DatamigratieDbContext context) : IShowDocumenttypeMappingsService
 {
-    public async Task<List<DocumenttypeMappingResponse>> GetDocumenttypeMappings(Guid zaaktypenMappingId)
+    public async Task<List<DocumenttypeMappingResponse>> GetDocumenttypeMappings(Guid zaaktypeVersieMappingId)
     {
         return [.. await context.DocumenttypeMappings
-            .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == zaaktypenMappingId)
+            .Where(m => m.ZaaktypeVersieMappingId == zaaktypeVersieMappingId)
             .Select(m => new DocumenttypeMappingResponse
             {
                 DetDocumenttypeNaam = m.DetDocumenttypeNaam,

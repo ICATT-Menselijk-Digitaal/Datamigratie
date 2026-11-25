@@ -14,9 +14,8 @@ public class ZaaktypeVersieMapping
 
     /// <summary>
     /// Year of the selectielijst procestype of this zaaktype version (e.g. 2017, 2020).
-    /// Null for rows carried over from before mapping per version existed, until it is looked up in OpenZaak.
     /// </summary>
-    public int? SelectielijstJaar { get; set; }
+    public required int SelectielijstJaar { get; set; }
 
     /// <summary>
     /// UUID of the OpenZaak zaaktype version the mappings were made against.

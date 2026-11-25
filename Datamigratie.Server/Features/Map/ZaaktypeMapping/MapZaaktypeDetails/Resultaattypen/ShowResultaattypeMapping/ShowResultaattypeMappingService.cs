@@ -6,15 +6,15 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Re
 {
     public interface IShowResultaattypeMappingService
     {
-        Task<List<ResultaattypeMappingResponse>> GetResultaattypenMappings(Guid zaaktypenMappingId);
+        Task<List<ResultaattypeMappingResponse>> GetResultaattypenMappings(Guid zaaktypeVersieMappingId);
     }
 
     public class ShowResultaattypeMappingService(DatamigratieDbContext context) : IShowResultaattypeMappingService
     {
-        public async Task<List<ResultaattypeMappingResponse>> GetResultaattypenMappings(Guid zaaktypenMappingId)
+        public async Task<List<ResultaattypeMappingResponse>> GetResultaattypenMappings(Guid zaaktypeVersieMappingId)
         {
             var resultaattypeMappingEntities = await context.ResultaattypeMappings
-                .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == zaaktypenMappingId)
+                .Where(m => m.ZaaktypeVersieMappingId == zaaktypeVersieMappingId)
                 .ToListAsync();
 
             return [.. resultaattypeMappingEntities.Select(entity => new ResultaattypeMappingResponse

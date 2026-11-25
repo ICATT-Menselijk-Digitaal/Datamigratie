@@ -5,15 +5,15 @@ using Microsoft.AspNetCore.Mvc;
 namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.StatusMapping.SaveStatusMappings;
 
 [ApiController]
-[Route("api/mappings/{zaaktypenMappingId:guid}/statuses")]
+[Route("api/mappings/versies/{zaaktypeVersieMappingId:guid}/statuses")]
 public class SaveStatusMappingsController(ISaveStatusMappingsService saveStatusMappingsService) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> SaveStatusMappings(
-        [FromRoute] Guid zaaktypenMappingId,
+        [FromRoute] Guid zaaktypeVersieMappingId,
         [FromBody] SaveStatusMappingsRequest request)
     {
-        await saveStatusMappingsService.SaveStatusMappings(zaaktypenMappingId, request);
+        await saveStatusMappingsService.SaveStatusMappings(zaaktypeVersieMappingId, request);
         return Ok();
     }
 }

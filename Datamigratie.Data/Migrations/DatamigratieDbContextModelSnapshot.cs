@@ -374,7 +374,7 @@ namespace Datamigratie.Data.Migrations
                     b.Property<Guid>("OzZaaktypeVersieId")
                         .HasColumnType("uuid");
 
-                    b.Property<int?>("SelectielijstJaar")
+                    b.Property<int>("SelectielijstJaar")
                         .HasColumnType("integer");
 
                     b.Property<Guid>("ZaaktypenMappingId")
@@ -399,13 +399,11 @@ namespace Datamigratie.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("OzCatalogusId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("OzZaaktypeId")
+                    b.Property<Guid>("OzCatalogusId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("OzZaaktypeIdentificatie")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");

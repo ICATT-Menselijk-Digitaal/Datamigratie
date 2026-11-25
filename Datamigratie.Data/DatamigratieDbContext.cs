@@ -16,13 +16,10 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
             entity.HasKey(m => m.Id);
 
             // Required fields (non-nullable)
-            entity.Property(m => m.OzZaaktypeId)
-                .IsRequired();
-
             entity.Property(m => m.DetZaaktypeId)
                 .IsRequired();
 
-            // Unique constraint: One DetZaaktypeId can only reference one OzZaaktypeId
+            // Unique constraint: One DetZaaktypeId can only reference one OZ zaaktype
             entity.HasIndex(m => m.DetZaaktypeId)
                 .IsUnique()
                 .HasDatabaseName("IX_Mapping_DetZaaktypeId_Unique");

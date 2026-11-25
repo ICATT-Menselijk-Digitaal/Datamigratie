@@ -6,24 +6,18 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.St
 
 public interface ISaveStatusMappingsService
 {
-    Task SaveStatusMappings(Guid zaaktypenMappingId, SaveStatusMappingsRequest request);
+    Task SaveStatusMappings(Guid zaaktypeVersieMappingId, SaveStatusMappingsRequest request);
 }
 
 public class SaveStatusMappingsService(DatamigratieDbContext context) : ISaveStatusMappingsService
 {
-    public async Task SaveStatusMappings(Guid zaaktypenMappingId, SaveStatusMappingsRequest request)
+    public async Task SaveStatusMappings(Guid zaaktypeVersieMappingId, SaveStatusMappingsRequest request)
     {
         var existingMappings = await context.StatusMappings
-            .Where(sm => sm.ZaaktypeVersieMapping.ZaaktypenMappingId == zaaktypenMappingId)
+            .Where(sm => sm.ZaaktypeVersieMappingId == zaaktypeVersieMappingId)
             .ToListAsync();
         
         context.StatusMappings.RemoveRange(existingMappings);
-
-        // TODO DATA-247: take the zaaktype version from the route once mapping per version is in place
-        var zaaktypeVersieMappingId = await context.ZaaktypeVersieMappings
-            .Where(v => v.ZaaktypenMappingId == zaaktypenMappingId)
-            .Select(v => v.Id)
-            .SingleAsync();
 
         var newMappings = request.Mappings.Select(m => new Data.Entities.StatusMapping
         {

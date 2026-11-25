@@ -4,13 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.PublicatieNiveauMapping.ShowPublicatieNiveauMappings;
 
 [ApiController]
-[Route("api/mappings/{zaaktypenMappingId:guid}/publicatieniveaus")]
+[Route("api/mappings/versies/{zaaktypeVersieMappingId:guid}/publicatieniveaus")]
 public class ShowPublicatieNiveauMappingsController(IShowPublicatieNiveauMappingsService showPublicatieNiveauMappingsService) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<List<PublicatieNiveauMappingResponse>>> GetPublicatieNiveauMappings([FromRoute] Guid zaaktypenMappingId)
+    public async Task<ActionResult<List<PublicatieNiveauMappingResponse>>> GetPublicatieNiveauMappings([FromRoute] Guid zaaktypeVersieMappingId)
     {
-        var mappings = await showPublicatieNiveauMappingsService.GetPublicatieNiveauMappings(zaaktypenMappingId);
+        var mappings = await showPublicatieNiveauMappingsService.GetPublicatieNiveauMappings(zaaktypeVersieMappingId);
         return Ok(mappings);
     }
 }
