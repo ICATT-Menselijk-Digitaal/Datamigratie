@@ -5,17 +5,12 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.ShowOzZa
     /// </summary>
     public class OzZaaktypeOptie
     {
-        /// <summary>
-        /// UUID of the newest published version. Any version of the zaaktype can be used to create a mapping.
-        /// </summary>
-        public required Guid Id { get; set; }
-
         public required string Identificatie { get; set; }
 
         public required string Omschrijving { get; set; }
 
         /// <summary>
-        /// Together with <see cref="Identificatie"/> it identifies the zaaktype, matching the zaaktype mapping.
+        /// Together with <see cref="Identificatie"/> it identifies the zaaktype; both are sent to create a zaaktype mapping.
         /// </summary>
         public required Guid CatalogusId { get; set; }
     }

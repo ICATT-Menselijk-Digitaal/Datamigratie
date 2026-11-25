@@ -1,3 +1,4 @@
+using Datamigratie.Common.Config;
 using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.Det.Models;
 using Datamigratie.Common.Services.OpenZaak;
@@ -8,6 +9,7 @@ using Datamigratie.Data;
 using Datamigratie.Data.Entities;
 using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.SaveDetToOzZaaktypeMapping;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Moq;
 
 namespace Datamigratie.Tests.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.SaveDetToOzZaaktypeMapping;
@@ -15,7 +17,7 @@ namespace Datamigratie.Tests.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.Sa
 public class MapZaaktypenServiceTests
 {
     private const string DetZaaktypeId = "zaaktype-001";
-    private const string OzBaseUrl = "https://openzaak.example.com/catalogi/api/v1";
+    private const string OzBaseUrl = "https://openzaak.example.com/";
     private const string SelectielijstBaseUrl = "https://selectielijst.example.com/api/v1/procestypen";
 
     private static readonly Guid CatalogusId = Guid.NewGuid();
@@ -46,7 +48,8 @@ public class MapZaaktypenServiceTests
             FunctioneleIdentificatie = id
         });
 
-        return new MapZaaktypenService(_openZaak.Object, det.Object, _selectielijst.Object, _context);
+        var openZaakOptions = Options.Create(new OpenZaakApiOptions { BaseUrl = OzBaseUrl });
+        return new MapZaaktypenService(_openZaak.Object, det.Object, _selectielijst.Object, openZaakOptions, _context);
     }
 
     private static SelectielijstProcestype Procestype(string url, int jaar) => new()
@@ -57,28 +60,25 @@ public class MapZaaktypenServiceTests
         Naam = "Toezicht houden"
     };
 
-    private static OzZaaktype Versie(string identificatie, string? procestype, DateOnly beginGeldigheid, Guid? catalogusId = null) => new()
+    private static readonly string CatalogusUrl = $"{OzBaseUrl}catalogi/api/v1/catalogussen/{CatalogusId}";
+
+    private static OzZaaktype Versie(string identificatie, string? procestype, DateOnly beginGeldigheid) => new()
     {
-        Url = $"{OzBaseUrl}/zaaktypen/{Guid.NewGuid()}",
+        Url = $"{OzBaseUrl}catalogi/api/v1/zaaktypen/{Guid.NewGuid()}",
         Identificatie = identificatie,
         Omschrijving = "Test zaaktype",
-        Catalogus = $"{OzBaseUrl}/catalogussen/{catalogusId ?? CatalogusId}",
+        Catalogus = CatalogusUrl,
         SelectielijstProcestype = procestype,
         Versiedatum = beginGeldigheid,
         BeginGeldigheid = beginGeldigheid
     };
 
     /// <summary>
-    /// Makes the versions known to the OpenZaak mock: each one by its id, and all of them as the published versions of their zaaktype.
+    /// Makes the versions known to the OpenZaak mock as the published versions of their zaaktype.
     /// </summary>
     private void SetupOzZaaktype(params OzZaaktype[] versies)
     {
-        foreach (var versie in versies)
-        {
-            _openZaak.Setup(c => c.GetZaaktype(versie.Id)).ReturnsAsync(versie);
-        }
-
-        _openZaak.Setup(c => c.GetPublishedZaaktypeVersies(versies[0].Identificatie, versies[0].Catalogus))
+        _openZaak.Setup(c => c.GetPublishedZaaktypeVersies(versies[0].Identificatie, CatalogusUrl))
             .ReturnsAsync([.. versies]);
     }
 
@@ -98,7 +98,7 @@ public class MapZaaktypenServiceTests
         var only2020 = Versie("ZT-001", Procestype2020, new DateOnly(2021, 1, 1));
         SetupOzZaaktype(old2017, new2017, only2020);
 
-        await CreateService().CreateZaaktypenMapping(DetZaaktypeId, old2017.Id);
+        await CreateService().CreateZaaktypenMapping(DetZaaktypeId, old2017.Identificatie, CatalogusId);
 
         var mapping = await _context.Mappings.SingleAsync();
         Assert.Equal("ZT-001", mapping.OzZaaktypeIdentificatie);
@@ -116,7 +116,7 @@ public class MapZaaktypenServiceTests
         var old2017 = Versie("ZT-001", Procestype2017, new DateOnly(2018, 1, 1));
         SetupOzZaaktype(new2017, old2017);
 
-        await CreateService().CreateZaaktypenMapping(DetZaaktypeId, new2017.Id);
+        await CreateService().CreateZaaktypenMapping(DetZaaktypeId, new2017.Identificatie, CatalogusId);
 
         var versie = await _context.ZaaktypeVersieMappings.SingleAsync();
         Assert.Equal(new2017.Id, versie.OzZaaktypeVersieId);
@@ -130,7 +130,7 @@ public class MapZaaktypenServiceTests
         var back2017 = Versie("ZT-001", Procestype2017, new DateOnly(2023, 1, 1));
         SetupOzZaaktype(first2017, only2020, back2017);
 
-        await CreateService().CreateZaaktypenMapping(DetZaaktypeId, first2017.Id);
+        await CreateService().CreateZaaktypenMapping(DetZaaktypeId, first2017.Identificatie, CatalogusId);
 
         var versies = await _context.ZaaktypeVersieMappings.OrderBy(v => v.SelectielijstJaar).ToListAsync();
         Assert.Equal([back2017.Id, only2020.Id], versies.Select(v => v.OzZaaktypeVersieId));
@@ -143,7 +143,7 @@ public class MapZaaktypenServiceTests
         var with2020 = Versie("ZT-001", Procestype2020, new DateOnly(2021, 1, 1));
         SetupOzZaaktype(withoutProcestype, with2020);
 
-        await CreateService().CreateZaaktypenMapping(DetZaaktypeId, withoutProcestype.Id);
+        await CreateService().CreateZaaktypenMapping(DetZaaktypeId, withoutProcestype.Identificatie, CatalogusId);
 
         var versie = await _context.ZaaktypeVersieMappings.SingleAsync();
         Assert.Equal(2020, versie.SelectielijstJaar);
@@ -156,7 +156,17 @@ public class MapZaaktypenServiceTests
         var versie = Versie("ZT-001", null, new DateOnly(2022, 1, 1));
         SetupOzZaaktype(versie);
 
-        await Assert.ThrowsAsync<ZaaktypeVersiesException>(() => CreateService().CreateZaaktypenMapping(DetZaaktypeId, versie.Id));
+        await Assert.ThrowsAsync<ZaaktypeVersiesException>(() => CreateService().CreateZaaktypenMapping(DetZaaktypeId, versie.Identificatie, CatalogusId));
+
+        Assert.Empty(await _context.Mappings.ToListAsync());
+    }
+
+    [Fact]
+    public async Task CreateZaaktypenMapping_Throws_WhenZaaktypeHasNoPublishedVersionInCatalogus()
+    {
+        _openZaak.Setup(c => c.GetPublishedZaaktypeVersies("ZT-404", CatalogusUrl)).ReturnsAsync([]);
+
+        await Assert.ThrowsAsync<ZaaktypeVersiesException>(() => CreateService().CreateZaaktypenMapping(DetZaaktypeId, "ZT-404", CatalogusId));
 
         Assert.Empty(await _context.Mappings.ToListAsync());
     }
@@ -167,7 +177,7 @@ public class MapZaaktypenServiceTests
         var versie = Versie("ZT-001", $"{SelectielijstBaseUrl}/{Guid.NewGuid()}", new DateOnly(2022, 1, 1));
         SetupOzZaaktype(versie);
 
-        await Assert.ThrowsAsync<ZaaktypeVersiesException>(() => CreateService().CreateZaaktypenMapping(DetZaaktypeId, versie.Id));
+        await Assert.ThrowsAsync<ZaaktypeVersiesException>(() => CreateService().CreateZaaktypenMapping(DetZaaktypeId, versie.Identificatie, CatalogusId));
 
         Assert.Empty(await _context.Mappings.ToListAsync());
     }
@@ -180,10 +190,10 @@ public class MapZaaktypenServiceTests
         SetupOzZaaktype(current);
         SetupOzZaaktype(other);
         var service = CreateService();
-        await service.CreateZaaktypenMapping(DetZaaktypeId, current.Id);
+        await service.CreateZaaktypenMapping(DetZaaktypeId, current.Identificatie, CatalogusId);
         await AddRoltypeMappingAsync();
 
-        await service.UpdateZaaktypenMapping(DetZaaktypeId, other.Id);
+        await service.UpdateZaaktypenMapping(DetZaaktypeId, other.Identificatie, CatalogusId);
 
         var mapping = await _context.Mappings.SingleAsync();
         Assert.Equal("ZT-002", mapping.OzZaaktypeIdentificatie);
@@ -194,16 +204,16 @@ public class MapZaaktypenServiceTests
     }
 
     [Fact]
-    public async Task UpdateZaaktypenMapping_ToOtherVersionOfSameZaaktype_KeepsVersionsAndMappings()
+    public async Task UpdateZaaktypenMapping_ToSameZaaktype_KeepsVersionsAndMappings()
     {
         var older = Versie("ZT-001", Procestype2017, new DateOnly(2018, 1, 1));
         var newer = Versie("ZT-001", Procestype2017, new DateOnly(2019, 1, 1));
         SetupOzZaaktype(older, newer);
         var service = CreateService();
-        await service.CreateZaaktypenMapping(DetZaaktypeId, older.Id);
+        await service.CreateZaaktypenMapping(DetZaaktypeId, older.Identificatie, CatalogusId);
         var versie = await AddRoltypeMappingAsync();
 
-        await service.UpdateZaaktypenMapping(DetZaaktypeId, newer.Id);
+        await service.UpdateZaaktypenMapping(DetZaaktypeId, newer.Identificatie, CatalogusId);
 
         Assert.Equal(versie.Id, (await _context.ZaaktypeVersieMappings.SingleAsync()).Id);
         Assert.Single(await _context.RoltypeMappings.ToListAsync());
@@ -217,10 +227,10 @@ public class MapZaaktypenServiceTests
         SetupOzZaaktype(current);
         SetupOzZaaktype(other);
         var service = CreateService();
-        await service.CreateZaaktypenMapping(DetZaaktypeId, current.Id);
+        await service.CreateZaaktypenMapping(DetZaaktypeId, current.Identificatie, CatalogusId);
         await AddRoltypeMappingAsync();
 
-        await Assert.ThrowsAsync<ZaaktypeVersiesException>(() => service.UpdateZaaktypenMapping(DetZaaktypeId, other.Id));
+        await Assert.ThrowsAsync<ZaaktypeVersiesException>(() => service.UpdateZaaktypenMapping(DetZaaktypeId, other.Identificatie, CatalogusId));
 
         Assert.Equal("ZT-001", (await _context.Mappings.SingleAsync()).OzZaaktypeIdentificatie);
         Assert.Equal(current.Id, (await _context.ZaaktypeVersieMappings.SingleAsync()).OzZaaktypeVersieId);

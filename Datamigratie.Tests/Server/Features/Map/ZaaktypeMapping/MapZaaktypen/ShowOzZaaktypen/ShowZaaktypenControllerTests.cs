@@ -37,7 +37,6 @@ public class ShowZaaktypenControllerTests
         var opties = await GetOpties(older, newest);
 
         var optie = Assert.Single(opties);
-        Assert.Equal(newest.Id, optie.Id);
         Assert.Equal("ZT-001", optie.Identificatie);
         Assert.Equal("Nieuwste omschrijving", optie.Omschrijving);
         Assert.Equal(catalogusId, optie.CatalogusId);

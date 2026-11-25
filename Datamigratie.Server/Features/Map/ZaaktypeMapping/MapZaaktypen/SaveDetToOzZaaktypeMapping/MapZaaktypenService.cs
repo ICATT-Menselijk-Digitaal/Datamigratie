@@ -1,31 +1,33 @@
-﻿using Datamigratie.Common.Helpers;
+﻿using Datamigratie.Common.Config;
 using Datamigratie.Common.Services.Det;
 using Datamigratie.Common.Services.OpenZaak;
-using Datamigratie.Common.Services.OpenZaak.Models;
 using Datamigratie.Common.Services.Selectielijst;
 using Datamigratie.Data;
 using Datamigratie.Data.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.SaveDetToOzZaaktypeMapping
 {
     public interface IMapZaaktypenService
     {
-        Task CreateZaaktypenMapping(string detZaaktypeId, Guid ozZaaktypeId);
+        Task CreateZaaktypenMapping(string detZaaktypeId, string ozZaaktypeIdentificatie, Guid ozCatalogusId);
 
-        Task UpdateZaaktypenMapping(string detZaaktypeId, Guid newOzZaaktypeId);
+        Task UpdateZaaktypenMapping(string detZaaktypeId, string ozZaaktypeIdentificatie, Guid ozCatalogusId);
     }
 
     public class MapZaaktypenService(
         IOpenZaakApiClient openZaakApiClient,
         IDetApiClient detApiClient,
         ISelectielijstApiClient selectielijstApiClient,
+        IOptions<OpenZaakApiOptions> openZaakOptions,
         DatamigratieDbContext context) : IMapZaaktypenService
     {
-        public async Task CreateZaaktypenMapping(string detZaaktypeId, Guid ozZaaktypeId)
+        private readonly string _openZaakBaseUrl = openZaakOptions.Value.BaseUrl;
+
+        public async Task CreateZaaktypenMapping(string detZaaktypeId, string ozZaaktypeIdentificatie, Guid ozCatalogusId)
         {
             await ValidateDetZaaktypeExistsAsync(detZaaktypeId);
-            var ozZaaktype = await GetOzZaaktypeAsync(ozZaaktypeId);
 
             var existingMapping = await context.Mappings
                 .AnyAsync(m => m.DetZaaktypeId == detZaaktypeId);
@@ -36,32 +38,28 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.SaveDetT
             }
 
             var mappingId = Guid.NewGuid();
-            var versies = await GetNewestVersiePerSelectielijstJaarAsync(ozZaaktype, mappingId);
+            var versies = await GetNewestVersiePerSelectielijstJaarAsync(ozZaaktypeIdentificatie, ozCatalogusId, mappingId);
 
             context.Mappings.Add(new ZaaktypenMapping
             {
                 Id = mappingId,
                 DetZaaktypeId = detZaaktypeId,
-                OzZaaktypeIdentificatie = ozZaaktype.Identificatie,
-                OzCatalogusId = OzUrlToGuidConverter.ExtractUuidFromUrl(ozZaaktype.Catalogus),
+                OzZaaktypeIdentificatie = ozZaaktypeIdentificatie,
+                OzCatalogusId = ozCatalogusId,
                 Versies = versies
             });
 
             await context.SaveChangesAsync();
         }
 
-        public async Task UpdateZaaktypenMapping(string detZaaktypeId, Guid newOzZaaktypeId)
+        public async Task UpdateZaaktypenMapping(string detZaaktypeId, string ozZaaktypeIdentificatie, Guid ozCatalogusId)
         {
-            var newOzZaaktype = await GetOzZaaktypeAsync(newOzZaaktypeId);
-
             var currentMapping = await context.Mappings
                 .FirstOrDefaultAsync(m => m.DetZaaktypeId == detZaaktypeId) ?? throw new InvalidOperationException($"Mapping for Det zaaktype ID '{detZaaktypeId}' does not exist.");
 
-            var newCatalogusId = OzUrlToGuidConverter.ExtractUuidFromUrl(newOzZaaktype.Catalogus);
-
-            // Another version of the same OZ zaaktype yields the same versions per selectielijst year, so nothing changes
-            var isSameOzZaaktype = currentMapping.OzZaaktypeIdentificatie == newOzZaaktype.Identificatie
-                && currentMapping.OzCatalogusId == newCatalogusId;
+            // The same OZ zaaktype yields the same versions per selectielijst year, so nothing changes
+            var isSameOzZaaktype = currentMapping.OzZaaktypeIdentificatie == ozZaaktypeIdentificatie
+                && currentMapping.OzCatalogusId == ozCatalogusId;
 
             if (isSameOzZaaktype)
             {
@@ -69,13 +67,13 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.SaveDetT
             }
 
             // Determine the new versions before deleting anything, so a failure leaves the current mapping intact
-            var versies = await GetNewestVersiePerSelectielijstJaarAsync(newOzZaaktype, currentMapping.Id);
+            var versies = await GetNewestVersiePerSelectielijstJaarAsync(ozZaaktypeIdentificatie, ozCatalogusId, currentMapping.Id);
 
             await RemoveVersiesWithMappingsAsync(currentMapping.Id);
             context.ZaaktypeVersieMappings.AddRange(versies);
 
-            currentMapping.OzZaaktypeIdentificatie = newOzZaaktype.Identificatie;
-            currentMapping.OzCatalogusId = newCatalogusId;
+            currentMapping.OzZaaktypeIdentificatie = ozZaaktypeIdentificatie;
+            currentMapping.OzCatalogusId = ozCatalogusId;
 
             await context.SaveChangesAsync();
         }
@@ -84,11 +82,18 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.SaveDetT
         /// Takes the published versions of the OZ zaaktype and keeps the newest version per selectielijst year.
         /// Versions without a selectielijst procestype are ignored, because no selectielijst year can be derived from them.
         /// </summary>
-        private async Task<List<ZaaktypeVersieMapping>> GetNewestVersiePerSelectielijstJaarAsync(OzZaaktype ozZaaktype, Guid zaaktypenMappingId)
+        private async Task<List<ZaaktypeVersieMapping>> GetNewestVersiePerSelectielijstJaarAsync(string identificatie, Guid catalogusId, Guid zaaktypenMappingId)
         {
-            var publishedVersies = await openZaakApiClient.GetPublishedZaaktypeVersies(ozZaaktype.Identificatie, ozZaaktype.Catalogus);
+            var catalogusUrl = $"{_openZaakBaseUrl}catalogi/api/v1/catalogussen/{catalogusId}";
+            var publishedVersies = await openZaakApiClient.GetPublishedZaaktypeVersies(identificatie, catalogusUrl);
 
-            var versiesMetJaar = new List<(int Jaar, OzZaaktype Versie)>();
+            if (publishedVersies.Count == 0)
+            {
+                throw new ZaaktypeVersiesException(
+                    $"Zaaktype '{identificatie}' heeft geen gepubliceerde versie in de opgegeven catalogus.");
+            }
+
+            var versiesMetJaar = new List<(int Jaar, Guid VersieId, DateOnly BeginGeldigheid)>();
             var jaarPerProcestype = new Dictionary<string, int>();
 
             // iterate through all versions, IGNORING those without a selectielijst procestype
@@ -100,30 +105,30 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.SaveDetT
                 {
                     var procestype = await selectielijstApiClient.GetProcestype(new Uri(procestypeUrl))
                         ?? throw new ZaaktypeVersiesException(
-                            $"Het selectielijst procestype '{procestypeUrl}' van zaaktype '{ozZaaktype.Identificatie}' is niet gevonden in de Selectielijst API.");
+                            $"Het selectielijst procestype '{procestypeUrl}' van zaaktype '{identificatie}' is niet gevonden in de Selectielijst API.");
                     jaar = procestype.Jaar;
                     jaarPerProcestype[procestypeUrl] = jaar;
                 }
 
-                versiesMetJaar.Add((jaar, versie));
+                versiesMetJaar.Add((jaar, versie.Id, versie.BeginGeldigheid));
             }
 
             if (versiesMetJaar.Count == 0)
             {
                 throw new ZaaktypeVersiesException(
-                    $"Zaaktype '{ozZaaktype.Identificatie}' heeft geen gepubliceerde versie met een selectielijst procestype.");
+                    $"Zaaktype '{identificatie}' heeft geen gepubliceerde versie met een selectielijst procestype.");
             }
 
             return [.. versiesMetJaar
                 .GroupBy(v => v.Jaar)
                 // Published versions of a zaaktype never overlap in validity, so the latest start is the newest version
-                .Select(jaarGroep => jaarGroep.MaxBy(v => v.Versie.BeginGeldigheid))
+                .Select(jaarGroep => jaarGroep.MaxBy(v => v.BeginGeldigheid))
                 .OrderBy(v => v.Jaar)
                 .Select(v => new ZaaktypeVersieMapping
                 {
                     ZaaktypenMappingId = zaaktypenMappingId,
                     SelectielijstJaar = v.Jaar,
-                    OzZaaktypeVersieId = v.Versie.Id
+                    OzZaaktypeVersieId = v.VersieId
                 })];
         }
 
@@ -139,12 +144,6 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.SaveDetT
             context.VertrouwelijkheidMappings.RemoveRange(await context.VertrouwelijkheidMappings.Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == zaaktypenMappingId).ToListAsync());
             context.PublicatieNiveauMappings.RemoveRange(await context.PublicatieNiveauMappings.Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == zaaktypenMappingId).ToListAsync());
             context.ZaaktypeVersieMappings.RemoveRange(await context.ZaaktypeVersieMappings.Where(v => v.ZaaktypenMappingId == zaaktypenMappingId).ToListAsync());
-        }
-
-        private async Task<OzZaaktype> GetOzZaaktypeAsync(Guid ozZaaktypeId)
-        {
-            return await openZaakApiClient.GetZaaktype(ozZaaktypeId)
-                ?? throw new InvalidOperationException($"OpenZaak zaaktype with ID '{ozZaaktypeId}' was not found");
         }
 
         private async Task ValidateDetZaaktypeExistsAsync(string detZaaktypeId)

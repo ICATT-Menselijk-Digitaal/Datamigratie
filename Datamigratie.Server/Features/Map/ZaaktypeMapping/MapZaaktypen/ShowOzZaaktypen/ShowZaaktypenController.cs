@@ -23,7 +23,6 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.ShowOzZa
                 .Select(versies => versies.MaxBy(z => z.BeginGeldigheid)!)
                 .Select(newest => new OzZaaktypeOptie
                 {
-                    Id = newest.Id,
                     Identificatie = newest.Identificatie,
                     Omschrijving = newest.Omschrijving,
                     CatalogusId = OzUrlToGuidConverter.ExtractUuidFromUrl(newest.Catalogus)

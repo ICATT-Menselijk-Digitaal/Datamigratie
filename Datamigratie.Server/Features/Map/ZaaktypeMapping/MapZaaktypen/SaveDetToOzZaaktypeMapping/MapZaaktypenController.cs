@@ -13,7 +13,7 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.SaveDetT
         {
             try
             {
-                await mapZaaktypenService.CreateZaaktypenMapping(detZaaktypeId, mapping.OzZaaktypeId);
+                await mapZaaktypenService.CreateZaaktypenMapping(detZaaktypeId, mapping.OzZaaktypeIdentificatie, mapping.OzCatalogusId);
                 return Ok();
             }
             catch (ZaaktypeVersiesException ex)
@@ -27,7 +27,7 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.SaveDetT
         {
             try
             {
-                await mapZaaktypenService.UpdateZaaktypenMapping(detZaaktypeId, mapping.UpdatedOzZaaktypeId);
+                await mapZaaktypenService.UpdateZaaktypenMapping(detZaaktypeId, mapping.OzZaaktypeIdentificatie, mapping.OzCatalogusId);
                 return Ok();
             }
             catch (ZaaktypeVersiesException ex)
