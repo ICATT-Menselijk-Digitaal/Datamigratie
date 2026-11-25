@@ -25,7 +25,8 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.ShowDetT
             {
                 Id = zaaktypenMappingEntity.Id,
                 DetZaaktypeId = zaaktypenMappingEntity.DetZaaktypeId,
-                OzZaaktypeId = zaaktypenMappingEntity.OzZaaktypeId,
+                OzZaaktypeIdentificatie = zaaktypenMappingEntity.OzZaaktypeIdentificatie,
+                OzCatalogusId = zaaktypenMappingEntity.OzCatalogusId,
                 Versies = await context.ZaaktypeVersieMappings
                     .Where(v => v.ZaaktypenMappingId == zaaktypenMappingEntity.Id)
                     .OrderBy(v => v.SelectielijstJaar)

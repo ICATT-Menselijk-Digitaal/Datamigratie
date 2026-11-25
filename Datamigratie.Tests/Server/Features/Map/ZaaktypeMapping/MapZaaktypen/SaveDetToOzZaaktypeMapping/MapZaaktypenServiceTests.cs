@@ -186,7 +186,6 @@ public class MapZaaktypenServiceTests
         await service.UpdateZaaktypenMapping(DetZaaktypeId, other.Id);
 
         var mapping = await _context.Mappings.SingleAsync();
-        Assert.Equal(other.Id, mapping.OzZaaktypeId);
         Assert.Equal("ZT-002", mapping.OzZaaktypeIdentificatie);
         var versie = await _context.ZaaktypeVersieMappings.SingleAsync();
         Assert.Equal(2020, versie.SelectielijstJaar);
@@ -206,7 +205,6 @@ public class MapZaaktypenServiceTests
 
         await service.UpdateZaaktypenMapping(DetZaaktypeId, newer.Id);
 
-        Assert.Equal(newer.Id, (await _context.Mappings.SingleAsync()).OzZaaktypeId);
         Assert.Equal(versie.Id, (await _context.ZaaktypeVersieMappings.SingleAsync()).Id);
         Assert.Single(await _context.RoltypeMappings.ToListAsync());
     }
@@ -224,7 +222,7 @@ public class MapZaaktypenServiceTests
 
         await Assert.ThrowsAsync<ZaaktypeVersiesException>(() => service.UpdateZaaktypenMapping(DetZaaktypeId, other.Id));
 
-        Assert.Equal(current.Id, (await _context.Mappings.SingleAsync()).OzZaaktypeId);
+        Assert.Equal("ZT-001", (await _context.Mappings.SingleAsync()).OzZaaktypeIdentificatie);
         Assert.Equal(current.Id, (await _context.ZaaktypeVersieMappings.SingleAsync()).OzZaaktypeVersieId);
         Assert.Single(await _context.RoltypeMappings.ToListAsync());
     }

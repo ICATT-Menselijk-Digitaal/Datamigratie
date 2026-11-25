@@ -42,7 +42,6 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.SaveDetT
             {
                 Id = mappingId,
                 DetZaaktypeId = detZaaktypeId,
-                OzZaaktypeId = ozZaaktypeId,
                 OzZaaktypeIdentificatie = ozZaaktype.Identificatie,
                 OzCatalogusId = OzUrlToGuidConverter.ExtractUuidFromUrl(ozZaaktype.Catalogus),
                 Versies = versies
@@ -60,20 +59,21 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.SaveDetT
 
             var newCatalogusId = OzUrlToGuidConverter.ExtractUuidFromUrl(newOzZaaktype.Catalogus);
 
-            // Another version of the same OZ zaaktype yields the same versions per selectielijst year, so the mappings stay
+            // Another version of the same OZ zaaktype yields the same versions per selectielijst year, so nothing changes
             var isSameOzZaaktype = currentMapping.OzZaaktypeIdentificatie == newOzZaaktype.Identificatie
                 && currentMapping.OzCatalogusId == newCatalogusId;
 
-            if (!isSameOzZaaktype)
+            if (isSameOzZaaktype)
             {
-                // Determine the new versions before deleting anything, so a failure leaves the current mapping intact
-                var versies = await GetNewestVersiePerSelectielijstJaarAsync(newOzZaaktype, currentMapping.Id);
-
-                await RemoveVersiesWithMappingsAsync(currentMapping.Id);
-                context.ZaaktypeVersieMappings.AddRange(versies);
+                return;
             }
 
-            currentMapping.OzZaaktypeId = newOzZaaktypeId;
+            // Determine the new versions before deleting anything, so a failure leaves the current mapping intact
+            var versies = await GetNewestVersiePerSelectielijstJaarAsync(newOzZaaktype, currentMapping.Id);
+
+            await RemoveVersiesWithMappingsAsync(currentMapping.Id);
+            context.ZaaktypeVersieMappings.AddRange(versies);
+
             currentMapping.OzZaaktypeIdentificatie = newOzZaaktype.Identificatie;
             currentMapping.OzCatalogusId = newCatalogusId;
 

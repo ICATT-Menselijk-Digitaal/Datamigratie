@@ -402,9 +402,6 @@ namespace Datamigratie.Data.Migrations
                     b.Property<Guid>("OzCatalogusId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("OzZaaktypeId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("OzZaaktypeIdentificatie")
                         .IsRequired()
                         .HasColumnType("text");

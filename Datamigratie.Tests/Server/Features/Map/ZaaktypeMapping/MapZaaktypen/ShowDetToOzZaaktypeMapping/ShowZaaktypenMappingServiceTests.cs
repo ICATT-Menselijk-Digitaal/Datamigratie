@@ -31,6 +31,7 @@ public class ShowZaaktypenMappingServiceTests
 
         Assert.NotNull(result);
         Assert.Equal(versie2020.ZaaktypenMappingId, result.Id);
+        Assert.Equal("ZT-001", result.OzZaaktypeIdentificatie);
         Assert.Equal([versie2017.Id, versie2020.Id], result.Versies.Select(v => v.Id));
         Assert.Equal([2017, 2020], result.Versies.Select(v => v.SelectielijstJaar));
         Assert.Equal(versie2017.OzZaaktypeVersieId, result.Versies[0].OzZaaktypeVersieId);

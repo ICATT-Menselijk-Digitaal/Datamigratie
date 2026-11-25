@@ -9,13 +9,6 @@
 
         public Guid Id { get; set; }
 
-        /// <summary>
-        /// UUID of the OpenZaak zaaktype version picked in the zaaktype dropdown.
-        /// Kept during the transition to mapping per version; to be replaced by
-        /// <see cref="OzZaaktypeIdentificatie"/> + <see cref="OzCatalogusId"/>.
-        /// </summary>
-        public required Guid OzZaaktypeId { get; set; }
-
         public required string DetZaaktypeId { get; set; }
 
         /// <summary>

@@ -47,7 +47,7 @@ public class BuildMigrationQueueItemService(
         var detZaaktype = await detApiClient.GetZaaktypeDetail(detZaaktypeId)
             ?? throw new InvalidOperationException($"DET Zaaktype '{detZaaktypeId}' not found.");
 
-        var ozZaaktypeId = await GetOzZaaktypeIdAsync(detZaaktype);
+        var ozZaaktypeId = await GetOzZaaktypeVersieIdAsync(detZaaktype);
 
         var rsin = await GetRsinAsync();
         var ozZaaktypeUrl = new Uri($"{_openZaakBaseUrl}catalogi/api/v1/zaaktypen/{ozZaaktypeId}");
@@ -78,13 +78,25 @@ public class BuildMigrationQueueItemService(
         };
     }
 
-    private async Task<Guid> GetOzZaaktypeIdAsync(DetZaaktypeDetail detZaaktype)
+    private async Task<Guid> GetOzZaaktypeVersieIdAsync(DetZaaktypeDetail detZaaktype)
     {
-        var mapping = await dbContext.Mappings
-            .FirstOrDefaultAsync(m => m.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie)
-            ?? throw new InvalidOperationException("No zaaktype mapping found. Please configure the zaaktype mapping first.");
+        var versieIds = await dbContext.ZaaktypeVersieMappings
+            .Where(v => v.ZaaktypenMapping.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie)
+            .Select(v => v.OzZaaktypeVersieId)
+            .ToListAsync();
 
-        return mapping.OzZaaktypeId;
+        if (versieIds.Count == 0)
+        {
+            throw new InvalidOperationException("No zaaktype mapping found. Please configure the zaaktype mapping first.");
+        }
+
+        // TODO DATA-247: pick the version per zaak from its selectielijst item (step 4)
+        if (versieIds.Count > 1)
+        {
+            throw new InvalidOperationException("Migrating a zaaktype with more than one selectielijst year is not supported yet.");
+        }
+
+        return versieIds[0];
     }
 
     private async Task<string> GetRsinAsync()

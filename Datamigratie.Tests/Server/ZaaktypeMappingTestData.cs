@@ -15,7 +15,6 @@ public static class ZaaktypeMappingTestData
         {
             Id = Guid.NewGuid(),
             DetZaaktypeId = detZaaktypeId ?? $"det-{Guid.NewGuid()}",
-            OzZaaktypeId = Guid.NewGuid(),
             OzZaaktypeIdentificatie = "ZT-001",
             OzCatalogusId = Guid.NewGuid()
         };
@@ -24,7 +23,7 @@ public static class ZaaktypeMappingTestData
             Id = Guid.NewGuid(),
             ZaaktypenMappingId = mapping.Id,
             SelectielijstJaar = 2020,
-            OzZaaktypeVersieId = mapping.OzZaaktypeId
+            OzZaaktypeVersieId = Guid.NewGuid()
         };
 
         context.Mappings.Add(mapping);

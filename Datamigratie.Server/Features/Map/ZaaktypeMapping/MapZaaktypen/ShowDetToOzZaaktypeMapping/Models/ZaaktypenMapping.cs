@@ -6,7 +6,12 @@
         
         public required string DetZaaktypeId { get; set; }
 
-        public required Guid OzZaaktypeId { get; set; }
+        /// <summary>
+        /// Identificatie of the OZ zaaktype; together with <see cref="OzCatalogusId"/> it identifies all its versions.
+        /// </summary>
+        public required string OzZaaktypeIdentificatie { get; set; }
+
+        public required Guid OzCatalogusId { get; set; }
 
         /// <summary>
         /// The zaaktype versions, one per selectielijst year, ordered by year. The per-version mappings are saved against their id.
