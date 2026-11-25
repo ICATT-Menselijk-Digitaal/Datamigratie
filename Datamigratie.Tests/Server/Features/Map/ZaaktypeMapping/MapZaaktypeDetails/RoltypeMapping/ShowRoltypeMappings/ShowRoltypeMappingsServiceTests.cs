@@ -30,11 +30,10 @@ public class ShowRoltypeMappingsServiceTests
     }
 
     [Fact]
-    public async Task GetRoltypeMappings_ReturnsMappings_ForGivenZaaktypenMappingId()
+    public async Task GetRoltypeMappings_ReturnsMappings_ForGivenZaaktypeVersie()
     {
         await using var context = CreateContext();
         var versie = context.AddZaaktypenMappingWithVersie();
-        var mappingId = versie.ZaaktypenMappingId;
 
         context.RoltypeMappings.AddRange(
             new RoltypeMappingEntity
@@ -56,7 +55,7 @@ public class ShowRoltypeMappingsServiceTests
 
         var service = CreateService(context);
 
-        var result = await service.GetRoltypeMappings(mappingId);
+        var result = await service.GetRoltypeMappings(versie.Id);
 
         Assert.Equal(2, result.Count);
         Assert.Contains(result, m => m.DetRol == "Initiator" && m.AlleenPdf == false && m.OzRoltypeUrl == "https://openzaak.example.com/catalogi/api/v1/roltypen/uuid-1");
@@ -64,13 +63,11 @@ public class ShowRoltypeMappingsServiceTests
     }
 
     [Fact]
-    public async Task GetRoltypeMappings_OnlyReturnsMappings_ForGivenZaaktypenMappingId()
+    public async Task GetRoltypeMappings_OnlyReturnsMappings_ForGivenZaaktypeVersie()
     {
         await using var context = CreateContext();
         var targetVersie = context.AddZaaktypenMappingWithVersie();
-        var targetMappingId = targetVersie.ZaaktypenMappingId;
-        var otherVersie = context.AddZaaktypenMappingWithVersie();
-        var otherMappingId = otherVersie.ZaaktypenMappingId;
+        var otherVersie = context.AddVersie(targetVersie.ZaaktypenMappingId, 2017);
 
         context.RoltypeMappings.AddRange(
             new RoltypeMappingEntity
@@ -92,7 +89,7 @@ public class ShowRoltypeMappingsServiceTests
 
         var service = CreateService(context);
 
-        var result = await service.GetRoltypeMappings(targetMappingId);
+        var result = await service.GetRoltypeMappings(targetVersie.Id);
 
         Assert.Single(result);
         Assert.Equal("Initiator", result[0].DetRol);

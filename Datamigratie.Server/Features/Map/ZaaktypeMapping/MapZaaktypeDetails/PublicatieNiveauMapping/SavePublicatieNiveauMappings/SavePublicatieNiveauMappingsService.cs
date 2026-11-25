@@ -6,24 +6,18 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Pu
 
 public interface ISavePublicatieNiveauMappingsService
 {
-    Task SavePublicatieNiveauMappings(Guid zaaktypenMappingId, SavePublicatieNiveauMappingsRequest request);
+    Task SavePublicatieNiveauMappings(Guid zaaktypeVersieMappingId, SavePublicatieNiveauMappingsRequest request);
 }
 
 public class SavePublicatieNiveauMappingsService(DatamigratieDbContext context) : ISavePublicatieNiveauMappingsService
 {
-    public async Task SavePublicatieNiveauMappings(Guid zaaktypenMappingId, SavePublicatieNiveauMappingsRequest request)
+    public async Task SavePublicatieNiveauMappings(Guid zaaktypeVersieMappingId, SavePublicatieNiveauMappingsRequest request)
     {
         var existingMappings = await context.PublicatieNiveauMappings
-            .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == zaaktypenMappingId)
+            .Where(m => m.ZaaktypeVersieMappingId == zaaktypeVersieMappingId)
             .ToListAsync();
 
         context.PublicatieNiveauMappings.RemoveRange(existingMappings);
-
-        // TODO DATA-247: take the zaaktype version from the route once mapping per version is in place
-        var zaaktypeVersieMappingId = await context.ZaaktypeVersieMappings
-            .Where(v => v.ZaaktypenMappingId == zaaktypenMappingId)
-            .Select(v => v.Id)
-            .SingleAsync();
 
         var newMappings = request.Mappings.Select(m => new Data.Entities.PublicatieNiveauMapping
         {

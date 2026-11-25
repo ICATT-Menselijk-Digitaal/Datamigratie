@@ -6,15 +6,15 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Pu
 
 public interface IShowPublicatieNiveauMappingsService
 {
-    Task<List<PublicatieNiveauMappingResponse>> GetPublicatieNiveauMappings(Guid zaaktypenMappingId);
+    Task<List<PublicatieNiveauMappingResponse>> GetPublicatieNiveauMappings(Guid zaaktypeVersieMappingId);
 }
 
 public class ShowPublicatieNiveauMappingsService(DatamigratieDbContext context) : IShowPublicatieNiveauMappingsService
 {
-    public async Task<List<PublicatieNiveauMappingResponse>> GetPublicatieNiveauMappings(Guid zaaktypenMappingId)
+    public async Task<List<PublicatieNiveauMappingResponse>> GetPublicatieNiveauMappings(Guid zaaktypeVersieMappingId)
     {
         return [.. await context.PublicatieNiveauMappings
-            .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == zaaktypenMappingId)
+            .Where(m => m.ZaaktypeVersieMappingId == zaaktypeVersieMappingId)
             .Select(m => new PublicatieNiveauMappingResponse
             {
                 DetPublicatieNiveau = m.DetPublicatieNiveau,

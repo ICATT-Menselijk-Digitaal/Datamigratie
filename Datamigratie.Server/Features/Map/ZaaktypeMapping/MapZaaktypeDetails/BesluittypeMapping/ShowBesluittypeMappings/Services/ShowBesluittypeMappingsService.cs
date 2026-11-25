@@ -6,15 +6,15 @@ namespace Datamigratie.Server.Features.ManageMapping.ZaaktypeMapping.ZaaktypeDet
 
 public interface IShowBesluittypeMappingsService
 {
-    Task<List<BesluittypeMappingsResponse>> GetBesluittypeMappings(Guid zaaktypenMappingId);
+    Task<List<BesluittypeMappingsResponse>> GetBesluittypeMappings(Guid zaaktypeVersieMappingId);
 }
 
 public class ShowBesluittypeMappingsService(DatamigratieDbContext context) : IShowBesluittypeMappingsService
 {
-    public async Task<List<BesluittypeMappingsResponse>> GetBesluittypeMappings(Guid zaaktypenMappingId)
+    public async Task<List<BesluittypeMappingsResponse>> GetBesluittypeMappings(Guid zaaktypeVersieMappingId)
     {
         var existingMappings = await context.BesluittypeMappings
-            .Where(bm => bm.ZaaktypeVersieMapping.ZaaktypenMappingId == zaaktypenMappingId)
+            .Where(bm => bm.ZaaktypeVersieMappingId == zaaktypeVersieMappingId)
             .ToListAsync();
 
         return [.. existingMappings

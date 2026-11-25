@@ -36,7 +36,6 @@ public class SaveRoltypeMappingsServiceTests
     {
         await using var context = CreateContext();
         var versie = context.AddZaaktypenMappingWithVersie();
-        var mappingId = versie.ZaaktypenMappingId;
         var service = CreateService(context);
 
         var request = BuildRequest(
@@ -44,10 +43,10 @@ public class SaveRoltypeMappingsServiceTests
             ("Behandelaar", true, null)
         );
 
-        await service.SaveRoltypeMappings(mappingId, request);
+        await service.SaveRoltypeMappings(versie.Id, request);
 
         var saved = await context.RoltypeMappings
-            .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == mappingId)
+            .Where(m => m.ZaaktypeVersieMappingId == versie.Id)
             .ToListAsync();
 
         Assert.Equal(2, saved.Count);
@@ -60,7 +59,6 @@ public class SaveRoltypeMappingsServiceTests
     {
         await using var context = CreateContext();
         var versie = context.AddZaaktypenMappingWithVersie();
-        var mappingId = versie.ZaaktypenMappingId;
 
         // Seed an existing mapping
         context.RoltypeMappings.Add(new RoltypeMappingEntity
@@ -79,10 +77,10 @@ public class SaveRoltypeMappingsServiceTests
             ("Initiator", false, "https://openzaak.example.com/catalogi/api/v1/roltypen/new-uuid")
         );
 
-        await service.SaveRoltypeMappings(mappingId, request);
+        await service.SaveRoltypeMappings(versie.Id, request);
 
         var saved = await context.RoltypeMappings
-            .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == mappingId)
+            .Where(m => m.ZaaktypeVersieMappingId == versie.Id)
             .ToListAsync();
 
         Assert.Single(saved);
@@ -94,7 +92,6 @@ public class SaveRoltypeMappingsServiceTests
     {
         await using var context = CreateContext();
         var versie = context.AddZaaktypenMappingWithVersie();
-        var mappingId = versie.ZaaktypenMappingId;
 
         context.RoltypeMappings.Add(new RoltypeMappingEntity
         {
@@ -107,25 +104,23 @@ public class SaveRoltypeMappingsServiceTests
 
         var service = CreateService(context);
 
-        await service.SaveRoltypeMappings(mappingId, new SaveRoltypeMappingsRequest { Mappings = [] });
+        await service.SaveRoltypeMappings(versie.Id, new SaveRoltypeMappingsRequest { Mappings = [] });
 
         var saved = await context.RoltypeMappings
-            .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == mappingId)
+            .Where(m => m.ZaaktypeVersieMappingId == versie.Id)
             .ToListAsync();
 
         Assert.Empty(saved);
     }
 
     [Fact]
-    public async Task SaveRoltypeMappings_OnlyAffectsMappingsForGivenZaaktypeMapping()
+    public async Task SaveRoltypeMappings_OnlyAffectsMappingsForGivenZaaktypeVersie()
     {
         await using var context = CreateContext();
         var targetVersie = context.AddZaaktypenMappingWithVersie();
-        var targetMappingId = targetVersie.ZaaktypenMappingId;
-        var otherVersie = context.AddZaaktypenMappingWithVersie();
-        var otherMappingId = otherVersie.ZaaktypenMappingId;
+        var otherVersie = context.AddVersie(targetVersie.ZaaktypenMappingId, 2017);
 
-        // Seed a mapping for a different zaaktype
+        // Seed a mapping for another version of the same zaaktype
         context.RoltypeMappings.Add(new RoltypeMappingEntity
         {
             ZaaktypeVersieMappingId = otherVersie.Id,
@@ -137,13 +132,13 @@ public class SaveRoltypeMappingsServiceTests
 
         var service = CreateService(context);
 
-        await service.SaveRoltypeMappings(targetMappingId, BuildRequest(
+        await service.SaveRoltypeMappings(targetVersie.Id, BuildRequest(
             ("Behandelaar", false, "https://openzaak.example.com/catalogi/api/v1/roltypen/target")
         ));
 
-        // The other zaaktype's mapping should be untouched
+        // The other version's mapping should be untouched
         var otherMappings = await context.RoltypeMappings
-            .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == otherMappingId)
+            .Where(m => m.ZaaktypeVersieMappingId == otherVersie.Id)
             .ToListAsync();
 
         Assert.Single(otherMappings);

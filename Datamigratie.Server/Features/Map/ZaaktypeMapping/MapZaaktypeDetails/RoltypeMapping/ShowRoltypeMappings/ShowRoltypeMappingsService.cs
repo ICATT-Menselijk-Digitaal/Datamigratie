@@ -6,15 +6,15 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Ro
 
 public interface IShowRoltypeMappingsService
 {
-    Task<List<RoltypeMappingResponse>> GetRoltypeMappings(Guid zaaktypenMappingId);
+    Task<List<RoltypeMappingResponse>> GetRoltypeMappings(Guid zaaktypeVersieMappingId);
 }
 
 public class ShowRoltypeMappingsService(DatamigratieDbContext context) : IShowRoltypeMappingsService
 {
-    public async Task<List<RoltypeMappingResponse>> GetRoltypeMappings(Guid zaaktypenMappingId)
+    public async Task<List<RoltypeMappingResponse>> GetRoltypeMappings(Guid zaaktypeVersieMappingId)
     {
         return await context.RoltypeMappings
-            .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == zaaktypenMappingId)
+            .Where(m => m.ZaaktypeVersieMappingId == zaaktypeVersieMappingId)
             .Select(m => new RoltypeMappingResponse
             {
                 DetRol = m.DetRol,

@@ -32,4 +32,22 @@ public static class ZaaktypeMappingTestData
         context.SaveChanges();
         return versie;
     }
+
+    /// <summary>
+    /// Adds another zaaktype version to an existing zaaktype mapping.
+    /// </summary>
+    public static ZaaktypeVersieMapping AddVersie(this DatamigratieDbContext context, Guid zaaktypenMappingId, int selectielijstJaar)
+    {
+        var versie = new ZaaktypeVersieMapping
+        {
+            Id = Guid.NewGuid(),
+            ZaaktypenMappingId = zaaktypenMappingId,
+            SelectielijstJaar = selectielijstJaar,
+            OzZaaktypeVersieId = Guid.NewGuid()
+        };
+
+        context.ZaaktypeVersieMappings.Add(versie);
+        context.SaveChanges();
+        return versie;
+    }
 }

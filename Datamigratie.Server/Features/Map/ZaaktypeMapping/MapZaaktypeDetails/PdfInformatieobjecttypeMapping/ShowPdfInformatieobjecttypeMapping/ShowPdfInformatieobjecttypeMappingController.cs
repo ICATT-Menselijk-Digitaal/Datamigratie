@@ -6,15 +6,15 @@ using Microsoft.EntityFrameworkCore;
 namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.PdfInformatieobjecttypeMapping.ShowPdfInformatieobjecttypeMapping;
 
 [ApiController]
-[Route("api/mappings/{zaaktypenMappingId:guid}/informatieobjecttype")]
+[Route("api/mappings/versies/{zaaktypeVersieMappingId:guid}/informatieobjecttype")]
 public class ShowPdfInformatieobjecttypeMappingController(DatamigratieDbContext context) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<PdfInformatieobjecttypeMappingResponse>> GetPdfInformatieobjecttypeMapping(
-        [FromRoute] Guid zaaktypenMappingId)
+        [FromRoute] Guid zaaktypeVersieMappingId)
     {
         var mapping = await context.PdfInformatieobjecttypeMappings
-            .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == zaaktypenMappingId)
+            .Where(m => m.ZaaktypeVersieMappingId == zaaktypeVersieMappingId)
             .FirstOrDefaultAsync();
 
         if (mapping is null)

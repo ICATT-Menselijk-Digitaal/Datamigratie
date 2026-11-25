@@ -25,7 +25,17 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.ShowDetT
             {
                 Id = zaaktypenMappingEntity.Id,
                 DetZaaktypeId = zaaktypenMappingEntity.DetZaaktypeId,
-                OzZaaktypeId = zaaktypenMappingEntity.OzZaaktypeId
+                OzZaaktypeId = zaaktypenMappingEntity.OzZaaktypeId,
+                Versies = await context.ZaaktypeVersieMappings
+                    .Where(v => v.ZaaktypenMappingId == zaaktypenMappingEntity.Id)
+                    .OrderBy(v => v.SelectielijstJaar)
+                    .Select(v => new ZaaktypeVersie
+                    {
+                        Id = v.Id,
+                        SelectielijstJaar = v.SelectielijstJaar,
+                        OzZaaktypeVersieId = v.OzZaaktypeVersieId
+                    })
+                    .ToListAsync()
             };
 
             return zaaktypenMapping;

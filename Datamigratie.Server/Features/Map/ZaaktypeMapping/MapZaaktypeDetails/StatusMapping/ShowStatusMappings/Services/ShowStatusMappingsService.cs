@@ -6,15 +6,15 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.St
 
 public interface IShowStatusMappingsService
 {
-    Task<List<StatusMappingsResponse>> GetStatusMappings(Guid zaaktypenMappingId);
+    Task<List<StatusMappingsResponse>> GetStatusMappings(Guid zaaktypeVersieMappingId);
 }
 
 public class ShowStatusMappingsService(DatamigratieDbContext context) : IShowStatusMappingsService
 {
-    public async Task<List<StatusMappingsResponse>> GetStatusMappings(Guid zaaktypenMappingId)
+    public async Task<List<StatusMappingsResponse>> GetStatusMappings(Guid zaaktypeVersieMappingId)
     {
         var existingMappings = await context.StatusMappings
-            .Where(sm => sm.ZaaktypeVersieMapping.ZaaktypenMappingId == zaaktypenMappingId)
+            .Where(sm => sm.ZaaktypeVersieMappingId == zaaktypeVersieMappingId)
             .ToListAsync();
 
         return [.. existingMappings

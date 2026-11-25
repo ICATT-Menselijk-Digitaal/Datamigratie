@@ -7,15 +7,15 @@ using Microsoft.EntityFrameworkCore;
 namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.VertrouwelijkheidMapping.ShowVertrouwelijkheidMappings;
 
 [ApiController]
-[Route("api/mappings/{zaaktypenMappingId:guid}/vertrouwelijkheid")]
+[Route("api/mappings/versies/{zaaktypeVersieMappingId:guid}/vertrouwelijkheid")]
 public class ShowVertrouwelijkheidMappingsController(DatamigratieDbContext context) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<List<VertrouwelijkheidMappingResponse>>> GetVertrouwelijkheidMappings(
-        [FromRoute] Guid zaaktypenMappingId)
+        [FromRoute] Guid zaaktypeVersieMappingId)
     {
         var mappings = await context.VertrouwelijkheidMappings
-            .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == zaaktypenMappingId)
+            .Where(m => m.ZaaktypeVersieMappingId == zaaktypeVersieMappingId)
             .ToListAsync();
 
         var response = mappings.Select(m => new VertrouwelijkheidMappingResponse
