@@ -31,22 +31,22 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
         /// URL of the catalogus this zaaktype belongs to. Together with <see cref="Identificatie"/> it identifies
         /// all versions of the same zaaktype.
         /// </summary>
-        public string? Catalogus { get; set; }
+        public required string Catalogus { get; set; }
 
         /// <summary>
         /// URL of the procestype in the Selectielijst API. The procestype determines the selectielijst year of this version.
         /// </summary>
         public string? SelectielijstProcestype { get; set; }
 
-        public DateOnly? Versiedatum { get; set; }
+        public required DateOnly Versiedatum { get; set; }
 
-        public DateOnly? BeginGeldigheid { get; set; }
+        public required DateOnly BeginGeldigheid { get; set; }
 
         public DateOnly? EindeGeldigheid { get; set; }
 
         /// <summary>
         /// True when this version is not published yet.
         /// </summary>
-        public bool Concept { get; set; }
+        public required bool Concept { get; set; }
     }
 }

@@ -24,7 +24,7 @@ namespace Datamigratie.Common.Services.OpenZaak.Models
         /// <summary>
         /// URL of the resultaat (selectielijstklasse) in the Selectielijst API, e.g. the resultaat with volledigNummer "6.1".
         /// </summary>
-        public string? Selectielijstklasse { get; set; }
+        public required string Selectielijstklasse { get; set; }
 
         public Guid Id { get; private set; } = Guid.Empty;
     }
