@@ -1,5 +1,6 @@
 ﻿using Datamigratie.Data;
 using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.RoltypeMapping.ShowRoltypeMappings;
+using Datamigratie.Tests.Server;
 using Microsoft.EntityFrameworkCore;
 using RoltypeMappingEntity = Datamigratie.Data.Entities.RoltypeMapping;
 
@@ -32,19 +33,20 @@ public class ShowRoltypeMappingsServiceTests
     public async Task GetRoltypeMappings_ReturnsMappings_ForGivenZaaktypenMappingId()
     {
         await using var context = CreateContext();
-        var mappingId = Guid.NewGuid();
+        var versie = context.AddZaaktypenMappingWithVersie();
+        var mappingId = versie.ZaaktypenMappingId;
 
         context.RoltypeMappings.AddRange(
             new RoltypeMappingEntity
             {
-                ZaaktypenMappingId = mappingId,
+                ZaaktypeVersieMappingId = versie.Id,
                 DetRol = "Initiator",
                 AlleenPdf = false,
                 OzRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/uuid-1"
             },
             new RoltypeMappingEntity
             {
-                ZaaktypenMappingId = mappingId,
+                ZaaktypeVersieMappingId = versie.Id,
                 DetRol = "Behandelaar",
                 AlleenPdf = true,
                 OzRoltypeUrl = null
@@ -65,20 +67,22 @@ public class ShowRoltypeMappingsServiceTests
     public async Task GetRoltypeMappings_OnlyReturnsMappings_ForGivenZaaktypenMappingId()
     {
         await using var context = CreateContext();
-        var targetMappingId = Guid.NewGuid();
-        var otherMappingId = Guid.NewGuid();
+        var targetVersie = context.AddZaaktypenMappingWithVersie();
+        var targetMappingId = targetVersie.ZaaktypenMappingId;
+        var otherVersie = context.AddZaaktypenMappingWithVersie();
+        var otherMappingId = otherVersie.ZaaktypenMappingId;
 
         context.RoltypeMappings.AddRange(
             new RoltypeMappingEntity
             {
-                ZaaktypenMappingId = targetMappingId,
+                ZaaktypeVersieMappingId = targetVersie.Id,
                 DetRol = "Initiator",
                 AlleenPdf = false,
                 OzRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/target"
             },
             new RoltypeMappingEntity
             {
-                ZaaktypenMappingId = otherMappingId,
+                ZaaktypeVersieMappingId = otherVersie.Id,
                 DetRol = "Behandelaar",
                 AlleenPdf = false,
                 OzRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/other"

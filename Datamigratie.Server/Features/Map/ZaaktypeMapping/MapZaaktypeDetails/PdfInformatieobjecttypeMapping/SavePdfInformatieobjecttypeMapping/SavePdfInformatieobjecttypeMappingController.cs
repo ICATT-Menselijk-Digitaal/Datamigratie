@@ -15,17 +15,23 @@ public class SavePdfInformatieobjecttypeMappingController(DatamigratieDbContext 
         [FromBody] SavePdfInformatieobjecttypeMappingRequest request)
     {
         var existingMapping = await context.PdfInformatieobjecttypeMappings
-            .Where(m => m.ZaaktypenMappingId == zaaktypenMappingId)
+            .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == zaaktypenMappingId)
             .FirstOrDefaultAsync();
 
         if (existingMapping is not null)
             context.PdfInformatieobjecttypeMappings.Remove(existingMapping);
 
+        // TODO DATA-247: take the zaaktype version from the route once mapping per version is in place
+        var zaaktypeVersieMappingId = await context.ZaaktypeVersieMappings
+            .Where(v => v.ZaaktypenMappingId == zaaktypenMappingId)
+            .Select(v => v.Id)
+            .SingleAsync();
+
         if (request.OzInformatieobjecttypeId is not null)
         {
             await context.PdfInformatieobjecttypeMappings.AddAsync(new Data.Entities.PdfInformatieobjecttypeMapping
             {
-                ZaaktypenMappingId = zaaktypenMappingId,
+                ZaaktypeVersieMappingId = zaaktypeVersieMappingId,
                 OzInformatieobjecttypeId = request.OzInformatieobjecttypeId.Value
             });
         }

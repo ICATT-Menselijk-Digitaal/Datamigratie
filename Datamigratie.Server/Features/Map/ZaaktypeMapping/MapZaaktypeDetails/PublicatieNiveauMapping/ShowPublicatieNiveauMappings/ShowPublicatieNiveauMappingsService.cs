@@ -14,7 +14,7 @@ public class ShowPublicatieNiveauMappingsService(DatamigratieDbContext context) 
     public async Task<List<PublicatieNiveauMappingResponse>> GetPublicatieNiveauMappings(Guid zaaktypenMappingId)
     {
         return [.. await context.PublicatieNiveauMappings
-            .Where(m => m.ZaaktypenMappingId == zaaktypenMappingId)
+            .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == zaaktypenMappingId)
             .Select(m => new PublicatieNiveauMappingResponse
             {
                 DetPublicatieNiveau = m.DetPublicatieNiveau,

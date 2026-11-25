@@ -16,7 +16,7 @@ public class ValidateRoltypeMappingsService(
     public async Task<(bool IsValid, Dictionary<DetRolType, Uri> Mappings)> ValidateAndGetRoltypeMappings(string detZaaktypeId)
     {
         var roltypeMappings = await dbContext.RoltypeMappings
-            .Where(m => m.ZaaktypenMapping.DetZaaktypeId == detZaaktypeId)
+            .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMapping.DetZaaktypeId == detZaaktypeId)
             .ToListAsync();
 
         var enumValues = new List<(DetRolType DetRol, string? OzRoltypeUrl, bool AlleenPdf)>();

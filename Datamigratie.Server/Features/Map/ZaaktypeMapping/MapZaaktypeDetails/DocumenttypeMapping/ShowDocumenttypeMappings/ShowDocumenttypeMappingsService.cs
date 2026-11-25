@@ -14,7 +14,7 @@ public class ShowDocumenttypeMappingsService(DatamigratieDbContext context) : IS
     public async Task<List<DocumenttypeMappingResponse>> GetDocumenttypeMappings(Guid zaaktypenMappingId)
     {
         return [.. await context.DocumenttypeMappings
-            .Where(m => m.ZaaktypenMappingId == zaaktypenMappingId)
+            .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == zaaktypenMappingId)
             .Select(m => new DocumenttypeMappingResponse
             {
                 DetDocumenttypeNaam = m.DetDocumenttypeNaam,

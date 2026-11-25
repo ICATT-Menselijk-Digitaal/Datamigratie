@@ -36,7 +36,7 @@ public class ValidateBesluittypeMappingsService(
             return (false, new Dictionary<string, Uri>());
 
         var mappings = await context.BesluittypeMappings
-            .Where(bm => bm.ZaaktypenMappingId == zaaktypenMapping.Id)
+            .Where(bm => bm.ZaaktypeVersieMapping.ZaaktypenMappingId == zaaktypenMapping.Id)
             .ToListAsync();
 
         var mappingDictionary = mappings.ToDictionary(

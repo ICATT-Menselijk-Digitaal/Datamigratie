@@ -14,8 +14,7 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.Re
         public async Task<List<ResultaattypeMappingResponse>> GetResultaattypenMappings(Guid zaaktypenMappingId)
         {
             var resultaattypeMappingEntities = await context.ResultaattypeMappings
-                .Include(m => m.ZaaktypenMapping)
-                .Where(m => m.ZaaktypenMapping.Id == zaaktypenMappingId)
+                .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == zaaktypenMappingId)
                 .ToListAsync();
 
             return [.. resultaattypeMappingEntities.Select(entity => new ResultaattypeMappingResponse

@@ -6,9 +6,9 @@ public class PdfInformatieobjecttypeMapping
 {
     public Guid Id { get; set; }
 
-    public required Guid ZaaktypenMappingId { get; set; }
+    public required Guid ZaaktypeVersieMappingId { get; set; }
 
-    public ZaaktypenMapping ZaaktypenMapping { get; set; } = null!;
+    public ZaaktypeVersieMapping ZaaktypeVersieMapping { get; set; } = null!;
 
     public required Guid OzInformatieobjecttypeId { get; set; }
 }

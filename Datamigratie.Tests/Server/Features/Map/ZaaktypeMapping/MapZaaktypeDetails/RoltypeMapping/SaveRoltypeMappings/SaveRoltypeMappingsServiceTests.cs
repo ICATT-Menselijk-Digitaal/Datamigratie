@@ -2,6 +2,7 @@
 using Datamigratie.Data.Entities;
 using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.RoltypeMapping.SaveRoltypeMappings;
 using Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypeDetails.RoltypeMapping.SaveRoltypeMappings.Models;
+using Datamigratie.Tests.Server;
 using Microsoft.EntityFrameworkCore;
 using RoltypeMappingEntity = Datamigratie.Data.Entities.RoltypeMapping;
 
@@ -34,7 +35,8 @@ public class SaveRoltypeMappingsServiceTests
     public async Task SaveRoltypeMappings_SavesNewMappings()
     {
         await using var context = CreateContext();
-        var mappingId = Guid.NewGuid();
+        var versie = context.AddZaaktypenMappingWithVersie();
+        var mappingId = versie.ZaaktypenMappingId;
         var service = CreateService(context);
 
         var request = BuildRequest(
@@ -45,7 +47,7 @@ public class SaveRoltypeMappingsServiceTests
         await service.SaveRoltypeMappings(mappingId, request);
 
         var saved = await context.RoltypeMappings
-            .Where(m => m.ZaaktypenMappingId == mappingId)
+            .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == mappingId)
             .ToListAsync();
 
         Assert.Equal(2, saved.Count);
@@ -57,12 +59,13 @@ public class SaveRoltypeMappingsServiceTests
     public async Task SaveRoltypeMappings_ReplacesExistingMappings_OnReSave()
     {
         await using var context = CreateContext();
-        var mappingId = Guid.NewGuid();
+        var versie = context.AddZaaktypenMappingWithVersie();
+        var mappingId = versie.ZaaktypenMappingId;
 
         // Seed an existing mapping
         context.RoltypeMappings.Add(new RoltypeMappingEntity
         {
-            ZaaktypenMappingId = mappingId,
+            ZaaktypeVersieMappingId = versie.Id,
             DetRol = "Initiator",
             AlleenPdf = false,
             OzRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/old-uuid"
@@ -79,7 +82,7 @@ public class SaveRoltypeMappingsServiceTests
         await service.SaveRoltypeMappings(mappingId, request);
 
         var saved = await context.RoltypeMappings
-            .Where(m => m.ZaaktypenMappingId == mappingId)
+            .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == mappingId)
             .ToListAsync();
 
         Assert.Single(saved);
@@ -90,11 +93,12 @@ public class SaveRoltypeMappingsServiceTests
     public async Task SaveRoltypeMappings_RemovesAllExistingMappings_WhenRequestIsEmpty()
     {
         await using var context = CreateContext();
-        var mappingId = Guid.NewGuid();
+        var versie = context.AddZaaktypenMappingWithVersie();
+        var mappingId = versie.ZaaktypenMappingId;
 
         context.RoltypeMappings.Add(new RoltypeMappingEntity
         {
-            ZaaktypenMappingId = mappingId,
+            ZaaktypeVersieMappingId = versie.Id,
             DetRol = "Initiator",
             AlleenPdf = false,
             OzRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/uuid-1"
@@ -106,7 +110,7 @@ public class SaveRoltypeMappingsServiceTests
         await service.SaveRoltypeMappings(mappingId, new SaveRoltypeMappingsRequest { Mappings = [] });
 
         var saved = await context.RoltypeMappings
-            .Where(m => m.ZaaktypenMappingId == mappingId)
+            .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == mappingId)
             .ToListAsync();
 
         Assert.Empty(saved);
@@ -116,13 +120,15 @@ public class SaveRoltypeMappingsServiceTests
     public async Task SaveRoltypeMappings_OnlyAffectsMappingsForGivenZaaktypeMapping()
     {
         await using var context = CreateContext();
-        var targetMappingId = Guid.NewGuid();
-        var otherMappingId = Guid.NewGuid();
+        var targetVersie = context.AddZaaktypenMappingWithVersie();
+        var targetMappingId = targetVersie.ZaaktypenMappingId;
+        var otherVersie = context.AddZaaktypenMappingWithVersie();
+        var otherMappingId = otherVersie.ZaaktypenMappingId;
 
         // Seed a mapping for a different zaaktype
         context.RoltypeMappings.Add(new RoltypeMappingEntity
         {
-            ZaaktypenMappingId = otherMappingId,
+            ZaaktypeVersieMappingId = otherVersie.Id,
             DetRol = "Initiator",
             AlleenPdf = false,
             OzRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/other"
@@ -137,7 +143,7 @@ public class SaveRoltypeMappingsServiceTests
 
         // The other zaaktype's mapping should be untouched
         var otherMappings = await context.RoltypeMappings
-            .Where(m => m.ZaaktypenMappingId == otherMappingId)
+            .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == otherMappingId)
             .ToListAsync();
 
         Assert.Single(otherMappings);

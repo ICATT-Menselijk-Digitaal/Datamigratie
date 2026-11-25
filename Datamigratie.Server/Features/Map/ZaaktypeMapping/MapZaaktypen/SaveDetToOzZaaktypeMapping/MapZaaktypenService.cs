@@ -32,11 +32,20 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.SaveDetT
 
             var mapping = new ZaaktypenMapping
             {
+                Id = Guid.NewGuid(),
                 DetZaaktypeId = detZaaktypeId,
                 OzZaaktypeId = ozZaaktypeId
             };
 
             context.Mappings.Add(mapping);
+
+            // TODO DATA-247: create one version per selectielijst year once mapping per version is in place
+            context.ZaaktypeVersieMappings.Add(new ZaaktypeVersieMapping
+            {
+                ZaaktypenMappingId = mapping.Id,
+                OzZaaktypeVersieId = ozZaaktypeId
+            });
+
             await context.SaveChangesAsync();
         }
 
@@ -52,7 +61,7 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.SaveDetT
             if (currentMapping.OzZaaktypeId != newOzZaaktypeId)
             {
                 var statusMappings = await context.StatusMappings
-                    .Where(sm => sm.ZaaktypenMappingId == currentMapping.Id)
+                    .Where(sm => sm.ZaaktypeVersieMapping.ZaaktypenMappingId == currentMapping.Id)
                     .ToListAsync();
 
                 if (statusMappings.Count != 0)
@@ -62,7 +71,7 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.SaveDetT
                 }
 
                 var resultaattypeMappings = await context.ResultaattypeMappings
-                   .Where(sm => sm.ZaaktypenMappingId == currentMapping.Id)
+                   .Where(sm => sm.ZaaktypeVersieMapping.ZaaktypenMappingId == currentMapping.Id)
                    .ToListAsync();
 
                 if (resultaattypeMappings.Count != 0)
@@ -72,7 +81,7 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.SaveDetT
                 }
 
                 var publicatieNiveauMappings = await context.PublicatieNiveauMappings
-                   .Where(m => m.ZaaktypenMappingId == currentMapping.Id)
+                   .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == currentMapping.Id)
                    .ToListAsync();
 
                 if (publicatieNiveauMappings.Count != 0)
@@ -82,7 +91,7 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.SaveDetT
                 }
 
                 var documenttypeMappings = await context.DocumenttypeMappings
-                   .Where(m => m.ZaaktypenMappingId == currentMapping.Id)
+                   .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == currentMapping.Id)
                    .ToListAsync();
 
                 if (documenttypeMappings.Count != 0)
@@ -92,7 +101,7 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.SaveDetT
                 }
 
                 var besluittypeMappings = await context.BesluittypeMappings
-                   .Where(bm => bm.ZaaktypenMappingId == currentMapping.Id)
+                   .Where(bm => bm.ZaaktypeVersieMapping.ZaaktypenMappingId == currentMapping.Id)
                    .ToListAsync();
 
                 if (besluittypeMappings.Count != 0)
@@ -103,6 +112,13 @@ namespace Datamigratie.Server.Features.Map.ZaaktypeMapping.MapZaaktypen.SaveDetT
             }
 
             currentMapping.OzZaaktypeId = newOzZaaktypeId;
+
+            // TODO DATA-247: replace the versions instead of re-pointing the single one once mapping per version is in place
+            var versie = await context.ZaaktypeVersieMappings
+                .SingleAsync(v => v.ZaaktypenMappingId == currentMapping.Id);
+            versie.OzZaaktypeVersieId = newOzZaaktypeId;
+            versie.SelectielijstJaar = null;
+
             await context.SaveChangesAsync();
         }
 
