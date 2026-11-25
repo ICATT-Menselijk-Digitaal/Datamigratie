@@ -27,7 +27,7 @@ public class ValidatePublicatieNiveauMappingsService(
         }
 
         var publicatieNiveauMappings = await dbContext.PublicatieNiveauMappings
-            .Where(m => m.ZaaktypenMappingId == zaaktypenMapping.Id)
+            .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == zaaktypenMapping.Id)
             .ToListAsync();
 
         var missingPublicatieNiveaus = MappingConstants.PublicatieNiveau.Options

@@ -14,7 +14,7 @@ public class ShowStatusMappingsService(DatamigratieDbContext context) : IShowSta
     public async Task<List<StatusMappingsResponse>> GetStatusMappings(Guid zaaktypenMappingId)
     {
         var existingMappings = await context.StatusMappings
-            .Where(sm => sm.ZaaktypenMappingId == zaaktypenMappingId)
+            .Where(sm => sm.ZaaktypeVersieMapping.ZaaktypenMappingId == zaaktypenMappingId)
             .ToListAsync();
 
         return [.. existingMappings

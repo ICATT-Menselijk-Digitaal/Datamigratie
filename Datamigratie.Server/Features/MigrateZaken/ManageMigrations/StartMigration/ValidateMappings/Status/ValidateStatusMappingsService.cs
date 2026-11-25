@@ -30,7 +30,7 @@ public class ValidateStatusMappingsService(
         }
 
         var mappings = await context.StatusMappings
-            .Where(sm => sm.ZaaktypenMapping.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie)
+            .Where(sm => sm.ZaaktypeVersieMapping.ZaaktypenMapping.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie)
             .ToListAsync();
 
         var mappingDictionary = mappings.ToDictionary(

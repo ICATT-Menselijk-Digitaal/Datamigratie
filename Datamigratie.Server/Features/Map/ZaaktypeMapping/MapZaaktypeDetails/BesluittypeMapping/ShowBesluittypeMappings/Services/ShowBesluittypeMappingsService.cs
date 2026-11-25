@@ -14,7 +14,7 @@ public class ShowBesluittypeMappingsService(DatamigratieDbContext context) : ISh
     public async Task<List<BesluittypeMappingsResponse>> GetBesluittypeMappings(Guid zaaktypenMappingId)
     {
         var existingMappings = await context.BesluittypeMappings
-            .Where(bm => bm.ZaaktypenMappingId == zaaktypenMappingId)
+            .Where(bm => bm.ZaaktypeVersieMapping.ZaaktypenMappingId == zaaktypenMappingId)
             .ToListAsync();
 
         return [.. existingMappings

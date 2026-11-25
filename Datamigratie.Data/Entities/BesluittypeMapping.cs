@@ -8,9 +8,9 @@ public class BesluittypeMapping
     public int Id { get; set; }
     
     [Required]
-    public required Guid ZaaktypenMappingId { get; set; }
+    public required Guid ZaaktypeVersieMappingId { get; set; }
     
-    public ZaaktypenMapping ZaaktypenMapping { get; set; } = null!;
+    public ZaaktypeVersieMapping ZaaktypeVersieMapping { get; set; } = null!;
     
     [Required]
     public required string DetBesluittypeNaam { get; set; }

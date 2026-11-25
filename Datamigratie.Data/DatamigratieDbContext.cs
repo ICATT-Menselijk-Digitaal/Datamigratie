@@ -28,12 +28,24 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
                 .HasDatabaseName("IX_Mapping_DetZaaktypeId_Unique");
         });
 
+        modelBuilder.Entity<ZaaktypeVersieMapping>(entity =>
+        {
+            entity.HasOne(v => v.ZaaktypenMapping)
+                .WithMany(m => m.Versies)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Unique constraint: one mapped OpenZaak zaaktype version per selectielijst year
+            entity.HasIndex(v => new { v.ZaaktypenMappingId, v.SelectielijstJaar })
+                .IsUnique()
+                .HasDatabaseName("IX_ZaaktypeVersieMapping_ZaaktypenMappingId_SelectielijstJaar_Unique");
+        });
+
         modelBuilder.Entity<ResultaattypeMapping>(entity =>
         {
-            // Unique constraint: One DET Resultaattype (per zaaktype) can only map to one OZ Resultaattype
-            entity.HasIndex(m => new { m.ZaaktypenMappingId, m.DetResultaattypeNaam })
+            // Unique constraint: One DET Resultaattype (per zaaktype version) can only map to one OZ Resultaattype
+            entity.HasIndex(m => new { m.ZaaktypeVersieMappingId, m.DetResultaattypeNaam })
             .IsUnique()
-            .HasDatabaseName("IX_ResultaattypeMapping_ZaaktypenMappingId_DetResultaattypeNaam_Unique");
+            .HasDatabaseName("IX_ResultaattypeMapping_ZaaktypeVersieMappingId_DetResultaattypeNaam_Unique");
 
         });
 
@@ -97,10 +109,10 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
 
         modelBuilder.Entity<StatusMapping>(entity =>
         {
-            // Unique constraint: One DET status per zaaktype can only map to one OZ status
-            entity.HasIndex(e => new { e.ZaaktypenMappingId, e.DetStatusNaam })
+            // Unique constraint: One DET status per zaaktype version can only map to one OZ status
+            entity.HasIndex(e => new { e.ZaaktypeVersieMappingId, e.DetStatusNaam })
                 .IsUnique()
-                .HasDatabaseName("IX_StatusMapping_ZaaktypenMappingId_DetStatusNaam_Unique");
+                .HasDatabaseName("IX_StatusMapping_ZaaktypeVersieMappingId_DetStatusNaam_Unique");
         });
 
         modelBuilder.Entity<DocumentstatusMapping>(entity =>
@@ -113,49 +125,50 @@ public class DatamigratieDbContext(DbContextOptions options) : DbContext(options
 
         modelBuilder.Entity<BesluittypeMapping>(entity =>
         {
-            // Unique constraint: One DET besluittype per zaaktype can only map to one OZ besluittype
-            entity.HasIndex(e => new { e.ZaaktypenMappingId, e.DetBesluittypeNaam })
+            // Unique constraint: One DET besluittype per zaaktype version can only map to one OZ besluittype
+            entity.HasIndex(e => new { e.ZaaktypeVersieMappingId, e.DetBesluittypeNaam })
                 .IsUnique()
-                .HasDatabaseName("IX_BesluittypeMapping_ZaaktypenMappingId_DetBesluittypeNaam_Unique");
+                .HasDatabaseName("IX_BesluittypeMapping_ZaaktypeVersieMappingId_DetBesluittypeNaam_Unique");
         });
 
         modelBuilder.Entity<VertrouwelijkheidMapping>(entity =>
         {
-            entity.HasIndex(e => new { e.ZaaktypenMappingId, e.DetVertrouwelijkheid })
+            entity.HasIndex(e => new { e.ZaaktypeVersieMappingId, e.DetVertrouwelijkheid })
                 .IsUnique()
-                .HasDatabaseName("IX_VertrouwelijkheidMapping_ZaaktypenMappingId_DetVertrouwelijkheid_Unique");
+                .HasDatabaseName("IX_VertrouwelijkheidMapping_ZaaktypeVersieMappingId_DetVertrouwelijkheid_Unique");
         });
 
         modelBuilder.Entity<PdfInformatieobjecttypeMapping>(entity =>
         {
-            entity.HasIndex(e => e.ZaaktypenMappingId)
+            entity.HasIndex(e => e.ZaaktypeVersieMappingId)
                 .IsUnique()
-                .HasDatabaseName("IX_PdfInformatieobjecttypeMapping_ZaaktypenMappingId_Unique");
+                .HasDatabaseName("IX_PdfInformatieobjecttypeMapping_ZaaktypeVersieMappingId_Unique");
         });
 
         modelBuilder.Entity<PublicatieNiveauMapping>(entity =>
         {
-            entity.HasIndex(e => new { e.ZaaktypenMappingId, e.DetPublicatieNiveau })
+            entity.HasIndex(e => new { e.ZaaktypeVersieMappingId, e.DetPublicatieNiveau })
                 .IsUnique()
-                .HasDatabaseName("IX_PublicatieNiveauMapping_ZaaktypenMappingId_DetPublicatieNiveau_Unique");
+                .HasDatabaseName("IX_PublicatieNiveauMapping_ZaaktypeVersieMappingId_DetPublicatieNiveau_Unique");
         });
 
         modelBuilder.Entity<DocumenttypeMapping>(entity =>
         {
-            entity.HasIndex(e => new { e.ZaaktypenMappingId, e.DetDocumenttypeNaam })
+            entity.HasIndex(e => new { e.ZaaktypeVersieMappingId, e.DetDocumenttypeNaam })
                 .IsUnique()
-                .HasDatabaseName("IX_DocumenttypeMapping_ZaaktypenMappingId_DetDocumenttypeNaam_Unique");
+                .HasDatabaseName("IX_DocumenttypeMapping_ZaaktypeVersieMappingId_DetDocumenttypeNaam_Unique");
         });
 
         modelBuilder.Entity<RoltypeMapping>(entity =>
         {
-            entity.HasIndex(e => new { e.ZaaktypenMappingId, e.DetRol })
+            entity.HasIndex(e => new { e.ZaaktypeVersieMappingId, e.DetRol })
                 .IsUnique()
-                .HasDatabaseName("IX_RoltypeMapping_ZaaktypenMappingId_DetRol_Unique");
+                .HasDatabaseName("IX_RoltypeMapping_ZaaktypeVersieMappingId_DetRol_Unique");
         });
     }
 
     public DbSet<ZaaktypenMapping> Mappings { get; set; }
+    public DbSet<ZaaktypeVersieMapping> ZaaktypeVersieMappings { get; set; }
     public DbSet<ResultaattypeMapping> ResultaattypeMappings { get; set; }
     public DbSet<Migration> Migrations { get; set; }
     public DbSet<MigrationRecord> MigrationRecords { get; set; }

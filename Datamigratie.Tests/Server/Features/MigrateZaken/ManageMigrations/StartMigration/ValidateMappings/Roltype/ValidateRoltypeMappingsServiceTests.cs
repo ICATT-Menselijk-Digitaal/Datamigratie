@@ -3,6 +3,7 @@ using Datamigratie.Data;
 using Datamigratie.Data.Entities;
 using Datamigratie.Server.Constants;
 using Datamigratie.Server.Features.MigrateZaken.ManageMigrations.StartMigration.ValidateMappings.Roltype;
+using Datamigratie.Tests.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -23,23 +24,14 @@ public class ValidateRoltypeMappingsServiceTests
     private static ValidateRoltypeMappingsService CreateService(DatamigratieDbContext context) =>
         new(context, NullLogger<ValidateRoltypeMappingsService>.Instance);
 
-    private static ZaaktypenMapping AddZaaktypenMapping(DatamigratieDbContext context, string detZaaktypeId = DetZaaktypeId)
-    {
-        var mapping = new ZaaktypenMapping
-        {
-            DetZaaktypeId = detZaaktypeId,
-            OzZaaktypeId = Guid.NewGuid()
-        };
-        context.Mappings.Add(mapping);
-        context.SaveChanges();
-        return mapping;
-    }
+    private static ZaaktypeVersieMapping AddZaaktypenMapping(DatamigratieDbContext context, string detZaaktypeId = DetZaaktypeId) =>
+        context.AddZaaktypenMappingWithVersie(detZaaktypeId);
 
-    private static void AddAllRoltypeMappings(DatamigratieDbContext context, Guid zaaktypenMappingId)
+    private static void AddAllRoltypeMappings(DatamigratieDbContext context, Guid zaaktypeVersieMappingId)
     {
         var mappings = MappingConstants.DetRol.Options.Select(rol => new RoltypeMapping
         {
-            ZaaktypenMappingId = zaaktypenMappingId,
+            ZaaktypeVersieMappingId = zaaktypeVersieMappingId,
             DetRol = rol.Id,
             AlleenPdf = false,
             OzRoltypeUrl = $"https://openzaak.example.com/catalogi/api/v1/roltypen/{Guid.NewGuid()}"
@@ -77,12 +69,12 @@ public class ValidateRoltypeMappingsServiceTests
     public async Task ValidateAndGetRoltypeMappings_ReturnsInvalid_WhenSomeRollenAreMissing()
     {
         await using var context = CreateContext();
-        var zaaktypenMapping = AddZaaktypenMapping(context);
+        var versie = AddZaaktypenMapping(context);
 
         // Only add mapping for one rol, leaving the other 7 missing
         context.RoltypeMappings.Add(new RoltypeMapping
         {
-            ZaaktypenMappingId = zaaktypenMapping.Id,
+            ZaaktypeVersieMappingId = versie.Id,
             DetRol = "Initiator",
             AlleenPdf = false,
             OzRoltypeUrl = "https://openzaak.example.com/catalogi/api/v1/roltypen/some-uuid"
@@ -101,8 +93,8 @@ public class ValidateRoltypeMappingsServiceTests
     public async Task ValidateAndGetRoltypeMappings_ReturnsValid_WhenAllRollenAreMapped()
     {
         await using var context = CreateContext();
-        var zaaktypenMapping = AddZaaktypenMapping(context);
-        AddAllRoltypeMappings(context, zaaktypenMapping.Id);
+        var versie = AddZaaktypenMapping(context);
+        AddAllRoltypeMappings(context, versie.Id);
 
         var service = CreateService(context);
 
@@ -116,8 +108,8 @@ public class ValidateRoltypeMappingsServiceTests
     public async Task ValidateAndGetRoltypeMappings_ReturnsMappingDictionary_WithCorrectKeys()
     {
         await using var context = CreateContext();
-        var zaaktypenMapping = AddZaaktypenMapping(context);
-        AddAllRoltypeMappings(context, zaaktypenMapping.Id);
+        var versie = AddZaaktypenMapping(context);
+        AddAllRoltypeMappings(context, versie.Id);
 
         var service = CreateService(context);
 
@@ -133,12 +125,12 @@ public class ValidateRoltypeMappingsServiceTests
     public async Task ValidateAndGetRoltypeMappings_AcceptsAlleenPdf_AsValidOzRoltypeUrl()
     {
         await using var context = CreateContext();
-        var zaaktypenMapping = AddZaaktypenMapping(context);
+        var versie = AddZaaktypenMapping(context);
 
         // Map all rollen, but one is alleen PDF (AlleenPdf = true, OzRoltypeUrl = null)
         var mappings = MappingConstants.DetRol.Options.Select((rol, i) => new RoltypeMapping
         {
-            ZaaktypenMappingId = zaaktypenMapping.Id,
+            ZaaktypeVersieMappingId = versie.Id,
             DetRol = rol.Id,
             AlleenPdf = i == 0,
             OzRoltypeUrl = i == 0 ? null : $"https://openzaak.example.com/catalogi/api/v1/roltypen/{Guid.NewGuid()}"
@@ -160,8 +152,8 @@ public class ValidateRoltypeMappingsServiceTests
         await using var context = CreateContext();
 
         // Add a different zaaktype mapping with all rollen filled in
-        var otherMapping = AddZaaktypenMapping(context, "other-zaaktype");
-        AddAllRoltypeMappings(context, otherMapping.Id);
+        var otherVersie = AddZaaktypenMapping(context, "other-zaaktype");
+        AddAllRoltypeMappings(context, otherVersie.Id);
 
         // Add the target zaaktype mapping but with no rollen
         AddZaaktypenMapping(context, DetZaaktypeId);

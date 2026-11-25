@@ -34,7 +34,7 @@ public class ValidateDocumenttypeMappingsService(
         }
 
         var documenttypeMappings = await dbContext.DocumenttypeMappings
-            .Where(m => m.ZaaktypenMappingId == zaaktypenMapping.Id)
+            .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == zaaktypenMapping.Id)
             .ToListAsync();
 
         var missingDocumenttypen = documenttypen

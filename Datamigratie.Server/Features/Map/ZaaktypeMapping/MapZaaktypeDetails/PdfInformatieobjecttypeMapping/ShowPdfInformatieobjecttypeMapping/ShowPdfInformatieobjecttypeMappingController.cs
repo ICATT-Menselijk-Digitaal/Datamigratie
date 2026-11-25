@@ -14,7 +14,7 @@ public class ShowPdfInformatieobjecttypeMappingController(DatamigratieDbContext 
         [FromRoute] Guid zaaktypenMappingId)
     {
         var mapping = await context.PdfInformatieobjecttypeMappings
-            .Where(m => m.ZaaktypenMappingId == zaaktypenMappingId)
+            .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == zaaktypenMappingId)
             .FirstOrDefaultAsync();
 
         if (mapping is null)

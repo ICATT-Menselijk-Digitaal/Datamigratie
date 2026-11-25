@@ -14,7 +14,7 @@ public class ShowRoltypeMappingsService(DatamigratieDbContext context) : IShowRo
     public async Task<List<RoltypeMappingResponse>> GetRoltypeMappings(Guid zaaktypenMappingId)
     {
         return await context.RoltypeMappings
-            .Where(m => m.ZaaktypenMappingId == zaaktypenMappingId)
+            .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == zaaktypenMappingId)
             .Select(m => new RoltypeMappingResponse
             {
                 DetRol = m.DetRol,

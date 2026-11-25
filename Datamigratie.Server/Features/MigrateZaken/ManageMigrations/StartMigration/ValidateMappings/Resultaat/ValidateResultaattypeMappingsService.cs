@@ -30,7 +30,7 @@ public class ValidateResultaattypeMappingsService(
         }
 
         var mappings = await context.ResultaattypeMappings
-            .Where(rm => rm.ZaaktypenMapping.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie)
+            .Where(rm => rm.ZaaktypeVersieMapping.ZaaktypenMapping.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie)
             .ToListAsync();
 
         var mappingDictionary = mappings.ToDictionary(

@@ -15,7 +15,7 @@ public class ShowVertrouwelijkheidMappingsController(DatamigratieDbContext conte
         [FromRoute] Guid zaaktypenMappingId)
     {
         var mappings = await context.VertrouwelijkheidMappings
-            .Where(m => m.ZaaktypenMappingId == zaaktypenMappingId)
+            .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMappingId == zaaktypenMappingId)
             .ToListAsync();
 
         var response = mappings.Select(m => new VertrouwelijkheidMappingResponse

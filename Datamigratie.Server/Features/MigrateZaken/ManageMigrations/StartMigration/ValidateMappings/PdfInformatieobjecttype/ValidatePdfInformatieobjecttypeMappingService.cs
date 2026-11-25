@@ -20,7 +20,7 @@ public class ValidatePdfInformatieobjecttypeMappingService(
     public async Task<(bool IsValid, Uri? OzInformatieobjecttypeUri)> ValidateAndGetPdfInformatieobjecttypeMapping(DetZaaktypeDetail detZaaktype)
     {
         var mapping = await context.PdfInformatieobjecttypeMappings
-            .Where(m => m.ZaaktypenMapping.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie)
+            .Where(m => m.ZaaktypeVersieMapping.ZaaktypenMapping.DetZaaktypeId == detZaaktype.FunctioneleIdentificatie)
             .FirstOrDefaultAsync();
 
         return mapping is null

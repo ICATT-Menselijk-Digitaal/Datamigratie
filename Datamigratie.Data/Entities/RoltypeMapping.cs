@@ -3,7 +3,7 @@
 public class RoltypeMapping
 {
     public Guid Id { get; set; }
-    public required Guid ZaaktypenMappingId { get; set; }
+    public required Guid ZaaktypeVersieMappingId { get; set; }
     public required string DetRol { get; set; }
 
     /// <summary>
@@ -17,5 +17,5 @@ public class RoltypeMapping
     public string? OzRoltypeUrl { get; set; }
 
     // Navigation property
-    public ZaaktypenMapping ZaaktypenMapping { get; set; } = null!;
+    public ZaaktypeVersieMapping ZaaktypeVersieMapping { get; set; } = null!;
 }
